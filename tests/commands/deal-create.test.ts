@@ -1,0 +1,162 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, mock, test } from "bun:test";
+import { mkdirSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+import { cli } from "gunshi";
+import { HttpResponse } from "msw";
+import { setupServer } from "msw/node";
+
+import { dealCreateCommand } from "../../src/commands/deal/create.ts";
+import { saveCredentials } from "../../src/config/credentials.ts";
+import { handleCreateDeal } from "../../src/types/freee/msw.gen.ts";
+import { MOCK_TOKEN } from "../fixtures.ts";
+
+const testDir = join(tmpdir(), `freee-cli-deal-create-test-${Date.now()}`);
+
+const onCreateDeal = mock();
+
+const server = setupServer(
+  handleCreateDeal(async ({ request }) => {
+    const body = await request.json();
+    onCreateDeal(body);
+    return HttpResponse.json({ deal: { id: 42, ...body, status: "unsettled" } }, { status: 201 });
+  }),
+);
+
+beforeAll(() =>
+  server.listen({
+    onUnhandledRequest(request, print) {
+      if (new URL(request.url).hostname === "accounts.secure.freee.co.jp") return;
+      print.error();
+    },
+  }),
+);
+afterAll(() => server.close());
+
+beforeEach(() => {
+  onCreateDeal.mockClear();
+  mkdirSync(testDir, { recursive: true });
+  saveCredentials(testDir, { default: MOCK_TOKEN });
+  process.env.FREEE_CLI_CONFIG_DIR = testDir;
+});
+
+afterEach(() => {
+  server.resetHandlers();
+  delete process.env.FREEE_CLI_CONFIG_DIR;
+  rmSync(testDir, { recursive: true, force: true });
+});
+
+const baseArgs = [
+  "--company-id",
+  "123",
+  "--date",
+  "2026-03-15",
+  "--type",
+  "expense",
+  "--account-item-id",
+  "101",
+  "--tax-code",
+  "21",
+  "--amount",
+  "10000",
+  "--description",
+  "テスト経費",
+];
+
+describe("deal create command", () => {
+  test("sends correct request body to API", async () => {
+    await cli(baseArgs, dealCreateCommand);
+
+    expect(onCreateDeal).toHaveBeenCalledTimes(1);
+    expect(onCreateDeal).toHaveBeenCalledWith(
+      expect.objectContaining({
+        company_id: 123,
+        issue_date: "2026-03-15",
+        type: "expense",
+        details: expect.arrayContaining([
+          expect.objectContaining({
+            account_item_id: 101,
+            tax_code: 21,
+            amount: 10000,
+          }),
+        ]),
+      }),
+    );
+  });
+
+  test("includes partner_id when provided", async () => {
+    await cli([...baseArgs, "--partner-id", "55"], dealCreateCommand);
+
+    expect(onCreateDeal).toHaveBeenCalledWith(expect.objectContaining({ partner_id: 55 }));
+  });
+
+  test("dry-run does not call API", async () => {
+    const result = await cli([...baseArgs, "--partner-id", "55", "--dry-run"], dealCreateCommand);
+
+    expect(onCreateDeal).not.toHaveBeenCalled();
+    if (typeof result !== "string") throw new Error("expected string result");
+    expect(result).toContain("Dry run");
+    expect(result).toContain('"company_id": 123');
+    expect(result).toContain('"issue_date": "2026-03-15"');
+    expect(result).toContain('"account_item_id": 101');
+    expect(result).toContain('"partner_id": 55');
+  });
+
+  test("dry-run validates the payload before previewing it", async () => {
+    await expect(
+      cli(
+        [...baseArgs, "--type", "invalid", "--amount", "not-a-number", "--dry-run"],
+        dealCreateCommand,
+      ),
+    ).rejects.toThrow('--type must be "income" or "expense"');
+
+    expect(onCreateDeal).not.toHaveBeenCalled();
+  });
+
+  test("dry-run rejects an invalid calendar date", async () => {
+    const args = baseArgs.map((arg) => (arg === "2026-03-15" ? "2026-02-30" : arg));
+
+    await expect(cli([...args, "--dry-run"], dealCreateCommand)).rejects.toThrow(
+      "must be a real date",
+    );
+    expect(onCreateDeal).not.toHaveBeenCalled();
+  });
+
+  test("--format json returns the created deal response", async () => {
+    const result = await cli([...baseArgs, "--format", "json"], dealCreateCommand);
+
+    if (typeof result !== "string") throw new Error("expected string result");
+    expect(JSON.parse(result).deal.id).toBe(42);
+  });
+
+  test("--dry-run --format json returns a structured request", async () => {
+    const result = await cli(
+      [...baseArgs, "--partner-id", "55", "--dry-run", "--format", "json"],
+      dealCreateCommand,
+    );
+
+    if (typeof result !== "string") throw new Error("expected string result");
+    expect(JSON.parse(result)).toEqual({
+      dryRun: true,
+      request: {
+        method: "POST",
+        path: "/api/1/deals",
+        body: {
+          company_id: 123,
+          issue_date: "2026-03-15",
+          type: "expense",
+          details: [
+            {
+              account_item_id: 101,
+              tax_code: 21,
+              amount: 10000,
+              description: "テスト経費",
+            },
+          ],
+          partner_id: 55,
+        },
+      },
+    });
+  });
+});

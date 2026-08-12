@@ -1,0 +1,99 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import"],
+  "jsPlugins": ["./lint-rules/plugin.ts"],
+  "categories": {
+    // 確実なバグの検出は警告に留めず CI を落とす
+    "correctness": "error"
+  },
+  "options": {
+    // no-floating-promises 等、型情報が要る rule を有効にする (tsgolint / TypeScript-Go)
+    "typeAware": true,
+    // 役目を終えた disable コメントが残ると、同じ行の次の違反を無言で握り潰す
+    "reportUnusedDisableDirectives": "error"
+  },
+  "ignorePatterns": [
+    // @hey-api/openapi-ts の生成物。再生成の冪等性を守るため checks の対象外
+    "src/types/**",
+    // custom rule 自身の検査対象。fixtures.oxlintrc.json 経由で plugin.test.ts が検査する
+    "lint-rules/*.valid.ts",
+    "lint-rules/*.invalid.ts",
+    "lint-rules/fixture.sdk.gen.ts",
+    "lint-rules/cross-command/**"
+  ],
+  "rules": {
+    // rule 自体は correctness で有効済み。意図的な未使用（引数の穴埋め等）を _ 接頭辞で許可する options のための明示
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "eqeqeq": "error",
+    "no-control-regex": "error",
+    "no-promise-executor-return": "error",
+    "typescript/consistent-type-imports": "error",
+    "typescript/ban-ts-comment": "error",
+    // any は型検査の放棄で誤りを下流へ流す
+    "typescript/no-explicit-any": "error",
+    // ! は as と同じ型検査の上書きで、実行時の undefined を隠す。?. か narrowing で扱う
+    "typescript/no-non-null-assertion": "error",
+    // `let x: number = 1` のような冗長な型注釈を禁止。TS 推論に任せる
+    "typescript/no-inferrable-types": "error",
+    // await されない Promise は失敗が握り潰され、CLI が「成功したように見える」を返す
+    "typescript/no-floating-promises": "error",
+    // 真偽値や void を期待する場所に渡した Promise は常に truthy で、拒否も握り潰される
+    "typescript/no-misused-promises": "error",
+    "typescript/prefer-promise-reject-errors": "error",
+    "typescript/no-deprecated": "error",
+    "typescript/no-unsafe-assignment": "error",
+    "typescript/no-unsafe-argument": "error",
+    "typescript/no-unsafe-call": "error",
+    "typescript/no-unsafe-member-access": "error",
+    "typescript/no-unsafe-return": "error",
+    "typescript/no-unsafe-type-assertion": "error",
+    // union に値を追加したとき、分岐が漏れた既存 switch を機械検出する
+    "typescript/switch-exhaustiveness-check": "error",
+    "typescript/no-unnecessary-type-parameters": "error",
+    // 型の上で常に真 / 常に偽になる条件は、死んだ防御か、型が実態とずれている徴候。
+    // while (true) の再試行ループは正規の書き方なので許容する
+    "typescript/no-unnecessary-condition": ["error", { "allowConstantLoopConditions": true }],
+    // @types/bun が expect().rejects.<matcher>() を Promise として型付けしておらず、
+    // 必須の await が全て偽陽性になる。型定義が直るまで無効化する
+    "typescript/await-thenable": "off",
+    // CLI の表示・エラーメッセージ境界は unknown を意図的に文字列化する
+    "typescript/no-base-to-string": "off",
+    "typescript/restrict-template-expressions": "off",
+    // 循環 import はモジュール初期化順により undefined を生む
+    "import/no-cycle": "error",
+    // Bun でも拡張子明示でモジュール解決を確実に (tsconfig: allowImportingTsExtensions)
+    "import/extensions": ["error", "always", { "ignorePackages": true, "checkTypeImports": true }],
+    // barrel は 1 import で配下全ファイルの取得を誘発し、循環 import の温床になる
+    "oxc/no-barrel-file": ["error", { "threshold": 0 }],
+    // 裸の 'fs' 等は同名の npm パッケージにも解決しうる。node: で組み込みを明示する
+    "unicorn/prefer-node-protocol": "error",
+    // 理由の無い抑制は再評価も解除もできない。-- 以降に理由を書かせる
+    "freee-cli/require-disable-reason": "error",
+    // rule 名を指定しない抑制は、将来の全種類の違反まで握り潰す
+    "freee-cli/no-unlimited-disable": "error",
+    // コマンドは互いを import しない。共有物は専用モジュールへ切り出す
+    "freee-cli/no-cross-command-import": "error"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "tests/**"],
+      "rules": {
+        "typescript/no-unsafe-assignment": "off",
+        "typescript/no-unsafe-argument": "off",
+        "typescript/no-unsafe-call": "off",
+        "typescript/no-unsafe-member-access": "off",
+        "typescript/no-unsafe-return": "off",
+        "typescript/no-unsafe-type-assertion": "off"
+      }
+    },
+    {
+      // freee へ書き込むコマンドは --dry-run で送信内容を検分できること。
+      // 本番の帳簿を守る最後の柵で、コマンド層だけに向ける（API 層・テストは対象外）
+      "files": ["src/commands/**", "src/workflows/**"],
+      "rules": {
+        "freee-cli/require-dry-run": "error",
+        "no-console": ["error", { "allow": ["error"] }]
+      }
+    }
+  ]
+}

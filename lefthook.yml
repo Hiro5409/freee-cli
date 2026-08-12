@@ -1,0 +1,40 @@
+# コミット前に staged file を整形・自動修正し、型とテストで壊れを止める。
+# glob に合う staged file が無い job はスキップされるので、無関係なコミットには何も走らない。
+
+pre-commit:
+  jobs:
+    - name: source-quality
+      group:
+        # 整形の結果に対して lint --fix を当てるため直列
+        piped: true
+        jobs:
+          - name: oxfmt
+            glob: "*.{ts,json,jsonc,md,yaml,yml}"
+            run: bunx oxfmt --no-error-on-unmatched-pattern {staged_files}
+            stage_fixed: true
+          - name: oxlint
+            glob: "*.ts"
+            run: bunx oxlint --fix --no-error-on-unmatched-pattern {staged_files}
+            stage_fixed: true
+    - group:
+        parallel: true
+        jobs:
+          # 型と未使用検出は staged file 単位に切れないため、TS が触られたときだけ全体を回す
+          - name: typecheck
+            glob: "*.ts"
+            run: bun run typecheck
+          - name: knip
+            glob: "*.ts"
+            run: bun run check:knip
+          # 秘匿情報は commit された時点で履歴に残る。staged の段階で止める
+          - name: gitleaks
+            run: gitleaks git --pre-commit --staged --no-banner --redact
+
+# worktree 作成時に依存を入れる。node_modules が無いと型検査も lint も動かない。
+# lefthook 自体は node_modules に無くても PATH（mise の shim）から解決される。
+post-checkout:
+  jobs:
+    - name: install
+      run: bun install
+      skip:
+        - run: test -d node_modules

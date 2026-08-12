@@ -1,0 +1,23 @@
+import { define } from "gunshi";
+
+import { companyArgs } from "../../global-args.ts";
+import { initCommand, parsePositiveId } from "../../helpers.ts";
+import { formatOutput } from "../../output/formatter.ts";
+import { getDeal } from "../../types/freee/sdk.gen.ts";
+
+export const dealShowCommand = define({
+  name: "deal-show",
+  description: "Show deal details",
+  args: {
+    ...companyArgs,
+    id: { type: "string" as const, description: "Deal ID", required: true },
+  },
+  run: async (ctx) => {
+    const { companyId, format } = initCommand(ctx);
+    const { data } = await getDeal({
+      path: { id: parsePositiveId(ctx.values.id, "--id") },
+      query: { company_id: companyId },
+    });
+    return formatOutput([data.deal], format);
+  },
+});

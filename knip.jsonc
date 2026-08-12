@@ -1,0 +1,16 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+  // brew で配布される外部 CLI（secrets script が使う）。npm 依存ではないため knip が解決できない
+  "ignoreBinaries": ["gitleaks"],
+  "ignore": ["src/types/freee/**", "src/types/freee-hr/**", "src/types/freee-invoice/**"], // @hey-api/openapi-ts 自動生成
+  "workspaces": {
+    ".": {
+      // custom rule の検査対象。plugin.test.ts が oxlint にパスで渡すだけで import しない
+      "ignore": [
+        "lint-rules/*.{valid,invalid}.ts",
+        "lint-rules/fixture.sdk.gen.ts",
+        "lint-rules/cross-command/**",
+      ],
+    },
+  },
+}

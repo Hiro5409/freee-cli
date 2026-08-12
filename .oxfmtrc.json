@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  // TypeScript + 日本語文字列で 80 だと折り返しが頻発するため拡張
+  "printWidth": 100,
+  // import の並びを機械で固定し、並び替えだけの diff を根絶する
+  "sortImports": true,
+  "ignorePatterns": [
+    // OAS drift 検出のスナップショット。リモートとバイト比較するため整形禁止
+    "api-schema.baseline.json",
+    "api-schema.hr.baseline.json",
+    "api-schema.iv.baseline.yml"
+  ]
+}
