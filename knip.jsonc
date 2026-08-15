@@ -1,0 +1,10 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+  "ignore": ["src/types/freee/**", "src/types/freee-hr/**", "src/types/freee-invoice/**"], // @hey-api/openapi-ts 自動生成
+  "workspaces": {
+    ".": {
+      // Custom rule fixtures are passed to Oxlint by their colocated tests.
+      "ignore": ["lint-rules/**/fixtures/**"],
+    },
+  },
+}

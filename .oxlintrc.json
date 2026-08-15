@@ -1,0 +1,83 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import"],
+  "jsPlugins": ["./lint-rules/plugin.ts"],
+  "categories": {
+    "correctness": "error"
+  },
+  "options": {
+    // no-floating-promises 等、型情報が要る rule を有効にする (tsgolint / TypeScript-Go)
+    "typeAware": true,
+    "reportUnusedDisableDirectives": "error"
+  },
+  "ignorePatterns": [
+    // @hey-api/openapi-ts の生成物。再生成の冪等性を守るため checks の対象外
+    "src/types/**",
+    // Custom rule fixtures are linted by their colocated tests.
+    "lint-rules/**/fixtures/**"
+  ],
+  "rules": {
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "eqeqeq": "error",
+    "no-control-regex": "error",
+    "no-promise-executor-return": "error",
+    "preserve-caught-error": "error",
+    "typescript/consistent-type-imports": "error",
+    "typescript/ban-ts-comment": "error",
+    "typescript/no-explicit-any": "error",
+    "typescript/no-non-null-assertion": "error",
+    "typescript/no-inferrable-types": "error",
+    "typescript/no-floating-promises": "error",
+    "typescript/no-misused-promises": "error",
+    "typescript/prefer-promise-reject-errors": "error",
+    "typescript/no-deprecated": "error",
+    "typescript/no-unsafe-assignment": "error",
+    "typescript/no-unsafe-argument": "error",
+    "typescript/no-unsafe-call": "error",
+    "typescript/no-unsafe-member-access": "error",
+    "typescript/no-unsafe-return": "error",
+    "typescript/no-unsafe-type-assertion": "error",
+    "typescript/switch-exhaustiveness-check": "error",
+    "typescript/no-unnecessary-type-parameters": "error",
+    "typescript/no-unnecessary-condition": ["error", { "allowConstantLoopConditions": true }],
+    "typescript/no-unnecessary-type-assertion": "error",
+    "typescript/no-unnecessary-type-conversion": "error",
+    // @types/bun が expect().rejects.<matcher>() を Promise として型付けしておらず、
+    // 必須の await が全て偽陽性になる。型定義が直るまで無効化する
+    "typescript/await-thenable": "off",
+    // CLI の表示・エラーメッセージ境界は unknown を意図的に文字列化する
+    "typescript/no-base-to-string": "off",
+    "typescript/restrict-template-expressions": "off",
+    "import/no-cycle": "error",
+    "import/extensions": ["error", "always", { "ignorePackages": true, "checkTypeImports": true }],
+    "no-shadow": "error",
+    "import/no-self-import": "error",
+    "oxc/misrefactored-assign-op": "error",
+    "oxc/no-barrel-file": ["error", { "threshold": 0 }],
+    "unicorn/prefer-node-protocol": "error",
+    "freee-cli/require-disable-reason": "error",
+    "freee-cli/no-unlimited-disable": "error",
+    "freee-cli/no-cross-command-import": "error"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts"],
+      "rules": {
+        "typescript/no-unsafe-assignment": "off",
+        "typescript/no-unsafe-argument": "off",
+        "typescript/no-unsafe-call": "off",
+        "typescript/no-unsafe-member-access": "off",
+        "typescript/no-unsafe-return": "off",
+        "typescript/no-unsafe-type-assertion": "off"
+      }
+    },
+    {
+      // Workflow writes are checked where their command adapter calls them.
+      "files": ["src/commands/**"],
+      "rules": {
+        "freee-cli/require-dry-run": "error",
+        "no-console": ["error", { "allow": ["error"] }]
+      }
+    }
+  ]
+}

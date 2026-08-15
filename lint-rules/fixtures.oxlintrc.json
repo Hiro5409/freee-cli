@@ -1,0 +1,14 @@
+{
+  "$schema": "../node_modules/oxlint/configuration_schema.json",
+  "jsPlugins": ["./plugin.ts"],
+  "categories": {
+    // Tests enable only the custom rule they exercise.
+    "correctness": "off"
+  },
+  "rules": {
+    "freee-cli/no-cross-command-import": "error",
+    "freee-cli/no-unlimited-disable": "error",
+    "freee-cli/require-disable-reason": "error",
+    "freee-cli/require-dry-run": "error"
+  }
+}
