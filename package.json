@@ -38,7 +38,7 @@
     "dev": "bun run src/main.ts",
     "build": "bun build src/main.ts --compile --outfile freee",
     "test": "bun test",
-    "check": "bun run --parallel --no-exit-on-error lint format:check knip typecheck test check:package",
+    "check": "bun run check:generated && bun run --parallel --no-exit-on-error lint format:check knip typecheck test check:package",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "oxfmt",
@@ -46,6 +46,7 @@
     "knip": "knip",
     "typecheck": "tsc --noEmit",
     "check:package": "publint run --pack bun",
+    "check:generated": "bun run generate-types && git diff --exit-code HEAD -- src/types && test -z \"$(git ls-files --others --exclude-standard -- src/types)\"",
     "prepublishOnly": "bun run check",
     "generate-types": "openapi-ts --file openapi-ts.config.ts"
   },
@@ -72,6 +73,5 @@
   },
   "engines": {
     "bun": ">=1.3.0"
-  },
-  "packageManager": "bun@1.3.11"
+  }
 }

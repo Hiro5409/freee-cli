@@ -14,6 +14,9 @@ type SchemaObject =
   | OpenApiSchemaObject.V3_0_X
   | OpenApiSchemaObject.V3_1_X;
 
+const freeeApiSchemaBaseUrl =
+  "https://raw.githubusercontent.com/freee/freee-api-schema/80e02be85f27bc6fc82fc651790987095f8c79cd";
+
 function markDeprecatedProperties(...names: ReadonlyArray<string>) {
   return (schema: SchemaObject) => {
     for (const name of names) {
@@ -81,8 +84,7 @@ const parser = {
 // ベースURLが違う以上 1 クライアントには畳めないので、生成物も分ける。
 export default defineConfig([
   {
-    input:
-      "https://raw.githubusercontent.com/freee/freee-api-schema/master/v2020_06_15/open-api-3/api-schema.json",
+    input: `${freeeApiSchemaBaseUrl}/v2020_06_15/open-api-3/api-schema.json`,
     output: {
       path: "src/types/freee",
       postProcess: ["oxfmt"],
@@ -91,8 +93,7 @@ export default defineConfig([
     plugins: [...plugins],
   },
   {
-    input:
-      "https://raw.githubusercontent.com/freee/freee-api-schema/master/iv/open-api-3/api-schema.yml",
+    input: `${freeeApiSchemaBaseUrl}/iv/open-api-3/api-schema.yml`,
     output: {
       path: "src/types/freee-invoice",
       postProcess: ["oxfmt"],
@@ -101,8 +102,7 @@ export default defineConfig([
     plugins: [...plugins],
   },
   {
-    input:
-      "https://raw.githubusercontent.com/freee/freee-api-schema/master/hr/open-api-3/api-schema.json",
+    input: `${freeeApiSchemaBaseUrl}/hr/open-api-3/api-schema.json`,
     output: {
       path: "src/types/freee-hr",
       postProcess: ["oxfmt"],
