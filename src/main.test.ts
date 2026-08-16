@@ -111,10 +111,12 @@ describe("CLI integration", () => {
   test("every write command help includes a dry-run JSON example", async () => {
     const commands = [
       "wallet-txn-create",
-      "auto-rule-create-deal",
+      "wallet-txn-delete",
+      "auto-rule-create",
       "auto-rule-delete",
       "auto-rule-disable",
       "auto-rule-enable",
+      "auto-rule-update",
       "deal-create",
       "deal-delete",
       "deal-payment-create",
@@ -126,6 +128,9 @@ describe("CLI integration", () => {
       "invoice-restore",
       "invoice-update",
       "partner-create",
+      "transfer-create",
+      "transfer-delete",
+      "transfer-update",
       "file-box-delete",
       "file-box-update",
       "file-box-upload",

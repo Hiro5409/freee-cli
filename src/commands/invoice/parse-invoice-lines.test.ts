@@ -31,6 +31,17 @@ describe("parseInvoiceLines", () => {
     expect(lines[1]?.description).toBe("B");
   });
 
+  test("取引登録用の勘定科目と税区分を受け取る", () => {
+    const lines = parseInvoiceLines([
+      '{"description":"立替金","quantity":1,"unit_price":"30000","tax_rate":0,"account_item_id":323375732,"tax_code":2}',
+    ]);
+
+    expect(lines[0]).toMatchObject({
+      account_item_id: 323375732,
+      tax_code: 2,
+    });
+  });
+
   test("テキスト行は description だけで通る", () => {
     const lines = parseInvoiceLines(['{"type":"text","description":"— 以下余白 —"}']);
 

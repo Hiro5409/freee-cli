@@ -80,6 +80,41 @@ describe("deal list command", () => {
     expect(JSON.parse(result)).toEqual([]);
   });
 
+  test("passes accounting filters through to freee", async () => {
+    server.use(
+      handleGetDeals(async ({ request }) => {
+        const params = new URL(request.url).searchParams;
+        expect(params.get("type")).toBe("expense");
+        expect(params.get("status")).toBe("unsettled");
+        expect(params.get("account_item_id")).toBe("123");
+        expect(params.get("partner_id")).toBe("456");
+        expect(params.get("accruals")).toBe("with");
+        return Response.json({ deals: [], meta: { total_count: 0 } });
+      }),
+    );
+
+    const result = await cli(
+      [
+        "--company-id",
+        "123",
+        "--format",
+        "json",
+        "--type",
+        "expense",
+        "--status",
+        "unsettled",
+        "--account-item-id",
+        "123",
+        "--partner-id",
+        "456",
+        "--accruals",
+        "with",
+      ],
+      dealListCommand,
+    );
+    expect(JSON.parse(String(result))).toEqual([]);
+  });
+
   test("limits both the API request and JSON result", async () => {
     server.use(
       handleGetDeals(async ({ request }) => {

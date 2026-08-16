@@ -57,4 +57,30 @@ describe("File Box list command", () => {
     expect(url.searchParams.get("end_date")).toBe("2026-08-14");
     expect(JSON.parse(String(result))).toEqual([]);
   });
+
+  test.each([
+    ["all", "all"],
+    ["without-deal", "without_deal"],
+    ["expense-application", "with_expense_application_line"],
+    ["with-deal", "with_deal"],
+    ["ignored", "ignored"],
+  ] as const)("maps category %s to %s", async (category, expectedCode) => {
+    await cli(
+      [
+        "--company-id",
+        "123",
+        "--start-date",
+        "2026-08-01",
+        "--end-date",
+        "2026-08-31",
+        "--category",
+        category,
+        "--format",
+        "json",
+      ],
+      fileBoxListCommand,
+    );
+
+    expect(new URL(requestUrl).searchParams.get("category")).toBe(expectedCode);
+  });
 });

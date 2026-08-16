@@ -5,7 +5,6 @@ import { accountItemListCommand } from "./commands/account-item/list.ts";
 import { loginCommand } from "./commands/auth/login.ts";
 import { logoutCommand } from "./commands/auth/logout.ts";
 import { statusCommand } from "./commands/auth/status.ts";
-import { autoRegistrationRuleCreateDealCommand } from "./commands/auto-registration-rule/create.ts";
 import { autoRegistrationRuleDeleteCommand } from "./commands/auto-registration-rule/delete.ts";
 import { autoRegistrationRuleListCommand } from "./commands/auto-registration-rule/list.ts";
 import {
@@ -13,6 +12,10 @@ import {
   autoRegistrationRuleEnableCommand,
 } from "./commands/auto-registration-rule/set-active.ts";
 import { autoRegistrationRuleShowCommand } from "./commands/auto-registration-rule/show.ts";
+import {
+  autoRegistrationRuleCreateCommand,
+  autoRegistrationRuleUpdateCommand,
+} from "./commands/auto-registration-rule/write.ts";
 import { balanceSheetCommand } from "./commands/balance-sheet.ts";
 import { companyListCommand } from "./commands/company/list.ts";
 import { companySetDefaultCommand } from "./commands/company/set-default.ts";
@@ -30,6 +33,7 @@ import { fileBoxListCommand } from "./commands/file-box/list.ts";
 import { fileBoxShowCommand } from "./commands/file-box/show.ts";
 import { fileBoxUpdateCommand } from "./commands/file-box/update.ts";
 import { fileBoxUploadCommand } from "./commands/file-box/upload.ts";
+import { generalLedgerCommand } from "./commands/general-ledger.ts";
 import { hrEmployeeListCommand } from "./commands/hr/employee-list.ts";
 import { hrPayrollListCommand } from "./commands/hr/payroll-list.ts";
 import { invoiceCancelCommand } from "./commands/invoice/cancel.ts";
@@ -47,10 +51,19 @@ import { partnerShowCommand } from "./commands/partner/show.ts";
 import { profileListCommand } from "./commands/profile/list.ts";
 import { profileSetDefaultCommand } from "./commands/profile/set-default.ts";
 import { profitAndLossCommand } from "./commands/profit-and-loss.ts";
+import { sectionListCommand } from "./commands/section/list.ts";
+import { segmentTagListCommand } from "./commands/segment-tag/list.ts";
 import { setupCommand } from "./commands/setup.ts";
+import { tagListCommand } from "./commands/tag/list.ts";
 import { taxCodeListCommand } from "./commands/tax-code/list.ts";
+import { transferDeleteCommand } from "./commands/transfer/delete.ts";
+import { transferListCommand } from "./commands/transfer/list.ts";
+import { transferShowCommand } from "./commands/transfer/show.ts";
+import { transferCreateCommand, transferUpdateCommand } from "./commands/transfer/write.ts";
 import { walletTransactionCreateCommand } from "./commands/wallet-transaction/create.ts";
+import { walletTransactionDeleteCommand } from "./commands/wallet-transaction/delete.ts";
 import { walletTransactionListCommand } from "./commands/wallet-transaction/list.ts";
+import { walletTransactionShowCommand } from "./commands/wallet-transaction/show.ts";
 import { walletableListCommand } from "./commands/walletable/list.ts";
 import { printError } from "./error-output.ts";
 import { globalArgs } from "./global-args.ts";
@@ -91,16 +104,27 @@ export async function main() {
       "hr-employee-list": hrEmployeeListCommand,
       "hr-payroll-list": hrPayrollListCommand,
       "wallet-txn-list": walletTransactionListCommand,
+      "wallet-txn-show": walletTransactionShowCommand,
+      "wallet-txn-delete": walletTransactionDeleteCommand,
       "walletable-list": walletableListCommand,
+      "transfer-list": transferListCommand,
+      "transfer-show": transferShowCommand,
+      "transfer-create": transferCreateCommand,
+      "transfer-update": transferUpdateCommand,
+      "transfer-delete": transferDeleteCommand,
       "auto-rule-list": autoRegistrationRuleListCommand,
       "auto-rule-show": autoRegistrationRuleShowCommand,
-      "auto-rule-create-deal": autoRegistrationRuleCreateDealCommand,
+      "auto-rule-create": autoRegistrationRuleCreateCommand,
+      "auto-rule-update": autoRegistrationRuleUpdateCommand,
       "auto-rule-enable": autoRegistrationRuleEnableCommand,
       "auto-rule-disable": autoRegistrationRuleDisableCommand,
       "auto-rule-delete": autoRegistrationRuleDeleteCommand,
       "wallet-txn-create": walletTransactionCreateCommand,
       "account-item-list": accountItemListCommand,
       "tax-code-list": taxCodeListCommand,
+      "section-list": sectionListCommand,
+      "tag-list": tagListCommand,
+      "segment-tag-list": segmentTagListCommand,
       "partner-list": partnerListCommand,
       "partner-show": partnerShowCommand,
       "partner-create": partnerCreateCommand,
@@ -120,6 +144,7 @@ export async function main() {
       "invoice-template-list": invoiceTemplateListCommand,
       bs: balanceSheetCommand,
       pl: profitAndLossCommand,
+      "general-ledger": generalLedgerCommand,
       "journal-export": journalExportCommand,
       "company-list": companyListCommand,
       "company-switch": companySetDefaultCommand,

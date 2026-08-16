@@ -63,10 +63,21 @@ freee company-switch --id 1234567 --name "My Company"
 freee deal-list --month 2026-08
 freee deal-create --date 2026-08-15 --type expense \
   --account-item-id 123 --tax-code 136 --amount 5000 --dry-run
-freee wallet-txn-list --month 2026-08
+freee wallet-txn-list --month 2026-08 --status unreconciled
+freee wallet-txn-show --id 42
+freee transfer-list --month 2026-08
+freee transfer-create --date 2026-08-01 \
+  --from-walletable-id 10 --from-walletable-type bank_account \
+  --to '{"type":"credit_card","id":20,"amount":5000}' --dry-run
+freee file-box-list --start-date 2026-08-01 --end-date 2026-08-31 --category without-deal
 freee file-box-upload --file receipt.jpg --dry-run
+freee section-list
+freee tag-list
+freee segment-tag-list --segment 1
 freee bs --fiscal-year 2025
 freee pl --fiscal-year 2025
+freee general-ledger --start-date 2025-01-01 --end-date 2025-12-31 \
+  --account-item-name 売上高 --format json
 freee journal-export --download-type generic_v2 --encoding utf-8 \
   --start-date 2025-01-01 --end-date 2025-12-31 --output journal-2025.csv
 ```
@@ -75,8 +86,10 @@ freee journal-export --download-type generic_v2 --encoding utf-8 \
 
 ```bash
 freee auto-rule-list --active active
-freee auto-rule-create-deal --description AMAZON --condition partial --entry-side expense \
-  --priority 5 --tax-name 課対仕入10% --account-item-name 消耗品費 --dry-run
+freee auto-rule-create --act auto-standard --description AMAZON --condition partial \
+  --entry-side expense --priority 5 --tax-name 課対仕入10% \
+  --account-item-name 消耗品費 --dry-run
+freee auto-rule-update --id 42 --account-item-name 通信費 --dry-run
 freee auto-rule-disable --id 42 --dry-run
 freee wallet-txn-create --date 2026-08-01 --entry-side expense --amount 5000 \
   --walletable-id 55 --walletable-type credit_card --description AMAZON.CO.JP --dry-run
@@ -87,7 +100,7 @@ freee wallet-txn-create --date 2026-08-01 --entry-side expense --amount 5000 \
 ```bash
 freee invoice-list --sending-status unsent
 freee invoice-create --partner-id 123 --billing-date 2026-08-01 \
-  --line '{"description":"コンサルティング","quantity":1,"unit_price":"100000","tax_rate":10}' --dry-run
+  --line '{"description":"コンサルティング","quantity":1,"unit_price":"100000","tax_rate":10,"account_item_id":123,"tax_code":129}' --dry-run
 freee invoice-update --id 456 --subject "8月分ご請求" --dry-run
 ```
 
