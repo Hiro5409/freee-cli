@@ -89,10 +89,15 @@ freee auto-rule-create --act auto-standard --description AMAZON --condition part
   --entry-side expense --priority 5 --tax-name 課対仕入10% \
   --account-item-name 消耗品費 --dry-run
 freee auto-rule-update --id 42 --account-item-name 通信費 --dry-run
+freee auto-rule-update --id 42 --clear walletable --dry-run --format json
 freee auto-rule-disable --id 42 --dry-run
 freee wallet-txn-create --date 2026-08-01 --entry-side expense --amount 5000 \
   --walletable-id 55 --walletable-type credit_card --description AMAZON.CO.JP --dry-run
 ```
+
+`auto-rule-update --clear <field>` removes an optional rule condition by sending JSON `null`.
+Repeat `--clear` to remove multiple conditions in one full-state update; fields not named in the
+command keep their current values.
 
 ### Invoices
 

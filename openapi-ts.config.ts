@@ -29,6 +29,32 @@ function markDeprecatedProperties(...names: ReadonlyArray<string>) {
   };
 }
 
+function includeNullInRequestEnum(name: string) {
+  return (operation: OperationObject) => {
+    if (!("requestBody" in operation)) throw new Error(`Operation has no request body: ${name}`);
+    const requestBody = operation.requestBody;
+    if (!requestBody || "$ref" in requestBody) {
+      throw new Error(`Operation has no inline request body: ${name}`);
+    }
+    const schema = requestBody.content["application/json"]?.schema;
+    if (!schema || typeof schema !== "object" || "$ref" in schema) {
+      throw new Error(`Operation has no inline JSON schema: ${name}`);
+    }
+    const property = schema.properties?.[name];
+    if (
+      !property ||
+      typeof property !== "object" ||
+      "$ref" in property ||
+      !property.enum ||
+      !("nullable" in property) ||
+      property.nullable !== true
+    ) {
+      throw new Error(`Operation has no nullable inline enum property: ${name}`);
+    }
+    if (!property.enum.includes(null)) property.enum = [...property.enum, null];
+  };
+}
+
 const plugins = [
   "@hey-api/typescript",
   { name: "@hey-api/client-fetch", throwOnError: true },
@@ -46,6 +72,8 @@ const parser = {
       "GET /api/1/taxes/codes": (operation: OperationObject) => {
         operation.deprecated = true;
       },
+      // Hey API requires nullable enum members to be explicit in the enum to preserve null in the generated union.
+      "PUT /api/1/user_matchers/{id}": includeNullInRequestEnum("qualified_invoice_setting"),
     },
     // freee OASがdescriptionでのみ非推奨を示すため、deprecatedフラグへ補正する: https://github.com/freee/freee-api-schema/blob/80e02be85f27bc6fc82fc651790987095f8c79cd/hr/open-api-3/api-schema.json#L13944
     schemas: {

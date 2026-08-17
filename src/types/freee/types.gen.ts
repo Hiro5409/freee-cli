@@ -23140,7 +23140,7 @@ export type UpdateUserMatcherData = {
      * depends_on_partnerを指定する場合は、partner_nameの指定が必要です。
      *
      */
-    qualified_invoice_setting?: "non_qualified" | "qualified" | "depends_on_partner";
+    qualified_invoice_setting?: "non_qualified" | "qualified" | "depends_on_partner" | null;
     /**
      * 購入データ原本に準拠
      * * true: 準拠する

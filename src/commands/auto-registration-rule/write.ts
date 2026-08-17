@@ -80,6 +80,58 @@ const ruleArgs = {
 };
 
 type UpdateBody = UpdateUserMatcherData["body"];
+type WritableRuleBody = CreateUserMatcherData["body"] & UpdateBody;
+type NullableUpdateKey = {
+  [K in keyof UpdateBody]-?: null extends UpdateBody[K] ? K : never;
+}[keyof UpdateBody];
+
+function defineClearableFields<const Fields extends Record<string, NullableUpdateKey>>(
+  fields: Exclude<NullableUpdateKey, Fields[keyof Fields]> extends never ? Fields : never,
+): Fields {
+  return fields;
+}
+
+const CLEARABLE_FIELD_NAMES = [
+  "tax-name",
+  "account-item-name",
+  "walletable",
+  "card-label",
+  "card-label-id",
+  "transfer-walletable",
+  "min-amount",
+  "max-amount",
+  "deal-description",
+  "partner-name",
+  "item-name",
+  "section-name",
+  "qualified-invoice-setting",
+  "suggest-tax-from-walletable-invoice",
+  "division-tag-1-name",
+  "division-tag-2-name",
+  "division-tag-3-name",
+  "default-tag",
+] as const;
+const CLEARABLE_FIELDS = defineClearableFields({
+  "tax-name": "tax_name",
+  "account-item-name": "account_item_name",
+  walletable: "walletable",
+  "card-label": "card_label",
+  "card-label-id": "card_label_id",
+  "transfer-walletable": "transfer_walletable",
+  "min-amount": "min_amount",
+  "max-amount": "max_amount",
+  "deal-description": "deal_description",
+  "partner-name": "partner_name",
+  "item-name": "item_name",
+  "section-name": "section_name",
+  "qualified-invoice-setting": "qualified_invoice_setting",
+  "suggest-tax-from-walletable-invoice": "suggest_tax_from_walletable_invoice",
+  "division-tag-1-name": "division_tag_1_name",
+  "division-tag-2-name": "division_tag_2_name",
+  "division-tag-3-name": "division_tag_3_name",
+  "default-tag": "default_tag_names",
+} satisfies Record<(typeof CLEARABLE_FIELD_NAMES)[number], NullableUpdateKey>);
+
 type RuleValues = {
   act?: string;
   description?: string;
@@ -99,10 +151,20 @@ type RuleValues = {
   "item-name"?: string;
   "section-name"?: string;
   "default-tag"?: string[];
+  clear?: string[];
 };
 
-function optionalOverrides(values: RuleValues): Partial<UpdateBody> {
+function clearOverrides(fields: string[] | undefined): Partial<UpdateBody> {
   const overrides: Partial<UpdateBody> = {};
+  for (const field of fields ?? []) {
+    const name = parseChoice(field, CLEARABLE_FIELD_NAMES, "--clear");
+    overrides[CLEARABLE_FIELDS[name]] = null;
+  }
+  return overrides;
+}
+
+function optionalOverrides(values: RuleValues): Partial<WritableRuleBody> {
+  const overrides: Partial<WritableRuleBody> = {};
   if (values.act !== undefined) {
     overrides.act = ACT_CODES[parseChoice(values.act, ACTS, "--act")];
   }
@@ -158,6 +220,17 @@ function validateBody(body: UpdateBody): void {
     throw new CliError("Transfer rules require --transfer-walletable.", {
       code: "INVALID_INPUT",
       why: "freee needs a destination account for transfer rules.",
+      hint: errorHints.invalidValue,
+    });
+  }
+  if (
+    (body.act === 0 || body.act === 1) &&
+    body.qualified_invoice_setting === "depends_on_partner" &&
+    !body.partner_name
+  ) {
+    throw new CliError("The depends-on-partner invoice setting requires --partner-name.", {
+      code: "INVALID_INPUT",
+      why: "freee needs a partner to determine invoice qualification.",
       hint: errorHints.invalidValue,
     });
   }
@@ -222,13 +295,32 @@ export const autoRegistrationRuleUpdateCommand = define({
     ...writeArgs,
     ...ruleArgs,
     id: { type: "string" as const, description: "Auto-registration rule ID", required: true },
+    clear: {
+      type: "string" as const,
+      multiple: true as const,
+      description: `Clear an optional field by sending JSON null, repeatable: ${CLEARABLE_FIELD_NAMES.join(" | ")}`,
+    },
   },
   examples: `$ freee auto-rule-update --id 42 --account-item-name 通信費 \\
-    --deal-description 開発用サービス --dry-run --format json`,
+    --deal-description 開発用サービス --dry-run --format json
+$ freee auto-rule-update --id 42 --clear walletable --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const id = parsePositiveId(ctx.values.id, "--id");
-    const overrides = optionalOverrides(ctx.values);
+    const valueOverrides = optionalOverrides(ctx.values);
+    const clearedOverrides = clearOverrides(ctx.values.clear);
+    const conflictingField = CLEARABLE_FIELD_NAMES.find(
+      (name) =>
+        CLEARABLE_FIELDS[name] in valueOverrides && CLEARABLE_FIELDS[name] in clearedOverrides,
+    );
+    if (conflictingField) {
+      throw new CliError(`--${conflictingField} cannot be both set and cleared.`, {
+        code: "INVALID_INPUT",
+        why: "The requested final value would be ambiguous.",
+        hint: errorHints.invalidValue,
+      });
+    }
+    const overrides = { ...valueOverrides, ...clearedOverrides };
     if (Object.keys(overrides).length === 0) {
       throw new CliError("Pass at least one rule field to update.", {
         code: "INVALID_INPUT",

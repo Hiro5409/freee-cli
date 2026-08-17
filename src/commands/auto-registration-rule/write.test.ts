@@ -108,6 +108,144 @@ describe("auto-registration rule create command", () => {
 });
 
 describe("auto-registration rule update command", () => {
+  test("clears nullable fields and preserves unmentioned fields", async () => {
+    const result = await cli(
+      [
+        "--company-id",
+        "123",
+        "--id",
+        "42",
+        "--clear",
+        "walletable",
+        "--clear",
+        "min-amount",
+        "--clear",
+        "qualified-invoice-setting",
+        "--clear",
+        "suggest-tax-from-walletable-invoice",
+        "--clear",
+        "division-tag-1-name",
+        "--dry-run",
+        "--format",
+        "json",
+      ],
+      autoRegistrationRuleUpdateCommand,
+    );
+
+    expect(onUpdate).not.toHaveBeenCalled();
+    expect(JSON.parse(String(result)).request.body).toMatchObject({
+      walletable: null,
+      min_amount: null,
+      qualified_invoice_setting: null,
+      suggest_tax_from_walletable_invoice: null,
+      division_tag_1_name: null,
+      max_amount: 50000,
+      partner_name: "Amazon",
+    });
+  });
+
+  test("rejects setting and clearing the same field", async () => {
+    await expect(
+      cli(
+        [
+          "--company-id",
+          "123",
+          "--id",
+          "42",
+          "--walletable",
+          "楽天カード",
+          "--clear",
+          "walletable",
+          "--dry-run",
+        ],
+        autoRegistrationRuleUpdateCommand,
+      ),
+    ).rejects.toThrow(/both set and clear/);
+    expect(onUpdate).not.toHaveBeenCalled();
+  });
+
+  test("requires a partner when invoice qualification depends on it", async () => {
+    server.use(
+      handleGetUserMatcher(() =>
+        HttpResponse.json(
+          createMockUserMatcher({
+            id: 42,
+            qualified_invoice_setting: "depends_on_partner",
+            partner_name: "Amazon",
+          }),
+        ),
+      ),
+    );
+
+    await expect(
+      cli(
+        ["--company-id", "123", "--id", "42", "--clear", "partner-name", "--dry-run"],
+        autoRegistrationRuleUpdateCommand,
+      ),
+    ).rejects.toThrow(/depends-on-partner.*partner-name/);
+    expect(onUpdate).not.toHaveBeenCalled();
+
+    const result = await cli(
+      [
+        "--company-id",
+        "123",
+        "--id",
+        "42",
+        "--clear",
+        "partner-name",
+        "--clear",
+        "qualified-invoice-setting",
+        "--dry-run",
+        "--format",
+        "json",
+      ],
+      autoRegistrationRuleUpdateCommand,
+    );
+    expect(JSON.parse(String(result)).request.body).toMatchObject({
+      partner_name: null,
+      qualified_invoice_setting: null,
+    });
+  });
+
+  test("allows clearing the partner when the final action ignores invoice qualification", async () => {
+    server.use(
+      handleGetUserMatcher(() =>
+        HttpResponse.json(
+          createMockUserMatcher({
+            id: 42,
+            qualified_invoice_setting: "depends_on_partner",
+            partner_name: "Amazon",
+          }),
+        ),
+      ),
+    );
+
+    const result = await cli(
+      [
+        "--company-id",
+        "123",
+        "--id",
+        "42",
+        "--act",
+        "auto-transfer",
+        "--transfer-walletable",
+        "普通預金",
+        "--clear",
+        "partner-name",
+        "--dry-run",
+        "--format",
+        "json",
+      ],
+      autoRegistrationRuleUpdateCommand,
+    );
+
+    expect(JSON.parse(String(result)).request.body).toMatchObject({
+      act: 3,
+      partner_name: null,
+      qualified_invoice_setting: "depends_on_partner",
+    });
+  });
+
   test("fetches the full rule and changes only requested fields", async () => {
     await cli(
       [
