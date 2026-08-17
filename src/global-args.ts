@@ -38,7 +38,7 @@ export const writeArgs = {
   ...companyArgs,
   "dry-run": {
     type: "boolean" as const,
-    description: "Preview changes without writing to freee",
+    description: "Preview the exact write request without writing to freee",
     default: false,
   },
 };

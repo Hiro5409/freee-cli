@@ -88,7 +88,7 @@ freee journal-export --download-type generic_v2 --encoding utf-8 \
 freee auto-rule-list --active active
 freee auto-rule-create --act auto-standard --description AMAZON --condition partial \
   --entry-side expense --priority 5 --tax-name 課対仕入10% \
-  --account-item-name 消耗品費 --dry-run
+  --account-item-name 消耗品費 --qualified-invoice-setting qualified --dry-run
 freee auto-rule-update --id 42 --account-item-name 通信費 --dry-run
 freee auto-rule-update --id 42 --clear walletable --dry-run --format json
 freee auto-rule-disable --id 42 --dry-run

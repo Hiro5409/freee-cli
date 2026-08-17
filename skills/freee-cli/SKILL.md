@@ -18,7 +18,7 @@ If unavailable, ask the user to install freee-cli.
 4. For `setup` or `login`, ask the user to run the command in an interactive terminal.
 5. Before a freee API write, use read commands to verify the selected profile, company, and referenced IDs.
    For File Box uploads, use only the file path the user explicitly selected.
-6. Run the complete write with `--dry-run --format json` and inspect the request preview. A dry-run never sends the write. Fetch-merge commands may read current freee data, so a successful preview can verify read access but not write permission.
+6. Run the complete write with `--dry-run --format json` and inspect the exact write request. A dry-run never sends the write. Fetch-merge commands may read current freee data, so a successful preview can verify read access but not write permission.
 7. Present the preview and wait for explicit user approval. After approval, run the same command with only `--dry-run` removed.
 8. For a state-changing command without `--dry-run`, present the exact command and side effect and wait for approval.
 

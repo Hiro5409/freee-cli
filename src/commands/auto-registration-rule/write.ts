@@ -1,4 +1,4 @@
-import { define } from "gunshi";
+import { define, type ArgValues } from "gunshi";
 import colors from "yoctocolors";
 
 import { CliError, errorHints } from "../../errors.ts";
@@ -14,6 +14,10 @@ import { formatDryRun } from "../../output/formatter.ts";
 import { createUserMatcher, getUserMatcher, updateUserMatcher } from "../../types/freee/sdk.gen.ts";
 import type { CreateUserMatcherData, UpdateUserMatcherData } from "../../types/freee/types.gen.ts";
 import { currentRuleBody } from "./rule-body.ts";
+
+type CreateBody = CreateUserMatcherData["body"];
+type UpdateBody = UpdateUserMatcherData["body"];
+type WritableRuleBody = CreateBody & UpdateBody;
 
 const ACTS = [
   "manual-standard",
@@ -44,6 +48,15 @@ const CONDITION_CODES = {
   wildcard: 4,
 } as const satisfies Record<(typeof CONDITIONS)[number], number>;
 const ENTRY_SIDES = ["income", "expense"] as const;
+const QUALIFIED_INVOICE_SETTINGS = ["non-qualified", "qualified", "depends-on-partner"] as const;
+const QUALIFIED_INVOICE_SETTING_CODES = {
+  "non-qualified": "non_qualified",
+  qualified: "qualified",
+  "depends-on-partner": "depends_on_partner",
+} as const satisfies Record<
+  (typeof QUALIFIED_INVOICE_SETTINGS)[number],
+  NonNullable<CreateBody["qualified_invoice_setting"]>
+>;
 
 const ruleArgs = {
   act: { type: "string" as const, description: `Rule action: ${ACTS.join(" | ")}` },
@@ -72,6 +85,19 @@ const ruleArgs = {
   "partner-name": { type: "string" as const, description: "Partner name set on the deal" },
   "item-name": { type: "string" as const, description: "Item name set on the deal" },
   "section-name": { type: "string" as const, description: "Section name set on the deal" },
+  "qualified-invoice-setting": {
+    type: "enum" as const,
+    choices: QUALIFIED_INVOICE_SETTINGS,
+    description: `Invoice qualification: ${QUALIFIED_INVOICE_SETTINGS.join(" | ")}`,
+  },
+  "suggest-tax-from-walletable-invoice": {
+    type: "boolean" as const,
+    negatable: true as const,
+    description: "Use the tax category from supported wallet purchase data",
+  },
+  "division-tag-1-name": { type: "string" as const, description: "Segment 1 tag name" },
+  "division-tag-2-name": { type: "string" as const, description: "Segment 2 tag name" },
+  "division-tag-3-name": { type: "string" as const, description: "Segment 3 tag name" },
   "default-tag": {
     type: "string" as const,
     multiple: true as const,
@@ -79,8 +105,6 @@ const ruleArgs = {
   },
 };
 
-type UpdateBody = UpdateUserMatcherData["body"];
-type WritableRuleBody = CreateUserMatcherData["body"] & UpdateBody;
 type NullableUpdateKey = {
   [K in keyof UpdateBody]-?: null extends UpdateBody[K] ? K : never;
 }[keyof UpdateBody];
@@ -132,27 +156,45 @@ const CLEARABLE_FIELDS = defineClearableFields({
   "default-tag": "default_tag_names",
 } satisfies Record<(typeof CLEARABLE_FIELD_NAMES)[number], NullableUpdateKey>);
 
-type RuleValues = {
-  act?: string;
-  description?: string;
-  condition?: string;
-  "entry-side"?: string;
-  priority?: string;
-  "tax-name"?: string;
-  "account-item-name"?: string;
-  walletable?: string;
-  "card-label"?: string;
-  "card-label-id"?: string;
-  "transfer-walletable"?: string;
-  "min-amount"?: string;
-  "max-amount"?: string;
-  "deal-description"?: string;
-  "partner-name"?: string;
-  "item-name"?: string;
-  "section-name"?: string;
-  "default-tag"?: string[];
-  clear?: string[];
-};
+type RuleValues = ArgValues<typeof ruleArgs>;
+type OptionalKey<T> = {
+  [K in keyof T]-?: object extends Pick<T, K> ? K : never;
+}[keyof T];
+type SettableKey = OptionalKey<WritableRuleBody>;
+type SettableField<K extends SettableKey> = (values: RuleValues) => WritableRuleBody[K];
+
+const SETTABLE_FIELDS = {
+  tax_name: (values) => values["tax-name"],
+  walletable: (values) => values.walletable,
+  card_label: (values) => values["card-label"],
+  card_label_id: (values) =>
+    values["card-label-id"] === undefined
+      ? undefined
+      : parsePositiveId(values["card-label-id"], "--card-label-id"),
+  transfer_walletable: (values) => values["transfer-walletable"],
+  min_amount: (values) =>
+    values["min-amount"] === undefined
+      ? undefined
+      : parseInteger(values["min-amount"], "--min-amount"),
+  max_amount: (values) =>
+    values["max-amount"] === undefined
+      ? undefined
+      : parseInteger(values["max-amount"], "--max-amount"),
+  deal_description: (values) => values["deal-description"],
+  qualified_invoice_setting: (values) => {
+    const setting = values["qualified-invoice-setting"];
+    return setting === undefined ? undefined : QUALIFIED_INVOICE_SETTING_CODES[setting];
+  },
+  suggest_tax_from_walletable_invoice: (values) => values["suggest-tax-from-walletable-invoice"],
+  account_item_name: (values) => values["account-item-name"],
+  partner_name: (values) => values["partner-name"],
+  item_name: (values) => values["item-name"],
+  section_name: (values) => values["section-name"],
+  division_tag_1_name: (values) => values["division-tag-1-name"],
+  division_tag_2_name: (values) => values["division-tag-2-name"],
+  division_tag_3_name: (values) => values["division-tag-3-name"],
+  default_tag_names: (values) => values["default-tag"],
+} satisfies { [K in SettableKey]: SettableField<K> };
 
 function clearOverrides(fields: string[] | undefined): Partial<UpdateBody> {
   const overrides: Partial<UpdateBody> = {};
@@ -178,41 +220,32 @@ function optionalOverrides(values: RuleValues): Partial<WritableRuleBody> {
   if (values.priority !== undefined) {
     overrides.priority = parseNonNegativeInteger(values.priority, "--priority");
   }
-  if (values["tax-name"] !== undefined) overrides.tax_name = values["tax-name"];
-  if (values["account-item-name"] !== undefined) {
-    overrides.account_item_name = values["account-item-name"];
-  }
-  if (values.walletable !== undefined) overrides.walletable = values.walletable;
-  if (values["card-label"] !== undefined) overrides.card_label = values["card-label"];
-  if (values["card-label-id"] !== undefined) {
-    overrides.card_label_id = parsePositiveId(values["card-label-id"], "--card-label-id");
-  }
-  if (values["transfer-walletable"] !== undefined) {
-    overrides.transfer_walletable = values["transfer-walletable"];
-  }
-  if (values["min-amount"] !== undefined) {
-    overrides.min_amount = parseInteger(values["min-amount"], "--min-amount");
-  }
-  if (values["max-amount"] !== undefined) {
-    overrides.max_amount = parseInteger(values["max-amount"], "--max-amount");
-  }
-  if (values["deal-description"] !== undefined) {
-    overrides.deal_description = values["deal-description"];
-  }
-  if (values["partner-name"] !== undefined) overrides.partner_name = values["partner-name"];
-  if (values["item-name"] !== undefined) overrides.item_name = values["item-name"];
-  if (values["section-name"] !== undefined) overrides.section_name = values["section-name"];
-  if (values["default-tag"] !== undefined) {
-    overrides.default_tag_names = values["default-tag"];
+  for (const [key, read] of Object.entries(SETTABLE_FIELDS)) {
+    const value = read(values);
+    if (value !== undefined) Object.assign(overrides, { [key]: value });
   }
   return overrides;
 }
 
+function isStandardAct(act: UpdateBody["act"]): boolean {
+  return act === 0 || act === 1;
+}
+
 function validateBody(body: UpdateBody): void {
-  if ((body.act === 0 || body.act === 1) && (!body.tax_name || !body.account_item_name)) {
+  if (isStandardAct(body.act) && (!body.tax_name || !body.account_item_name)) {
     throw new CliError("Standard rules require --tax-name and --account-item-name.", {
       code: "INVALID_INPUT",
       why: "freee cannot create a deal rule without its booking fields.",
+      hint: errorHints.invalidValue,
+    });
+  }
+  if (
+    isStandardAct(body.act) &&
+    (body.qualified_invoice_setting === undefined || body.qualified_invoice_setting === null)
+  ) {
+    throw new CliError("Standard rules require --qualified-invoice-setting.", {
+      code: "INVALID_INPUT",
+      why: "freee otherwise assigns an invoice qualification without an explicit CLI choice.",
       hint: errorHints.invalidValue,
     });
   }
@@ -224,7 +257,7 @@ function validateBody(body: UpdateBody): void {
     });
   }
   if (
-    (body.act === 0 || body.act === 1) &&
+    isStandardAct(body.act) &&
     body.qualified_invoice_setting === "depends_on_partner" &&
     !body.partner_name
   ) {
@@ -334,6 +367,17 @@ $ freee auto-rule-update --id 42 --clear walletable --dry-run --format json`,
       query: { company_id: companyId },
     });
     const body: UpdateBody = { ...currentRuleBody(current), ...overrides };
+    if (
+      !isStandardAct(current.act) &&
+      isStandardAct(body.act) &&
+      !("qualified_invoice_setting" in valueOverrides)
+    ) {
+      throw new CliError("Changing to a standard rule requires --qualified-invoice-setting.", {
+        code: "INVALID_INPUT",
+        why: "An invoice setting retained from a non-standard rule was not an explicit choice for the new action.",
+        hint: errorHints.invalidValue,
+      });
+    }
     validateBody(body);
 
     if (ctx.values["dry-run"]) {
