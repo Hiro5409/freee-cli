@@ -67,6 +67,7 @@ import { walletTransactionShowCommand } from "./commands/wallet-transaction/show
 import { walletableListCommand } from "./commands/walletable/list.ts";
 import { printError } from "./error-output.ts";
 import { globalArgs } from "./global-args.ts";
+import { writeOutput } from "./output/write.ts";
 
 const rootCommand = define({
   name: "freee",
@@ -159,7 +160,7 @@ export async function main() {
     // everything else is command output that only gets printed if we print it.
     onAfterCommand: (ctx, result) => {
       if (ctx.values.help || ctx.values.version) return;
-      if (result) console.log(result);
+      if (result) return writeOutput(result);
     },
     onErrorCommand: (ctx, error) => {
       printError(error, String(ctx.values.format ?? "table"), ctx.commandPath);
