@@ -1,6 +1,6 @@
 {
   "name": "freee-cli",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Agent-friendly command line interface for the freee API.",
   "keywords": [
     "accounting",
