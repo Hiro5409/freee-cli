@@ -13,6 +13,7 @@ Probe with `command -v freee && freee --version`.
 If unavailable, ask the user to install freee-cli.
 
 1. Run `freee --help` to discover commands.
+   Treat it as the supported command surface; do not infer CLI coverage from the upstream OpenAPI schema or generated clients.
 2. Run the selected command with `--help` before constructing unfamiliar arguments.
 3. Use `--format json` for data consumed by an agent or another command.
 4. For `setup` or `login`, ask the user to run the command in an interactive terminal.
@@ -21,6 +22,13 @@ If unavailable, ask the user to install freee-cli.
 6. Run the complete write with `--dry-run --format json` and inspect the exact write request. A dry-run never sends the write. Fetch-merge commands may read current freee data, so a successful preview can verify read access but not write permission.
 7. Present the preview and wait for explicit user approval. After approval, run the same command with only `--dry-run` removed.
 8. For a state-changing command without `--dry-run`, present the exact command and side effect and wait for approval.
+
+Plan restrictions:
+
+- `general-ledger` requires corporate Advance or Enterprise.
+- Segment 1 requires corporate Advance or higher.
+- Segments 2 and 3 require corporate Enterprise.
+- `GET /api/1/fixed_assets` requires corporate Enterprise and has no CLI command.
 
 Treat accounting, invoice, and HR resources as separate APIs even when names overlap.
 Keep the same `--profile` and `--company-id` across reads, preview, write, and verification.

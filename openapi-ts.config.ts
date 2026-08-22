@@ -68,6 +68,13 @@ const parser = {
   },
   patch: {
     operations: {
+      "GET /api/1/fixed_assets": (operation: OperationObject) => {
+        // 公式のプラン制限が変わったらCLIの対応範囲を見直す: https://github.com/freee/freee-api-schema/blob/80e02be85f27bc6fc82fc651790987095f8c79cd/v2020_06_15/open-api-3/api-schema.json#L18903
+        const restriction = "このAPIは法人エンタープライズに加入している事業所のみが利用できます。";
+        if (!operation.description?.includes(restriction)) {
+          throw new Error("Review the plan restriction for GET /api/1/fixed_assets");
+        }
+      },
       // freee OASが説明文でのみ廃止予定を示すため、deprecatedフラグへ補正する: https://github.com/freee/freee-api-schema/blob/80e02be85f27bc6fc82fc651790987095f8c79cd/v2020_06_15/open-api-3/api-schema.json#L7017
       "GET /api/1/taxes/codes": (operation: OperationObject) => {
         operation.deprecated = true;
