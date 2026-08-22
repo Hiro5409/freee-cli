@@ -17,11 +17,11 @@ If unavailable, ask the user to install freee-cli.
 2. Run the selected command with `--help` before constructing unfamiliar arguments.
 3. Use `--format json` for data consumed by an agent or another command.
 4. For `setup` or `login`, ask the user to run the command in an interactive terminal.
-5. Before a freee API write, use read commands to verify the selected profile, company, and referenced IDs.
+5. Before a cohesive freee API write batch, use read commands to verify the selected profile, company, referenced IDs, and every value that determines the intended side effects.
    For File Box uploads, use only the file path the user explicitly selected.
-6. Run the complete write with `--dry-run --format json` and inspect the exact write request. A dry-run never sends the write. Fetch-merge commands may read current freee data, so a successful preview can verify read access but not write permission.
-7. Present the preview and wait for explicit user approval. After approval, run the same command with only `--dry-run` removed.
-8. For a state-changing command without `--dry-run`, present the exact command and side effect and wait for approval.
+6. Treat `--dry-run` as a verification tool, not an approval boundary. Use `--dry-run --format json` when its preview can expose a decision-bearing difference: destructive operations, replacement or fetch-merge writes, and multi-target or fan-out writes. A simple create or update whose complete fields are already fixed in the plan does not require a dry-run. A dry-run never sends the write or proves write permission.
+7. Present the complete batch and intended final state, then wait for explicit user approval. One approval covers the unchanged batch, including dependent writes whose IDs are created by earlier steps.
+8. After approval, execute the batch with the same profile and company. Continue through later reads or previews when they confirm the approved batch; request another approval only when current state or a preview changes the approved target, scope, or intended final state.
 
 Plan restrictions:
 
