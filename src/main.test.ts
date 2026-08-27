@@ -222,11 +222,11 @@ describe("CLI integration", () => {
     expect(exitCode).toBe(1);
     expect(stdout).toBe("");
     const payload = JSON.parse(stderr);
-    expect(payload.error).toContain("Optional argument '--id' is required");
+    expect(payload.error).toContain("Argument '--id' is required");
     expect(payload.exitCode).toBe(1);
     expect(payload.why).toContain("command interface");
     expect(payload.hint).toContain("freee deal-show --help");
-    expect(stderr.match(/Optional argument '--id' is required/g)).toHaveLength(1);
+    expect(stderr.match(/Argument '--id' is required/g)).toHaveLength(1);
     expect(stderr).not.toContain("TypeError");
     expect(stderr).not.toContain("Bun v");
   });
@@ -269,5 +269,57 @@ describe("CLI integration", () => {
     expect(stdout).toBe("");
     expect(stderr).toMatch(/json|table/);
     expect(stderr).not.toContain("No credentials found");
+  });
+
+  test("required enum errors do not describe the argument as optional", async () => {
+    const { stdout, stderr, exitCode } = await runCliWithEmptyConfig([
+      "wallet-txn-create",
+      "--company-id",
+      "1",
+      "--date",
+      "2026-08-01",
+      "--entry-side",
+      "bogus",
+      "--amount",
+      "100",
+      "--walletable-id",
+      "1",
+      "--walletable-type",
+      "wallet",
+      "--dry-run",
+      "--format",
+      "json",
+    ]);
+
+    expect(exitCode).toBe(1);
+    expect(stdout).toBe("");
+    const payload = JSON.parse(stderr);
+    expect(payload.error).toContain("Argument '--entry-side' must be one of");
+    expect(payload.error).toContain("income");
+    expect(payload.error).toContain("expense");
+    expect(payload.error).not.toContain("Optional argument");
+  });
+
+  test("malformed CLI input reports one actionable validation issue", async () => {
+    const { stdout, stderr, exitCode } = await runCliWithEmptyConfig([
+      "invoice-create",
+      "--company-id",
+      "1",
+      "--partner-id",
+      "2",
+      "--billing-date",
+      "2026/08/01",
+      "--line",
+      '{"description":"x","quantity":1,"unit_price":"1","tax_rate":10}',
+      "--dry-run",
+      "--format",
+      "json",
+    ]);
+
+    expect(exitCode).toBe(1);
+    expect(stdout).toBe("");
+    const payload = JSON.parse(stderr);
+    expect(payload.error).toContain("--billing-date is invalid");
+    expect(payload.error.match(/Expected a real date in YYYY-MM-DD format\./g)).toHaveLength(1);
   });
 });

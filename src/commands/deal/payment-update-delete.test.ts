@@ -12,7 +12,7 @@ import { saveCredentials } from "../../config/credentials.ts";
 import { handleDestroyDealPayment, handleUpdateDealPayment } from "../../types/freee/msw.gen.ts";
 import { dealPaymentDeleteCommand } from "./payment-delete.ts";
 import { dealPaymentUpdateCommand } from "./payment-update.ts";
-import { createMockDeal } from "./test-fixtures.ts";
+import { createMockDeal, createMockDealPayment } from "./test-fixtures.ts";
 
 const testDir = join(tmpdir(), `freee-cli-deal-payment-mutation-test-${Date.now()}`);
 const server = setupServer(
@@ -22,13 +22,13 @@ const server = setupServer(
         id: Number(params.id),
         type: "expense",
         payments: [
-          {
+          createMockDealPayment({
             id: Number(params.payment_id),
             date: "2026-08-20",
             from_walletable_type: "bank_account",
             from_walletable_id: 9,
             amount: 4000,
-          },
+          }),
         ],
       }),
     }),

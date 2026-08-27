@@ -1,8 +1,9 @@
 import { define } from "gunshi";
 
 import { fetchAll } from "../../api/paginate.ts";
+import { MonthTextSchema, OptionalLimitTextSchema, parseCliInput } from "../../cli-input.ts";
 import { listArgs } from "../../global-args.ts";
-import { initCommand, parseLimit, parseMonth } from "../../helpers.ts";
+import { initCommand } from "../../helpers.ts";
 import { formatOutput } from "../../output/formatter.ts";
 import { getEmployees } from "../../types/freee-hr/sdk.gen.ts";
 
@@ -19,14 +20,17 @@ export const hrEmployeeListCommand = define({
   },
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const { year, month } = parseMonth(ctx.values.month, "--month");
+    const { year, month } = parseCliInput(MonthTextSchema, ctx.values.month, { label: "--month" });
 
-    const employees = await fetchAll(async (offset, limit) => {
-      const { data } = await getEmployees({
-        query: { company_id: companyId, year, month, offset, limit },
-      });
-      return data.employees ?? [];
-    }, parseLimit(ctx.values.limit));
+    const employees = await fetchAll(
+      async (offset, limit) => {
+        const { data } = await getEmployees({
+          query: { company_id: companyId, year, month, offset, limit },
+        });
+        return data.employees ?? [];
+      },
+      parseCliInput(OptionalLimitTextSchema, ctx.values.limit, { label: "--limit" }),
+    );
 
     const output =
       format === "json"

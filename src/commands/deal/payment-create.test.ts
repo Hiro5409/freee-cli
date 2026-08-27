@@ -11,7 +11,7 @@ import { MOCK_TOKEN } from "../../../test/credentials.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import { handleCreateDealPayment } from "../../types/freee/msw.gen.ts";
 import { dealPaymentCreateCommand } from "./payment-create.ts";
-import { createMockDeal } from "./test-fixtures.ts";
+import { createMockDeal, createMockDealPayment } from "./test-fixtures.ts";
 
 const testDir = join(tmpdir(), `freee-cli-deal-payment-create-test-${Date.now()}`);
 const onCreatePayment = mock();
@@ -24,7 +24,7 @@ const server = setupServer(
       deal: createMockDeal({
         id: Number(params.id),
         due_amount: 0,
-        payments: [{ id: 7, ...body }],
+        payments: [createMockDealPayment({ id: 7, ...body })],
       }),
     });
   }),

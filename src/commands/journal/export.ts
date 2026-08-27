@@ -4,9 +4,10 @@ import { resolve } from "node:path";
 import { define } from "gunshi";
 import colors from "yoctocolors";
 
+import { IsoDateSchema, parseCliInput } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { companyArgs } from "../../global-args.ts";
-import { initCommand, parseChoice, parseDate } from "../../helpers.ts";
+import { initCommand } from "../../helpers.ts";
 import { formatValue } from "../../output/formatter.ts";
 import { downloadJournal, getJournals, getJournalStatus } from "../../types/freee/sdk.gen.ts";
 import type { GetJournalsData } from "../../types/freee/types.gen.ts";
@@ -58,23 +59,27 @@ export const journalExportCommand = define({
   args: {
     ...companyArgs,
     "download-type": {
-      type: "string" as const,
+      type: "enum" as const,
+      choices: DOWNLOAD_TYPES,
       description: `Export format: ${DOWNLOAD_TYPES.join(" | ")}`,
       required: true,
     },
     encoding: {
-      type: "string" as const,
+      type: "enum" as const,
+      choices: ENCODINGS,
       description: `Character encoding: ${ENCODINGS.join(" | ")}`,
     },
     "start-date": { type: "string" as const, description: "Range start (YYYY-MM-DD)" },
     "end-date": { type: "string" as const, description: "Range end (YYYY-MM-DD)" },
     "visible-tag": {
-      type: "string" as const,
+      type: "enum" as const,
+      choices: VISIBLE_TAGS,
       multiple: true as const,
       description: `Additional tag field, repeatable: ${VISIBLE_TAGS.join(" | ")}`,
     },
     "visible-id": {
-      type: "string" as const,
+      type: "enum" as const,
+      choices: VISIBLE_IDS,
       multiple: true as const,
       description: `Additional ID field, repeatable: ${VISIBLE_IDS.join(" | ")}`,
     },
@@ -98,26 +103,16 @@ export const journalExportCommand = define({
       });
     }
 
-    const downloadType = parseChoice(
-      ctx.values["download-type"],
-      DOWNLOAD_TYPES,
-      "--download-type",
-    );
-    const encoding = ctx.values.encoding
-      ? parseChoice(ctx.values.encoding, ENCODINGS, "--encoding")
-      : undefined;
+    const downloadType = ctx.values["download-type"];
+    const encoding = ctx.values.encoding;
     const startDate = ctx.values["start-date"]
-      ? parseDate(ctx.values["start-date"], "--start-date")
+      ? parseCliInput(IsoDateSchema, ctx.values["start-date"], { label: "--start-date" })
       : undefined;
     const endDate = ctx.values["end-date"]
-      ? parseDate(ctx.values["end-date"], "--end-date")
+      ? parseCliInput(IsoDateSchema, ctx.values["end-date"], { label: "--end-date" })
       : undefined;
-    const visibleTags = ctx.values["visible-tag"]?.map((value) =>
-      parseChoice(value, VISIBLE_TAGS, "--visible-tag"),
-    );
-    const visibleIds = ctx.values["visible-id"]?.map((value) =>
-      parseChoice(value, VISIBLE_IDS, "--visible-id"),
-    );
+    const visibleTags = ctx.values["visible-tag"];
+    const visibleIds = ctx.values["visible-id"];
     const query: GetJournalsData["query"] = {
       company_id: companyId,
       download_type: downloadType,
@@ -154,8 +149,8 @@ export const journalExportCommand = define({
       startDate: startDate ?? null,
       endDate: endDate ?? null,
       bytes: downloaded.byteLength,
-      upToDate: request.journals.up_to_date ?? null,
-      upToDateReasons: request.journals.up_to_date_reasons ?? [],
+      upToDate: request.journals.up_to_date,
+      upToDateReasons: request.journals.up_to_date_reasons,
     };
     return formatValue(
       output,

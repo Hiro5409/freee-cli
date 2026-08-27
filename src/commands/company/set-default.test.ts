@@ -25,9 +25,7 @@ afterEach(() => {
 describe("company set-default command", () => {
   test("rejects invalid company IDs without saving config", async () => {
     for (const id of ["abc", "0"]) {
-      await expect(cli(["--id", id], companySetDefaultCommand)).rejects.toThrow(
-        "--id must be a positive integer ID",
-      );
+      await expect(cli(["--id", id], companySetDefaultCommand)).rejects.toThrow(/positive integer/);
       expect(existsSync(join(testDir, "config.json"))).toBe(false);
     }
   });

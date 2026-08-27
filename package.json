@@ -24,7 +24,6 @@
   },
   "files": [
     "bin",
-    "scripts/setup.sh",
     "skills",
     "src",
     "!src/types/freee/types.gen.ts",
@@ -48,12 +47,14 @@
     "check:package": "publint run --pack bun",
     "check:generated": "bun run generate-types && git diff --exit-code HEAD -- src/types && test -z \"$(git ls-files --others --exclude-standard -- src/types)\"",
     "prepublishOnly": "bun run check",
+    "api-schema:check": "bun scripts/check-api-schema.ts",
     "generate-types": "openapi-ts --file openapi-ts.config.ts"
   },
   "dependencies": {
+    "@clack/prompts": "^1.7.0",
     "gunshi": "^0.37.1",
-    "yoctocolors": "^2.2.0",
-    "zod": "^4.4.3"
+    "valibot": "^1.4.2",
+    "yoctocolors": "^2.2.0"
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "0.0.0-next-20260729142554",

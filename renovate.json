@@ -4,25 +4,7 @@
   "minimumReleaseAge": "7 days",
   "internalChecksFilter": "strict",
   "prConcurrentLimit": 2,
-  "customManagers": [
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^openapi-ts\\.config\\.ts$/"],
-      "matchStrings": [
-        "https://raw\\.githubusercontent\\.com/freee/freee-api-schema/(?<currentDigest>[0-9a-f]{40})"
-      ],
-      "currentValueTemplate": "master",
-      "depNameTemplate": "freee/freee-api-schema",
-      "packageNameTemplate": "https://github.com/freee/freee-api-schema",
-      "datasourceTemplate": "git-refs"
-    }
-  ],
   "packageRules": [
-    {
-      "description": "Validate freee API schema commit updates through oasdiff and generated-client checks because Git refs have no release timestamp.",
-      "matchPackageNames": ["https://github.com/freee/freee-api-schema"],
-      "minimumReleaseAge": "0 days"
-    },
     {
       "description": "Keep the TypeScript 7-compatible OpenAPI generator on its prerelease channel and require review before opening an update PR.",
       "matchPackageNames": ["@hey-api/openapi-ts"],

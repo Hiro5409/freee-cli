@@ -1,8 +1,14 @@
 import { define } from "gunshi";
 
 import { fetchAll } from "../../api/paginate.ts";
+import {
+  MonthTextSchema,
+  OptionalLimitTextSchema,
+  PositiveIntegerTextSchema,
+  parseCliInput,
+} from "../../cli-input.ts";
 import { listArgs } from "../../global-args.ts";
-import { initCommand, parseLimit, parseMonth, parsePositiveId } from "../../helpers.ts";
+import { initCommand } from "../../helpers.ts";
 import { formatOutput } from "../../output/formatter.ts";
 import {
   getSalariesEmployeePayrollStatement,
@@ -26,11 +32,13 @@ export const hrPayrollListCommand = define({
   },
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const { year, month } = parseMonth(ctx.values.month, "--month");
-    const limit = parseLimit(ctx.values.limit);
+    const { year, month } = parseCliInput(MonthTextSchema, ctx.values.month, { label: "--month" });
+    const limit = parseCliInput(OptionalLimitTextSchema, ctx.values.limit, { label: "--limit" });
 
     const employeeId = ctx.values["employee-id"]
-      ? parsePositiveId(ctx.values["employee-id"], "--employee-id")
+      ? parseCliInput(PositiveIntegerTextSchema, ctx.values["employee-id"], {
+          label: "--employee-id",
+        })
       : undefined;
     const statements = employeeId
       ? await getSalariesEmployeePayrollStatement({

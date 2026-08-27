@@ -1006,48 +1006,16 @@ export const updateTag = <ThrowOnError extends boolean = true>(
  * 部門一覧の取得
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>指定した事業所の部門一覧を取得する</p>
- * <p>事業所の設定で部門コードを使用する設定にしている場合、レスポンスで部門コード(code)を返します</p>
+ * <p>指定した事業所に登録されている部門の一覧を取得します。取引や振替伝票の明細に付与する部門マスタを参照する用途を想定しています。</p>
  *
- * <h2 id="_2">レスポンスの例</h2>
- *
- * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/sections?company_id=1</p>
- * </blockquote>
- *
- * <pre><code>// プレミアムプラン、法人スタンダードプラン（および旧法人ベーシックプラン）以上
- * {
- *   &quot;sections&quot; : [
- *     {
- *       &quot;id&quot; : 101,
- *       &quot;company_id&quot; : 1,
- *       &quot;name&quot; : &quot;開発部門&quot;,
- *       &quot;long_name&quot;: &quot;開発部門&quot;,
- *       &quot;shortcut1&quot; : &quot;DEVELOPER&quot;,
- *       &quot;shortcut2&quot; : &quot;123&quot;,
- *       &quot;indent_count&quot;: 1,
- *       &quot;parent_id&quot;: 11
- *     },
- *     ...
- *   ]
- * }
- * // それ以外のプラン
- * {
- *   &quot;sections&quot; : [
- *     {
- *       &quot;id&quot; : 101,
- *       &quot;company_id&quot; : 1,
- *       &quot;name&quot; : &quot;開発部門&quot;,
- *       &quot;long_name&quot;: &quot;開発部門&quot;,
- *       &quot;shortcut1&quot; : &quot;DEVELOPER&quot;,
- *       &quot;shortcut2&quot; : &quot;123&quot;
- *     },
- *     ...
- *   ]
- * }</code></pre>
- *
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>start_update_date / end_update_date で部門の更新日を範囲指定して絞り込めます。JST の日付を <code>yyyy-mm-dd</code> で指定してください（どちらも指定日を含みます）。部門階層を利用している場合、階層構造を維持するため、更新日が範囲外の親部門を含むことがあります。</li>
+ *   <li>部門階層を利用できるプランでは indent_count と parent_id を返します。利用できないプランでは、これらのキー自体が返りません。</li>
+ *   <li>部門コード（code）は、事業所の設定で部門コードを使用する設定にしている場合のみレスポンスに含まれます。設定が無効の場合は code キー自体が返りません。</li>
+ * </ul>
  */
 export const getSections = <ThrowOnError extends boolean = true>(
   options: Options<GetSectionsData, ThrowOnError>,
@@ -1062,36 +1030,16 @@ export const getSections = <ThrowOnError extends boolean = true>(
  * 部門の作成
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>指定した事業所の部門を作成する</p>
- * <p>codeを利用するには、事業所の設定で部門コードを使用する設定にする必要があります。</p>
+ * <p>指定した事業所に新しい部門を作成します。作成された部門は使用設定（available）が true の状態で登録され、取引作成時などに指定できるようになります。</p>
  *
- * <h2 id="_2">レスポンスの例</h2>
- *
- * <pre><code>// プレミアムプラン、法人スタンダードプラン（および旧法人ベーシックプラン）以上
- * {
- *   &quot;section&quot; : {
- *     &quot;id&quot; : 102,
- *     &quot;company_id&quot; : 1,
- *     &quot;name&quot; : &quot;開発部門&quot;,
- *     &quot;shortcut1&quot; : &quot;DEVELOPER&quot;,
- *     &quot;shortcut2&quot; : &quot;123&quot;,
- *     &quot;indent_count&quot;: 1,
- *     &quot;parent_id&quot;: 101
- *   }
- * }
- * // それ以外のプラン
- * {
- *   &quot;section&quot; : {
- *     &quot;id&quot; : 102,
- *     &quot;company_id&quot; : 1,
- *     &quot;name&quot; : &quot;開発部門&quot;,
- *     &quot;shortcut1&quot; : &quot;DEVELOPER&quot;,
- *     &quot;shortcut2&quot; : &quot;123&quot;
- *   }
- * }</code></pre>
- *
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>部門名（name）は事業所内で重複できません。既に同名の部門が存在する場合は 400 エラーになります。</li>
+ *   <li>部門コード（code）を利用するには、事業所の設定で部門コードを使用する設定にする必要があります。設定が無効の場合、code を指定しても無視され保存されません。</li>
+ *   <li>親部門ID（parent_id）は部門階層を利用できるプランでのみ反映されます。利用できないプランでは指定しても親子関係は作成されません。</li>
+ * </ul>
  */
 export const createSection = <ThrowOnError extends boolean = true>(
   options?: Options<CreateSectionData, ThrowOnError>,
@@ -1110,9 +1058,15 @@ export const createSection = <ThrowOnError extends boolean = true>(
  * 部門の削除
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>指定した事業所の部門を削除する</p>
+ * <p>指定した事業所の部門を削除します。</p>
+ *
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>取引明細・申請・配賦設定などで使用されている部門は削除できず、400 エラーになります。部門を入力候補から外したい場合は、Web画面から使用設定（available）を「使用しない」に変更してください。</li>
+ *   <li>存在しないか既に削除された部門IDを指定した場合は 404 を返します。</li>
+ * </ul>
  */
 export const destroySection = <ThrowOnError extends boolean = true>(
   options: Options<DestroySectionData, ThrowOnError>,
@@ -1127,38 +1081,16 @@ export const destroySection = <ThrowOnError extends boolean = true>(
  * 部門の取得
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>指定した事業所の部門を取得する</p>
- * <p>事業所の設定で部門コードを使用する設定にしている場合、レスポンスで部門コード(code)を返します</p>
+ * <p>指定した事業所の部門を 1 件取得します。部門ID（id）は部門一覧の取得APIで確認できます。</p>
  *
- * <h2 id="_2">レスポンスの例</h2>
- *
- * <pre><code>// プレミアムプラン、法人スタンダードプラン（および旧法人ベーシックプラン）以上
- * {
- *   &quot;section&quot; : {
- *     &quot;id&quot; : 102,
- *     &quot;company_id&quot; : 1,
- *     &quot;name&quot; : &quot;開発部門&quot;,
- *     &quot;long_name&quot;: &quot;開発部門&quot;,
- *     &quot;shortcut1&quot; : &quot;DEVELOPER&quot;,
- *     &quot;shortcut2&quot; : &quot;123&quot;,
- *     &quot;indent_count&quot;: 1,
- *     &quot;parent_id&quot;: 101
- *   }
- * }
- * // それ以外のプラン
- * {
- *   &quot;section&quot; : {
- *     &quot;id&quot; : 102,
- *     &quot;company_id&quot; : 1,
- *     &quot;name&quot; : &quot;開発部門&quot;,
- *     &quot;long_name&quot;: &quot;開発部門&quot;,
- *     &quot;shortcut1&quot; : &quot;DEVELOPER&quot;,
- *     &quot;shortcut2&quot; : &quot;123&quot;
- *   }
- * }</code></pre>
- *
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>部門階層を利用できるプランでは indent_count と parent_id を返します。利用できないプランでは、これらのキー自体が返りません。</li>
+ *   <li>部門コード（code）は、事業所の設定で部門コードを使用する設定にしている場合のみレスポンスに含まれます。設定が無効の場合は code キー自体が返りません。</li>
+ *   <li>存在しないか既に削除された部門IDを指定した場合は 404 を返します。</li>
+ * </ul>
  */
 export const getSection = <ThrowOnError extends boolean = true>(
   options: Options<GetSectionData, ThrowOnError>,
@@ -1173,38 +1105,18 @@ export const getSection = <ThrowOnError extends boolean = true>(
  * 部門の更新
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>指定した事業所の部門を更新する</p>
- * <p>codeを利用するには、事業所の設定で部門コードを使用する設定にする必要があります。</p>
+ * <p>指定した事業所の部門を更新します。このAPIは部門の作成は行いません。部門コードをキーに更新（存在しない場合は作成）したい場合は PUT /api/1/sections/code/upsert を利用してください。</p>
  *
- * <h2 id="_2">レスポンスの例</h2>
- *
- * <pre><code>// プレミアムプラン、法人スタンダードプラン（および旧法人ベーシックプラン）以上
- * {
- *   &quot;section&quot; : {
- *     &quot;id&quot; : 102,
- *     &quot;company_id&quot; : 1,
- *     &quot;name&quot; : &quot;開発部門&quot;,
- *     &quot;long_name&quot;: &quot;開発部門&quot;,
- *     &quot;shortcut1&quot; : &quot;DEVELOPER&quot;,
- *     &quot;shortcut2&quot; : &quot;123&quot;,
- *     &quot;indent_count&quot;: 1,
- *     &quot;parent_id&quot;: 101
- *   }
- * }
- * // それ以外のプラン
- * {
- *   &quot;section&quot; : {
- *     &quot;id&quot; : 102,
- *     &quot;company_id&quot; : 1,
- *     &quot;name&quot; : &quot;開発部門&quot;,
- *     &quot;long_name&quot;: &quot;開発部門&quot;,
- *     &quot;shortcut1&quot; : &quot;DEVELOPER&quot;,
- *     &quot;shortcut2&quot; : &quot;123&quot;
- *   }
- * }</code></pre>
- *
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>部門名（name）は事業所内で重複できません。別の部門と同名になる更新は 400 エラーになります。</li>
+ *   <li>long_name と parent_id は、省略した場合に現在の値・親子関係を維持します。null を指定すると未設定・親部門なしに更新します。</li>
+ *   <li>shortcut1 / shortcut2 / code は、省略または null を指定した場合に未設定（null）へ更新されます。値を維持したい場合は現在の値を指定してください。</li>
+ *   <li>部門コード（code）は、事業所の設定で部門コードを使用する設定にしている場合のみ更新されます。設定が無効の場合、code を指定しても無視されます。</li>
+ *   <li>親部門ID（parent_id）は部門階層を利用できるプランでのみ反映されます。</li>
+ * </ul>
  */
 export const updateSection = <ThrowOnError extends boolean = true>(
   options: Options<UpdateSectionData, ThrowOnError>,
@@ -1222,10 +1134,18 @@ export const updateSection = <ThrowOnError extends boolean = true>(
 /**
  * 部門の更新（存在しない場合は作成）
  *
- * <h2 id="">概要</h2>
- * <p>部門コードをキーに、指定した部門の情報を更新（存在しない場合は作成）する</p>
- * <h2 id="_1">注意点</h2>
- * <p>codeを利用するには、事業所の設定で部門コードを使用する設定にする必要があります。</p>
+ * <h2 id="_1">概要</h2>
+ * <p>部門コード（code）をキーに、指定した部門の情報を更新します。該当する部門が存在しない場合は新規作成します（upsert）。外部システムとの連携で、部門マスタを一括で登録・更新する用途を想定しています。</p>
+ *
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>本APIを利用するには、事業所の設定で部門コードを使用する設定にする必要があります。設定が無効な事業所への呼び出しは 400 エラーになります。</li>
+ *   <li>section オブジェクト内で code を指定することはできません（部門コードは変更不可）。指定した場合は 400 エラーになります。リクエストボディ直下の code のみが有効です。</li>
+ *   <li>更新レスポンスは 200 OK、新規作成レスポンスは 201 Created で返ります。作成・更新のどちらが行われたかは HTTP ステータスコードで判別してください。</li>
+ *   <li>long_name と parent_code は、省略した場合に現在の値・親子関係を維持します。null を指定すると未設定・親部門なしに更新します。</li>
+ *   <li>shortcut1 / shortcut2 は、省略または null を指定した場合に未設定（null）へ更新されます。値を維持したい場合は現在の値を指定してください。</li>
+ *   <li>部門名（name）は事業所内で重複できません。別の部門と同名になる場合は 400 エラーになります。</li>
+ * </ul>
  */
 export const apiV1Sections_upsertByCode = <ThrowOnError extends boolean = true>(
   options: Options<ApiV1SectionsUpsertByCodeData, ThrowOnError>,
@@ -1301,9 +1221,17 @@ export const getInvoice = <ThrowOnError extends boolean = true>(
  * 見積書一覧の取得
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
  * <p>指定した事業所の見積書一覧を取得する</p>
+ *
+ * <h2 id="_2">注意点</h2>
+ *
+ * <ul>
+ * <li>partner_id と partner_code は同時に指定できません。どちらか一方のみ指定してください。</li>
+ * <li>partner_code は、事業所で取引先コードの利用設定が有効な場合のみ指定できます。無効な事業所で指定した場合はエラーになります。</li>
+ * <li>APIを利用するユーザーに閲覧権限のない部門が紐づく見積書は、取得結果に含まれません。</li>
+ * </ul>
  *
  */
 export const getQuotations = <ThrowOnError extends boolean = true>(
@@ -1319,9 +1247,15 @@ export const getQuotations = <ThrowOnError extends boolean = true>(
  * 見積書の取得
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
  * <p>指定した事業所の見積書詳細を取得する</p>
+ *
+ * <h2 id="_2">注意点</h2>
+ *
+ * <ul>
+ * <li>APIを利用するユーザーに閲覧権限のない部門が紐づく見積書を指定した場合は、存在しない見積書としてエラーになります。</li>
+ * </ul>
  */
 export const getQuotation = <ThrowOnError extends boolean = true>(
   options: Options<GetQuotationData, ThrowOnError>,
@@ -1901,55 +1835,16 @@ export const updateDealPayment = <ThrowOnError extends boolean = true>(
  * 振替伝票一覧の取得
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所の振替伝票を、発生日・勘定科目・金額・取引先などの条件で絞り込んで取得します。</p>
  *
- * <p>指定した事業所の振替伝票一覧を取得する</p>
- *
- * <h2 id="_2">定義</h2>
- *
+ * <h2 id="_2">注意点</h2>
  * <ul>
- * <li>
- * <p>issue_date : 発生日</p>
- * </li>
- *
- * <li>
- * <p>adjustment : 決算整理仕訳フラグ（true: 決算整理仕訳, false: 日常仕訳）</p>
- * </li>
- *
- * <li>
- * <p>txn_number : 仕訳番号</p>
- * </li>
- *
- * <li>
- * <p>ref_number : 管理番号</p>
- * </li>
- *
- * <li>
- * <p>details : 振替伝票の貸借行</p>
- * </li>
- *
- * <li>
- * <p>entry_side : 貸借区分</p>
- *
- * <ul>
- * <li>credit : 貸方</li>
- *
- * <li>debit : 借方</li>
+ *   <li>振替伝票は売掛・買掛レポートには反映されません。債権・債務データの登録には取引APIを使用してください。</li>
+ *   <li>事業所の仕訳番号形式が有効な場合のみ、<code>txn_number</code>に仕訳番号が入ります。</li>
+ *   <li>セグメントタグは法人アドバンスプラン（旧法人プロフェッショナルプランを含む）以上で利用できます。法人アドバンスプランではセグメント1、法人エンタープライズプランではセグメント1〜3を利用できます。</li>
+ *   <li><code>partner_code</code>を利用するには、事業所の取引先コード利用設定を有効にしてください。<code>partner_id</code>と<code>partner_code</code>は同時に指定できません。</li>
  * </ul>
- * </li>
- *
- * <li>
- * <p>amount : 金額</p>
- * </li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- *
- * <ul>
- * <li>振替伝票は売掛・買掛レポートには反映されません。債権・債務データの登録は取引(Deals)をお使いください。</li>
- * <li>事業所の仕訳番号形式が有効な場合のみ、レスポンスで仕訳番号(txn_number)を返します。</li>
- * <li>セグメントタグ情報は法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で利用可能です。利用可能なセグメントの数は、法人アドバンスプラン（および旧法人プロフェッショナルプラン）の場合は1つ、法人エンタープライズプランの場合は3つです。</li>
- * <li>partner_codeを利用するには、事業所の設定から取引先コードの利用を有効にする必要があります。またpartner_codeとpartner_idは同時に指定することはできません。</li></ul>
  */
 export const getManualJournals = <ThrowOnError extends boolean = true>(
   options: Options<GetManualJournalsData, ThrowOnError>,
@@ -1966,56 +1861,17 @@ export const getManualJournals = <ThrowOnError extends boolean = true>(
  * 振替伝票の作成
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所に、貸借が一致する振替伝票を作成します。各貸借行の金額は税込・円で指定します。</p>
  *
- * <p>指定した事業所の振替伝票を作成する</p>
- *
- * <h2 id="_2">定義</h2>
- *
+ * <h2 id="_2">注意点</h2>
  * <ul>
- * <li>
- * <p>issue_date : 発生日</p>
- * </li>
- *
- * <li>
- * <p>adjustment : 決算整理仕訳フラグ（true: 決算整理仕訳, false: 日常仕訳）</p>
- * </li>
- *
- * <li>
- * <p>txn_number : 仕訳番号</p>
- * </li>
- *
- * <li>
- * <p>ref_number : 管理番号</p>
- * </li>
- *
- * <li>
- * <p>details : 振替伝票の貸借行</p>
- * </li>
- *
- * <li>
- * <p>entry_side : 貸借区分</p>
- *
- * <ul>
- * <li>credit : 貸方</li>
- *
- * <li>debit : 借方</li>
+ *   <li>振替伝票は売掛・買掛レポートには反映されません。債権・債務データの登録には取引APIを使用してください。</li>
+ *   <li>貸借行は貸方・借方の合計で100行まで指定でき、貸方と借方の金額合計を一致させる必要があります。</li>
+ *   <li>勘定科目は<code>account_item_id</code>または<code>account_item_code</code>のどちらか一方を指定してください。コードを利用するには事業所の勘定科目コード利用設定を有効にしてください。</li>
+ *   <li>取引先・品目・部門・セグメントタグも、IDとコードを同時に指定できません。各コードを利用するには、対応する事業所のコード利用設定を有効にしてください。</li>
+ *   <li>セグメントタグは法人アドバンスプラン（旧法人プロフェッショナルプランを含む）以上で利用できます。</li>
  * </ul>
- * </li>
- *
- * <li>
- * <p>amount : 金額</p>
- * </li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- *
- * <ul>
- * <li>振替伝票は売掛・買掛レポートには反映されません。債権・債務データの登録は取引(Deals)をお使いください。</li>
- * <li>事業所の仕訳番号形式が有効な場合のみ、レスポンスで仕訳番号(txn_number)を返します。</li>
- * <li>貸借合わせて100行まで仕訳行を登録できます。</li>
- * <li>セグメントタグ情報は法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で利用可能です。利用可能なセグメントの数は、法人アドバンスプラン（および旧法人プロフェッショナルプラン）の場合は1つ、法人エンタープライズプランの場合は3つです。</li>
- * <li>partner_codeを利用するには、事業所の設定から取引先コードの利用を有効にする必要があります。またpartner_codeとpartner_idは同時に指定することはできません。</li></ul>
  *
  *
  */
@@ -2040,9 +1896,13 @@ export const createManualJournal = <ThrowOnError extends boolean = true>(
  * 振替伝票の削除
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所と振替伝票IDに一致する振替伝票を削除します。</p>
  *
- * <p>指定した事業所の振替伝票を削除する</p>
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>承認済みの振替伝票は、事業所設定と操作ユーザーの権限によって削除できない場合があります。</li>
+ * </ul>
  */
 export const destroyManualJournal = <ThrowOnError extends boolean = true>(
   options: Options<DestroyManualJournalData, ThrowOnError>,
@@ -2061,27 +1921,14 @@ export const destroyManualJournal = <ThrowOnError extends boolean = true>(
  * 振替伝票の取得
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所と振替伝票IDに一致する振替伝票を取得します。</p>
  *
- * <p>指定した事業所の振替伝票を取得する</p>
- *
- * <h2 id="_2">定義</h2>
- *
- * <ul> <li> <p>issue_date : 発生日</p> </li>
- * <li> <p>adjustment : 決算整理仕訳フラグ（true: 決算整理仕訳, false: 日常仕訳）</p> </li>
- * <li> <p>txn_number : 仕訳番号</p> </li>
- * <li> <p>details : 振替伝票の貸借行</p> </li>
- * <li> <p>entry_side : 貸借区分</p>
- * <ul> <li>credit : 貸方</li>
- * <li>debit : 借方</li> </ul> </li>
- * <li> <p>amount : 金額</p> </li> </ul>
- *
- * <h2 id="_3">注意点</h2>
- *
+ * <h2 id="_2">注意点</h2>
  * <ul>
- * <li>振替伝票は売掛・買掛レポートには反映されません。債権・債務データの登録は取引(Deals)をお使いください。</li>
- * <li>事業所の仕訳番号形式が有効な場合のみ、レスポンスで仕訳番号(txn_number)を返します。</li>
- * <li>セグメントタグ情報は法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で利用可能です。利用可能なセグメントの数は、法人アドバンスプラン（および旧法人プロフェッショナルプラン）の場合は1つ、法人エンタープライズプランの場合は3つです。</li>
+ *   <li>事業所の仕訳番号形式が有効な場合のみ、<code>txn_number</code>に仕訳番号が入ります。</li>
+ *   <li>セグメントタグは契約プランで利用可能なものだけがレスポンスに含まれます。</li>
+ *   <li>各種コードは、対応する事業所のコード利用設定が有効な場合だけレスポンスに含まれます。</li>
  * </ul>
  */
 export const getManualJournal = <ThrowOnError extends boolean = true>(
@@ -2097,63 +1944,17 @@ export const getManualJournal = <ThrowOnError extends boolean = true>(
  * 振替伝票の更新
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
+ * <p>指定した振替伝票を、リクエストに含めた貸借行の内容で更新します。各貸借行の金額は税込・円で指定します。</p>
  *
- * <p>指定した事業所の振替伝票を更新する</p>
- *
- * <h2 id="_2">定義</h2>
- *
+ * <h2 id="_2">注意点</h2>
  * <ul>
- * <li>
- * <p>issue_date : 発生日</p>
- * </li>
- *
- * <li>
- * <p>adjustment : 決算整理仕訳フラグ（true: 決算整理仕訳, false: 日常仕訳）</p>
- * </li>
- *
- * <li>
- * <p>txn_number : 仕訳番号</p>
- * </li>
- *
- * <li>
- * <p>ref_number : 管理番号</p>
- * </li>
- *
- * <li>
- * <p>details : 振替伝票の貸借行</p>
- * </li>
- *
- * <li>
- * <p>entry_side : 貸借区分</p>
- *
- * <ul>
- * <li>credit : 貸方</li>
- *
- * <li>debit : 借方</li>
+ *   <li><code>details</code>に含まれない既存の貸借行は削除されます。残す行は貸借行IDを指定して必ず<code>details</code>に含めてください。</li>
+ *   <li>貸借行IDを指定した行は更新され、指定しない行は新規行として追加されます。</li>
+ *   <li>貸借行は貸方・借方の合計で100行まで指定でき、貸方と借方の金額合計を一致させる必要があります。</li>
+ *   <li>勘定科目・取引先・品目・部門・セグメントタグは、IDとコードを同時に指定できません。コードを利用するには、対応する事業所のコード利用設定を有効にしてください。</li>
+ *   <li>承認済みの振替伝票は、事業所設定と操作ユーザーの権限によって更新できない場合があります。</li>
  * </ul>
- * </li>
- *
- * <li>
- * <p>amount : 金額</p>
- * </li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- *
- * <ul>
- * <li>振替伝票は売掛・買掛レポートには反映されません。債権・債務データの登録は取引(Deals)をお使いください。</li>
- *
- * <li>事業所の仕訳番号形式が有効な場合のみ、レスポンスで仕訳番号(txn_number)を返します。</li>
- * <li>貸借合わせて100行まで仕訳行を登録できます。</li>
- *
- * <li>detailsに含まれない既存の貸借行は削除されます。更新後も残したい行は、必ず貸借行IDを指定してdetailsに含めてください。</li>
- *
- * <li>detailsに含まれる貸借行IDの指定がある行は、更新行として扱われ更新されます。</li>
- *
- * <li>detailsに含まれる貸借行IDの指定がない行は、新規行として扱われ追加されます。</li>
- * <li>セグメントタグ情報は法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で利用可能です。利用可能なセグメントの数は、法人アドバンプスラン（および旧法人プロフェッショナルプラン）の場合は1つ、法人エンタープライズプランの場合は3つです。</li>
- * <li>partner_codeを利用するには、事業所の設定から取引先コードの利用を有効にする必要があります。またpartner_codeとpartner_idは同時に指定することはできません。</li></ul>
  *
  *
  */
@@ -2331,10 +2132,16 @@ export const getCompany = <ThrowOnError extends boolean = true>(
  * 品目一覧の取得
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>指定した事業所の品目一覧を取得する</p>
- * <p>事業所の設定で品目コードを使用する設定にしている場合、レスポンスで品目コード(code)を返します</p>
+ * <p>指定した事業所に登録されている品目の一覧を取得します。取引や振替伝票の明細に付与する品目マスタとして参照する用途を想定しています。</p>
+ *
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>使用設定（available）が false の品目も含めて返します。</li>
+ *   <li>start_update_date / end_update_date で品目の更新日を範囲指定して絞り込めます。JST の日付を <code>yyyy-mm-dd</code> で指定してください（どちらも指定日を含みます）。</li>
+ *   <li>品目コード（code）は、事業所の設定で品目コードを使用する設定にしている場合のみレスポンスに含まれます。設定が無効の場合は code キー自体が返りません。</li>
+ * </ul>
  */
 export const getItems = <ThrowOnError extends boolean = true>(
   options: Options<GetItemsData, ThrowOnError>,
@@ -2349,11 +2156,16 @@ export const getItems = <ThrowOnError extends boolean = true>(
  * 品目の作成
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>指定した事業所の品目を作成する</p>
+ * <p>指定した事業所に新しい品目を作成します。作成された品目は使用設定（available）が true の状態で登録され、取引作成時などに指定できるようになります。</p>
  *
- * <p>codeを利用するには、事業所の設定で品目コードを使用する設定にする必要があります。</p>
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>品目名（name）は事業所内で重複できません。既に同名の品目が存在する場合は 400 エラーになります。</li>
+ *   <li>品目コード（code）を利用するには、事業所の設定で品目コードを使用する設定にする必要があります。設定が無効の場合、code を指定しても無視され保存されません。</li>
+ *   <li>品目コード（code）は事業所内で重複できません。</li>
+ * </ul>
  */
 export const createItem = <ThrowOnError extends boolean = true>(
   options?: Options<CreateItemData, ThrowOnError>,
@@ -2372,9 +2184,15 @@ export const createItem = <ThrowOnError extends boolean = true>(
  * 品目の削除
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>指定した事業所の品目を削除する</p>
+ * <p>指定した事業所の品目を削除します。</p>
+ *
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>取引などで既に使用されている品目は削除できず、400 エラーになります。品目を無効にしたい場合は、Web 画面から使用設定（available）を「使用しない」に変更してください。</li>
+ *   <li>存在しないか既に削除された品目IDを指定した場合は 404 を返します。</li>
+ * </ul>
  */
 export const destroyItem = <ThrowOnError extends boolean = true>(
   options: Options<DestroyItemData, ThrowOnError>,
@@ -2389,10 +2207,15 @@ export const destroyItem = <ThrowOnError extends boolean = true>(
  * 品目の取得
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>指定した事業所の品目を取得する</p>
- * <p>事業所の設定で品目コードを使用する設定にしている場合、レスポンスで品目コード(code)を返します</p>
+ * <p>指定した事業所の品目を 1 件取得します。品目ID（id）は品目一覧の取得 API で確認できます。</p>
+ *
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>品目コード（code）は、事業所の設定で品目コードを使用する設定にしている場合のみレスポンスに含まれます。設定が無効の場合は code キー自体が返りません。</li>
+ *   <li>存在しないか既に削除された品目IDを指定した場合は 404 を返します。</li>
+ * </ul>
  */
 export const getItem = <ThrowOnError extends boolean = true>(
   options: Options<GetItemData, ThrowOnError>,
@@ -2404,13 +2227,20 @@ export const getItem = <ThrowOnError extends boolean = true>(
   });
 
 /**
- * 品目の更新（存在しない場合は作成）
+ * 品目の更新
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>指定した事業所の品目を更新する</p>
- * <p>codeを利用するには、事業所の設定で品目コードを使用する設定にする必要があります。</p>
+ * <p>指定した事業所の品目を更新します。この API は品目の作成は行いません。品目コードをキーに更新（存在しない場合は作成）したい場合は <code>PUT /api/1/items/code/upsert</code> を利用してください。</p>
+ *
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>リクエストボディで省略した任意項目（shortcut1・shortcut2・code）は未設定（null）に更新されます。値を維持したい場合は、現在の値も含めてすべての項目を指定してください。</li>
+ *   <li>品目名（name）は事業所内で重複できません。別の品目と同名になる更新は 400 エラーになります。</li>
+ *   <li>品目コード（code）は、事業所の設定で品目コードを使用する設定にしている場合のみ更新されます。設定が無効の場合、code を指定しても無視されます。</li>
+ *   <li>存在しない品目IDを指定した場合はエラーになります。品目IDは品目一覧の取得 API で事前に確認してください。</li>
+ * </ul>
  */
 export const updateItem = <ThrowOnError extends boolean = true>(
   options: Options<UpdateItemData, ThrowOnError>,
@@ -2426,13 +2256,21 @@ export const updateItem = <ThrowOnError extends boolean = true>(
   });
 
 /**
- * 品目の更新（作成）
+ * 品目の更新（存在しない場合は作成）
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>品目コードをキーに、指定した品目の情報を更新（存在しない場合は作成）する</p>
- * <p>codeを利用するには、事業所の設定で品目コードを使用する設定にする必要があります。</p>
+ * <p>品目コード（code）をキーに、指定した品目の情報を更新します。該当する品目が存在しない場合は新規作成します（upsert）。外部システムとの連携で、品目マスタを一括で登録・更新する用途を想定しています。</p>
+ *
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>本 API を利用するには、事業所の設定で品目コードを使用する設定にする必要があります。設定が無効な事業所への呼び出しは 400 エラーになります。</li>
+ *   <li>item オブジェクト内で code を指定することはできません（品目コードは変更不可）。指定した場合は 400 エラーになります。リクエストボディ直下の code のみが有効です。</li>
+ *   <li>更新レスポンスは 200 OK、新規作成レスポンスは 201 Created で返ります。作成・更新のどちらが行われたかは HTTP ステータスコードで判別してください。</li>
+ *   <li>更新時、item オブジェクト内で省略した任意項目（shortcut1・shortcut2）は未設定（null）に更新されます。値を維持したい場合は、現在の値も含めてすべての項目を指定してください。</li>
+ *   <li>品目名（name）は事業所内で重複できません。別の品目と同名になる場合は 400 エラーになります。</li>
+ * </ul>
  */
 export const apiV1Items_upsertByCode = <ThrowOnError extends boolean = true>(
   options?: Options<ApiV1ItemsUpsertByCodeData, ThrowOnError>,
@@ -2699,28 +2537,14 @@ export const getBank = <ThrowOnError extends boolean = true>(
  * 取引（振替）一覧の取得
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
  * <p>指定した事業所の取引（振替）一覧を取得する</p>
  *
- * <h2 id="_2">定義</h2>
- *
+ * <h2 id="_2">注意点</h2>
  * <ul>
- * <li>
- * <p>amount : 振替金額</p>
- * </li>
- *
- * <li>
- * <p>from_walletable_type, to_walletable_type</p>
- *
- * <ul>
- * <li>bank_account : 銀行口座</li>
- *
- * <li>credit_card : クレジットカード</li>
- *
- * <li>wallet : その他の決済口座</li>
- * </ul>
- * </li>
+ *   <li>振替元・振替先に指定できる口座のIDと口座区分（type）は、口座一覧の取得（GET /api/1/walletables）で確認できます。</li>
+ *   <li>振替先口座はレスポンスの to_walletables（複数行）で返します。amount / to_walletable_type / to_walletable_id / description は振替先の複数指定に対応していない旧形式のフィールド（廃止予定）で、振替先が複数ある場合、amount は全行の合計金額（支払手数料が設定されている場合は手数料分を加算した金額）、to_walletable_type / to_walletable_id は金額が最大の行の値、description は各行の備考を結合した文字列を返します。</li>
  * </ul>
  */
 export const getTransfers = <ThrowOnError extends boolean = true>(
@@ -2736,28 +2560,15 @@ export const getTransfers = <ThrowOnError extends boolean = true>(
  * 取引（振替）の作成
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
  * <p>指定した事業所の取引（振替）を作成する</p>
  *
- * <h2 id="_2">定義</h2>
- *
+ * <h2 id="_2">注意点</h2>
  * <ul>
- * <li>
- * <p>amount : 振替金額</p>
- * </li>
- *
- * <li>
- * <p>from_walletable_type, to_walletable_type</p>
- *
- * <ul>
- * <li>bank_account : 銀行口座</li>
- *
- * <li>credit_card : クレジットカード</li>
- *
- * <li>wallet : その他の決済口座</li>
- * </ul>
- * </li>
+ *   <li>振替元・振替先に指定できる口座のIDと口座区分（type）は、口座一覧の取得（GET /api/1/walletables）で確認できます。</li>
+ *   <li>振替先が1つの場合は to_walletable_type / to_walletable_id / amount（必要に応じて description）を指定します。振替先が複数の場合は to_walletables（最大50行）を指定します。両方を同時に指定することはできません。</li>
+ *   <li>to_walletables を指定する場合、振替元は from_walletable_type / from_walletable_id で共通指定し、各行の amount には0円より大きい金額を指定します。複数行で同一の振替先口座は指定できません。</li>
  * </ul>
  */
 export const createTransfer = <ThrowOnError extends boolean = true>(
@@ -2777,9 +2588,15 @@ export const createTransfer = <ThrowOnError extends boolean = true>(
  * 取引（振替）の削除
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
  * <p>指定した事業所の取引（振替）を削除する</p>
+ *
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>指定したIDの取引（振替）が存在しない場合や、削除済み・権限がない場合は404を返します。</li>
+ *   <li>取引（振替）の状態により削除できない場合は400を返します。エラーメッセージに削除できない理由を含みます。</li>
+ * </ul>
  */
 export const destroyTransfer = <ThrowOnError extends boolean = true>(
   options: Options<DestroyTransferData, ThrowOnError>,
@@ -2794,28 +2611,14 @@ export const destroyTransfer = <ThrowOnError extends boolean = true>(
  * 取引（振替）の取得
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
  * <p>指定した事業所の取引（振替）を取得する</p>
  *
- * <h2 id="_2">定義</h2>
- *
+ * <h2 id="_2">注意点</h2>
  * <ul>
- * <li>
- * <p>amount : 振替金額</p>
- * </li>
- *
- * <li>
- * <p>from_walletable_type, to_walletable_type</p>
- *
- * <ul>
- * <li>bank_account : 銀行口座</li>
- *
- * <li>credit_card : クレジットカード</li>
- *
- * <li>wallet : その他の決済口座</li>
- * </ul>
- * </li>
+ *   <li>振替先口座はレスポンスの to_walletables（複数行）で返します。amount / to_walletable_type / to_walletable_id / description は振替先の複数指定に対応していない旧形式のフィールド（廃止予定）で、振替先が複数ある場合、amount は全行の合計金額（支払手数料が設定されている場合は手数料分を加算した金額）、to_walletable_type / to_walletable_id は金額が最大の行の値、description は各行の備考を結合した文字列を返します。</li>
+ *   <li>指定したIDの取引（振替）が存在しない場合や、削除済み・権限がない場合は404を返します。</li>
  * </ul>
  */
 export const getTransfer = <ThrowOnError extends boolean = true>(
@@ -2831,28 +2634,16 @@ export const getTransfer = <ThrowOnError extends boolean = true>(
  * 取引（振替）の更新
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
  * <p>指定した事業所の取引（振替）を更新する</p>
  *
- * <h2 id="_2">定義</h2>
- *
+ * <h2 id="_2">注意点</h2>
  * <ul>
- * <li>
- * <p>amount : 振替金額</p>
- * </li>
- *
- * <li>
- * <p>from_walletable_type, to_walletable_type</p>
- *
- * <ul>
- * <li>bank_account : 銀行口座</li>
- *
- * <li>credit_card : クレジットカード</li>
- *
- * <li>wallet : その他の決済口座</li>
- * </ul>
- * </li>
+ *   <li>部分更新ではありません。作成時と同様に、更新後の取引（振替）の内容全体をリクエストで指定します。</li>
+ *   <li>振替先が複数ある取引（振替）を更新する場合は to_walletables の指定が必要です。to_walletables を指定せず旧形式の単一フィールド（to_walletable_type / to_walletable_id / amount）のみで更新しようとするとエラーになります（複数の振替先を意図せず1件に置き換えることを防ぐためです）。</li>
+ *   <li>受取利息や振込手数料が設定された取引（振替）は本APIでは更新できません。</li>
+ *   <li>承認済みの取引（振替）は、事業所の設定や実行ユーザーの権限によっては更新できません。</li>
  * </ul>
  */
 export const updateTransfer = <ThrowOnError extends boolean = true>(
@@ -2874,21 +2665,28 @@ export const updateTransfer = <ThrowOnError extends boolean = true>(
  *
  * <h2 id="">概要</h2>
  *
- * <p>指定した事業所の口座明細一覧を取得する</p>
+ * <p>指定した事業所の口座明細（銀行口座・クレジットカード・その他の決済口座の入出金明細）一覧を取得する</p>
  *
- * <h2 id="_2">定義</h2>
+ * <h2 id="_2">注意点</h2>
+ *
+ * <ul>
+ * <li>デフォルトでは取引日（date）の降順で返されます。sort_type に created_at_desc を指定すると、明細の作成日時の降順で返されます。</li>
+ * <li>取得件数は limit と offset で制御します（デフォルト: 20件、最大: 100件）。</li>
+ * </ul>
+ *
+ * <h2 id="_3">定義</h2>
  *
  * <ul>
  * <li>
- * <p>amount : 明細金額</p>
+ * <p>amount : 取引金額（単位: 円）</p>
  * </li>
  *
  * <li>
- * <p>due_amount : 取引登録待ち金額</p>
+ * <p>due_amount : 取引登録待ち金額（明細に対してまだ取引が登録されていない金額）</p>
  * </li>
  *
  * <li>
- * <p>balance : 残高</p>
+ * <p>balance : 残高（銀行口座等）</p>
  * </li>
  *
  * <li>
@@ -2909,7 +2707,7 @@ export const updateTransfer = <ThrowOnError extends boolean = true>(
  *
  * <li>credit_card : クレジットカード</li>
  *
- * <li>wallet : その他の決済口座</li>
+ * <li>wallet : 現金・その他の決済口座</li>
  * </ul>
  * </li>
  * </ul>
@@ -2931,19 +2729,25 @@ export const getWalletTxns = <ThrowOnError extends boolean = true>(
  *
  * <p>指定した事業所の口座明細を作成する</p>
  *
- * <h2 id="_2">定義</h2>
+ * <h2 id="_2">注意点</h2>
+ *
+ * <ul>
+ * <li>登録時に<a target="_blank" href="https://support.freee.co.jp/hc/ja/articles/202848350-明細の自動登録ルールを設定する">自動登録ルールの設定</a>の条件に一致した場合はルールが適用され、取引の登録などが自動で行われることがあります。ルールが適用され登録処理が実行された場合、レスポンスの rule_matched が true になります。</li>
+ * </ul>
+ *
+ * <h2 id="_3">定義</h2>
  *
  * <ul>
  * <li>
- * <p>amount : 明細金額</p>
+ * <p>amount : 取引金額（単位: 円）</p>
  * </li>
  *
  * <li>
- * <p>due_amount : 取引登録待ち金額</p>
+ * <p>due_amount : 取引登録待ち金額（明細に対してまだ取引が登録されていない金額）</p>
  * </li>
  *
  * <li>
- * <p>balance : 残高</p>
+ * <p>balance : 残高（銀行口座等）</p>
  * </li>
  *
  * <li>
@@ -2964,7 +2768,7 @@ export const getWalletTxns = <ThrowOnError extends boolean = true>(
  *
  * <li>credit_card : クレジットカード</li>
  *
- * <li>wallet : その他の決済口座</li>
+ * <li>wallet : 現金・その他の決済口座</li>
  * </ul>
  * </li>
  * </ul>
@@ -3020,15 +2824,15 @@ export const destroyWalletTxn = <ThrowOnError extends boolean = true>(
  *
  * <ul>
  * <li>
- * <p>amount : 明細金額</p>
+ * <p>amount : 取引金額（単位: 円）</p>
  * </li>
  *
  * <li>
- * <p>due_amount : 取引登録待ち金額</p>
+ * <p>due_amount : 取引登録待ち金額（明細に対してまだ取引が登録されていない金額）</p>
  * </li>
  *
  * <li>
- * <p>balance : 残高</p>
+ * <p>balance : 残高（銀行口座等）</p>
  * </li>
  *
  * <li>
@@ -3049,7 +2853,7 @@ export const destroyWalletTxn = <ThrowOnError extends boolean = true>(
  *
  * <li>credit_card : クレジットカード</li>
  *
- * <li>wallet : その他の決済口座</li>
+ * <li>wallet : 現金・その他の決済口座</li>
  * </ul>
  * </li>
  * </ul>
@@ -3067,55 +2871,28 @@ export const getWalletTxn = <ThrowOnError extends boolean = true>(
  * 仕訳帳のダウンロード要求
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>ユーザーが所属する事業所の仕訳帳のダウンロードをリクエストします。</p>
+ * <p>指定した事業所の仕訳帳ファイルの作成を依頼する（非同期処理）</p>
  *
- * <p>生成されるファイルのファイル形式と出力項目に関しては、<a href="https://support.freee.co.jp/hc/ja/articles/204615564#other">ヘルプページ</a>をご参照ください。</p>
+ * <p>本APIはファイル作成のリクエストを受け付けるのみで、ファイルは非同期で作成されます。レスポンスの id（受け付けID）を使って、仕訳帳のステータスの取得（GET /api/1/journals/reports/{id}/status）でステータスを確認し、uploaded になったら仕訳帳のダウンロード（GET /api/1/journals/reports/{id}/download）でファイルを取得してください。</p>
  *
- * <h2 id="_2">定義</h2>
+ * <p>生成されるファイルのファイル形式と出力項目に関しては、<a href="https://support.freee.co.jp/hc/ja/articles/204615564#other">ヘルプページ</a>をご参照ください。download_type ごとの詳細は以下をご参照ください。</p>
  *
  * <ul>
- *   <li>download_type
- *     <ul>
- *       <li>generic <a href="https://support.freee.co.jp/hc/ja/articles/204615564#2">(旧CSV)</a></li>
- *       <li>generic_v2 <a href="https://support.freee.co.jp/hc/ja/articles/204615564#h_01GEDXEY3SQP8Y7S58CM2H4CKH">(新CSV（freee汎用形式）)</a></li>
- *       <li>csv <a href="https://support.freee.co.jp/hc/ja/articles/204599604#2">(弥生会計)</a></li>
- *       <li>pdf <a href="https://support.freee.co.jp/hc/ja/articles/204615564#3">(PDF)</a></li>
- *     </ul>
- *   </li>
- *   <li>encoding : download_typeがgeneric, generic_v2の場合のみ有効で、指定しない場合はsjisになります。無効なdownload_typeのうちcsvの場合はsjisでファイル出力されるので、レスポンスでsjisがかえります。
- *     <ul>
- *       <li>sjis</li>
- *       <li>utf-8</li>
- *     </ul>
- *   </li>
- *   <li>visible_tags : download_typeがgeneric, csv, pdfの場合のみ有効です。指定しない場合は従来の仕様の仕訳帳が出力されます。
- *     <ul>
- *       <li>partner : 取引先タグ</li>
- *       <li>item : 品目タグ</li>
- *       <li>tag : メモタグ</li>
- *       <li>section : 部門タグ</li>
- *       <li>description : 備考欄</li>
- *       <li>wallet_txn_description : 明細の備考欄</li>
- *       <li>
- *         segment_1_tag : セグメント１タグ<br>
- *         segment_2_tag : セグメント２タグ<br>
- *         segment_3_tag : セグメント３タグ<br><br>
- *         <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a><br>
- *       </li>
- *       <li>all : 指定された場合は上記の設定をすべて有効として扱いますが、セグメント１タグ、セグメント２タグ、セグメント３タグは含みません。セグメントが必要な場合はallではなく、segment_1_tag, segment_2_tag, segment_3_tagを指定してください。</li>
- *     </ul>
- *   </li>
- *   <li>visible_ids : download_typeがgenericの場合のみ有効です。
- *     <ul>
- *       <li>deal_id : 取引ID</li>
- *       <li>transfer_id : 取引(振替)ID</li>
- *       <li>manual_journal_id : 振替伝票ID</li>
- *     </ul>
- *   </li>
+ *   <li>generic <a href="https://support.freee.co.jp/hc/ja/articles/204615564#2">(旧CSV)</a></li>
+ *   <li>generic_v2 <a href="https://support.freee.co.jp/hc/ja/articles/204615564#h_01GEDXEY3SQP8Y7S58CM2H4CKH">(新CSV（freee汎用形式）)</a></li>
+ *   <li>csv <a href="https://support.freee.co.jp/hc/ja/articles/204599604#2">(弥生会計)</a></li>
+ *   <li>pdf <a href="https://support.freee.co.jp/hc/ja/articles/204615564#3">(PDF)</a></li>
+ * </ul>
  *
- *   <li>id : 受け付けID</li>
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>start_date・end_date を指定しない場合は、当期の会計年度の開始日・終了日が自動で設定されます。</li>
+ *   <li>encoding は download_type が generic・generic_v2 の場合のみ指定できます。未指定の場合は sjis になります。download_type が csv・pdf の場合に指定すると 400 エラーになります（csv は常に sjis で出力されるため、レスポンスの encoding には sjis が返ります。pdf の場合は null が返ります）。</li>
+ *   <li>visible_tags は download_type が generic・csv・pdf の場合のみ指定できます（generic_v2 に指定すると 400 エラーになります）。指定しない場合は従来の仕様の仕訳帳が出力されます。</li>
+ *   <li>segment_1_tag・segment_2_tag・segment_3_tag は download_type が generic の場合のみ指定でき、対応するセグメントが利用可能なプランの契約と設定を完了している必要があります。詳細は<a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>をご参照ください。</li>
+ *   <li>visible_ids は download_type が generic の場合のみ指定できます（それ以外に指定すると 400 エラーになります）。</li>
  * </ul>
  */
 export const getJournals = <ThrowOnError extends boolean = true>(
@@ -3131,28 +2908,16 @@ export const getJournals = <ThrowOnError extends boolean = true>(
  * 仕訳帳のステータスの取得
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
  * <p>仕訳帳のダウンロードリクエストのステータスを取得する</p>
  *
- * <h2 id="_2">定義</h2>
+ * <p>仕訳帳のダウンロード要求（GET /api/1/journals）のレスポンスで返る id（受け付けID）を指定します。status が uploaded になると、レスポンスに download_url（仕訳帳のダウンロード（GET /api/1/journals/reports/{id}/download）のURL）が含まれます。</p>
  *
+ * <h2 id="_2">注意点</h2>
  * <ul>
- * <li>
- * <p>status</p>
- *
- * <ul>
- * <li>enqueued : 実行待ち</li>
- *
- * <li>working : 実行中</li>
- *
- * <li>uploaded : 準備完了</li>
- * </ul>
- * </li>
- *
- * <li>
- * <p>id : 受け付けID</p>
- * </li>
+ *   <li>status が failed の場合はファイルの作成に失敗しています。仕訳帳のダウンロード要求（GET /api/1/journals）から再度やり直してください。</li>
+ *   <li>指定した id が存在しない場合は 404 エラーになります。</li>
  * </ul>
  */
 export const getJournalStatus = <ThrowOnError extends boolean = true>(
@@ -3168,14 +2933,15 @@ export const getJournalStatus = <ThrowOnError extends boolean = true>(
  * 仕訳帳のダウンロード
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>仕訳帳をダウンロードする</p>
+ * <p>作成が完了した仕訳帳ファイルをダウンロードする</p>
  *
- * <h2 id="_2">定義</h2>
+ * <p>仕訳帳のステータスの取得（GET /api/1/journals/reports/{id}/status）で status が uploaded になった後に呼び出してください。ファイルは仕訳帳のダウンロード要求（GET /api/1/journals）で指定した download_type に応じて CSV（text/csv）または PDF（application/pdf）で返ります。</p>
  *
+ * <h2 id="_2">注意点</h2>
  * <ul>
- * <li>id : 受け付けID</li>
+ *   <li>ファイルの作成が完了していない場合や、指定した id が存在しない場合は 404 エラーになります。</li>
  * </ul>
  */
 export const downloadJournal = <ThrowOnError extends boolean = true>(
@@ -3445,20 +3211,20 @@ export const getTrialBsThreeYears = <ThrowOnError extends boolean = true>(
  * 損益計算書の取得
  *
  *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の損益計算書を取得する</p>
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所の損益計算書（Profit and Loss statement, PL）を取得します。月次・期間指定での損益確認や、取引先・品目・部門・セグメント単位のPL内訳集計に利用できます。</p>
  *
  * <h2 id="_2">定義</h2>
  * <ul>
- *   <li><p>created_at : 作成日時</p></li>
+ *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
  *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level: 階層レベル</p></li>
- *   <li><p>parent_account_category_name: 上位勘定科目カテゴリー名</p></li>
- *   <li><p>opening_balance : 期首残高</p></li>
- *   <li><p>debit_amount : 借方金額</p></li>
- *   <li><p>credit_amount:  貸方金額</p></li>
- *   <li><p>closing_balance : 期末残高</p></li>
- *   <li><p>composition_ratio : 構成比</p></li>
+ *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
+ *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
+ *   <li><p>opening_balance : 期首残高（円）</p></li>
+ *   <li><p>debit_amount : 期間中の借方金額（円）</p></li>
+ *   <li><p>credit_amount : 期間中の貸方金額（円）</p></li>
+ *   <li><p>closing_balance : 期末残高（円）</p></li>
+ *   <li><p>composition_ratio : 構成比（百分率、%。PLの基準額（法人の場合は売上高の合計、個人の場合は収入金額の合計）に対する当該行の金額割合を 100 換算した値。基準額を超える行では 100 を超え得る）</p></li>
  * </ul>
  *
  * <h2 id="_3">注意点</h2>
@@ -3486,43 +3252,42 @@ export const getTrialBsThreeYears = <ThrowOnError extends boolean = true>(
  * </ul>
  *
  * <h2 id="_4">レスポンスの例</h2>
- *
  * <blockquote>
  * <p>GET https://api.freee.co.jp/api/1/reports/trial_pl?company_id=1&amp;fiscal_year=2019&amp;breakdown_display_type=partner</p>
  * </blockquote>
  *
  * <pre><code>{
- *   &quot;trial_pl&quot; :
- *     {
- *       &quot;company_id&quot; : 1,
- *       &quot;fiscal_year&quot; : 2019,
- *       &quot;breakdown_display_type&quot; : &quot;partner&quot;,
- *       &quot;created_at&quot; : &quot;2019-12-17 12:00:50&quot
- *       &quot;balances&quot; : [{
- *         &quot;account_item_id&quot; : 1500,
- *         &quot;account_item_name&quot; : &quot;売上高&quot;,
- *         &quot;hierarchy_level&quot; : 2,
- *         &quot;account_category_name&quot; : &quot;営業収益&quot;,
- *         &quot;opening_balance&quot; : 100000,
- *         &quot;debit_amount&quot; : 50000,
- *         &quot;credit_amount&quot; : 20000,
- *         &quot;closing_balance&quot; : 130000,
- *         &quot;composition_ratio&quot; : 0.25
- *         &quot;partners&quot; : [{
- *           &quot;id&quot; : 123,
- *           &quot;name&quot; : &quot;freee&quot;,
- *           &quot;opening_balance&quot; : 100000,
- *           &quot;debit_amount&quot; : 50000,
- *           &quot;credit_amount&quot; : 20000,
- *           &quot;closing_balance&quot; : 130000,
- *           &quot;composition_ratio&quot; : 0.25
- *           },
- *         ...
+ *   &quot;trial_pl&quot;: {
+ *     &quot;company_id&quot;: 1,
+ *     &quot;fiscal_year&quot;: 2019,
+ *     &quot;breakdown_display_type&quot;: &quot;partner&quot;,
+ *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
+ *     &quot;balances&quot;: [
+ *       {
+ *         &quot;account_item_id&quot;: 1500,
+ *         &quot;account_item_name&quot;: &quot;売上高&quot;,
+ *         &quot;hierarchy_level&quot;: 2,
+ *         &quot;account_category_name&quot;: &quot;営業収益&quot;,
+ *         &quot;opening_balance&quot;: 0,
+ *         &quot;debit_amount&quot;: 50000,
+ *         &quot;credit_amount&quot;: 150000,
+ *         &quot;closing_balance&quot;: 100000,
+ *         &quot;composition_ratio&quot;: 100.0,
+ *         &quot;partners&quot;: [
+ *           {
+ *             &quot;id&quot;: 123,
+ *             &quot;name&quot;: &quot;freee&quot;,
+ *             &quot;opening_balance&quot;: 0,
+ *             &quot;debit_amount&quot;: 50000,
+ *             &quot;credit_amount&quot;: 150000,
+ *             &quot;closing_balance&quot;: 100000,
+ *             &quot;composition_ratio&quot;: 100.0
+ *           }
  *         ]
- *       },
- *       ...
- *       ]
- *     }
+ *       }
+ *     ]
+ *   },
+ *   &quot;up_to_date&quot;: true
  * }</code></pre>
  *
  */
@@ -3539,18 +3304,18 @@ export const getTrialPl = <ThrowOnError extends boolean = true>(
  * 損益計算書(前年比較)の取得
  *
  *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の損益計算書(前年比較)を取得する</p>
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所の損益計算書(前年比較)を取得します。当年度と前年度の期末残高を並べて比較し、前年比を確認する用途に利用できます。</p>
  *
  * <h2 id="_2">定義</h2>
  * <ul>
- *   <li><p>created_at : 作成日時</p></li>
+ *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
  *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level: 階層レベル</p></li>
- *   <li><p>parent_account_category_name: 上位勘定科目カテゴリー名</p></li>
- *   <li><p>last_year_closing_balance:  前年度期末残高</p></li>
- *   <li><p>closing_balance : 期末残高</p></li>
- *   <li><p>year_on_year : 前年比</p></li>
+ *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
+ *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
+ *   <li><p>last_year_closing_balance : 前年度期末残高（円）</p></li>
+ *   <li><p>closing_balance : 当年度期末残高（円）</p></li>
+ *   <li><p>year_on_year : 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）</p></li>
  * </ul>
  *
  * <h2 id="_3">注意点</h2>
@@ -3568,9 +3333,9 @@ export const getTrialPl = <ThrowOnError extends boolean = true>(
  *   </li>
  *   <li>0を指定すると未選択で絞り込めます
  *   <ul>
- *   <li>partner_idに0を指定して絞り込んだ場合
+ *     <li>partner_idに0を指定して絞り込んだ場合
  *     <ul>
- *     <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
+ *       <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
  *     </ul>
  *     </li>
  *   </ul>
@@ -3583,23 +3348,23 @@ export const getTrialPl = <ThrowOnError extends boolean = true>(
  * </blockquote>
  *
  * <pre><code>{
- *   &quot;trial_pl_two_years&quot; :
- *     {
- *       &quot;company_id&quot; : 1,
- *       &quot;fiscal_year&quot; : 2019,
- *       &quot;created_at&quot; : &quot;2019-12-17 12:00:50&quot
- *       &quot;balances&quot; : [{
- *         &quot;account_item_id&quot; : 1500,
- *         &quot;account_item_name&quot; : &quot;売上高&quot;,
- *         &quot;hierarchy_level&quot; : 2,
- *         &quot;account_category_name&quot; : &quot;営業収益&quot;,
- *         &quot;last_year_closing_balance&quot; : 25000,
- *         &quot;closing_balance&quot; : 100000,
- *         &quot;year_on_year&quot; : 0.85
- *       },
- *       ...
- *       ]
- *     }
+ *   &quot;trial_pl_two_years&quot;: {
+ *     &quot;company_id&quot;: 1,
+ *     &quot;fiscal_year&quot;: 2019,
+ *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
+ *     &quot;balances&quot;: [
+ *       {
+ *         &quot;account_item_id&quot;: 1500,
+ *         &quot;account_item_name&quot;: &quot;売上高&quot;,
+ *         &quot;hierarchy_level&quot;: 2,
+ *         &quot;account_category_name&quot;: &quot;営業収益&quot;,
+ *         &quot;last_year_closing_balance&quot;: 25000,
+ *         &quot;closing_balance&quot;: 100000,
+ *         &quot;year_on_year&quot;: 400.0
+ *       }
+ *     ]
+ *   },
+ *   &quot;up_to_date&quot;: true
  * }</code></pre>
  *
  */
@@ -3620,19 +3385,19 @@ export const getTrialPlTwoYears = <ThrowOnError extends boolean = true>(
  * 損益計算書(３期間比較)の取得
  *
  *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の損益計算書(３期間比較)を取得する</p>
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所の損益計算書(３期間比較)を取得します。当年度・前年度・前々年度の期末残高を並べて比較し、前年比を確認する用途に利用できます。</p>
  *
  * <h2 id="_2">定義</h2>
  * <ul>
- *   <li><p>created_at : 作成日時</p></li>
+ *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
  *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level: 階層レベル</p></li>
- *   <li><p>parent_account_category_name: 上位勘定科目カテゴリー名</p></li>
- *   <li><p>two_years_before_closing_balance:  前々年度期末残高</p></li>
- *   <li><p>last_year_closing_balance:  前年度期末残高</p></li>
- *   <li><p>closing_balance : 期末残高</p></li>
- *   <li><p>year_on_year : 前年比</p></li>
+ *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
+ *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
+ *   <li><p>two_years_before_closing_balance : 前々年度期末残高（円）</p></li>
+ *   <li><p>last_year_closing_balance : 前年度期末残高（円）</p></li>
+ *   <li><p>closing_balance : 当年度期末残高（円）</p></li>
+ *   <li><p>year_on_year : 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）</p></li>
  * </ul>
  *
  * <h2 id="_3">注意点</h2>
@@ -3660,30 +3425,29 @@ export const getTrialPlTwoYears = <ThrowOnError extends boolean = true>(
  * </ul>
  *
  * <h2 id="_4">レスポンスの例</h2>
- *
  * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_pl_three_years?company_id=1&fiscal_year=2019</p>
+ * <p>GET https://api.freee.co.jp/api/1/reports/trial_pl_three_years?company_id=1&amp;fiscal_year=2019</p>
  * </blockquote>
  *
  * <pre><code>{
- *   &quot;trial_pl_three_years&quot; :
- *     {
- *       &quot;company_id&quot; : 1,
- *       &quot;fiscal_year&quot; : 2019,
- *       &quot;created_at&quot; : &quot;2019-12-17 12:00:50&quot
- *       &quot;balances&quot; : [{
- *         &quot;account_item_id&quot; : 1500,
- *         &quot;account_item_name&quot; : &quot;売上高&quot;,
- *         &quot;hierarchy_level&quot; : 2,
- *         &quot;account_category_name&quot; : &quot;営業収益&quot;,
- *         &quot;two_year_before_closing_balance&quot; : 50000,
- *         &quot;last_year_closing_balance&quot; : 25000,
- *         &quot;closing_balance&quot; : 100000,
- *         &quot;year_on_year&quot; : 0.85
- *       },
- *       ...
- *       ]
- *     }
+ *   &quot;trial_pl_three_years&quot;: {
+ *     &quot;company_id&quot;: 1,
+ *     &quot;fiscal_year&quot;: 2019,
+ *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
+ *     &quot;balances&quot;: [
+ *       {
+ *         &quot;account_item_id&quot;: 1500,
+ *         &quot;account_item_name&quot;: &quot;売上高&quot;,
+ *         &quot;hierarchy_level&quot;: 2,
+ *         &quot;account_category_name&quot;: &quot;営業収益&quot;,
+ *         &quot;two_years_before_closing_balance&quot;: 50000,
+ *         &quot;last_year_closing_balance&quot;: 25000,
+ *         &quot;closing_balance&quot;: 100000,
+ *         &quot;year_on_year&quot;: 400.0
+ *       }
+ *     ]
+ *   },
+ *   &quot;up_to_date&quot;: true
  * }</code></pre>
  *
  */
@@ -3704,16 +3468,16 @@ export const getTrialPlThreeYears = <ThrowOnError extends boolean = true>(
  * 損益計算書(部門比較)の取得
  *
  *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の損益計算書(部門比較)を取得する</p>
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所の損益計算書(部門比較)を取得します。指定した部門（最大5つ）ごとの期末残高を並べて比較する用途に利用できます。</p>
  *
  * <h2 id="_2">定義</h2>
  * <ul>
- *   <li><p>created_at : 作成日時</p></li>
+ *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
  *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level: 階層レベル</p></li>
- *   <li><p>parent_account_category_name: 上位勘定科目カテゴリー名</p></li>
- *   <li><p>closing_balance : 期末残高</p></li>
+ *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
+ *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
+ *   <li><p>closing_balance : 期末残高（円。行直下の値は比較対象に指定した部門の合計、sections 配下の値は各部門の金額）</p></li>
  * </ul>
  *
  * <h2 id="_3">注意点</h2>
@@ -3741,45 +3505,44 @@ export const getTrialPlThreeYears = <ThrowOnError extends boolean = true>(
  * </ul>
  *
  * <h2 id="_4">レスポンスの例</h2>
- *
  * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_pl_sections?company_id=1&amp;section_ids=1,2,3&amp;fiscal_year=2019</p></p>
+ * <p>GET https://api.freee.co.jp/api/1/reports/trial_pl_sections?company_id=1&amp;section_ids=1,2,3&amp;fiscal_year=2019</p>
  * </blockquote>
  *
  * <pre><code>{
- *   &quot;trial_pl_sections&quot; :
- *     {
- *       &quot;company_id&quot; : 1,
- *       &quot;section_ids&quot; : &quot;1,2,3&quot;,
- *       &quot;fiscal_year&quot; : 2019,
- *       &quot;created_at&quot; : &quot;2019-12-17 12:00:50&quot
- *       &quot;balances&quot; : [{
- *         &quot;account_item_id&quot; : 1500,
- *         &quot;account_item_name&quot; : &quot;売上高&quot;,
- *         &quot;hierarchy_level&quot; : 2,
- *         &quot;account_category_name&quot; : &quot;営業収益&quot;,
- *         &quot;closing_balance&quot; : 1000000,
- *         &quot;sections&quot; : [{
- *           &quot;id&quot;: 1
- *           &quot;name&quot;: &quot;営業部&quot;,
- *           &quot;closing_balance&quot; : 100000
- *         },
- *         {
- *           &quot;id&quot;: 2
- *           &quot;name&quot;: &quot;広報部&quot;,
- *           &quot;closing_balance&quot; : 200000
- *         },
- *         {
- *           &quot;id&quot;: 3
- *           &quot;name&quot;: &quot;人事部&quot;,
- *           &quot;closing_balance&quot; : 300000
- *         },
- *         ...
+ *   &quot;trial_pl_sections&quot;: {
+ *     &quot;company_id&quot;: 1,
+ *     &quot;section_ids&quot;: &quot;1,2,3&quot;,
+ *     &quot;fiscal_year&quot;: 2019,
+ *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
+ *     &quot;balances&quot;: [
+ *       {
+ *         &quot;account_item_id&quot;: 1500,
+ *         &quot;account_item_name&quot;: &quot;売上高&quot;,
+ *         &quot;hierarchy_level&quot;: 2,
+ *         &quot;account_category_name&quot;: &quot;営業収益&quot;,
+ *         &quot;closing_balance&quot;: 600000,
+ *         &quot;sections&quot;: [
+ *           {
+ *             &quot;id&quot;: 1,
+ *             &quot;name&quot;: &quot;営業部&quot;,
+ *             &quot;closing_balance&quot;: 100000
+ *           },
+ *           {
+ *             &quot;id&quot;: 2,
+ *             &quot;name&quot;: &quot;広報部&quot;,
+ *             &quot;closing_balance&quot;: 200000
+ *           },
+ *           {
+ *             &quot;id&quot;: 3,
+ *             &quot;name&quot;: &quot;人事部&quot;,
+ *             &quot;closing_balance&quot;: 300000
+ *           }
  *         ]
- *       },
- *       ...
- *       ]
- *     }
+ *       }
+ *     ]
+ *   },
+ *   &quot;up_to_date&quot;: true
  * }</code></pre>
  *
  */
@@ -3800,16 +3563,16 @@ export const getTrialPlSections = <ThrowOnError extends boolean = true>(
  * 損益計算書(セグメント１比較)の取得
  *
  *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の損益計算書(セグメント１比較)を取得する</p>
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所の損益計算書(セグメント1比較)を取得します。指定したセグメント1タグ（最大5つ）ごとの期末残高を並べて比較する用途に利用できます。</p>
  *
  * <h2 id="_2">定義</h2>
  * <ul>
- *   <li><p>created_at : 作成日時</p></li>
+ *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
  *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level: 階層レベル</p></li>
- *   <li><p>parent_account_category_name: 上位勘定科目カテゴリー名</p></li>
- *   <li><p>closing_balance : 期末残高</p></li>
+ *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
+ *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
+ *   <li><p>closing_balance : 期末残高（円。行直下の値は比較対象に指定したセグメント1タグの合計、segment_1_tags 配下の値は各タグの金額）</p></li>
  * </ul>
  *
  * <h2 id="_3">注意点</h2>
@@ -3837,45 +3600,44 @@ export const getTrialPlSections = <ThrowOnError extends boolean = true>(
  * </ul>
  *
  * <h2 id="_4">レスポンスの例</h2>
- *
  * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_pl_segment_1_tags?company_id=1&amp;segment_1_tag_ids=1,2,3&amp;fiscal_year=2019</p></p>
+ * <p>GET https://api.freee.co.jp/api/1/reports/trial_pl_segment_1_tags?company_id=1&amp;segment_1_tag_ids=1,2,3&amp;fiscal_year=2019</p>
  * </blockquote>
  *
  * <pre><code>{
- *   &quot;trial_pl_segment_1_tags&quot; :
- *     {
- *       &quot;company_id&quot; : 1,
- *       &quot;segment_1_tag_ids&quot; : &quot;1,2,3&quot;,
- *       &quot;fiscal_year&quot; : 2019,
- *       &quot;created_at&quot; : &quot;2019-12-17 12:00:50&quot
- *       &quot;balances&quot; : [{
- *         &quot;account_item_id&quot; : 1500,
- *         &quot;account_item_name&quot; : &quot;売上高&quot;,
- *         &quot;hierarchy_level&quot; : 2,
- *         &quot;account_category_name&quot; : &quot;営業収益&quot;,
- *         &quot;closing_balance&quot; : 1000000,
- *         &quot;segment_1_tags&quot; : [{
- *           &quot;id&quot;: 1
- *           &quot;name&quot;: &quot;プロジェクトA&quot;,
- *           &quot;closing_balance&quot; : 100000
- *         },
- *         {
- *           &quot;id&quot;: 2
- *           &quot;name&quot;: &quot;プロジェクトB&quot;,
- *           &quot;closing_balance&quot; : 200000
- *         },
- *         {
- *           &quot;id&quot;: 3
- *           &quot;name&quot;: &quot;プロジェクトC&quot;,
- *           &quot;closing_balance&quot; : 300000
- *         },
- *         ...
+ *   &quot;trial_pl_segment_1_tags&quot;: {
+ *     &quot;company_id&quot;: 1,
+ *     &quot;segment_1_tag_ids&quot;: &quot;1,2,3&quot;,
+ *     &quot;fiscal_year&quot;: 2019,
+ *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
+ *     &quot;balances&quot;: [
+ *       {
+ *         &quot;account_item_id&quot;: 1500,
+ *         &quot;account_item_name&quot;: &quot;売上高&quot;,
+ *         &quot;hierarchy_level&quot;: 2,
+ *         &quot;account_category_name&quot;: &quot;営業収益&quot;,
+ *         &quot;closing_balance&quot;: 600000,
+ *         &quot;segment_1_tags&quot;: [
+ *           {
+ *             &quot;id&quot;: 1,
+ *             &quot;name&quot;: &quot;プロジェクトA&quot;,
+ *             &quot;closing_balance&quot;: 100000
+ *           },
+ *           {
+ *             &quot;id&quot;: 2,
+ *             &quot;name&quot;: &quot;プロジェクトB&quot;,
+ *             &quot;closing_balance&quot;: 200000
+ *           },
+ *           {
+ *             &quot;id&quot;: 3,
+ *             &quot;name&quot;: &quot;プロジェクトC&quot;,
+ *             &quot;closing_balance&quot;: 300000
+ *           }
  *         ]
- *       },
- *       ...
- *       ]
- *     }
+ *       }
+ *     ]
+ *   },
+ *   &quot;up_to_date&quot;: true
  * }</code></pre>
  *
  */
@@ -3896,16 +3658,16 @@ export const getTrialPlSegment1Tags = <ThrowOnError extends boolean = true>(
  * 損益計算書(セグメント２比較)の取得
  *
  *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の損益計算書(セグメント２比較)を取得する</p>
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所の損益計算書(セグメント2比較)を取得します。指定したセグメント2タグ（最大5つ）ごとの期末残高を並べて比較する用途に利用できます。</p>
  *
  * <h2 id="_2">定義</h2>
  * <ul>
- *   <li><p>created_at : 作成日時</p></li>
+ *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
  *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level: 階層レベル</p></li>
- *   <li><p>parent_account_category_name: 上位勘定科目カテゴリー名</p></li>
- *   <li><p>closing_balance : 期末残高</p></li>
+ *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
+ *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
+ *   <li><p>closing_balance : 期末残高（円。行直下の値は比較対象に指定したセグメント2タグの合計、segment_2_tags 配下の値は各タグの金額）</p></li>
  * </ul>
  *
  * <h2 id="_3">注意点</h2>
@@ -3933,45 +3695,44 @@ export const getTrialPlSegment1Tags = <ThrowOnError extends boolean = true>(
  * </ul>
  *
  * <h2 id="_4">レスポンスの例</h2>
- *
  * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_pl_segment_2_tags?company_id=1&amp;segment_2_tag_ids=1,2,3&amp;fiscal_year=2019</p></p>
+ * <p>GET https://api.freee.co.jp/api/1/reports/trial_pl_segment_2_tags?company_id=1&amp;segment_2_tag_ids=1,2,3&amp;fiscal_year=2019</p>
  * </blockquote>
  *
  * <pre><code>{
- *   &quot;trial_pl_segment_2_tags&quot; :
- *     {
- *       &quot;company_id&quot; : 1,
- *       &quot;segment_2_tag_ids&quot; : &quot;1,2,3&quot;,
- *       &quot;fiscal_year&quot; : 2019,
- *       &quot;created_at&quot; : &quot;2019-12-17 12:00:50&quot
- *       &quot;balances&quot; : [{
- *         &quot;account_item_id&quot; : 1500,
- *         &quot;account_item_name&quot; : &quot;売上高&quot;,
- *         &quot;hierarchy_level&quot; : 2,
- *         &quot;account_category_name&quot; : &quot;営業収益&quot;,
- *         &quot;closing_balance&quot; : 1000000,
- *         &quot;segment_2_tags&quot; : [{
- *           &quot;id&quot;: 1
- *           &quot;name&quot;: &quot;プロジェクトA&quot;,
- *           &quot;closing_balance&quot; : 100000
- *         },
- *         {
- *           &quot;id&quot;: 2
- *           &quot;name&quot;: &quot;プロジェクトB&quot;,
- *           &quot;closing_balance&quot; : 200000
- *         },
- *         {
- *           &quot;id&quot;: 3
- *           &quot;name&quot;: &quot;プロジェクトC&quot;,
- *           &quot;closing_balance&quot; : 300000
- *         },
- *         ...
+ *   &quot;trial_pl_segment_2_tags&quot;: {
+ *     &quot;company_id&quot;: 1,
+ *     &quot;segment_2_tag_ids&quot;: &quot;1,2,3&quot;,
+ *     &quot;fiscal_year&quot;: 2019,
+ *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
+ *     &quot;balances&quot;: [
+ *       {
+ *         &quot;account_item_id&quot;: 1500,
+ *         &quot;account_item_name&quot;: &quot;売上高&quot;,
+ *         &quot;hierarchy_level&quot;: 2,
+ *         &quot;account_category_name&quot;: &quot;営業収益&quot;,
+ *         &quot;closing_balance&quot;: 600000,
+ *         &quot;segment_2_tags&quot;: [
+ *           {
+ *             &quot;id&quot;: 1,
+ *             &quot;name&quot;: &quot;プロジェクトA&quot;,
+ *             &quot;closing_balance&quot;: 100000
+ *           },
+ *           {
+ *             &quot;id&quot;: 2,
+ *             &quot;name&quot;: &quot;プロジェクトB&quot;,
+ *             &quot;closing_balance&quot;: 200000
+ *           },
+ *           {
+ *             &quot;id&quot;: 3,
+ *             &quot;name&quot;: &quot;プロジェクトC&quot;,
+ *             &quot;closing_balance&quot;: 300000
+ *           }
  *         ]
- *       },
- *       ...
- *       ]
- *     }
+ *       }
+ *     ]
+ *   },
+ *   &quot;up_to_date&quot;: true
  * }</code></pre>
  *
  */
@@ -3992,16 +3753,16 @@ export const getTrialPlSegment2Tags = <ThrowOnError extends boolean = true>(
  * 損益計算書(セグメント３比較)の取得
  *
  *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の損益計算書(セグメント３比較)を取得する</p>
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所の損益計算書(セグメント3比較)を取得します。指定したセグメント3タグ（最大5つ）ごとの期末残高を並べて比較する用途に利用できます。</p>
  *
  * <h2 id="_2">定義</h2>
  * <ul>
- *   <li><p>created_at : 作成日時</p></li>
+ *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
  *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level: 階層レベル</p></li>
- *   <li><p>parent_account_category_name: 上位勘定科目カテゴリー名</p></li>
- *   <li><p>closing_balance : 期末残高</p></li>
+ *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
+ *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
+ *   <li><p>closing_balance : 期末残高（円。行直下の値は比較対象に指定したセグメント3タグの合計、segment_3_tags 配下の値は各タグの金額）</p></li>
  * </ul>
  *
  * <h2 id="_3">注意点</h2>
@@ -4029,45 +3790,44 @@ export const getTrialPlSegment2Tags = <ThrowOnError extends boolean = true>(
  * </ul>
  *
  * <h2 id="_4">レスポンスの例</h2>
- *
  * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_pl_segment_3_tags?company_id=1&amp;segment_3_tag_ids=1,2,3&amp;fiscal_year=2019</p></p>
+ * <p>GET https://api.freee.co.jp/api/1/reports/trial_pl_segment_3_tags?company_id=1&amp;segment_3_tag_ids=1,2,3&amp;fiscal_year=2019</p>
  * </blockquote>
  *
  * <pre><code>{
- *   &quot;trial_pl_segment_3_tags&quot; :
- *     {
- *       &quot;company_id&quot; : 1,
- *       &quot;segment_3_tag_ids&quot; : &quot;1,2,3&quot;,
- *       &quot;fiscal_year&quot; : 2019,
- *       &quot;created_at&quot; : &quot;2019-12-17 12:00:50&quot
- *       &quot;balances&quot; : [{
- *         &quot;account_item_id&quot; : 1500,
- *         &quot;account_item_name&quot; : &quot;売上高&quot;,
- *         &quot;hierarchy_level&quot; : 2,
- *         &quot;account_category_name&quot; : &quot;営業収益&quot;,
- *         &quot;closing_balance&quot; : 1000000,
- *         &quot;segment_3_tags&quot; : [{
- *           &quot;id&quot;: 1
- *           &quot;name&quot;: &quot;プロジェクトA&quot;,
- *           &quot;closing_balance&quot; : 100000
- *         },
- *         {
- *           &quot;id&quot;: 2
- *           &quot;name&quot;: &quot;プロジェクトB&quot;,
- *           &quot;closing_balance&quot; : 200000
- *         },
- *         {
- *           &quot;id&quot;: 3
- *           &quot;name&quot;: &quot;プロジェクトC&quot;,
- *           &quot;closing_balance&quot; : 300000
- *         },
- *         ...
+ *   &quot;trial_pl_segment_3_tags&quot;: {
+ *     &quot;company_id&quot;: 1,
+ *     &quot;segment_3_tag_ids&quot;: &quot;1,2,3&quot;,
+ *     &quot;fiscal_year&quot;: 2019,
+ *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
+ *     &quot;balances&quot;: [
+ *       {
+ *         &quot;account_item_id&quot;: 1500,
+ *         &quot;account_item_name&quot;: &quot;売上高&quot;,
+ *         &quot;hierarchy_level&quot;: 2,
+ *         &quot;account_category_name&quot;: &quot;営業収益&quot;,
+ *         &quot;closing_balance&quot;: 600000,
+ *         &quot;segment_3_tags&quot;: [
+ *           {
+ *             &quot;id&quot;: 1,
+ *             &quot;name&quot;: &quot;プロジェクトA&quot;,
+ *             &quot;closing_balance&quot;: 100000
+ *           },
+ *           {
+ *             &quot;id&quot;: 2,
+ *             &quot;name&quot;: &quot;プロジェクトB&quot;,
+ *             &quot;closing_balance&quot;: 200000
+ *           },
+ *           {
+ *             &quot;id&quot;: 3,
+ *             &quot;name&quot;: &quot;プロジェクトC&quot;,
+ *             &quot;closing_balance&quot;: 300000
+ *           }
  *         ]
- *       },
- *       ...
- *       ]
- *     }
+ *       }
+ *     ]
+ *   },
+ *   &quot;up_to_date&quot;: true
  * }</code></pre>
  *
  */
@@ -4087,24 +3847,26 @@ export const getTrialPlSegment3Tags = <ThrowOnError extends boolean = true>(
 /**
  * 製造原価報告書の取得
  *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の製造原価報告書を取得する</p>
+ *
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所の製造原価報告書（Cost Report, CR）を取得します。材料費・労務費・製造経費など製造原価の期間集計や、取引先・品目・部門・セグメント単位の内訳集計に利用できます。</p>
  *
  * <h2 id="_2">定義</h2>
  * <ul>
- *   <li><p>created_at : 作成日時</p></li>
+ *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
  *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level: 階層レベル</p></li>
- *   <li><p>parent_account_category_name: 上位勘定科目カテゴリー名</p></li>
- *   <li><p>opening_balance : 期首残高</p></li>
- *   <li><p>debit_amount : 借方金額</p></li>
- *   <li><p>credit_amount:  貸方金額</p></li>
- *   <li><p>closing_balance : 期末残高</p></li>
- *   <li><p>composition_ratio : 構成比</p></li>
+ *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
+ *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
+ *   <li><p>opening_balance : 期首残高（円）</p></li>
+ *   <li><p>debit_amount : 期間中の借方金額（円）</p></li>
+ *   <li><p>credit_amount : 期間中の貸方金額（円）</p></li>
+ *   <li><p>closing_balance : 期末残高（円）</p></li>
+ *   <li><p>composition_ratio : 構成比（百分率、%。製造原価報告書の基準額（勘定科目カテゴリー「製造原価」の金額。法人・個人共通）に対する当該行の金額割合を 100 換算した値。基準額を超える行では 100 を超え得る）</p></li>
  * </ul>
  *
  * <h2 id="_3">注意点</h2>
  * <ul>
+ *   <li>対象の会計年度で製造業向け機能を使用する設定になっている必要があります。無効の場合はエラー（400）になります。</li>
  *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
  *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
  *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
@@ -4131,38 +3893,39 @@ export const getTrialPlSegment3Tags = <ThrowOnError extends boolean = true>(
  * <blockquote>
  * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr?company_id=1&amp;fiscal_year=2019&amp;breakdown_display_type=partner</p>
  * </blockquote>
+ *
  * <pre><code>{
- *   &quot;trial_cr&quot; :
- *     {
- *       &quot;company_id&quot; : 1,
- *       &quot;fiscal_year&quot; : 2019,
- *       &quot;breakdown_display_type&quot; : &quot;partner&quot;,
- *       &quot;created_at&quot; : &quot;2019-12-17 12:00:50&quot
- *       &quot;balances&quot; : [{
- *         &quot;account_item_id&quot; : 1500,
- *         &quot;account_item_name&quot; : &quot;[製]期首材料棚卸高&quot;,
- *         &quot;hierarchy_level&quot; : 2,
- *         &quot;account_category_name&quot; : &quot;期首原材料棚卸&quot;,
- *         &quot;opening_balance&quot; : 100000,
- *         &quot;debit_amount&quot; : 50000,
- *         &quot;credit_amount&quot; : 20000,
- *         &quot;closing_balance&quot; : 130000,
- *         &quot;composition_ratio&quot; : 0.25
- *         &quot;partners&quot; : [{
- *           &quot;id&quot; : 123,
- *           &quot;name&quot; : &quot;freee&quot;,
- *           &quot;opening_balance&quot; : 100000,
- *           &quot;debit_amount&quot; : 50000,
- *           &quot;credit_amount&quot; : 20000,
- *           &quot;closing_balance&quot; : 130000,
- *           &quot;composition_ratio&quot; : 0.25
- *           },
- *         ...
+ *   &quot;trial_cr&quot;: {
+ *     &quot;company_id&quot;: 1,
+ *     &quot;fiscal_year&quot;: 2019,
+ *     &quot;breakdown_display_type&quot;: &quot;partner&quot;,
+ *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
+ *     &quot;balances&quot;: [
+ *       {
+ *         &quot;account_item_id&quot;: 1500,
+ *         &quot;account_item_name&quot;: &quot;[製]期首材料棚卸高&quot;,
+ *         &quot;hierarchy_level&quot;: 2,
+ *         &quot;account_category_name&quot;: &quot;期首原材料棚卸&quot;,
+ *         &quot;opening_balance&quot;: 0,
+ *         &quot;debit_amount&quot;: 150000,
+ *         &quot;credit_amount&quot;: 50000,
+ *         &quot;closing_balance&quot;: 100000,
+ *         &quot;composition_ratio&quot;: 10.0,
+ *         &quot;partners&quot;: [
+ *           {
+ *             &quot;id&quot;: 123,
+ *             &quot;name&quot;: &quot;freee&quot;,
+ *             &quot;opening_balance&quot;: 0,
+ *             &quot;debit_amount&quot;: 150000,
+ *             &quot;credit_amount&quot;: 50000,
+ *             &quot;closing_balance&quot;: 100000,
+ *             &quot;composition_ratio&quot;: 10.0
+ *           }
  *         ]
- *       },
- *       ...
- *       ]
- *     }
+ *       }
+ *     ]
+ *   },
+ *   &quot;up_to_date&quot;: true
  * }</code></pre>
  *
  */
@@ -4179,22 +3942,23 @@ export const getTrialCr = <ThrowOnError extends boolean = true>(
  * 製造原価報告書(前年比較)の取得
  *
  *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の製造原価報告書(前年比較)を取得する</p>
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所の製造原価報告書(前年比較)を取得します。当年度と前年度の期末残高を並べて比較し、前年比を確認する用途に利用できます。</p>
  *
  * <h2 id="_2">定義</h2>
  * <ul>
- *   <li><p>created_at : 作成日時</p></li>
+ *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
  *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level: 階層レベル</p></li>
- *   <li><p>parent_account_category_name: 上位勘定科目カテゴリー名</p></li>
- *   <li><p>last_year_closing_balance:  前年度期末残高</p></li>
- *   <li><p>closing_balance : 期末残高</p></li>
- *   <li><p>year_on_year : 前年比</p></li>
+ *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
+ *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
+ *   <li><p>last_year_closing_balance : 前年度期末残高（円）</p></li>
+ *   <li><p>closing_balance : 当年度期末残高（円）</p></li>
+ *   <li><p>year_on_year : 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）</p></li>
  * </ul>
  *
  * <h2 id="_3">注意点</h2>
  * <ul>
+ *   <li>対象の会計年度で製造業向け機能を使用する設定になっている必要があります。無効の場合はエラー（400）になります。</li>
  *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
  *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
  *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
@@ -4218,29 +3982,28 @@ export const getTrialCr = <ThrowOnError extends boolean = true>(
  * </ul>
  *
  * <h2 id="_4">レスポンスの例</h2>
- *
  * <blockquote>
  * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr_two_years?company_id=1&amp;fiscal_year=2019</p>
  * </blockquote>
  *
  * <pre><code>{
- *   &quot;trial_cr_two_years&quot; :
- *     {
- *       &quot;company_id&quot; : 1,
- *       &quot;fiscal_year&quot; : 2019,
- *       &quot;created_at&quot; : &quot;2019-12-17 12:00:50&quot
- *       &quot;balances&quot; : [{
- *         &quot;account_item_id&quot; : 1500,
- *         &quot;account_item_name&quot; : &quot;[製]期首材料棚卸高&quot;,
- *         &quot;hierarchy_level&quot; : 2,
- *         &quot;account_category_name&quot; : &quot;期首原材料棚卸&quot;,
- *         &quot;last_year_closing_balance&quot; : 25000,
- *         &quot;closing_balance&quot; : 100000,
- *         &quot;year_on_year&quot; : 0.85
- *       },
- *       ...
- *       ]
- *     }
+ *   &quot;trial_cr_two_years&quot;: {
+ *     &quot;company_id&quot;: 1,
+ *     &quot;fiscal_year&quot;: 2019,
+ *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
+ *     &quot;balances&quot;: [
+ *       {
+ *         &quot;account_item_id&quot;: 1500,
+ *         &quot;account_item_name&quot;: &quot;[製]期首材料棚卸高&quot;,
+ *         &quot;hierarchy_level&quot;: 2,
+ *         &quot;account_category_name&quot;: &quot;期首原材料棚卸&quot;,
+ *         &quot;last_year_closing_balance&quot;: 25000,
+ *         &quot;closing_balance&quot;: 100000,
+ *         &quot;year_on_year&quot;: 400.0
+ *       }
+ *     ]
+ *   },
+ *   &quot;up_to_date&quot;: true
  * }</code></pre>
  *
  */
@@ -4261,23 +4024,24 @@ export const getTrialCrTwoYears = <ThrowOnError extends boolean = true>(
  * 製造原価報告書(３期間比較)の取得
  *
  *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の製造原価報告書(３期間比較)を取得する</p>
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所の製造原価報告書(３期間比較)を取得します。当年度・前年度・前々年度の期末残高を並べて比較し、前年比を確認する用途に利用できます。</p>
  *
  * <h2 id="_2">定義</h2>
  * <ul>
- *   <li><p>created_at : 作成日時</p></li>
+ *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
  *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level: 階層レベル</p></li>
- *   <li><p>parent_account_category_name: 上位勘定科目カテゴリー名</p></li>
- *   <li><p>two_years_before_closing_balance:  前々年度期末残高</p></li>
- *   <li><p>last_year_closing_balance:  前年度期末残高</p></li>
- *   <li><p>closing_balance : 期末残高</p></li>
- *   <li><p>year_on_year : 前年比</p></li>
+ *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
+ *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
+ *   <li><p>two_years_before_closing_balance : 前々年度期末残高（円）</p></li>
+ *   <li><p>last_year_closing_balance : 前年度期末残高（円）</p></li>
+ *   <li><p>closing_balance : 当年度期末残高（円）</p></li>
+ *   <li><p>year_on_year : 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）</p></li>
  * </ul>
  *
  * <h2 id="_3">注意点</h2>
  * <ul>
+ *   <li>対象の会計年度で製造業向け機能を使用する設定になっている必要があります。無効の場合はエラー（400）になります。</li>
  *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
  *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
  *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
@@ -4301,30 +4065,29 @@ export const getTrialCrTwoYears = <ThrowOnError extends boolean = true>(
  * </ul>
  *
  * <h2 id="_4">レスポンスの例</h2>
- *
  * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr_three_years?company_id=1&fiscal_year=2019</p>
+ * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr_three_years?company_id=1&amp;fiscal_year=2019</p>
  * </blockquote>
  *
  * <pre><code>{
- *   &quot;trial_cr_three_years&quot; :
- *     {
- *       &quot;company_id&quot; : 1,
- *       &quot;fiscal_year&quot; : 2019,
- *       &quot;created_at&quot; : &quot;2019-12-17 12:00:50&quot
- *       &quot;balances&quot; : [{
- *         &quot;account_item_id&quot; : 1500,
- *         &quot;account_item_name&quot; : &quot;[製]期首材料棚卸高&quot;,
- *         &quot;hierarchy_level&quot; : 2,
- *         &quot;account_category_name&quot; : &quot;期首原材料棚卸&quot;,
- *         &quot;two_year_before_closing_balance&quot; : 50000,
- *         &quot;last_year_closing_balance&quot; : 25000,
- *         &quot;closing_balance&quot; : 100000,
- *         &quot;year_on_year&quot; : 0.85
- *       },
- *       ...
- *       ]
- *     }
+ *   &quot;trial_cr_three_years&quot;: {
+ *     &quot;company_id&quot;: 1,
+ *     &quot;fiscal_year&quot;: 2019,
+ *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
+ *     &quot;balances&quot;: [
+ *       {
+ *         &quot;account_item_id&quot;: 1500,
+ *         &quot;account_item_name&quot;: &quot;[製]期首材料棚卸高&quot;,
+ *         &quot;hierarchy_level&quot;: 2,
+ *         &quot;account_category_name&quot;: &quot;期首原材料棚卸&quot;,
+ *         &quot;two_years_before_closing_balance&quot;: 50000,
+ *         &quot;last_year_closing_balance&quot;: 25000,
+ *         &quot;closing_balance&quot;: 100000,
+ *         &quot;year_on_year&quot;: 400.0
+ *       }
+ *     ]
+ *   },
+ *   &quot;up_to_date&quot;: true
  * }</code></pre>
  *
  */
@@ -4345,20 +4108,21 @@ export const getTrialCrThreeYears = <ThrowOnError extends boolean = true>(
  * 製造原価報告書(部門比較)の取得
  *
  *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の製造原価報告書(部門比較)を取得する</p>
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所の製造原価報告書(部門比較)を取得します。指定した部門（最大5つ）ごとの期末残高を並べて比較する用途に利用できます。</p>
  *
  * <h2 id="_2">定義</h2>
  * <ul>
- *   <li><p>created_at : 作成日時</p></li>
+ *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
  *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level: 階層レベル</p></li>
- *   <li><p>parent_account_category_name: 上位勘定科目カテゴリー名</p></li>
- *   <li><p>closing_balance : 期末残高</p></li>
+ *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
+ *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
+ *   <li><p>closing_balance : 期末残高（円。行直下の値は比較対象に指定した部門の合計、sections 配下の値は各部門の金額）</p></li>
  * </ul>
  *
  * <h2 id="_3">注意点</h2>
  * <ul>
+ *   <li>対象の会計年度で製造業向け機能を使用する設定になっている必要があります。無効の場合はエラー（400）になります。</li>
  *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
  *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
  *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
@@ -4382,45 +4146,44 @@ export const getTrialCrThreeYears = <ThrowOnError extends boolean = true>(
  * </ul>
  *
  * <h2 id="_4">レスポンスの例</h2>
- *
  * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr_sections?company_id=1&amp;section_ids=1,2,3&amp;fiscal_year=2019</p></p>
+ * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr_sections?company_id=1&amp;section_ids=1,2,3&amp;fiscal_year=2019</p>
  * </blockquote>
  *
  * <pre><code>{
- *   &quot;trial_cr_sections&quot; :
- *     {
- *       &quot;company_id&quot; : 1,
- *       &quot;section_ids&quot; : &quot;1,2,3&quot;,
- *       &quot;fiscal_year&quot; : 2019,
- *       &quot;created_at&quot; : &quot;2019-12-17 12:00:50&quot
- *       &quot;balances&quot; : [{
- *         &quot;account_item_id&quot; : 1500,
- *         &quot;account_item_name&quot; : &quot;[製]期首材料棚卸高&quot;,
- *         &quot;hierarchy_level&quot; : 2,
- *         &quot;account_category_name&quot; : &quot;期首原材料棚卸&quot;,
- *         &quot;closing_balance&quot; : 1000000,
- *         &quot;sections&quot; : [{
- *           &quot;id&quot;: 1
- *           &quot;name&quot;: &quot;営業部&quot;,
- *           &quot;closing_balance&quot; : 100000
- *         },
- *         {
- *           &quot;id&quot;: 2
- *           &quot;name&quot;: &quot;広報部&quot;,
- *           &quot;closing_balance&quot; : 200000
- *         },
- *         {
- *           &quot;id&quot;: 3
- *           &quot;name&quot;: &quot;人事部&quot;,
- *           &quot;closing_balance&quot; : 300000
- *         },
- *         ...
+ *   &quot;trial_cr_sections&quot;: {
+ *     &quot;company_id&quot;: 1,
+ *     &quot;section_ids&quot;: &quot;1,2,3&quot;,
+ *     &quot;fiscal_year&quot;: 2019,
+ *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
+ *     &quot;balances&quot;: [
+ *       {
+ *         &quot;account_item_id&quot;: 1500,
+ *         &quot;account_item_name&quot;: &quot;[製]期首材料棚卸高&quot;,
+ *         &quot;hierarchy_level&quot;: 2,
+ *         &quot;account_category_name&quot;: &quot;期首原材料棚卸&quot;,
+ *         &quot;closing_balance&quot;: 600000,
+ *         &quot;sections&quot;: [
+ *           {
+ *             &quot;id&quot;: 1,
+ *             &quot;name&quot;: &quot;営業部&quot;,
+ *             &quot;closing_balance&quot;: 100000
+ *           },
+ *           {
+ *             &quot;id&quot;: 2,
+ *             &quot;name&quot;: &quot;広報部&quot;,
+ *             &quot;closing_balance&quot;: 200000
+ *           },
+ *           {
+ *             &quot;id&quot;: 3,
+ *             &quot;name&quot;: &quot;人事部&quot;,
+ *             &quot;closing_balance&quot;: 300000
+ *           }
  *         ]
- *       },
- *       ...
- *       ]
- *     }
+ *       }
+ *     ]
+ *   },
+ *   &quot;up_to_date&quot;: true
  * }</code></pre>
  *
  */
@@ -4441,22 +4204,24 @@ export const getTrialCrSections = <ThrowOnError extends boolean = true>(
  * 製造原価報告書(セグメント１比較)の取得
  *
  *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の製造原価報告書(セグメント１比較)を取得する</p>
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所の製造原価報告書(セグメント1比較)を取得します。指定したセグメント1タグ（最大5つ）ごとの期末残高を並べて比較する用途に利用できます。</p>
  *
  * <h2 id="_2">定義</h2>
  * <ul>
- *   <li><p>created_at : 作成日時</p></li>
+ *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
  *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level: 階層レベル</p></li>
- *   <li><p>parent_account_category_name: 上位勘定科目カテゴリー名</p></li>
- *   <li><p>closing_balance : 期末残高</p></li>
+ *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
+ *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
+ *   <li><p>closing_balance : 期末残高（円。行直下の値は比較対象に指定したセグメント1タグの合計、segment_1_tags 配下の値は各タグの金額）</p></li>
  * </ul>
  *
  * <h2 id="_3">注意点</h2>
  * <ul>
+ *   <li>対象の会計年度で製造業向け機能を使用する設定になっている必要があります。無効の場合はエラー（400）になります。</li>
  *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
  *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
+ *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
  *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
  *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
  *   <ul>
@@ -4477,45 +4242,44 @@ export const getTrialCrSections = <ThrowOnError extends boolean = true>(
  * </ul>
  *
  * <h2 id="_4">レスポンスの例</h2>
- *
  * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr_segment_1_tags?company_id=1&amp;segment_1_tag_ids=1,2,3&amp;fiscal_year=2019</p></p>
+ * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr_segment_1_tags?company_id=1&amp;segment_1_tag_ids=1,2,3&amp;fiscal_year=2019</p>
  * </blockquote>
  *
  * <pre><code>{
- *   &quot;trial_cr_segment_1_tags&quot; :
- *     {
- *       &quot;company_id&quot; : 1,
- *       &quot;segment_1_tag_ids&quot; : &quot;1,2,3&quot;,
- *       &quot;fiscal_year&quot; : 2019,
- *       &quot;created_at&quot; : &quot;2019-12-17 12:00:50&quot
- *       &quot;balances&quot; : [{
- *         &quot;account_item_id&quot; : 1500,
- *         &quot;account_item_name&quot; : &quot;[製]期首材料棚卸高&quot;,
- *         &quot;hierarchy_level&quot; : 2,
- *         &quot;account_category_name&quot; : &quot;期首原材料棚卸&quot;,
- *         &quot;closing_balance&quot; : 1000000,
- *         &quot;segment_1_tags&quot; : [{
- *           &quot;id&quot;: 1
- *           &quot;name&quot;: &quot;プロジェクトA&quot;,
- *           &quot;closing_balance&quot; : 100000
- *         },
- *         {
- *           &quot;id&quot;: 2
- *           &quot;name&quot;: &quot;プロジェクトB&quot;,
- *           &quot;closing_balance&quot; : 200000
- *         },
- *         {
- *           &quot;id&quot;: 3
- *           &quot;name&quot;: &quot;プロジェクトC&quot;,
- *           &quot;closing_balance&quot; : 300000
- *         },
- *         ...
+ *   &quot;trial_cr_segment_1_tags&quot;: {
+ *     &quot;company_id&quot;: 1,
+ *     &quot;segment_1_tag_ids&quot;: &quot;1,2,3&quot;,
+ *     &quot;fiscal_year&quot;: 2019,
+ *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
+ *     &quot;balances&quot;: [
+ *       {
+ *         &quot;account_item_id&quot;: 1500,
+ *         &quot;account_item_name&quot;: &quot;[製]期首材料棚卸高&quot;,
+ *         &quot;hierarchy_level&quot;: 2,
+ *         &quot;account_category_name&quot;: &quot;期首原材料棚卸&quot;,
+ *         &quot;closing_balance&quot;: 600000,
+ *         &quot;segment_1_tags&quot;: [
+ *           {
+ *             &quot;id&quot;: 1,
+ *             &quot;name&quot;: &quot;プロジェクトA&quot;,
+ *             &quot;closing_balance&quot;: 100000
+ *           },
+ *           {
+ *             &quot;id&quot;: 2,
+ *             &quot;name&quot;: &quot;プロジェクトB&quot;,
+ *             &quot;closing_balance&quot;: 200000
+ *           },
+ *           {
+ *             &quot;id&quot;: 3,
+ *             &quot;name&quot;: &quot;プロジェクトC&quot;,
+ *             &quot;closing_balance&quot;: 300000
+ *           }
  *         ]
- *       },
- *       ...
- *       ]
- *     }
+ *       }
+ *     ]
+ *   },
+ *   &quot;up_to_date&quot;: true
  * }</code></pre>
  *
  */
@@ -4536,22 +4300,24 @@ export const getTrialCrSegment1Tags = <ThrowOnError extends boolean = true>(
  * 製造原価報告書(セグメント２比較)の取得
  *
  *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の製造原価報告書(セグメント２比較)を取得する</p>
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所の製造原価報告書(セグメント2比較)を取得します。指定したセグメント2タグ（最大5つ）ごとの期末残高を並べて比較する用途に利用できます。</p>
  *
  * <h2 id="_2">定義</h2>
  * <ul>
- *   <li><p>created_at : 作成日時</p></li>
+ *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
  *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level: 階層レベル</p></li>
- *   <li><p>parent_account_category_name: 上位勘定科目カテゴリー名</p></li>
- *   <li><p>closing_balance : 期末残高</p></li>
+ *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
+ *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
+ *   <li><p>closing_balance : 期末残高（円。行直下の値は比較対象に指定したセグメント2タグの合計、segment_2_tags 配下の値は各タグの金額）</p></li>
  * </ul>
  *
  * <h2 id="_3">注意点</h2>
  * <ul>
+ *   <li>対象の会計年度で製造業向け機能を使用する設定になっている必要があります。無効の場合はエラー（400）になります。</li>
  *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
  *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
+ *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
  *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
  *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
  *   <ul>
@@ -4572,45 +4338,44 @@ export const getTrialCrSegment1Tags = <ThrowOnError extends boolean = true>(
  * </ul>
  *
  * <h2 id="_4">レスポンスの例</h2>
- *
  * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr_segment_2_tags?company_id=1&amp;segment_2_tag_ids=1,2,3&amp;fiscal_year=2019</p></p>
+ * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr_segment_2_tags?company_id=1&amp;segment_2_tag_ids=1,2,3&amp;fiscal_year=2019</p>
  * </blockquote>
  *
  * <pre><code>{
- *   &quot;trial_cr_segment_2_tags&quot; :
- *     {
- *       &quot;company_id&quot; : 1,
- *       &quot;segment_2_tag_ids&quot; : &quot;1,2,3&quot;,
- *       &quot;fiscal_year&quot; : 2019,
- *       &quot;created_at&quot; : &quot;2019-12-17 12:00:50&quot
- *       &quot;balances&quot; : [{
- *         &quot;account_item_id&quot; : 1500,
- *         &quot;account_item_name&quot; : &quot;[製]期首材料棚卸高&quot;,
- *         &quot;hierarchy_level&quot; : 2,
- *         &quot;account_category_name&quot; : &quot;期首原材料棚卸&quot;,
- *         &quot;closing_balance&quot; : 1000000,
- *         &quot;segment_2_tags&quot; : [{
- *           &quot;id&quot;: 1
- *           &quot;name&quot;: &quot;プロジェクトA&quot;,
- *           &quot;closing_balance&quot; : 100000
- *         },
- *         {
- *           &quot;id&quot;: 2
- *           &quot;name&quot;: &quot;プロジェクトB&quot;,
- *           &quot;closing_balance&quot; : 200000
- *         },
- *         {
- *           &quot;id&quot;: 3
- *           &quot;name&quot;: &quot;プロジェクトC&quot;,
- *           &quot;closing_balance&quot; : 300000
- *         },
- *         ...
+ *   &quot;trial_cr_segment_2_tags&quot;: {
+ *     &quot;company_id&quot;: 1,
+ *     &quot;segment_2_tag_ids&quot;: &quot;1,2,3&quot;,
+ *     &quot;fiscal_year&quot;: 2019,
+ *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
+ *     &quot;balances&quot;: [
+ *       {
+ *         &quot;account_item_id&quot;: 1500,
+ *         &quot;account_item_name&quot;: &quot;[製]期首材料棚卸高&quot;,
+ *         &quot;hierarchy_level&quot;: 2,
+ *         &quot;account_category_name&quot;: &quot;期首原材料棚卸&quot;,
+ *         &quot;closing_balance&quot;: 600000,
+ *         &quot;segment_2_tags&quot;: [
+ *           {
+ *             &quot;id&quot;: 1,
+ *             &quot;name&quot;: &quot;プロジェクトA&quot;,
+ *             &quot;closing_balance&quot;: 100000
+ *           },
+ *           {
+ *             &quot;id&quot;: 2,
+ *             &quot;name&quot;: &quot;プロジェクトB&quot;,
+ *             &quot;closing_balance&quot;: 200000
+ *           },
+ *           {
+ *             &quot;id&quot;: 3,
+ *             &quot;name&quot;: &quot;プロジェクトC&quot;,
+ *             &quot;closing_balance&quot;: 300000
+ *           }
  *         ]
- *       },
- *       ...
- *       ]
- *     }
+ *       }
+ *     ]
+ *   },
+ *   &quot;up_to_date&quot;: true
  * }</code></pre>
  *
  */
@@ -4631,22 +4396,24 @@ export const getTrialCrSegment2Tags = <ThrowOnError extends boolean = true>(
  * 製造原価報告書(セグメント３比較)の取得
  *
  *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の製造原価報告書(セグメント３比較)を取得する</p>
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所の製造原価報告書(セグメント3比較)を取得します。指定したセグメント3タグ（最大5つ）ごとの期末残高を並べて比較する用途に利用できます。</p>
  *
  * <h2 id="_2">定義</h2>
  * <ul>
- *   <li><p>created_at : 作成日時</p></li>
+ *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
  *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level: 階層レベル</p></li>
- *   <li><p>parent_account_category_name: 上位勘定科目カテゴリー名</p></li>
- *   <li><p>closing_balance : 期末残高</p></li>
+ *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
+ *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
+ *   <li><p>closing_balance : 期末残高（円。行直下の値は比較対象に指定したセグメント3タグの合計、segment_3_tags 配下の値は各タグの金額）</p></li>
  * </ul>
  *
  * <h2 id="_3">注意点</h2>
  * <ul>
+ *   <li>対象の会計年度で製造業向け機能を使用する設定になっている必要があります。無効の場合はエラー（400）になります。</li>
  *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
  *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
+ *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
  *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
  *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
  *   <ul>
@@ -4667,45 +4434,44 @@ export const getTrialCrSegment2Tags = <ThrowOnError extends boolean = true>(
  * </ul>
  *
  * <h2 id="_4">レスポンスの例</h2>
- *
  * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr_segment_3_tags?company_id=1&amp;segment_3_tag_ids=1,2,3&amp;fiscal_year=2019</p></p>
+ * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr_segment_3_tags?company_id=1&amp;segment_3_tag_ids=1,2,3&amp;fiscal_year=2019</p>
  * </blockquote>
  *
  * <pre><code>{
- *   &quot;trial_cr_segment_3_tags&quot; :
- *     {
- *       &quot;company_id&quot; : 1,
- *       &quot;segment_3_tag_ids&quot; : &quot;1,2,3&quot;,
- *       &quot;fiscal_year&quot; : 2019,
- *       &quot;created_at&quot; : &quot;2019-12-17 12:00:50&quot
- *       &quot;balances&quot; : [{
- *         &quot;account_item_id&quot; : 1500,
- *         &quot;account_item_name&quot; : &quot;[製]期首材料棚卸高&quot;,
- *         &quot;hierarchy_level&quot; : 2,
- *         &quot;account_category_name&quot; : &quot;期首原材料棚卸&quot;,
- *         &quot;closing_balance&quot; : 1000000,
- *         &quot;segment_3_tags&quot; : [{
- *           &quot;id&quot;: 1
- *           &quot;name&quot;: &quot;プロジェクトA&quot;,
- *           &quot;closing_balance&quot; : 100000
- *         },
- *         {
- *           &quot;id&quot;: 2
- *           &quot;name&quot;: &quot;プロジェクトB&quot;,
- *           &quot;closing_balance&quot; : 200000
- *         },
- *         {
- *           &quot;id&quot;: 3
- *           &quot;name&quot;: &quot;プロジェクトC&quot;,
- *           &quot;closing_balance&quot; : 300000
- *         },
- *         ...
+ *   &quot;trial_cr_segment_3_tags&quot;: {
+ *     &quot;company_id&quot;: 1,
+ *     &quot;segment_3_tag_ids&quot;: &quot;1,2,3&quot;,
+ *     &quot;fiscal_year&quot;: 2019,
+ *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
+ *     &quot;balances&quot;: [
+ *       {
+ *         &quot;account_item_id&quot;: 1500,
+ *         &quot;account_item_name&quot;: &quot;[製]期首材料棚卸高&quot;,
+ *         &quot;hierarchy_level&quot;: 2,
+ *         &quot;account_category_name&quot;: &quot;期首原材料棚卸&quot;,
+ *         &quot;closing_balance&quot;: 600000,
+ *         &quot;segment_3_tags&quot;: [
+ *           {
+ *             &quot;id&quot;: 1,
+ *             &quot;name&quot;: &quot;プロジェクトA&quot;,
+ *             &quot;closing_balance&quot;: 100000
+ *           },
+ *           {
+ *             &quot;id&quot;: 2,
+ *             &quot;name&quot;: &quot;プロジェクトB&quot;,
+ *             &quot;closing_balance&quot;: 200000
+ *           },
+ *           {
+ *             &quot;id&quot;: 3,
+ *             &quot;name&quot;: &quot;プロジェクトC&quot;,
+ *             &quot;closing_balance&quot;: 300000
+ *           }
  *         ]
- *       },
- *       ...
- *       ]
- *     }
+ *       }
+ *     ]
+ *   },
+ *   &quot;up_to_date&quot;: true
  * }</code></pre>
  *
  */
@@ -4903,14 +4669,6 @@ export const downloadReceipt = <ThrowOnError extends boolean = true>(
  * <h2 id="_2">注意点</h2>
  * <ul>
  *   <li>本APIでは、経費申請の一覧を取得することができます。</li>
- *   <li>
- *     申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している経費申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
- *     </ul>
- *   </li>
  * </ul>
  */
 export const getExpenseApplications = <ThrowOnError extends boolean = true>(
@@ -4962,19 +4720,20 @@ export const getExpenseApplications = <ThrowOnError extends boolean = true>(
  *     </ul>
  *   </li>
  *   <li>
- *     申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している経費申請は本API経由で作成ができません。
+ *     承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。
  *     <ul>
  *       <li>役職指定（申請者の所属部門）</li>
  *       <li>役職指定（申請時に部門指定）</li>
  *       <li>部門および役職指定</li>
  *     </ul>
+ *     申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。
  *   </li>
  *   <li>申請時には、申請タイトル(title)に加え、項目行については金額(amount)、日付(transaction_date)、内容(description)が必須項目となります。申請時の業務効率化のため、API入力をお勧めします。</li>
  *   <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は作成できません。</li>
  *   <li>本APIは外貨には非対応です。外貨を利用する経費申請は作成できません。</li>
  *   <li>本APIはカスタム申請項目には非対応です。カスタム申請項目を使用した経費申請は作成できません。</li>
  *   <li>本APIは金額計算方法には非対応です。金額計算方法を設定した経費申請は作成できません。</li>
- *   <li>本APIは条件分岐を含む申請経路には非対応です。条件分岐を含む申請経路を使用した経費申請は作成できません。</li>
+ *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
  * </ul>
  */
 export const createExpenseApplication = <ThrowOnError extends boolean = true>(
@@ -5064,14 +4823,6 @@ export const destroyExpenseApplication = <ThrowOnError extends boolean = true>(
  *
  * <h2 id="_2">注意点</h2>
  * <ul>
- *   <li>
- *     申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している経費申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
- *     </ul>
- *   </li>
  *   <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は取得できません。</li>
  *   <li>本APIは外貨には非対応です。外貨を利用する経費申請は取得できません。</li>
  *   <li>本APIはカスタム申請項目には非対応です。カスタム申請項目を使用した経費申請は取得できません。</li>
@@ -5129,19 +4880,20 @@ export const getExpenseApplication = <ThrowOnError extends boolean = true>(
  *     </ul>
  *   </li>
  *   <li>
- *     申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している経費申請は本API経由で更新ができません。
+ *     承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。
  *     <ul>
  *       <li>役職指定（申請者の所属部門）</li>
  *       <li>役職指定（申請時に部門指定）</li>
  *       <li>部門および役職指定</li>
  *     </ul>
+ *     申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。
  *   </li>
  *   <li>申請時には、申請タイトル(title)に加え、項目行については金額(amount)、日付(transaction_date)、内容(description)が必須項目となります。申請時の業務効率化のため、API入力をお勧めします。</li>
  *   <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は更新できません。</li>
  *   <li>本APIは外貨には非対応です。外貨を利用する経費申請は更新できません。</li>
  *   <li>本APIはカスタム申請項目には非対応です。カスタム申請項目を使用した経費申請は更新できません。</li>
  *   <li>本APIは金額計算方法には非対応です。金額計算方法を設定した経費申請は更新できません。</li>
- *   <li>本APIは条件分岐を含む申請経路には非対応です。条件分岐を含む申請経路を使用した経費申請は更新できません。</li>
+ *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
  * </ul>
  */
 export const updateExpenseApplication = <ThrowOnError extends boolean = true>(
@@ -5198,17 +4950,18 @@ export const updateExpenseApplication = <ThrowOnError extends boolean = true>(
  *     </ul>
  *   </li>
  *   <li>
- *     申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している経費申請はAPI経由で承認ステータスの変更ができません。
+ *     承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。
  *     <ul>
  *       <li>役職指定（申請者の所属部門）</li>
  *       <li>役職指定（申請時に部門指定）</li>
  *       <li>部門および役職指定</li>
  *     </ul>
+ *     次の承認ステップが部門選択型の場合は next_group_id を指定してください。
  *   </li>
  *   <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は承認操作できません。</li>
  *   <li>本APIはカスタム申請項目には非対応です。カスタム申請項目を使用した経費申請は承認操作できません。</li>
  *   <li>本APIは金額計算方法には非対応です。金額計算方法を設定した経費申請は承認操作できません。</li>
- *   <li>本APIは条件分岐を含む申請経路には非対応です。条件分岐を含む申請経路を使用した経費申請は承認操作できません。</li>
+ *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
  * </ul>
  */
 export const updateExpenseApplicationAction = <ThrowOnError extends boolean = true>(
@@ -5259,14 +5012,6 @@ export const updateExpenseApplicationAction = <ThrowOnError extends boolean = tr
  *     <ul>
  *       <li>経費精算に対する閲覧および編集の権限を持ち、自分の経費申請のみに限定する制限がかかっていない</li>
  *       <li>申請フォームの設定で、管理者による経費申請に関連付ける各種申請の更新が許可されている</li>
- *     </ul>
- *   </li>
- *   <li>
- *     申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している経費申請は本API経由で更新ができません。
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
  *     </ul>
  *   </li>
  *   <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は関連付ける各種申請を更新できません。</li>
@@ -5481,14 +5226,6 @@ export const updateExpenseApplicationLineTemplate = <ThrowOnError extends boolea
  * <h2 id="_2">注意点</h2>
  * <ul>
  *   <li>本APIでは、支払依頼の一覧を取得することができます。</li>
- *   <li>
- *     申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している支払依頼と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
- *     </ul>
- *   </li>
  * </ul>
  */
 export const getPaymentRequests = <ThrowOnError extends boolean = true>(
@@ -5540,13 +5277,15 @@ export const getPaymentRequests = <ThrowOnError extends boolean = true>(
  *     </ul>
  *   </li>
  *   <li>
- *     申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している支払依頼は本API経由で作成ができません。
+ *     承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。
  *     <ul>
  *       <li>役職指定（申請者の所属部門）</li>
  *       <li>役職指定（申請時に部門指定）</li>
  *       <li>部門および役職指定</li>
  *     </ul>
+ *     申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。
  *   </li>
+ *   <li>本APIは条件分岐を含む申請経路には非対応です。条件分岐を含む申請経路を使用した支払依頼は作成できません。</li>
  *   <li>本APIでは支払依頼の項目行一覧(payment_request_lines)は、最大100行までになります。</li>
  * </ul>
  */
@@ -5603,14 +5342,6 @@ export const createPaymentRequest = <ThrowOnError extends boolean = true>(
  *       <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>
  *     </ul>
  *   </li>
- * 　<li>
- *     申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している支払依頼はAPI経由で承認ステータスの変更ができません。
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
- *     </ul>
- *   </li>
  * </ul>
  */
 export const destroyPaymentRequest = <ThrowOnError extends boolean = true>(
@@ -5635,18 +5366,6 @@ export const destroyPaymentRequest = <ThrowOnError extends boolean = true>(
  * <p>指定した事業所の支払依頼を取得する</p>
  *
  * <p>支払依頼APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-payment-requests" target="_blank">freee会計支払依頼APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>
- *     申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している支払依頼と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
- *     </ul>
- *   </li>
- * </ul>
  */
 export const getPaymentRequest = <ThrowOnError extends boolean = true>(
   options: Options<GetPaymentRequestData, ThrowOnError>,
@@ -5697,13 +5416,15 @@ export const getPaymentRequest = <ThrowOnError extends boolean = true>(
  *     </ul>
  *   </li>
  *   <li>
- *     申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している支払依頼は本API経由で更新ができません。
+ *     承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。
  *     <ul>
  *       <li>役職指定（申請者の所属部門）</li>
  *       <li>役職指定（申請時に部門指定）</li>
  *       <li>部門および役職指定</li>
  *     </ul>
+ *     申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。
  *   </li>
+ *   <li>本APIは条件分岐を含む申請経路には非対応です。条件分岐を含む申請経路を使用した支払依頼は更新できません。</li>
  *   <li>申請ステータスが申請中の場合には、申請タイトル(title)、申請日(application_date)、申請経路ID(approval_flow_route_id)、承認者のユーザーID(approver_id)は更新ができません。</li>
  *   <li>本APIでは支払依頼の項目行一覧(payment_request_lines)は、最大100行までになります。</li>
  * </ul>
@@ -5761,14 +5482,16 @@ export const updatePaymentRequest = <ThrowOnError extends boolean = true>(
  *       <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>
  *     </ul>
  *   </li>
- * 　<li>
- *     申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している支払依頼はAPI経由で承認ステータスの変更ができません。
+ *   <li>
+ *     承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。
  *     <ul>
  *       <li>役職指定（申請者の所属部門）</li>
  *       <li>役職指定（申請時に部門指定）</li>
  *       <li>部門および役職指定</li>
  *     </ul>
+ *     次の承認ステップが部門選択型の場合は next_group_id を指定してください。
  *   </li>
+ *   <li>本APIは条件分岐を含む申請経路には非対応です。条件分岐を含む申請経路を使用した支払依頼は承認操作できません。</li>
  * </ul>
  */
 export const updatePaymentRequestAction = <ThrowOnError extends boolean = true>(
@@ -5805,14 +5528,6 @@ export const updatePaymentRequestAction = <ThrowOnError extends boolean = true>(
  * <h2 id="_2">注意点</h2>
  * <ul>
  *   <li>本APIでは、各種申請一覧を取得することができます。</li>
- *   <li>
- *     申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している各種申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
- *     </ul>
- *   </li>
  *   <li>
  *     申請フォームの項目に契約書（freeeサイン連携）が利用されている各種申請については、API経由で参照は可能ですが、作成と更新ができません。
  *   </li>
@@ -5856,6 +5571,7 @@ export const getApprovalRequests = <ThrowOnError extends boolean = true>(
  *       &nbsp;&nbsp;申請日 2019-12-17<br>
  *       </li>
  *       <li>プルダウン(select)： プルダウンの選択肢の名前(改行なし) 例)開発部</li>
+ *       <li>複数選択(checkbox)： 選択肢名の JSON 配列文字列 例)["関東","九州"]</li>
  *       <li>日付(date)： 日付形式 例)2019-12-17</li>
  *       <li>金額(amount)： 数値(申請フォームで設定した上限・下限金額内の値, 改行なし) 例)10000</li>
  *       <li>添付ファイル(receipt)： ファイルボックス（証憑ファイル）APIのID 例)1
@@ -5897,14 +5613,15 @@ export const getApprovalRequests = <ThrowOnError extends boolean = true>(
  *     </ul>
  *   </li>
  *   <li>
- *     申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している各種申請は本API経由で作成ができません。
+ *     承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。
  *     <ul>
  *       <li>役職指定（申請者の所属部門）</li>
  *       <li>役職指定（申請時に部門指定）</li>
  *       <li>部門および役職指定</li>
  *     </ul>
+ *     申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。
  *   </li>
- *   <li>本APIは条件分岐を含む申請経路には非対応です。条件分岐を含む申請経路を使用した各種申請は作成できません。</li>
+ *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
  *   <li>
  *     申請フォームの項目に契約書（freeeサイン連携）が利用されている各種申請については、API経由で参照は可能ですが、作成と更新ができません。
  *   </li>
@@ -5996,14 +5713,6 @@ export const destroyApprovalRequest = <ThrowOnError extends boolean = true>(
  * <h2 id="_2">注意点</h2>
  * <ul>
  *   <li>
- *     申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している各種申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
- *     </ul>
- *   </li>
- *   <li>
  *     申請フォームの項目に契約書（freeeサイン連携）が利用されている各種申請については、API経由で参照は可能ですが、作成と更新ができません。
  *   </li>
  * </ul>
@@ -6046,6 +5755,7 @@ export const getApprovalRequest = <ThrowOnError extends boolean = true>(
  *       &nbsp;&nbsp;申請日 2019-12-17<br>
  *       </li>
  *       <li>プルダウン(select)： プルダウンの選択肢の名前(改行なし) 例)開発部</li>
+ *       <li>複数選択(checkbox)： 選択肢名の JSON 配列文字列 例)["関東","九州"]</li>
  *       <li>日付(date)： 日付形式 例)2019-12-17</li>
  *       <li>金額(amount)： 数値(申請フォームで設定した上限・下限金額内の値, 改行なし) 例)10000</li>
  *       <li>添付ファイル(receipt)： ファイルボックス（証憑ファイル）APIのID 例)1
@@ -6088,14 +5798,15 @@ export const getApprovalRequest = <ThrowOnError extends boolean = true>(
  *     </ul>
  *   </li>
  *   <li>
- *     申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している各種申請は本API経由で更新ができません。
+ *     承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。
  *     <ul>
  *       <li>役職指定（申請者の所属部門）</li>
  *       <li>役職指定（申請時に部門指定）</li>
  *       <li>部門および役職指定</li>
  *     </ul>
+ *     申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。
  *   </li>
- *   <li>本APIは条件分岐を含む申請経路には非対応です。条件分岐を含む申請経路を使用した各種申請は更新できません。</li>
+ *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
  *   <li>
  *     申請フォームの項目に契約書（freeeサイン連携）が利用されている各種申請については、API経由で参照は可能ですが、作成と更新ができません。
  *   </li>
@@ -6161,15 +5872,16 @@ export const updateApprovalRequest = <ThrowOnError extends boolean = true>(
  *       <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>
  *     </ul>
  *   </li>
- * 　<li>
- *     申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している各種申請はAPI経由で承認ステータスの変更ができません。
+ *   <li>
+ *     承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。
  *     <ul>
  *       <li>役職指定（申請者の所属部門）</li>
  *       <li>役職指定（申請時に部門指定）</li>
  *       <li>部門および役職指定</li>
  *     </ul>
+ *     次の承認ステップが部門選択型の場合は next_group_id を指定してください。
  *   </li>
- *   <li>本APIは条件分岐を含む申請経路には非対応です。条件分岐を含む申請経路を使用した各種申請は承認操作できません。</li>
+ *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
  *   <li>
  *     申請フォームの項目に契約書（freeeサイン連携）が利用されている各種申請については、API経由で参照は可能ですが、作成と更新ができません。
  *   </li>
@@ -6451,12 +6163,10 @@ export const createPurchaseRequestAction = <ThrowOnError extends boolean = true>
  *
  * <ul>
  *   <li>
- *     <p>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</p>
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
- *     </ul>
+ *     <p>承認ステップの詳細（steps）は本APIのレスポンスには含まれません。承認方法や分岐条件を確認する場合は、申請経路の取得（GET /api/1/approval_flow_routes/{id}）をご利用ください。</p>
+ *   </li>
+ *   <li>
+ *     <p>支払依頼では、条件分岐を含む申請経路を指定した作成・更新・承認操作はできません。</p>
  *   </li>
  * </ul>
  */
@@ -6488,12 +6198,10 @@ export const getApprovalFlowRoutes = <ThrowOnError extends boolean = true>(
  *
  * <ul>
  *   <li>
- *     <p>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</p>
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
- *     </ul>
+ *     <p>承認ステップごとの承認方法は steps[].resource_type で判別できます。役職で承認者を指定する承認ステップ（and_position / or_position）では steps[].approver_determination_type、steps[].group、steps[].position_types を、条件分岐の承認ステップ（switchable）では steps[].switching_rules をご参照ください。</p>
+ *   </li>
+ *   <li>
+ *     <p>支払依頼では、条件分岐を含む申請経路を指定した作成・更新・承認操作はできません。</p>
  *   </li>
  * </ul>
  */
@@ -6513,15 +6221,13 @@ export const getApprovalFlowRoute = <ThrowOnError extends boolean = true>(
 /**
  * セグメントタグ一覧の取得
  *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した事業所のセグメントタグ一覧を取得する</p>
- *
- * <h2 id="">注意点</h2>
- *
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所に登録されているセグメントタグの一覧を取得します。取引や振替伝票の明細に付与するセグメントタグを参照する用途を想定しています。</p>
+ * <h2 id="_2">注意点</h2>
  * <ul>
- *   <li>事業所の設定でセグメントタグコードを使用する設定にしている場合、レスポンスでセグメントタグコード(code)を返します</li>
+ *   <li>segment_id にはセグメント区分（1、2、3）を指定します。利用できるセグメント区分は事業所の契約プランによって異なり、利用できない区分を指定した場合はエラーになります。</li>
+ *   <li>start_update_date / end_update_date でセグメントタグの更新日を範囲指定して絞り込めます。JST の日付を yyyy-mm-dd で指定してください（どちらも指定日を含みます）。</li>
+ *   <li>セグメントタグコード（code）は、事業所の設定でセグメントタグコードを使用する設定にしている場合のみレスポンスに含まれます。設定が無効の場合は code キー自体が返りません。</li>
  * </ul>
  */
 export const getSegmentTags = <ThrowOnError extends boolean = true>(
@@ -6536,15 +6242,13 @@ export const getSegmentTags = <ThrowOnError extends boolean = true>(
 /**
  * セグメントタグの作成
  *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した事業所のセグメントタグを作成する</p>
- *
- * <h2 id="">注意点</h2>
- *
+ * <h2 id="_1">概要</h2>
+ * <p>指定した事業所のセグメント区分に、新しいセグメントタグを作成します。作成したタグは取引や振替伝票の明細に付与できます。</p>
+ * <h2 id="_2">注意点</h2>
  * <ul>
- *   <li>codeを利用するには、事業所の設定でセグメントタグコードを使用する設定にする必要があります。</li>
+ *   <li>segment_id にはセグメント区分（1、2、3）を指定します。利用できない区分を指定した場合はエラーになります。</li>
+ *   <li>セグメントタグ名（name）は、事業所内の同じセグメント区分で重複できません。</li>
+ *   <li>セグメントタグコード（code）は、事業所の設定でセグメントタグコードを使用する設定にしている場合のみ保存されます。設定が無効の場合は指定しても保存されません。</li>
  * </ul>
  */
 export const createSegmentTag = <ThrowOnError extends boolean = true>(
@@ -6563,10 +6267,13 @@ export const createSegmentTag = <ThrowOnError extends boolean = true>(
 /**
  * セグメントタグの削除
  *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した事業所のセグメントタグを削除する</p>
+ * <h2 id="_1">概要</h2>
+ * <p>セグメントタグIDを指定して、セグメントタグを削除します。</p>
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>取引明細や振替伝票などで使用されているセグメントタグは削除できず、400 エラーになります。</li>
+ *   <li>存在しないか既に削除されたセグメントタグIDを指定した場合は 404 エラーになります。</li>
+ * </ul>
  */
 export const destroySegmentsTag = <ThrowOnError extends boolean = true>(
   options: Options<DestroySegmentsTagData, ThrowOnError>,
@@ -6584,15 +6291,14 @@ export const destroySegmentsTag = <ThrowOnError extends boolean = true>(
 /**
  * セグメントタグの更新
  *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した事業所のセグメントタグを更新する</p>
- *
- * <h2 id="">注意点</h2>
- *
+ * <h2 id="_1">概要</h2>
+ * <p>セグメントタグIDを指定して、セグメントタグの情報を更新します。このAPIはセグメントタグの作成は行いません。</p>
+ * <h2 id="_2">注意点</h2>
  * <ul>
- *   <li>codeを利用するには、事業所の設定でセグメントタグコードを使用する設定にする必要があります。</li>
+ *   <li>セグメントタグ名（name）は、事業所内の同じセグメント区分で重複できません。</li>
+ *   <li>description / shortcut1 / shortcut2 / code は、省略した場合に未設定（null）へ更新されます。値を維持したい場合は現在の値を指定してください。</li>
+ *   <li>セグメントタグコード（code）は、事業所の設定でセグメントタグコードを使用する設定にしている場合のみ更新されます。設定が無効の場合は指定しても保存されません。</li>
+ *   <li>存在しないか既に削除されたセグメントタグIDを指定した場合は 404 エラーになります。</li>
  * </ul>
  */
 export const updateSegmentTag = <ThrowOnError extends boolean = true>(
@@ -6611,16 +6317,16 @@ export const updateSegmentTag = <ThrowOnError extends boolean = true>(
 /**
  * セグメントタグの更新（作成）
  *
- *
- *   <h2 id="">概要</h2>
- *
- *   <p>セグメントタグコードをキーに、指定したセグメントタグの情報を更新（存在しない場合は作成）する</p>
- *
- *   <h2 id="">注意点</h2>
- *
- *   <ul>
- *     <li>codeを利用するには、事業所の設定でセグメントタグコードを使用する設定にする必要があります。</li>
- *   </ul>
+ * <h2 id="_1">概要</h2>
+ * <p>セグメントタグコード（code）をキーにセグメントタグを更新し、該当するタグが存在しない場合は新規作成します。外部システムとの連携でセグメントタグマスタを登録・更新する用途を想定しています。</p>
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>本APIを利用するには、事業所の設定でセグメントタグコードを使用する設定にする必要があります。設定が無効な事業所への呼び出しは 400 エラーになります。</li>
+ *   <li>segment_tag オブジェクト内で code を指定することはできません。セグメントタグコードは変更できないため、リクエストボディ直下の code のみを指定してください。</li>
+ *   <li>更新した場合は 200 OK、新規作成した場合は 201 Created を返します。処理結果は HTTP ステータスコードで判別してください。</li>
+ *   <li>description / shortcut1 / shortcut2 は、省略した場合に未設定（null）へ更新されます。値を維持したい場合は現在の値を指定してください。</li>
+ *   <li>セグメントタグ名（name）は、事業所内の同じセグメント区分で重複できません。</li>
+ * </ul>
  */
 export const upsertSegmentTag = <ThrowOnError extends boolean = true>(
   options: Options<UpsertSegmentTagData, ThrowOnError>,

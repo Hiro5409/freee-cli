@@ -1,16 +1,20 @@
 import { define } from "gunshi";
 
 import { fetchAll } from "../../api/paginate.ts";
-import { listArgs } from "../../global-args.ts";
 import {
-  initCommand,
-  monthToDateRange,
-  parseChoice,
-  parseLimit,
-  parsePositiveId,
-} from "../../helpers.ts";
+  MonthTextSchema,
+  OptionalLimitTextSchema,
+  PositiveIntegerTextSchema,
+  parseCliInput,
+} from "../../cli-input.ts";
+import { listArgs } from "../../global-args.ts";
+import { initCommand, monthToDateRange } from "../../helpers.ts";
 import { formatOutput } from "../../output/formatter.ts";
 import { getDeals } from "../../types/freee/sdk.gen.ts";
+
+const DEAL_TYPES = ["income", "expense"] as const;
+const DEAL_STATUSES = ["unsettled", "settled"] as const;
+const ACCRUAL_FILTERS = ["without", "with"] as const;
 
 export const dealListCommand = define({
   name: "deal-list",
@@ -18,46 +22,61 @@ export const dealListCommand = define({
   args: {
     ...listArgs,
     month: { type: "string" as const, description: "Filter by month (YYYY-MM)" },
-    type: { type: "string" as const, description: "Filter by type: income | expense" },
-    status: { type: "string" as const, description: "Filter by status: unsettled | settled" },
+    type: {
+      type: "enum" as const,
+      choices: DEAL_TYPES,
+      description: "Filter by type: income | expense",
+    },
+    status: {
+      type: "enum" as const,
+      choices: DEAL_STATUSES,
+      description: "Filter by status: unsettled | settled",
+    },
     "account-item-id": { type: "string" as const, description: "Filter by account item ID" },
     "partner-id": { type: "string" as const, description: "Filter by partner ID" },
     "partner-code": { type: "string" as const, description: "Filter by partner code" },
-    accruals: { type: "string" as const, description: "Include accrual rows: without | with" },
+    accruals: {
+      type: "enum" as const,
+      choices: ACCRUAL_FILTERS,
+      description: "Include accrual rows: without | with",
+    },
   },
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
 
-    const monthFilter = ctx.values.month ? monthToDateRange(ctx.values.month) : undefined;
+    const monthFilter = ctx.values.month
+      ? monthToDateRange(parseCliInput(MonthTextSchema, ctx.values.month, { label: "--month" }))
+      : undefined;
 
-    const deals = await fetchAll(async (offset, limit) => {
-      const { data } = await getDeals({
-        query: {
-          company_id: companyId,
-          offset,
-          limit,
-          start_issue_date: monthFilter?.start,
-          end_issue_date: monthFilter?.end,
-          type: ctx.values.type
-            ? parseChoice(ctx.values.type, ["income", "expense"] as const, "--type")
-            : undefined,
-          status: ctx.values.status
-            ? parseChoice(ctx.values.status, ["unsettled", "settled"] as const, "--status")
-            : undefined,
-          account_item_id: ctx.values["account-item-id"]
-            ? parsePositiveId(ctx.values["account-item-id"], "--account-item-id")
-            : undefined,
-          partner_id: ctx.values["partner-id"]
-            ? parsePositiveId(ctx.values["partner-id"], "--partner-id")
-            : undefined,
-          partner_code: ctx.values["partner-code"],
-          accruals: ctx.values.accruals
-            ? parseChoice(ctx.values.accruals, ["without", "with"] as const, "--accruals")
-            : undefined,
-        },
-      });
-      return data.deals;
-    }, parseLimit(ctx.values.limit));
+    const deals = await fetchAll(
+      async (offset, limit) => {
+        const { data } = await getDeals({
+          query: {
+            company_id: companyId,
+            offset,
+            limit,
+            start_issue_date: monthFilter?.start,
+            end_issue_date: monthFilter?.end,
+            type: ctx.values.type,
+            status: ctx.values.status,
+            account_item_id: ctx.values["account-item-id"]
+              ? parseCliInput(PositiveIntegerTextSchema, ctx.values["account-item-id"], {
+                  label: "--account-item-id",
+                })
+              : undefined,
+            partner_id: ctx.values["partner-id"]
+              ? parseCliInput(PositiveIntegerTextSchema, ctx.values["partner-id"], {
+                  label: "--partner-id",
+                })
+              : undefined,
+            partner_code: ctx.values["partner-code"],
+            accruals: ctx.values.accruals,
+          },
+        });
+        return data.deals;
+      },
+      parseCliInput(OptionalLimitTextSchema, ctx.values.limit, { label: "--limit" }),
+    );
 
     return formatOutput(deals, format);
   },

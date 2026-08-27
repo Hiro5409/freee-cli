@@ -1,8 +1,9 @@
 import { define } from "gunshi";
 import colors from "yoctocolors";
 
+import { PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { writeArgs } from "../../global-args.ts";
-import { initCommand, parsePositiveId } from "../../helpers.ts";
+import { initCommand } from "../../helpers.ts";
 import { formatDryRun } from "../../output/formatter.ts";
 import { getUserMatcher, updateUserMatcher } from "../../types/freee/sdk.gen.ts";
 import { currentRuleBody } from "./rule-body.ts";
@@ -23,7 +24,7 @@ function defineSetActiveCommand(active: boolean) {
     examples: `$ freee auto-rule-${verb} --id 42 --dry-run --format json`,
     run: async (ctx) => {
       const { companyId, format } = initCommand(ctx);
-      const id = parsePositiveId(ctx.values.id, "--id");
+      const id = parseCliInput(PositiveIntegerTextSchema, ctx.values.id, { label: "--id" });
 
       const { data: current } = await getUserMatcher({
         path: { id },

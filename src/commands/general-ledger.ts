@@ -1,7 +1,8 @@
 import { define } from "gunshi";
 
+import { IsoDateSchema, parseCliInput } from "../cli-input.ts";
 import { companyArgs } from "../global-args.ts";
-import { initCommand, parseDate } from "../helpers.ts";
+import { initCommand } from "../helpers.ts";
 import { formatOutput } from "../output/formatter.ts";
 import { getGeneralLedgers } from "../types/freee/sdk.gen.ts";
 
@@ -33,8 +34,10 @@ export const generalLedgerCommand = define({
     const { data } = await getGeneralLedgers({
       query: {
         company_id: companyId,
-        start_date: parseDate(ctx.values["start-date"], "--start-date"),
-        end_date: parseDate(ctx.values["end-date"], "--end-date"),
+        start_date: parseCliInput(IsoDateSchema, ctx.values["start-date"], {
+          label: "--start-date",
+        }),
+        end_date: parseCliInput(IsoDateSchema, ctx.values["end-date"], { label: "--end-date" }),
         account_item_name: ctx.values["account-item-name"],
         partner_name: ctx.values["partner-name"],
         item_name: ctx.values["item-name"],

@@ -1,14 +1,14 @@
 import { createHash, randomBytes } from "node:crypto";
 
-import * as z from "zod/mini";
+import * as v from "valibot";
 
 import type { TokenSet } from "../config/credentials.ts";
 import { AuthError } from "../errors.ts";
 
-const TokenResponseSchema = z.object({
-  access_token: z.string(),
-  refresh_token: z.string(),
-  expires_in: z.number(),
+const TokenResponseSchema = v.object({
+  access_token: v.string(),
+  refresh_token: v.string(),
+  expires_in: v.number(),
 });
 
 const FREEE_AUTH_BASE = "https://accounts.secure.freee.co.jp";
@@ -45,7 +45,7 @@ export function buildAuthorizationUrl(params: {
 
 async function postTokenEndpoint(
   body: Record<string, string>,
-): Promise<z.infer<typeof TokenResponseSchema>> {
+): Promise<v.InferOutput<typeof TokenResponseSchema>> {
   const res = await fetch(`${FREEE_AUTH_BASE}${TOKEN_PATH}`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -57,7 +57,7 @@ async function postTokenEndpoint(
     throw new AuthError(`Token request failed (${res.status}): ${text}`);
   }
 
-  return TokenResponseSchema.parse(await res.json());
+  return v.parse(TokenResponseSchema, await res.json());
 }
 
 export async function exchangeCodeForToken(params: {

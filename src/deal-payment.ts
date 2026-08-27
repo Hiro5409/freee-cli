@@ -1,5 +1,12 @@
+import type { ArgValues } from "gunshi";
+
+import {
+  IntegerTextSchema,
+  IsoDateSchema,
+  PositiveIntegerTextSchema,
+  parseCliInput,
+} from "./cli-input.ts";
 import { CliError, errorHints } from "./errors.ts";
-import { parseChoice, parseDate, parseInteger, parsePositiveId } from "./helpers.ts";
 import type { PaymentParams } from "./types/freee/types.gen.ts";
 
 const WALLET_TYPES = ["bank_account", "credit_card", "wallet", "private_account_item"] as const;
@@ -12,7 +19,8 @@ export const dealPaymentArgs = {
     required: true,
   },
   "walletable-type": {
-    type: "string" as const,
+    type: "enum" as const,
+    choices: WALLET_TYPES,
     description: `Walletable type: ${WALLET_TYPES.join(" | ")}`,
     required: true,
   },
@@ -24,7 +32,7 @@ export const dealPaymentArgs = {
 };
 
 function parseAmount(value: unknown): number {
-  const amount = parseInteger(value, "--amount");
+  const amount = parseCliInput(IntegerTextSchema, value, { label: "--amount" });
   if (amount > 0) return amount;
   throw new CliError(`--amount must be a positive integer, got "${value}"`, {
     code: "INVALID_INPUT",
@@ -34,14 +42,25 @@ function parseAmount(value: unknown): number {
 }
 
 export function parseDealPayment(
-  values: Record<string, unknown>,
+  values: ArgValues<typeof dealPaymentArgs>,
   companyId: number,
 ): PaymentParams {
+  const walletableType = values["walletable-type"];
+  if (walletableType === undefined) {
+    throw new CliError("--walletable-type is required.", {
+      code: "INVALID_INPUT",
+      why: "A payment needs the account that supplied or received the funds.",
+      hint: errorHints.invalidValue,
+    });
+  }
+
   return {
     company_id: companyId,
-    date: parseDate(values.date, "--date"),
+    date: parseCliInput(IsoDateSchema, values.date, { label: "--date" }),
     amount: parseAmount(values.amount),
-    from_walletable_type: parseChoice(values["walletable-type"], WALLET_TYPES, "--walletable-type"),
-    from_walletable_id: parsePositiveId(values["walletable-id"], "--walletable-id"),
+    from_walletable_type: walletableType,
+    from_walletable_id: parseCliInput(PositiveIntegerTextSchema, values["walletable-id"], {
+      label: "--walletable-id",
+    }),
   };
 }

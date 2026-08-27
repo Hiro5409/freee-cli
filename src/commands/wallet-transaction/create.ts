@@ -1,14 +1,14 @@
 import { define } from "gunshi";
 import colors from "yoctocolors";
 
-import { writeArgs } from "../../global-args.ts";
 import {
-  initCommand,
-  parseChoice,
-  parseDate,
-  parseInteger,
-  parsePositiveId,
-} from "../../helpers.ts";
+  IntegerTextSchema,
+  IsoDateSchema,
+  PositiveIntegerTextSchema,
+  parseCliInput,
+} from "../../cli-input.ts";
+import { writeArgs } from "../../global-args.ts";
+import { initCommand } from "../../helpers.ts";
 import { formatDryRun } from "../../output/formatter.ts";
 import { createWalletTxn } from "../../types/freee/sdk.gen.ts";
 import type { WalletTxnParams } from "../../types/freee/types.gen.ts";
@@ -24,14 +24,16 @@ export const walletTransactionCreateCommand = define({
     ...writeArgs,
     date: { type: "string" as const, description: "Transaction date (YYYY-MM-DD)", required: true },
     "entry-side": {
-      type: "string" as const,
+      type: "enum" as const,
+      choices: ENTRY_SIDES,
       description: "income or expense",
       required: true,
     },
     amount: { type: "string" as const, description: "Amount (integer yen)", required: true },
     "walletable-id": { type: "string" as const, description: "Walletable ID", required: true },
     "walletable-type": {
-      type: "string" as const,
+      type: "enum" as const,
+      choices: WALLET_TYPES,
       description: `Walletable type: ${WALLET_TYPES.join(" | ")}`,
       required: true,
     },
@@ -53,19 +55,17 @@ $ freee wallet-txn-create --date 2026-08-01 --entry-side expense --amount 5000 \
 
     const body: WalletTxnParams = {
       company_id: companyId,
-      date: parseDate(ctx.values.date, "--date"),
-      entry_side: parseChoice(ctx.values["entry-side"], ENTRY_SIDES, "--entry-side"),
-      amount: parseInteger(ctx.values.amount, "--amount"),
-      walletable_id: parsePositiveId(ctx.values["walletable-id"], "--walletable-id"),
-      walletable_type: parseChoice(
-        ctx.values["walletable-type"],
-        WALLET_TYPES,
-        "--walletable-type",
-      ),
+      date: parseCliInput(IsoDateSchema, ctx.values.date, { label: "--date" }),
+      entry_side: ctx.values["entry-side"],
+      amount: parseCliInput(IntegerTextSchema, ctx.values.amount, { label: "--amount" }),
+      walletable_id: parseCliInput(PositiveIntegerTextSchema, ctx.values["walletable-id"], {
+        label: "--walletable-id",
+      }),
+      walletable_type: ctx.values["walletable-type"],
       description: ctx.values.description,
       balance:
         ctx.values.balance !== undefined
-          ? parseInteger(ctx.values.balance, "--balance")
+          ? parseCliInput(IntegerTextSchema, ctx.values.balance, { label: "--balance" })
           : undefined,
     };
 

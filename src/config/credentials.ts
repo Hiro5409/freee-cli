@@ -15,7 +15,7 @@ import type { FileHandle } from "node:fs/promises";
 import { open, unlink } from "node:fs/promises";
 import { join } from "node:path";
 
-import * as z from "zod/mini";
+import * as v from "valibot";
 
 import { ConfigError } from "../errors.ts";
 
@@ -23,18 +23,18 @@ function isErrnoException(e: unknown): e is NodeJS.ErrnoException {
   return e instanceof Error && "code" in e;
 }
 
-const TokenSetSchema = z.object({
-  clientId: z.string(),
-  clientSecret: z.string(),
-  accessToken: z.string(),
-  refreshToken: z.string(),
-  expiresAt: z.number(),
+const TokenSetSchema = v.strictObject({
+  clientId: v.string(),
+  clientSecret: v.string(),
+  accessToken: v.string(),
+  refreshToken: v.string(),
+  expiresAt: v.number(),
 });
 
-const CredentialsSchema = z.record(z.string(), TokenSetSchema);
+const CredentialsSchema = v.record(v.string(), TokenSetSchema);
 
-export type TokenSet = z.infer<typeof TokenSetSchema>;
-type Credentials = z.infer<typeof CredentialsSchema>;
+export type TokenSet = v.InferOutput<typeof TokenSetSchema>;
+type Credentials = v.InferOutput<typeof CredentialsSchema>;
 const CREDENTIALS_LOCK_TIMEOUT_MS = 10_000;
 
 function prepareCredentialsDir(dir: string): void {
@@ -109,7 +109,7 @@ export function loadCredentials(dir: string): Credentials {
   try {
     const raw = readFileSync(filePath, "utf-8");
     const json: unknown = JSON.parse(raw);
-    return CredentialsSchema.parse(json);
+    return v.parse(CredentialsSchema, json);
   } catch (e) {
     if (isErrnoException(e) && e.code === "ENOENT") {
       return {};

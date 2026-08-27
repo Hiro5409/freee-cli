@@ -82,6 +82,13 @@ describe("config", () => {
       expect(() => loadConfig(testDir)).toThrow(ConfigError);
     }
   });
+
+  test("loadConfig rejects unknown configuration keys", async () => {
+    const { loadConfig } = await import("./config.ts");
+    const { ConfigError } = await import("../errors.ts");
+    writeFileSync(join(testDir, "config.json"), JSON.stringify({ activeProfiles: "work" }));
+    expect(() => loadConfig(testDir)).toThrow(ConfigError);
+  });
 });
 
 describe("credentials", () => {
@@ -107,6 +114,25 @@ describe("credentials", () => {
     );
     const creds = loadCredentials(testDir);
     expect(creds.default?.accessToken).toBe("tok");
+  });
+
+  test("loadCredentials rejects unknown token fields", async () => {
+    const { loadCredentials } = await import("./credentials.ts");
+    const { ConfigError } = await import("../errors.ts");
+    writeFileSync(
+      join(testDir, "credentials.json"),
+      JSON.stringify({
+        default: {
+          clientId: "abc",
+          clientSecret: "secret",
+          accessToken: "tok",
+          refreshToken: "ref",
+          expiresAt: 9999999999999,
+          access_token: "typo",
+        },
+      }),
+    );
+    expect(() => loadCredentials(testDir)).toThrow(ConfigError);
   });
 
   test("saveCredentials writes with 0o600 permission", async () => {

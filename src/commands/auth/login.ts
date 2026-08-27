@@ -11,6 +11,7 @@ import {
   generateCodeChallenge,
   generateCodeVerifier,
 } from "../../api/auth.ts";
+import { openBrowser } from "../../browser.ts";
 import { configDir, loadConfig, saveConfig } from "../../config/config.ts";
 import { loadCredentials, updateCredentials } from "../../config/credentials.ts";
 import { loadOAuthCredentials } from "../../config/oauth.ts";
@@ -21,23 +22,6 @@ import {
   defaultProfileAfterLogin,
   resolveConfiguredLoginProfile,
 } from "../../profiles.ts";
-
-type BrowserSpawn = (command: string[]) => unknown;
-
-export function openAuthorizationUrl(
-  authUrl: string,
-  platform: NodeJS.Platform = process.platform,
-  spawn: BrowserSpawn = (command) => Bun.spawn(command, { stdout: "ignore", stderr: "ignore" }),
-): boolean {
-  const command = platform === "darwin" ? ["open", authUrl] : ["xdg-open", authUrl];
-  try {
-    spawn(command);
-    return true;
-  } catch {
-    console.error(colors.yellow("Could not open a browser. Open the URL above manually."));
-    return false;
-  }
-}
 
 export const loginCommand = define({
   name: "login",
@@ -80,7 +64,9 @@ $ freee login --profile work --replace`,
     console.error(colors.dim("Opening browser for authentication..."));
     console.error(`If the browser doesn't open, visit:\n${authUrl}\n`);
 
-    openAuthorizationUrl(authUrl);
+    if (!openBrowser(authUrl)) {
+      console.error(colors.yellow("Could not open a browser. Open the URL above manually."));
+    }
 
     const { code } = await waitForCallback(state);
 

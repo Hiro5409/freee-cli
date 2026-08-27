@@ -1,15 +1,15 @@
 import { define, type ArgValues } from "gunshi";
 import colors from "yoctocolors";
 
+import {
+  IntegerTextSchema,
+  NonNegativeIntegerTextSchema,
+  PositiveIntegerTextSchema,
+  parseCliInput,
+} from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { writeArgs } from "../../global-args.ts";
-import {
-  initCommand,
-  parseChoice,
-  parseInteger,
-  parseNonNegativeInteger,
-  parsePositiveId,
-} from "../../helpers.ts";
+import { initCommand } from "../../helpers.ts";
 import { formatDryRun } from "../../output/formatter.ts";
 import { createUserMatcher, getUserMatcher, updateUserMatcher } from "../../types/freee/sdk.gen.ts";
 import type { CreateUserMatcherData, UpdateUserMatcherData } from "../../types/freee/types.gen.ts";
@@ -59,16 +59,25 @@ const QUALIFIED_INVOICE_SETTING_CODES = {
 >;
 
 const ruleArgs = {
-  act: { type: "string" as const, description: `Rule action: ${ACTS.join(" | ")}` },
+  act: {
+    type: "enum" as const,
+    choices: ACTS,
+    description: `Rule action: ${ACTS.join(" | ")}`,
+  },
   description: {
     type: "string" as const,
     description: "Text the wallet transaction description is matched against",
   },
   condition: {
-    type: "string" as const,
+    type: "enum" as const,
+    choices: CONDITIONS,
     description: `Match condition: ${CONDITIONS.join(" | ")}`,
   },
-  "entry-side": { type: "string" as const, description: "income or expense" },
+  "entry-side": {
+    type: "enum" as const,
+    choices: ENTRY_SIDES,
+    description: "income or expense",
+  },
   priority: { type: "string" as const, description: "Rule priority (non-negative integer)" },
   "tax-name": { type: "string" as const, description: "Tax category name" },
   "account-item-name": { type: "string" as const, description: "Account item name" },
@@ -170,16 +179,18 @@ const SETTABLE_FIELDS = {
   card_label_id: (values) =>
     values["card-label-id"] === undefined
       ? undefined
-      : parsePositiveId(values["card-label-id"], "--card-label-id"),
+      : parseCliInput(PositiveIntegerTextSchema, values["card-label-id"], {
+          label: "--card-label-id",
+        }),
   transfer_walletable: (values) => values["transfer-walletable"],
   min_amount: (values) =>
     values["min-amount"] === undefined
       ? undefined
-      : parseInteger(values["min-amount"], "--min-amount"),
+      : parseCliInput(IntegerTextSchema, values["min-amount"], { label: "--min-amount" }),
   max_amount: (values) =>
     values["max-amount"] === undefined
       ? undefined
-      : parseInteger(values["max-amount"], "--max-amount"),
+      : parseCliInput(IntegerTextSchema, values["max-amount"], { label: "--max-amount" }),
   deal_description: (values) => values["deal-description"],
   qualified_invoice_setting: (values) => {
     const setting = values["qualified-invoice-setting"];
@@ -196,10 +207,11 @@ const SETTABLE_FIELDS = {
   default_tag_names: (values) => values["default-tag"],
 } satisfies { [K in SettableKey]: SettableField<K> };
 
-function clearOverrides(fields: string[] | undefined): Partial<UpdateBody> {
+function clearOverrides(
+  fields: Array<(typeof CLEARABLE_FIELD_NAMES)[number]> | undefined,
+): Partial<UpdateBody> {
   const overrides: Partial<UpdateBody> = {};
-  for (const field of fields ?? []) {
-    const name = parseChoice(field, CLEARABLE_FIELD_NAMES, "--clear");
+  for (const name of fields ?? []) {
     overrides[CLEARABLE_FIELDS[name]] = null;
   }
   return overrides;
@@ -208,17 +220,19 @@ function clearOverrides(fields: string[] | undefined): Partial<UpdateBody> {
 function optionalOverrides(values: RuleValues): Partial<WritableRuleBody> {
   const overrides: Partial<WritableRuleBody> = {};
   if (values.act !== undefined) {
-    overrides.act = ACT_CODES[parseChoice(values.act, ACTS, "--act")];
+    overrides.act = ACT_CODES[values.act];
   }
   if (values.description !== undefined) overrides.description = values.description;
   if (values.condition !== undefined) {
-    overrides.condition = CONDITION_CODES[parseChoice(values.condition, CONDITIONS, "--condition")];
+    overrides.condition = CONDITION_CODES[values.condition];
   }
   if (values["entry-side"] !== undefined) {
-    overrides.entry_side_str = parseChoice(values["entry-side"], ENTRY_SIDES, "--entry-side");
+    overrides.entry_side_str = values["entry-side"];
   }
   if (values.priority !== undefined) {
-    overrides.priority = parseNonNegativeInteger(values.priority, "--priority");
+    overrides.priority = parseCliInput(NonNegativeIntegerTextSchema, values.priority, {
+      label: "--priority",
+    });
   }
   for (const [key, read] of Object.entries(SETTABLE_FIELDS)) {
     const value = read(values);
@@ -298,12 +312,14 @@ export const autoRegistrationRuleCreateCommand = define({
     const { companyId, format } = initCommand(ctx);
     const body = {
       ...optionalOverrides(ctx.values),
-      act: ACT_CODES[parseChoice(ctx.values.act, ACTS, "--act")],
+      act: ACT_CODES[ctx.values.act],
       active: true,
-      condition: CONDITION_CODES[parseChoice(ctx.values.condition, CONDITIONS, "--condition")],
+      condition: CONDITION_CODES[ctx.values.condition],
       description: ctx.values.description,
-      entry_side_str: parseChoice(ctx.values["entry-side"], ENTRY_SIDES, "--entry-side"),
-      priority: parseNonNegativeInteger(ctx.values.priority, "--priority"),
+      entry_side_str: ctx.values["entry-side"],
+      priority: parseCliInput(NonNegativeIntegerTextSchema, ctx.values.priority, {
+        label: "--priority",
+      }),
     } satisfies CreateUserMatcherData["body"];
     validateBody(body);
 
@@ -329,7 +345,8 @@ export const autoRegistrationRuleUpdateCommand = define({
     ...ruleArgs,
     id: { type: "string" as const, description: "Auto-registration rule ID", required: true },
     clear: {
-      type: "string" as const,
+      type: "enum" as const,
+      choices: CLEARABLE_FIELD_NAMES,
       multiple: true as const,
       description: `Clear an optional field by sending JSON null, repeatable: ${CLEARABLE_FIELD_NAMES.join(" | ")}`,
     },
@@ -339,7 +356,7 @@ export const autoRegistrationRuleUpdateCommand = define({
 $ freee auto-rule-update --id 42 --clear walletable --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const id = parsePositiveId(ctx.values.id, "--id");
+    const id = parseCliInput(PositiveIntegerTextSchema, ctx.values.id, { label: "--id" });
     const valueOverrides = optionalOverrides(ctx.values);
     const clearedOverrides = clearOverrides(ctx.values.clear);
     const conflictingField = CLEARABLE_FIELD_NAMES.find(

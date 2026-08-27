@@ -1,22 +1,17 @@
 import { define } from "gunshi";
 import colors from "yoctocolors";
 
+import { IsoDateSchema, PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { writeArgs } from "../../global-args.ts";
-import { initCommand, parseChoice, parseDate, parsePositiveId } from "../../helpers.ts";
+import { initCommand } from "../../helpers.ts";
 import { formatDryRun } from "../../output/formatter.ts";
 import { invoicesShow, invoicesUpdate } from "../../types/freee-invoice/sdk.gen.ts";
 import type {
   InvoiceRequest,
   InvoiceShowResponseInvoice,
 } from "../../types/freee-invoice/types.gen.ts";
-import {
-  FRACTIONS,
-  invoiceArgs,
-  PARTNER_TITLES,
-  PAYMENT_TYPES,
-  TAX_ENTRY_METHODS,
-} from "./invoice-args.ts";
+import { invoiceArgs } from "./invoice-args.ts";
 import { parseInvoiceLines } from "./parse-invoice-lines.ts";
 
 function required<T>(value: T | undefined, field: string, flag: string): T {
@@ -52,7 +47,8 @@ function resolvePartnerOverride(values: {
       hint: errorHints.oneIdentifier,
     });
   }
-  if (id) return { partner_id: parsePositiveId(id, "--partner-id") };
+  if (id)
+    return { partner_id: parseCliInput(PositiveIntegerTextSchema, id, { label: "--partner-id" }) };
   if (code) return { partner_code: code };
   return undefined;
 }
@@ -144,7 +140,7 @@ export const invoiceUpdateCommand = define({
   examples: `$ freee invoice-update --id 456 --subject "August invoice" --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const id = parsePositiveId(ctx.values.id, "--id");
+    const id = parseCliInput(PositiveIntegerTextSchema, ctx.values.id, { label: "--id" });
     const partnerOverride = resolvePartnerOverride(ctx.values);
 
     const lines = ctx.values.line?.length ? parseInvoiceLines(ctx.values.line) : undefined;
@@ -155,38 +151,24 @@ export const invoiceUpdateCommand = define({
       memo: ctx.values.memo,
       invoice_note: ctx.values["invoice-note"],
       billing_date: ctx.values["billing-date"]
-        ? parseDate(ctx.values["billing-date"], "--billing-date")
+        ? parseCliInput(IsoDateSchema, ctx.values["billing-date"], { label: "--billing-date" })
         : undefined,
       issue_date: ctx.values["issue-date"]
-        ? parseDate(ctx.values["issue-date"], "--issue-date")
+        ? parseCliInput(IsoDateSchema, ctx.values["issue-date"], { label: "--issue-date" })
         : undefined,
       payment_date: ctx.values["payment-date"]
-        ? parseDate(ctx.values["payment-date"], "--payment-date")
+        ? parseCliInput(IsoDateSchema, ctx.values["payment-date"], { label: "--payment-date" })
         : undefined,
-      payment_type: ctx.values["payment-type"]
-        ? parseChoice(ctx.values["payment-type"], PAYMENT_TYPES, "--payment-type")
-        : undefined,
-      partner_title: ctx.values["partner-title"]
-        ? parseChoice(ctx.values["partner-title"], PARTNER_TITLES, "--partner-title")
-        : undefined,
-      tax_entry_method: ctx.values["tax-entry-method"]
-        ? parseChoice(ctx.values["tax-entry-method"], TAX_ENTRY_METHODS, "--tax-entry-method")
-        : undefined,
-      tax_fraction: ctx.values["tax-fraction"]
-        ? parseChoice(ctx.values["tax-fraction"], FRACTIONS, "--tax-fraction")
-        : undefined,
-      line_amount_fraction: ctx.values["line-amount-fraction"]
-        ? parseChoice(ctx.values["line-amount-fraction"], FRACTIONS, "--line-amount-fraction")
-        : undefined,
-      withholding_tax_entry_method: ctx.values["withholding-tax-entry-method"]
-        ? parseChoice(
-            ctx.values["withholding-tax-entry-method"],
-            TAX_ENTRY_METHODS,
-            "--withholding-tax-entry-method",
-          )
-        : undefined,
+      payment_type: ctx.values["payment-type"],
+      partner_title: ctx.values["partner-title"],
+      tax_entry_method: ctx.values["tax-entry-method"],
+      tax_fraction: ctx.values["tax-fraction"],
+      line_amount_fraction: ctx.values["line-amount-fraction"],
+      withholding_tax_entry_method: ctx.values["withholding-tax-entry-method"],
       template_id: ctx.values["template-id"]
-        ? parsePositiveId(ctx.values["template-id"], "--template-id")
+        ? parseCliInput(PositiveIntegerTextSchema, ctx.values["template-id"], {
+            label: "--template-id",
+          })
         : undefined,
       lines,
     };

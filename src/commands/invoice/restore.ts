@@ -1,8 +1,9 @@
 import { define } from "gunshi";
 import colors from "yoctocolors";
 
+import { PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { writeArgs } from "../../global-args.ts";
-import { initCommand, parsePositiveId } from "../../helpers.ts";
+import { initCommand } from "../../helpers.ts";
 import { formatDryRun, formatValue } from "../../output/formatter.ts";
 import { invoicesUncancel } from "../../types/freee-invoice/sdk.gen.ts";
 
@@ -16,7 +17,7 @@ export const invoiceRestoreCommand = define({
   examples: `$ freee invoice-restore --id 900 --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const id = parsePositiveId(ctx.values.id, "--id");
+    const id = parseCliInput(PositiveIntegerTextSchema, ctx.values.id, { label: "--id" });
     const body = { company_id: companyId };
     const path = `/invoices/${id}/uncancel`;
 

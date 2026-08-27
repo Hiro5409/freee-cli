@@ -1,8 +1,9 @@
 import { define } from "gunshi";
 
 import { fetchAll } from "../../api/paginate.ts";
+import { IsoDateSchema, OptionalLimitTextSchema, parseCliInput } from "../../cli-input.ts";
 import { listArgs } from "../../global-args.ts";
-import { initCommand, parseChoice, parseDate, parseLimit } from "../../helpers.ts";
+import { initCommand } from "../../helpers.ts";
 import { formatOutput } from "../../output/formatter.ts";
 import { getReceipts } from "../../types/freee/sdk.gen.ts";
 
@@ -34,30 +35,34 @@ export const fileBoxListCommand = define({
       required: true,
     },
     category: {
-      type: "string" as const,
+      type: "enum" as const,
+      choices: CATEGORIES,
       description: `Deal registration category: ${CATEGORIES.join(" | ")}`,
     },
   },
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const startDate = parseDate(ctx.values["start-date"], "--start-date");
-    const endDate = parseDate(ctx.values["end-date"], "--end-date");
+    const startDate = parseCliInput(IsoDateSchema, ctx.values["start-date"], {
+      label: "--start-date",
+    });
+    const endDate = parseCliInput(IsoDateSchema, ctx.values["end-date"], { label: "--end-date" });
 
-    const documents = await fetchAll(async (offset, limit) => {
-      const { data } = await getReceipts({
-        query: {
-          company_id: companyId,
-          offset,
-          limit,
-          start_date: startDate,
-          end_date: endDate,
-          category: ctx.values.category
-            ? CATEGORY_CODES[parseChoice(ctx.values.category, CATEGORIES, "--category")]
-            : undefined,
-        },
-      });
-      return data.receipts;
-    }, parseLimit(ctx.values.limit));
+    const documents = await fetchAll(
+      async (offset, limit) => {
+        const { data } = await getReceipts({
+          query: {
+            company_id: companyId,
+            offset,
+            limit,
+            start_date: startDate,
+            end_date: endDate,
+            category: ctx.values.category ? CATEGORY_CODES[ctx.values.category] : undefined,
+          },
+        });
+        return data.receipts;
+      },
+      parseCliInput(OptionalLimitTextSchema, ctx.values.limit, { label: "--limit" }),
+    );
 
     return formatOutput(documents, format);
   },

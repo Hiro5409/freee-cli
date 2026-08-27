@@ -15,7 +15,7 @@ type SchemaObject =
   | OpenApiSchemaObject.V3_1_X;
 
 const freeeApiSchemaBaseUrl =
-  "https://raw.githubusercontent.com/freee/freee-api-schema/80e02be85f27bc6fc82fc651790987095f8c79cd";
+  "https://raw.githubusercontent.com/freee/freee-api-schema/d193f57c86fd3f8f976b1e71cd7908005235bf92";
 
 function markDeprecatedProperties(...names: ReadonlyArray<string>) {
   return (schema: SchemaObject) => {
@@ -69,20 +69,20 @@ const parser = {
   patch: {
     operations: {
       "GET /api/1/fixed_assets": (operation: OperationObject) => {
-        // 公式のプラン制限が変わったらCLIの対応範囲を見直す: https://github.com/freee/freee-api-schema/blob/80e02be85f27bc6fc82fc651790987095f8c79cd/v2020_06_15/open-api-3/api-schema.json#L18903
+        // 公式のプラン制限が変わったらCLIの対応範囲を見直す: https://github.com/freee/freee-api-schema/blob/d193f57c86fd3f8f976b1e71cd7908005235bf92/v2020_06_15/open-api-3/api-schema.json#L19321
         const restriction = "このAPIは法人エンタープライズに加入している事業所のみが利用できます。";
         if (!operation.description?.includes(restriction)) {
           throw new Error("Review the plan restriction for GET /api/1/fixed_assets");
         }
       },
-      // freee OASが説明文でのみ廃止予定を示すため、deprecatedフラグへ補正する: https://github.com/freee/freee-api-schema/blob/80e02be85f27bc6fc82fc651790987095f8c79cd/v2020_06_15/open-api-3/api-schema.json#L7017
+      // freee OASがdescriptionでのみ廃止予定を示すため、deprecatedフラグへ補正する: https://github.com/freee/freee-api-schema/blob/d193f57c86fd3f8f976b1e71cd7908005235bf92/v2020_06_15/open-api-3/api-schema.json#L7123
       "GET /api/1/taxes/codes": (operation: OperationObject) => {
         operation.deprecated = true;
       },
       // Hey API requires nullable enum members to be explicit in the enum to preserve null in the generated union.
       "PUT /api/1/user_matchers/{id}": includeNullInRequestEnum("qualified_invoice_setting"),
     },
-    // freee OASがdescriptionでのみ非推奨を示すため、deprecatedフラグへ補正する: https://github.com/freee/freee-api-schema/blob/80e02be85f27bc6fc82fc651790987095f8c79cd/hr/open-api-3/api-schema.json#L13944
+    // freee OASがdescriptionでのみ非推奨を示すため、deprecatedフラグへ補正する: https://github.com/freee/freee-api-schema/blob/d193f57c86fd3f8f976b1e71cd7908005235bf92/hr/open-api-3/api-schema.json#L13876
     schemas: {
       LegacyApiV1PaidHolidayIndexResponseParams: markDeprecatedProperties(
         "holiday_type",

@@ -117,9 +117,7 @@ describe("deal create command", () => {
   test("dry-run rejects an invalid calendar date", async () => {
     const args = baseArgs.map((arg) => (arg === "2026-03-15" ? "2026-02-30" : arg));
 
-    await expect(cli([...args, "--dry-run"], dealCreateCommand)).rejects.toThrow(
-      "must be a real date",
-    );
+    await expect(cli([...args, "--dry-run"], dealCreateCommand)).rejects.toThrow(/YYYY-MM-DD/);
     expect(onCreateDeal).not.toHaveBeenCalled();
   });
 

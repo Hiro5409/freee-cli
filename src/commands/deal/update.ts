@@ -1,63 +1,57 @@
 import { define } from "gunshi";
+import * as v from "valibot";
 import colors from "yoctocolors";
-import * as z from "zod/mini";
 
-import { CliError, errorHints } from "../../errors.ts";
+import {
+  PositiveIntegerSchema,
+  PositiveIntegerTextSchema,
+  parseCliInput,
+} from "../../cli-input.ts";
 import { writeArgs } from "../../global-args.ts";
-import { initCommand, parsePositiveId } from "../../helpers.ts";
+import { initCommand } from "../../helpers.ts";
 import { formatDryRun, formatValue } from "../../output/formatter.ts";
 import { getDeal, updateDeal } from "../../types/freee/sdk.gen.ts";
 import type { Deal, DealUpdateParams } from "../../types/freee/types.gen.ts";
 
-const Integer = z.number().check(z.int());
-const PositiveInteger = z.number().check(z.int(), z.positive());
-const NonNegativeInteger = z.number().check(z.int(), z.nonnegative());
-const DetailSchema = z.strictObject({
-  id: z.optional(PositiveInteger),
-  tax_code: NonNegativeInteger,
-  account_item_id: PositiveInteger,
-  amount: Integer,
-  item_id: z.optional(PositiveInteger),
-  section_id: z.optional(PositiveInteger),
-  partner_id: z.optional(z.nullable(PositiveInteger)),
-  tag_ids: z.optional(z.array(PositiveInteger)),
-  segment_1_tag_id: z.optional(PositiveInteger),
-  segment_2_tag_id: z.optional(PositiveInteger),
-  segment_3_tag_id: z.optional(PositiveInteger),
-  description: z.optional(z.string()),
-  vat: z.optional(Integer),
+const IntegerSchema = v.pipe(v.number(), v.safeInteger());
+const NonNegativeIntegerSchema = v.pipe(IntegerSchema, v.minValue(0));
+const DetailSchema = v.strictObject({
+  id: v.optional(PositiveIntegerSchema),
+  tax_code: NonNegativeIntegerSchema,
+  account_item_id: PositiveIntegerSchema,
+  amount: IntegerSchema,
+  item_id: v.optional(PositiveIntegerSchema),
+  section_id: v.optional(PositiveIntegerSchema),
+  partner_id: v.optional(v.nullable(PositiveIntegerSchema)),
+  tag_ids: v.optional(v.array(PositiveIntegerSchema)),
+  segment_1_tag_id: v.optional(PositiveIntegerSchema),
+  segment_2_tag_id: v.optional(PositiveIntegerSchema),
+  segment_3_tag_id: v.optional(PositiveIntegerSchema),
+  description: v.optional(v.string()),
+  vat: v.optional(IntegerSchema),
 });
+const DetailArgumentSchema = v.pipe(
+  v.string(),
+  v.parseJson(undefined, "Expected valid JSON."),
+  DetailSchema,
+);
 
 function parseDealDetails(values: string[]): DealUpdateParams["details"] {
   return values.map((value, index) => {
     const label = `--detail #${index + 1}`;
-    let json: unknown;
-    try {
-      json = JSON.parse(value);
-    } catch {
-      throw new CliError(`${label} is not valid JSON: ${value}`, {
-        code: "INVALID_INPUT",
-        why: "Each --detail takes one JSON object matching freee's deal detail fields.",
-        hint: errorHints.invalidValue,
-      });
-    }
-
-    const result = DetailSchema.safeParse(json);
-    if (!result.success) {
-      throw new CliError(`${label} is invalid: ${z.prettifyError(result.error)}`, {
-        code: "INVALID_INPUT",
-        why: "The detail does not match freee's deal detail schema.",
-        hint: errorHints.invalidValue,
-      });
-    }
-    return result.data;
+    return parseCliInput(DetailArgumentSchema, value, {
+      label,
+      why: "The detail does not match freee's deal detail schema.",
+    });
   });
 }
 
 function parseReceiptIds(value: string | undefined): number[] | undefined {
   if (value === undefined) return undefined;
   if (value.trim() === "") return [];
-  return value.split(",").map((id) => parsePositiveId(id.trim(), "--receipt-ids"));
+  return value
+    .split(",")
+    .map((id) => parseCliInput(PositiveIntegerTextSchema, id.trim(), { label: "--receipt-ids" }));
 }
 
 function dealRequestFromCurrent(
@@ -126,7 +120,7 @@ export const dealUpdateCommand = define({
     --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const id = parsePositiveId(ctx.values.id, "--id");
+    const id = parseCliInput(PositiveIntegerTextSchema, ctx.values.id, { label: "--id" });
     const details = ctx.values.detail?.length ? parseDealDetails(ctx.values.detail) : undefined;
     const receiptIds = parseReceiptIds(ctx.values["receipt-ids"]);
 

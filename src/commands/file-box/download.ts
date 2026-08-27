@@ -4,9 +4,10 @@ import { resolve } from "node:path";
 import { define } from "gunshi";
 import colors from "yoctocolors";
 
+import { PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { CliError } from "../../errors.ts";
 import { companyArgs } from "../../global-args.ts";
-import { initCommand, parsePositiveId } from "../../helpers.ts";
+import { initCommand } from "../../helpers.ts";
 import { formatValue } from "../../output/formatter.ts";
 import { downloadReceipt } from "../../types/freee/sdk.gen.ts";
 
@@ -21,7 +22,7 @@ export const fileBoxDownloadCommand = define({
   examples: `$ freee file-box-download --id 55 --output receipt.pdf --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const id = parsePositiveId(ctx.values.id, "--id");
+    const id = parseCliInput(PositiveIntegerTextSchema, ctx.values.id, { label: "--id" });
     const path = resolve(ctx.values.output);
     if (existsSync(path)) {
       throw new CliError(`Output path already exists: ${path}`, {

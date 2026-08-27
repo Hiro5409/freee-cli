@@ -1,9 +1,10 @@
 import { define } from "gunshi";
 import colors from "yoctocolors";
 
+import { PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { dealPaymentArgs, parseDealPayment } from "../../deal-payment.ts";
 import { writeArgs } from "../../global-args.ts";
-import { initCommand, parsePositiveId } from "../../helpers.ts";
+import { initCommand } from "../../helpers.ts";
 import { formatDryRun, formatValue } from "../../output/formatter.ts";
 import { updateDealPayment } from "../../types/freee/sdk.gen.ts";
 
@@ -20,8 +21,10 @@ export const dealPaymentUpdateCommand = define({
     --amount 4000 --walletable-type bank_account --walletable-id 9 --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const id = parsePositiveId(ctx.values.id, "--id");
-    const paymentId = parsePositiveId(ctx.values["payment-id"], "--payment-id");
+    const id = parseCliInput(PositiveIntegerTextSchema, ctx.values.id, { label: "--id" });
+    const paymentId = parseCliInput(PositiveIntegerTextSchema, ctx.values["payment-id"], {
+      label: "--payment-id",
+    });
     const body = parseDealPayment(ctx.values, companyId);
     const path = `/api/1/deals/${id}/payments/${paymentId}`;
 

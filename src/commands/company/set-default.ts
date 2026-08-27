@@ -1,8 +1,8 @@
 import { define } from "gunshi";
 import colors from "yoctocolors";
 
+import { PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { globalArgs } from "../../global-args.ts";
-import { parsePositiveId } from "../../helpers.ts";
 import { formatValue } from "../../output/formatter.ts";
 import { resolveConfiguredProfile } from "../../profiles.ts";
 
@@ -19,7 +19,7 @@ export const companySetDefaultCommand = define({
     const dir = configDir();
     const config = loadConfig(dir);
     const profile = resolveConfiguredProfile(ctx.values.profile, dir);
-    const companyId = parsePositiveId(ctx.values.id, "--id");
+    const companyId = parseCliInput(PositiveIntegerTextSchema, ctx.values.id, { label: "--id" });
 
     const selectedCompany = {
       companyId,

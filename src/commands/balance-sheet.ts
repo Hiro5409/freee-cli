@@ -1,7 +1,8 @@
 import { define } from "gunshi";
 
+import { YearTextSchema, parseCliInput } from "../cli-input.ts";
 import { companyArgs } from "../global-args.ts";
-import { initCommand, parseYear } from "../helpers.ts";
+import { initCommand } from "../helpers.ts";
 import { formatOutput } from "../output/formatter.ts";
 import { getTrialBs } from "../types/freee/sdk.gen.ts";
 
@@ -18,7 +19,7 @@ export const balanceSheetCommand = define({
       query: {
         company_id: companyId,
         fiscal_year: ctx.values["fiscal-year"]
-          ? parseYear(ctx.values["fiscal-year"], "--fiscal-year")
+          ? parseCliInput(YearTextSchema, ctx.values["fiscal-year"], { label: "--fiscal-year" })
           : undefined,
       },
     });

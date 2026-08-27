@@ -1,9 +1,10 @@
 import { define } from "gunshi";
 import colors from "yoctocolors";
 
+import { IsoDateSchema, PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { writeArgs } from "../../global-args.ts";
-import { initCommand, parseChoice, parseDate, parsePositiveId } from "../../helpers.ts";
+import { initCommand } from "../../helpers.ts";
 import { formatDryRun } from "../../output/formatter.ts";
 import { createTransfer, getTransfer, updateTransfer } from "../../types/freee/sdk.gen.ts";
 import type { Transfer, TransferParams } from "../../types/freee/types.gen.ts";
@@ -14,7 +15,8 @@ const transferArgs = {
   date: { type: "string" as const, description: "Transfer date (YYYY-MM-DD)" },
   "from-walletable-id": { type: "string" as const, description: "Source walletable ID" },
   "from-walletable-type": {
-    type: "string" as const,
+    type: "enum" as const,
+    choices: WALLET_TYPES,
     description: `Source walletable type: ${WALLET_TYPES.join(" | ")}`,
   },
   to: {
@@ -27,7 +29,7 @@ const transferArgs = {
 type TransferValues = {
   date?: string;
   "from-walletable-id"?: string;
-  "from-walletable-type"?: string;
+  "from-walletable-type"?: (typeof WALLET_TYPES)[number];
   to?: string[];
 };
 
@@ -56,19 +58,17 @@ function currentTransferBody(companyId: number, current: Transfer): TransferPara
 
 function optionalOverrides(values: TransferValues): Partial<TransferParams> {
   const overrides: Partial<TransferParams> = {};
-  if (values.date !== undefined) overrides.date = parseDate(values.date, "--date");
+  if (values.date !== undefined)
+    overrides.date = parseCliInput(IsoDateSchema, values.date, { label: "--date" });
   if (values["from-walletable-id"] !== undefined) {
-    overrides.from_walletable_id = parsePositiveId(
+    overrides.from_walletable_id = parseCliInput(
+      PositiveIntegerTextSchema,
       values["from-walletable-id"],
-      "--from-walletable-id",
+      { label: "--from-walletable-id" },
     );
   }
   if (values["from-walletable-type"] !== undefined) {
-    overrides.from_walletable_type = parseChoice(
-      values["from-walletable-type"],
-      WALLET_TYPES,
-      "--from-walletable-type",
-    );
+    overrides.from_walletable_type = values["from-walletable-type"];
   }
   if (values.to !== undefined) overrides.to_walletables = parseTransferDestinations(values.to);
   return overrides;
@@ -93,13 +93,13 @@ export const transferCreateCommand = define({
     const { companyId, format } = initCommand(ctx);
     const body = {
       company_id: companyId,
-      date: parseDate(ctx.values.date, "--date"),
-      from_walletable_id: parsePositiveId(ctx.values["from-walletable-id"], "--from-walletable-id"),
-      from_walletable_type: parseChoice(
-        ctx.values["from-walletable-type"],
-        WALLET_TYPES,
-        "--from-walletable-type",
+      date: parseCliInput(IsoDateSchema, ctx.values.date, { label: "--date" }),
+      from_walletable_id: parseCliInput(
+        PositiveIntegerTextSchema,
+        ctx.values["from-walletable-id"],
+        { label: "--from-walletable-id" },
       ),
+      from_walletable_type: ctx.values["from-walletable-type"],
       to_walletables: parseTransferDestinations(ctx.values.to),
     } satisfies TransferParams;
 
@@ -127,7 +127,7 @@ export const transferUpdateCommand = define({
   examples: `$ freee transfer-update --id 42 --date 2026-08-02 --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const id = parsePositiveId(ctx.values.id, "--id");
+    const id = parseCliInput(PositiveIntegerTextSchema, ctx.values.id, { label: "--id" });
     const overrides = optionalOverrides(ctx.values);
     if (Object.keys(overrides).length === 0) {
       throw new CliError("Pass at least one transfer field to update.", {

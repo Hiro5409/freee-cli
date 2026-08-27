@@ -1,5 +1,6 @@
 import { stripVTControlCharacters } from "node:util";
 
+import { ArgsValidationErrorKeys, isArgsValidationError } from "gunshi";
 import colors from "yoctocolors";
 
 import { CliError, type CliErrorCode } from "./errors.ts";
@@ -44,10 +45,29 @@ function terminalSafeText(value: string): string {
   return safe;
 }
 
+function gunshiValidationMessage(error: unknown): string | undefined {
+  if (!isArgsValidationError(error)) return undefined;
+
+  const displayName = error.values.displayName;
+  if (typeof displayName !== "string") return undefined;
+
+  if (error.code === ArgsValidationErrorKeys.requiredOption) {
+    return `Argument ${displayName} is required.`;
+  }
+  if (error.code === ArgsValidationErrorKeys.invalidChoice) {
+    const choices = error.values.choiceValues;
+    if (!Array.isArray(choices)) return undefined;
+    return `Argument ${displayName} must be one of: ${choices.map(String).join(", ")}.`;
+  }
+  return undefined;
+}
+
 function errorMessage(error: unknown): string {
   if (error instanceof AggregateError && error.errors.length > 0) {
     return error.errors.map(errorMessage).filter(Boolean).join("\n");
   }
+  const validationMessage = gunshiValidationMessage(error);
+  if (validationMessage) return validationMessage;
   if (error instanceof Error) return error.message;
   try {
     return JSON.stringify(error);

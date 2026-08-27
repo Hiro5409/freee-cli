@@ -1,15 +1,15 @@
 import { define } from "gunshi";
 import colors from "yoctocolors";
 
+import {
+  IntegerTextSchema,
+  IsoDateSchema,
+  PositiveIntegerTextSchema,
+  parseCliInput,
+} from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { writeArgs } from "../../global-args.ts";
-import {
-  initCommand,
-  parseChoice,
-  parseDate,
-  parseInteger,
-  parsePositiveId,
-} from "../../helpers.ts";
+import { initCommand } from "../../helpers.ts";
 import { formatDryRun, formatValue } from "../../output/formatter.ts";
 import { updateReceipt } from "../../types/freee/sdk.gen.ts";
 import type { ReceiptUpdateParams } from "../../types/freee/types.gen.ts";
@@ -28,11 +28,13 @@ export const fileBoxUpdateCommand = define({
     "issue-date": { type: "string" as const, description: "Issue date (YYYY-MM-DD)" },
     amount: { type: "string" as const, description: "Document amount (integer yen)" },
     "document-type": {
-      type: "string" as const,
+      type: "enum" as const,
+      choices: DOCUMENT_TYPES,
       description: `Document type: ${DOCUMENT_TYPES.join(" | ")}`,
     },
     "qualified-invoice": {
-      type: "string" as const,
+      type: "enum" as const,
+      choices: QUALIFIED_INVOICE_STATUSES,
       description: `Qualified invoice status: ${QUALIFIED_INVOICE_STATUSES.join(" | ")}`,
     },
     "registration-number": {
@@ -44,7 +46,7 @@ export const fileBoxUpdateCommand = define({
     --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const id = parsePositiveId(ctx.values.id, "--id");
+    const id = parseCliInput(PositiveIntegerTextSchema, ctx.values.id, { label: "--id" });
     const hasMetadata =
       ctx.values["partner-name"] !== undefined ||
       ctx.values["issue-date"] !== undefined ||
@@ -62,24 +64,16 @@ export const fileBoxUpdateCommand = define({
         ? {
             partner_name: ctx.values["partner-name"],
             issue_date: ctx.values["issue-date"]
-              ? parseDate(ctx.values["issue-date"], "--issue-date")
+              ? parseCliInput(IsoDateSchema, ctx.values["issue-date"], { label: "--issue-date" })
               : undefined,
             amount:
               ctx.values.amount === undefined
                 ? undefined
-                : parseInteger(ctx.values.amount, "--amount"),
+                : parseCliInput(IntegerTextSchema, ctx.values.amount, { label: "--amount" }),
           }
         : undefined,
-      document_type: ctx.values["document-type"]
-        ? parseChoice(ctx.values["document-type"], DOCUMENT_TYPES, "--document-type")
-        : undefined,
-      qualified_invoice: ctx.values["qualified-invoice"]
-        ? parseChoice(
-            ctx.values["qualified-invoice"],
-            QUALIFIED_INVOICE_STATUSES,
-            "--qualified-invoice",
-          )
-        : undefined,
+      document_type: ctx.values["document-type"],
+      qualified_invoice: ctx.values["qualified-invoice"],
       invoice_registration_number: ctx.values["registration-number"],
     };
     if (!hasChanges) {

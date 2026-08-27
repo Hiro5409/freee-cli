@@ -149,7 +149,7 @@ describe("HR payroll list command", () => {
         ["--company-id", "123", "--month", "2026-08", "--employee-id", "42", "--limit", "0"],
         hrPayrollListCommand,
       ),
-    ).rejects.toThrow(/--limit must be a positive integer/);
+    ).rejects.toThrow(/positive integer/);
     expect(called).toBe(false);
   });
 });

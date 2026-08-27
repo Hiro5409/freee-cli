@@ -1,15 +1,16 @@
 import { define } from "gunshi";
 import colors from "yoctocolors";
 
+import {
+  IntegerTextSchema,
+  IsoDateSchema,
+  NonNegativeIntegerTextSchema,
+  PositiveIntegerTextSchema,
+  parseCliInput,
+} from "../../cli-input.ts";
 import { CliError } from "../../errors.ts";
 import { writeArgs } from "../../global-args.ts";
-import {
-  initCommand,
-  parseDate,
-  parseInteger,
-  parseNonNegativeInteger,
-  parsePositiveId,
-} from "../../helpers.ts";
+import { initCommand } from "../../helpers.ts";
 import { formatDryRun, formatValue } from "../../output/formatter.ts";
 import { createDeal } from "../../types/freee/sdk.gen.ts";
 
@@ -40,18 +41,24 @@ $ freee deal-create --company-id 123 --date 2026-08-01 --type expense \\
     const { companyId, format } = initCommand(ctx);
     const body = {
       company_id: companyId,
-      issue_date: parseDate(ctx.values.date, "--date"),
+      issue_date: parseCliInput(IsoDateSchema, ctx.values.date, { label: "--date" }),
       type: parseDealType(ctx.values.type),
       details: [
         {
-          account_item_id: parsePositiveId(ctx.values["account-item-id"], "--account-item-id"),
-          tax_code: parseNonNegativeInteger(ctx.values["tax-code"], "--tax-code"),
-          amount: parseInteger(ctx.values.amount, "--amount"),
+          account_item_id: parseCliInput(PositiveIntegerTextSchema, ctx.values["account-item-id"], {
+            label: "--account-item-id",
+          }),
+          tax_code: parseCliInput(NonNegativeIntegerTextSchema, ctx.values["tax-code"], {
+            label: "--tax-code",
+          }),
+          amount: parseCliInput(IntegerTextSchema, ctx.values.amount, { label: "--amount" }),
           description: ctx.values.description ?? "",
         },
       ],
       partner_id: ctx.values["partner-id"]
-        ? parsePositiveId(ctx.values["partner-id"], "--partner-id")
+        ? parseCliInput(PositiveIntegerTextSchema, ctx.values["partner-id"], {
+            label: "--partner-id",
+          })
         : undefined,
     };
 

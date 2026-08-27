@@ -1,14 +1,15 @@
-export const PARTNER_TITLES = ["御中", "様", "(空白)"] as const;
-export const TAX_ENTRY_METHODS = ["out", "in"] as const;
-export const FRACTIONS = ["omit", "round_up", "round"] as const;
-export const PAYMENT_TYPES = ["transfer", "direct_debit", "card"] as const;
+const PARTNER_TITLES = ["御中", "様", "(空白)"] as const;
+const TAX_ENTRY_METHODS = ["out", "in"] as const;
+const FRACTIONS = ["omit", "round_up", "round"] as const;
+const PAYMENT_TYPES = ["transfer", "direct_debit", "card"] as const;
 
 /** Flags shared by invoice-create and invoice-update, which write the same document. */
 export const invoiceArgs = {
   "partner-id": { type: "string" as const, description: "Partner ID (or use --partner-code)" },
   "partner-code": { type: "string" as const, description: "Partner code (or use --partner-id)" },
   "partner-title": {
-    type: "string" as const,
+    type: "enum" as const,
+    choices: PARTNER_TITLES,
     description: `Honorific: ${PARTNER_TITLES.join(" | ")}`,
   },
   "billing-date": { type: "string" as const, description: "Billing date (YYYY-MM-DD)" },
@@ -18,7 +19,8 @@ export const invoiceArgs = {
   },
   "payment-date": { type: "string" as const, description: "Payment due date (YYYY-MM-DD)" },
   "payment-type": {
-    type: "string" as const,
+    type: "enum" as const,
+    choices: PAYMENT_TYPES,
     description: `Payment method: ${PAYMENT_TYPES.join(" | ")}`,
   },
   subject: { type: "string" as const, description: "Invoice subject" },
@@ -30,19 +32,23 @@ export const invoiceArgs = {
   memo: { type: "string" as const, description: "Internal memo" },
   "invoice-note": { type: "string" as const, description: "Note printed on the invoice" },
   "tax-entry-method": {
-    type: "string" as const,
+    type: "enum" as const,
+    choices: TAX_ENTRY_METHODS,
     description: "Tax display: out (税別/外税) | in (税込/内税)",
   },
   "tax-fraction": {
-    type: "string" as const,
+    type: "enum" as const,
+    choices: FRACTIONS,
     description: `Tax rounding: ${FRACTIONS.join(" | ")}`,
   },
   "line-amount-fraction": {
-    type: "string" as const,
+    type: "enum" as const,
+    choices: FRACTIONS,
     description: `Line amount rounding: ${FRACTIONS.join(" | ")}`,
   },
   "withholding-tax-entry-method": {
-    type: "string" as const,
+    type: "enum" as const,
+    choices: TAX_ENTRY_METHODS,
     description: "Withholding base: out (税別) | in (税込)",
   },
   line: {

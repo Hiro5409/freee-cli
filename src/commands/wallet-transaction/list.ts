@@ -1,15 +1,15 @@
 import { define } from "gunshi";
 
 import { fetchAll } from "../../api/paginate.ts";
+import {
+  MonthTextSchema,
+  OptionalLimitTextSchema,
+  PositiveIntegerTextSchema,
+  parseCliInput,
+} from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { listArgs } from "../../global-args.ts";
-import {
-  initCommand,
-  monthToDateRange,
-  parseChoice,
-  parseLimit,
-  parsePositiveId,
-} from "../../helpers.ts";
+import { initCommand, monthToDateRange } from "../../helpers.ts";
 import { formatOutput } from "../../output/formatter.ts";
 import { getWalletTxns } from "../../types/freee/sdk.gen.ts";
 
@@ -31,26 +31,29 @@ export const walletTransactionListCommand = define({
     ...listArgs,
     month: { type: "string" as const, description: "Filter by month (YYYY-MM)" },
     status: {
-      type: "string" as const,
+      type: "enum" as const,
+      choices: STATUSES,
       description: `Filter locally by status: ${STATUSES.join(" | ")}`,
     },
     "walletable-id": { type: "string" as const, description: "Filter by walletable ID" },
     "walletable-type": {
-      type: "string" as const,
+      type: "enum" as const,
+      choices: WALLET_TYPES,
       description: `Filter by walletable type: ${WALLET_TYPES.join(" | ")}`,
     },
     "entry-side": {
-      type: "string" as const,
+      type: "enum" as const,
+      choices: ENTRY_SIDES,
       description: `Filter by entry side: ${ENTRY_SIDES.join(" | ")}`,
     },
   },
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const monthFilter = ctx.values.month ? monthToDateRange(ctx.values.month) : undefined;
-    const status = ctx.values.status
-      ? parseChoice(ctx.values.status, STATUSES, "--status")
+    const monthFilter = ctx.values.month
+      ? monthToDateRange(parseCliInput(MonthTextSchema, ctx.values.month, { label: "--month" }))
       : undefined;
-    const limit = parseLimit(ctx.values.limit);
+    const status = ctx.values.status;
+    const limit = parseCliInput(OptionalLimitTextSchema, ctx.values.limit, { label: "--limit" });
     const walletableId = ctx.values["walletable-id"];
     const walletableType = ctx.values["walletable-type"];
     if ((walletableId === undefined) !== (walletableType === undefined)) {
@@ -71,14 +74,10 @@ export const walletTransactionListCommand = define({
             start_date: monthFilter?.start,
             end_date: monthFilter?.end,
             walletable_id: walletableId
-              ? parsePositiveId(walletableId, "--walletable-id")
+              ? parseCliInput(PositiveIntegerTextSchema, walletableId, { label: "--walletable-id" })
               : undefined,
-            walletable_type: walletableType
-              ? parseChoice(walletableType, WALLET_TYPES, "--walletable-type")
-              : undefined,
-            entry_side: ctx.values["entry-side"]
-              ? parseChoice(ctx.values["entry-side"], ENTRY_SIDES, "--entry-side")
-              : undefined,
+            walletable_type: walletableType,
+            entry_side: ctx.values["entry-side"],
           },
         });
         return data.wallet_txns;

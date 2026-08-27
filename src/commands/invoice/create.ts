@@ -1,19 +1,14 @@
 import { define } from "gunshi";
 import colors from "yoctocolors";
 
+import { IsoDateSchema, PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { writeArgs } from "../../global-args.ts";
-import { initCommand, parseChoice, parseDate, parsePositiveId } from "../../helpers.ts";
+import { initCommand } from "../../helpers.ts";
 import { formatDryRun } from "../../output/formatter.ts";
 import { invoicesCreate } from "../../types/freee-invoice/sdk.gen.ts";
 import type { InvoiceRequest } from "../../types/freee-invoice/types.gen.ts";
-import {
-  FRACTIONS,
-  invoiceArgs,
-  PARTNER_TITLES,
-  PAYMENT_TYPES,
-  TAX_ENTRY_METHODS,
-} from "./invoice-args.ts";
+import { invoiceArgs } from "./invoice-args.ts";
 import { parseInvoiceLines } from "./parse-invoice-lines.ts";
 
 function resolvePartner(values: {
@@ -30,7 +25,8 @@ function resolvePartner(values: {
       hint: errorHints.oneIdentifier,
     });
   }
-  if (id) return { partner_id: parsePositiveId(id, "--partner-id") };
+  if (id)
+    return { partner_id: parseCliInput(PositiveIntegerTextSchema, id, { label: "--partner-id" }) };
   if (code) return { partner_code: code };
 
   throw new CliError("An invoice needs a partner: pass --partner-id or --partner-code.", {
@@ -56,38 +52,26 @@ $ freee invoice-create --partner-id 456 --billing-date 2026-08-01 --invoice-numb
 
     const body: InvoiceRequest = {
       company_id: companyId,
-      billing_date: parseDate(ctx.values["billing-date"], "--billing-date"),
+      billing_date: parseCliInput(IsoDateSchema, ctx.values["billing-date"], {
+        label: "--billing-date",
+      }),
       ...resolvePartner(ctx.values),
-      partner_title: ctx.values["partner-title"]
-        ? parseChoice(ctx.values["partner-title"], PARTNER_TITLES, "--partner-title")
-        : "御中",
-      tax_entry_method: ctx.values["tax-entry-method"]
-        ? parseChoice(ctx.values["tax-entry-method"], TAX_ENTRY_METHODS, "--tax-entry-method")
-        : "out",
-      tax_fraction: ctx.values["tax-fraction"]
-        ? parseChoice(ctx.values["tax-fraction"], FRACTIONS, "--tax-fraction")
-        : "omit",
-      withholding_tax_entry_method: ctx.values["withholding-tax-entry-method"]
-        ? parseChoice(
-            ctx.values["withholding-tax-entry-method"],
-            TAX_ENTRY_METHODS,
-            "--withholding-tax-entry-method",
-          )
-        : "out",
-      line_amount_fraction: ctx.values["line-amount-fraction"]
-        ? parseChoice(ctx.values["line-amount-fraction"], FRACTIONS, "--line-amount-fraction")
-        : undefined,
+      partner_title: ctx.values["partner-title"] ?? "御中",
+      tax_entry_method: ctx.values["tax-entry-method"] ?? "out",
+      tax_fraction: ctx.values["tax-fraction"] ?? "omit",
+      withholding_tax_entry_method: ctx.values["withholding-tax-entry-method"] ?? "out",
+      line_amount_fraction: ctx.values["line-amount-fraction"],
       issue_date: ctx.values["issue-date"]
-        ? parseDate(ctx.values["issue-date"], "--issue-date")
+        ? parseCliInput(IsoDateSchema, ctx.values["issue-date"], { label: "--issue-date" })
         : undefined,
       payment_date: ctx.values["payment-date"]
-        ? parseDate(ctx.values["payment-date"], "--payment-date")
+        ? parseCliInput(IsoDateSchema, ctx.values["payment-date"], { label: "--payment-date" })
         : undefined,
-      payment_type: ctx.values["payment-type"]
-        ? parseChoice(ctx.values["payment-type"], PAYMENT_TYPES, "--payment-type")
-        : undefined,
+      payment_type: ctx.values["payment-type"],
       template_id: ctx.values["template-id"]
-        ? parsePositiveId(ctx.values["template-id"], "--template-id")
+        ? parseCliInput(PositiveIntegerTextSchema, ctx.values["template-id"], {
+            label: "--template-id",
+          })
         : undefined,
       subject: ctx.values.subject,
       invoice_number: ctx.values["invoice-number"],
