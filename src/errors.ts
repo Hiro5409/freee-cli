@@ -22,6 +22,7 @@ export type CliErrorCode =
   | "CONFIGURATION"
   | "INVALID_INPUT"
   | "NOT_FOUND"
+  | "OUTCOME_UNKNOWN"
   | "PARTIAL_SUCCESS"
   | "RATE_LIMITED"
   | "UNEXPECTED"
@@ -64,8 +65,20 @@ export class AuthError extends CliError {
 }
 
 export class ConfigError extends CliError {
-  constructor(message: string) {
-    super(message, { code: "CONFIGURATION", exitCode: 3 });
+  constructor(message: string, options: { hint?: string } = {}) {
+    super(message, { code: "CONFIGURATION", exitCode: 3, hint: options.hint });
     this.name = "ConfigError";
+  }
+}
+
+export class OutcomeUnknownError extends CliError {
+  constructor(message: string, options: { cause?: unknown } = {}) {
+    super(message, {
+      code: "OUTCOME_UNKNOWN",
+      cause: options.cause,
+      why: "freee may have accepted the write before freee-cli lost confirmation.",
+      hint: "Inspect the affected resource in freee before retrying. Do not retry automatically.",
+    });
+    this.name = "OutcomeUnknownError";
   }
 }

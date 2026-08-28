@@ -2,7 +2,7 @@
 name: freee-cli
 description: Use when working with freee through freee-cli, including accounting, invoices, payroll, File Box, wallet transactions, and auto-registration rules.
 license: MIT
-compatibility: Requires the freee command and an interactive user for setup or OAuth login.
+compatibility: Requires the freee command and an interactive user for setup or OAuth login. Web operations also require Agent Browser.
 metadata:
   source: https://github.com/Hiro5409/freee-cli
 ---
@@ -17,11 +17,12 @@ If unavailable, ask the user to install freee-cli.
 2. Run the selected command with `--help` before constructing unfamiliar arguments.
 3. Use `--format json` for data consumed by an agent or another command.
 4. For `setup` or `login`, ask the user to run the command in an interactive terminal.
-5. Before a cohesive freee API write batch, use read commands to verify the selected profile, company, referenced IDs, and every value that determines the intended side effects.
+5. For `freee web walletable-sync`, resolve `--id` with `freee walletable-list`. Use `--all` only when the user explicitly chose bulk scope; `--dry-run` lists the walletables freee-cli would request without proving that freee will accept them, while execution starts an external sync and waits for the walletables freee selects.
+6. Before a cohesive freee API write batch, use read commands to verify the selected profile, company, referenced IDs, and every value that determines the intended side effects.
    For File Box uploads, use only the file path the user explicitly selected.
-6. Treat `--dry-run` as a verification tool, not an approval boundary. Use `--dry-run --format json` when its preview can expose a decision-bearing difference: destructive operations, replacement or fetch-merge writes, and multi-target or fan-out writes. A simple create or update whose complete fields are already fixed in the plan does not require a dry-run. A dry-run never sends the write or proves write permission.
-7. Present the complete batch and intended final state, then wait for explicit user approval. One approval covers the unchanged batch, including dependent writes whose IDs are created by earlier steps.
-8. After approval, execute the batch with the same profile and company. Continue through later reads or previews when they confirm the approved batch; request another approval only when current state or a preview changes the approved target, scope, or intended final state.
+7. Treat `--dry-run` as a verification tool, not an approval boundary. Use `--dry-run --format json` when its preview can expose a decision-bearing difference: destructive operations, replacement or fetch-merge writes, and multi-target or fan-out writes. A simple create or update whose complete fields are already fixed in the plan does not require a dry-run. A dry-run never sends the write or proves write permission.
+8. Present the complete batch and intended final state, then wait for explicit user approval. One approval covers the unchanged batch, including dependent writes whose IDs are created by earlier steps.
+9. After approval, execute the batch with the same profile and company. Continue through later reads or previews when they confirm the approved batch; request another approval only when current state or a preview changes the approved target, scope, or intended final state.
 
 Plan restrictions:
 

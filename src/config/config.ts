@@ -12,6 +12,16 @@ function isErrnoException(e: unknown): e is NodeJS.ErrnoException {
 const ProfileSchema = v.strictObject({
   companyId: v.pipe(v.number(), v.safeInteger(), v.minValue(1)),
   name: v.string(),
+  experimental: v.optional(
+    v.strictObject({
+      web: v.strictObject({
+        authProfile: v.pipe(
+          v.string(),
+          v.regex(/^[A-Za-z0-9_-]+$/, "Expected an Agent Browser Auth Profile name."),
+        ),
+      }),
+    }),
+  ),
 });
 
 const ConfigSchema = v.strictObject({

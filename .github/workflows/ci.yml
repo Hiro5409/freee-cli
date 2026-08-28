@@ -51,6 +51,7 @@ jobs:
           bun init --yes
           bun add ./freee-cli-*.tgz
           ./node_modules/freee-cli/bin/freee --version
+          bun -e 'import { withFreeeBrowser } from "freee-cli/experimental/web"; if (typeof withFreeeBrowser !== "function") throw new Error("Invalid experimental Web export");'
 
       - name: Build standalone executable
         run: bun run build

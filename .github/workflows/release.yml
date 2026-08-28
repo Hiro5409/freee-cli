@@ -47,6 +47,19 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun audit --audit-level=high
       - run: bun run check
+      - name: Smoke-test installed npm package
+        run: |
+          package_test_dir=$(mktemp -d)
+          npm pack --pack-destination "$package_test_dir"
+          cd "$package_test_dir"
+          bun init --yes
+          bun add ./freee-cli-*.tgz
+          ./node_modules/freee-cli/bin/freee --version
+          bun -e 'import { withFreeeBrowser } from "freee-cli/experimental/web"; if (typeof withFreeeBrowser !== "function") throw new Error("Invalid experimental Web export");'
+      - name: Smoke-test standalone executable
+        run: |
+          bun run build
+          ./freee --version
       - run: git diff --exit-code
       - run: |
           git config user.name "github-actions[bot]"

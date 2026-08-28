@@ -115,6 +115,35 @@ freee hr-employee-list --month 2026-08
 freee hr-payroll-list --month 2026-08
 ```
 
+### Experimental freee Web operations
+
+`freee setup` can enable Web-only operations for an OAuth profile. They require [Agent Browser](https://github.com/vercel-labs/agent-browser) and a separate Agent Browser Auth Profile. freee-cli stores only the Auth Profile name; Agent Browser owns the login and saved session.
+
+Before the first Web operation, set `AGENT_BROWSER_ENCRYPTION_KEY` to 64 hexadecimal characters or store the key in `~/.agent-browser/.encryption-key`.
+
+```bash
+freee walletable-list
+freee web walletable-sync --all --dry-run
+freee web walletable-sync --id 42
+freee web walletable-sync --all
+```
+
+Use `freee walletable-list` to obtain the walletable ID from the official API. The Web command starts synchronization and waits for completion for up to one hour. Table output reports state changes to stderr; JSON output suppresses that progress so stdout remains machine-readable.
+
+`--dry-run` lists the walletables that freee-cli would include in the request without starting synchronization. It does not guarantee that freee will accept or complete the request.
+
+With `--all`, freee selects the eligible walletables that participate. The result includes only walletables whose synchronization started and completed; use `--id` when a candidate was not selected.
+
+These commands use observed, unsupported freee Web interfaces. They fail when an observed response no longer matches the expected shape and are excluded from the stability expectations of commands generated from official OpenAPI schemas.
+
+Bun applications can use the experimental bookkeeping and invoice-registration adapter directly:
+
+```ts
+import { withFreeeBrowser } from "freee-cli/experimental/web";
+```
+
+The caller owns operation sequencing and supplies the company ID and Auth Profile. Preview methods do not write; registration, settlement, transfer, ignore, invoice-registration, and auto-rule methods write immediately and have no generic dry-run. If an `OutcomeUnknownError` is returned, inspect the affected resource in freee before retrying because the write may already have completed.
+
 ## Calling from Agents
 
 ```bash

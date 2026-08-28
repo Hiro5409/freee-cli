@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { AuthError, CliError, ConfigError, errorHints } from "./errors.ts";
+import { AuthError, CliError, ConfigError, errorHints, OutcomeUnknownError } from "./errors.ts";
 
 describe("CliError", () => {
   test("has message, code, and default exitCode=1", () => {
@@ -41,11 +41,24 @@ describe("AuthError", () => {
 });
 
 describe("ConfigError", () => {
-  test("exitCode is 3", () => {
-    const err = new ConfigError("config missing");
+  test("exitCode is 3 and accepts an actionable hint", () => {
+    const err = new ConfigError("config missing", { hint: "Run setup." });
     expect(err.exitCode).toBe(3);
     expect(err.code).toBe("CONFIGURATION");
     expect(err.message).toBe("config missing");
+    expect(err.hint).toBe("Run setup.");
     expect(err).toBeInstanceOf(CliError);
+  });
+});
+
+describe("OutcomeUnknownError", () => {
+  test("prevents an uncertain write from looking safely retryable", () => {
+    const cause = new Error("timed out");
+    const err = new OutcomeUnknownError("freee write confirmation was lost.", { cause });
+
+    expect(err.code).toBe("OUTCOME_UNKNOWN");
+    expect(err.cause).toBe(cause);
+    expect(err.why).toContain("accepted");
+    expect(err.hint).toContain("Do not retry automatically");
   });
 });

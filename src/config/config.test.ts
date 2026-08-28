@@ -43,13 +43,20 @@ describe("config", () => {
       JSON.stringify({
         activeProfile: "work",
         defaults: { format: "json" },
-        profiles: { work: { companyId: 123, name: "Work Co" } },
+        profiles: {
+          work: {
+            companyId: 123,
+            name: "Work Co",
+            experimental: { web: { authProfile: "business-freee" } },
+          },
+        },
       }),
     );
     const config = loadConfig(testDir);
     expect(config.activeProfile).toBe("work");
     expect(config.defaults.format).toBe("json");
     expect(config.profiles.work?.companyId).toBe(123);
+    expect(config.profiles.work?.experimental?.web.authProfile).toBe("business-freee");
   });
 
   test("saveConfig writes config.json and creates directory", async () => {
@@ -87,6 +94,24 @@ describe("config", () => {
     const { loadConfig } = await import("./config.ts");
     const { ConfigError } = await import("../errors.ts");
     writeFileSync(join(testDir, "config.json"), JSON.stringify({ activeProfiles: "work" }));
+    expect(() => loadConfig(testDir)).toThrow(ConfigError);
+  });
+
+  test("loadConfig rejects unknown experimental Web configuration keys", async () => {
+    const { loadConfig } = await import("./config.ts");
+    const { ConfigError } = await import("../errors.ts");
+    writeFileSync(
+      join(testDir, "config.json"),
+      JSON.stringify({
+        profiles: {
+          work: {
+            companyId: 123,
+            name: "Work Co",
+            experimental: { web: { auth_profile: "business-freee" } },
+          },
+        },
+      }),
+    );
     expect(() => loadConfig(testDir)).toThrow(ConfigError);
   });
 });

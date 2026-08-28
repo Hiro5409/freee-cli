@@ -33,6 +33,9 @@
     "!src/**/*.test.ts"
   ],
   "type": "module",
+  "exports": {
+    "./experimental/web": "./src/plugins/web-operations/bookkeeping-browser.ts"
+  },
   "scripts": {
     "dev": "bun run src/main.ts",
     "build": "bun build src/main.ts --compile --outfile freee",

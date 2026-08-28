@@ -116,6 +116,35 @@ freee hr-employee-list --month 2026-08
 freee hr-payroll-list --month 2026-08
 ```
 
+### 試験的なfreee Web操作
+
+`freee setup`では、OAuthプロファイルごとにWeb限定操作を有効化できます。[Agent Browser](https://github.com/vercel-labs/agent-browser)と専用のAuth Profileが必要です。freee-cliが保持するのはAuth Profile名だけで、ログイン情報と保存セッションはAgent Browserが管理します。
+
+初めてWeb操作を実行する前に、`AGENT_BROWSER_ENCRYPTION_KEY`へ64文字の16進数を設定するか、`~/.agent-browser/.encryption-key`へ保存してください。
+
+```bash
+freee walletable-list
+freee web walletable-sync --all --dry-run
+freee web walletable-sync --id 42
+freee web walletable-sync --all
+```
+
+口座IDは、公式APIを使う`freee walletable-list`で取得します。Webコマンドは同期を開始し、最大1時間まで完了を待ちます。表形式では状態の変化をstderrへ表示し、JSON形式ではstdoutを機械可読に保つため進捗を表示しません。
+
+`--dry-run`は同期を開始せず、freee-cliがリクエストに含める口座を表示します。freeeがリクエストを受理して同期を完了することまでは保証しません。
+
+`--all`では、対象となる口座をfreeeが選びます。結果に含まれるのは、同期が開始して完了した口座だけです。選ばれなかった候補は、必要に応じて`--id`で個別に同期できます。
+
+これらのコマンドは、公開仕様ではないfreee Webの観測結果に基づきます。観測したレスポンスが想定した形と一致しなくなった場合は失敗し、公式OpenAPIから生成したコマンドと同じ安定性は保証しません。
+
+Bunアプリケーションから、試験的な経理・請求書登録アダプターを直接利用できます。
+
+```ts
+import { withFreeeBrowser } from "freee-cli/experimental/web";
+```
+
+操作の順序は呼び出し側が決め、事業所IDとAuth Profileを明示的に渡します。previewメソッドは書き込みません。登録、消込、口座振替、無視、請求書登録、自動登録ルール適用の各メソッドは即時に書き込み、共通のdry-runはありません。`OutcomeUnknownError`が返った場合は、書き込みが完了済みの可能性があるため、再実行前にfreee上の対象リソースを確認してください。
+
 ## エージェントから使う
 
 ```bash

@@ -2,9 +2,9 @@ import * as clack from "@clack/prompts";
 import { define } from "gunshi";
 
 import { openBrowser as openBrowserUrl } from "../browser.ts";
-import { configDir } from "../config/config.ts";
+import { configDir, loadConfig, saveConfig } from "../config/config.ts";
 import { loadOAuthCredentials, saveOAuthCredentials } from "../config/oauth.ts";
-import { CliError } from "../errors.ts";
+import { CliError, ConfigError } from "../errors.ts";
 
 const DEVELOPER_APP_URL = "https://app.secure.freee.co.jp/developers";
 
@@ -105,6 +105,13 @@ function positiveInteger(value: string | undefined): string | undefined {
   return /^[1-9]\d*$/.test(value) ? undefined : "Enter a positive integer.";
 }
 
+function authProfileName(value: string | undefined): string | undefined {
+  if (value === undefined || !/^[A-Za-z0-9_-]+$/.test(value)) {
+    return "Use only letters, numbers, underscores, and hyphens.";
+  }
+  return undefined;
+}
+
 async function runSetupFlow(options: SetupWizardOptions): Promise<void> {
   const interactive =
     options.interactive ?? (process.stdin.isTTY === true && process.stdout.isTTY === true);
@@ -148,7 +155,7 @@ async function runSetupFlow(options: SetupWizardOptions): Promise<void> {
   prompts.note(
     "Create or open the OAuth application used by this CLI.\n" +
       `Set its callback URL to http://localhost:8080/callback\n${DEVELOPER_APP_URL}`,
-    "1/3 · Create a freee application",
+    "1/4 · Create a freee application",
   );
   const openBrowser = options.openBrowser ?? openBrowserUrl;
   if (!openBrowser(DEVELOPER_APP_URL)) {
@@ -162,7 +169,7 @@ async function runSetupFlow(options: SetupWizardOptions): Promise<void> {
 
   prompts.note(
     "Credentials are stored only in the local freee CLI configuration directory.",
-    "2/3 · Save OAuth credentials",
+    "2/4 · Save OAuth credentials",
   );
   const storedOAuth = loadOAuthCredentials(dir);
   const keepStoredOAuth =
@@ -196,7 +203,7 @@ async function runSetupFlow(options: SetupWizardOptions): Promise<void> {
 
   prompts.note(
     "Authentication opens a browser and stores tokens in the local configuration directory.",
-    "3/3 · Authenticate and select a company",
+    "3/4 · Authenticate and select a company",
   );
   const profile = stringAnswer(
     await prompts.text({
@@ -229,6 +236,42 @@ async function runSetupFlow(options: SetupWizardOptions): Promise<void> {
     prompts,
   );
   await runCli(["company-switch", "--profile", profile, "--id", companyId]);
+
+  prompts.note(
+    "These commands use freee's unsupported Web interface through an encrypted Agent Browser session and may require maintenance when freee changes.",
+    "4/4 · Experimental Web operations",
+  );
+  const config = loadConfig(dir);
+  const configuredProfile = config.profiles[profile];
+  const enableWeb = booleanAnswer(
+    await prompts.confirm({
+      message: `Enable experimental freee Web operations for profile "${profile}"?`,
+      initialValue: configuredProfile?.experimental?.web !== undefined,
+    }),
+    prompts,
+  );
+  if (enableWeb) {
+    if (!configuredProfile) {
+      throw new ConfigError(`Profile "${profile}" has no configured freee company.`);
+    }
+    const authProfile = stringAnswer(
+      await prompts.text({
+        message: "Agent Browser Auth Profile",
+        initialValue: configuredProfile.experimental?.web.authProfile ?? "freee-web",
+        validate: authProfileName,
+      }),
+      prompts,
+    );
+    configuredProfile.experimental = { web: { authProfile } };
+    saveConfig(dir, config);
+    prompts.note(
+      `Save the freee Web login separately:\nagent-browser auth save ${authProfile} --url https://secure.freee.co.jp/ --username <email> --password-stdin`,
+      "Agent Browser authentication",
+    );
+  } else if (configuredProfile?.experimental) {
+    delete configuredProfile.experimental;
+    saveConfig(dir, config);
+  }
 
   prompts.outro("Setup complete.");
 }

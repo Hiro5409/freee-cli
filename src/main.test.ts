@@ -70,6 +70,7 @@ describe("CLI integration", () => {
     expect(stdout).toContain("invoice-restore");
     expect(stdout).toContain("company-switch");
     expect(stdout).toContain("journal-export");
+    expect(stdout).toMatch(/^  web <OPTIONS>/m);
     expect(stdout).toContain("freee setup");
     expect(stdout).toContain("--no-color");
     expect(stdout).not.toContain("--no-color                     color");
@@ -92,6 +93,24 @@ describe("CLI integration", () => {
     const { stdout } = await runCli(["setup", "--help"]);
     expect(stdout).toContain("setup");
     expect(stdout).toContain("coding agents should ask the user");
+  });
+
+  test("freee web --help describes experimental Web-only operations", async () => {
+    const { stdout, stderr, exitCode } = await runCli(["web", "--help"]);
+    expect(exitCode).toBe(0);
+    expect(stderr).toBe("");
+    expect(stdout).toContain("Experimental");
+    expect(stdout).toContain("walletable-sync");
+  });
+
+  test("walletable sync help describes waiting and ID discovery", async () => {
+    const { stdout, stderr, exitCode } = await runCli(["web", "walletable-sync", "--help"]);
+    expect(exitCode).toBe(0);
+    expect(stderr).toBe("");
+    expect(stdout).toContain("start and wait");
+    expect(stdout).toContain("freee walletable-list");
+    expect(stdout).toContain("freee actually syncs");
+    expect(stdout).toContain("--dry-run");
   });
 
   test("read-only commands do not advertise --dry-run", async () => {

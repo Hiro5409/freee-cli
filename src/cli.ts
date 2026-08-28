@@ -68,6 +68,7 @@ import { walletableListCommand } from "./commands/walletable/list.ts";
 import { printError } from "./error-output.ts";
 import { globalArgs } from "./global-args.ts";
 import { writeOutput } from "./output/write.ts";
+import { freeeWebPlugin } from "./plugins/web-operations/plugin.ts";
 
 const rootCommand = define({
   name: "freee",
@@ -87,6 +88,7 @@ export async function main() {
   await cli(process.argv.slice(2), rootCommand, {
     name: "freee",
     version: pkg.default.version,
+    plugins: [freeeWebPlugin],
     subCommands: {
       login: loginCommand,
       logout: logoutCommand,
