@@ -30,11 +30,12 @@
     "!src/types/freee-invoice/types.gen.ts",
     "!src/types/freee-hr/types.gen.ts",
     "!src/types/**/msw.gen.ts",
+    "!src/**/test-fixtures.ts",
     "!src/**/*.test.ts"
   ],
   "type": "module",
   "exports": {
-    "./experimental/web": "./src/plugins/web-operations/bookkeeping-browser.ts"
+    "./experimental/web": "./src/plugins/web-operations/freee-web.ts"
   },
   "scripts": {
     "dev": "bun run src/main.ts",

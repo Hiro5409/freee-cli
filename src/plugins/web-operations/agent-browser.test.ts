@@ -44,7 +44,7 @@ describe("Agent Browser session", () => {
     };
 
     const browser = await createAgentBrowserSession({
-      namespace: "freee-web-bookkeeping",
+      namespace: "freee-web-test",
       sessionPrefix: "fb",
       companyId: 123,
       authProfile: "business-freee",
@@ -57,7 +57,7 @@ describe("Agent Browser session", () => {
     expect(calls[0]?.command).toEqual([
       "agent-browser",
       "--namespace",
-      "freee-web-bookkeeping",
+      "freee-web-test",
       "state",
       "list",
       "--json",
@@ -184,7 +184,7 @@ describe("Agent Browser session", () => {
 
     await expect(
       createAgentBrowserSession({
-        namespace: "freee-web-bookkeeping",
+        namespace: "freee-web-test",
         sessionPrefix: "fb",
         companyId: 123,
         authProfile: "business-freee",
@@ -202,7 +202,7 @@ describe("Agent Browser session", () => {
 
     await expect(
       createAgentBrowserSession({
-        namespace: "freee-web-bookkeeping",
+        namespace: "freee-web-test",
         sessionPrefix: "fb",
         companyId: 123,
         authProfile: "business-freee",

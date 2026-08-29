@@ -100,17 +100,38 @@ describe("CLI integration", () => {
     expect(exitCode).toBe(0);
     expect(stderr).toBe("");
     expect(stdout).toContain("Experimental");
-    expect(stdout).toContain("walletable-sync");
+    expect(stdout).toMatch(/^  wallet-txn <OPTIONS>/m);
+    expect(stdout).toMatch(/^  walletable <OPTIONS>/m);
   });
 
-  test("walletable sync help describes waiting and ID discovery", async () => {
-    const { stdout, stderr, exitCode } = await runCli(["web", "walletable-sync", "--help"]);
-    expect(exitCode).toBe(0);
-    expect(stderr).toBe("");
-    expect(stdout).toContain("start and wait");
-    expect(stdout).toContain("freee walletable-list");
-    expect(stdout).toContain("freee actually syncs");
-    expect(stdout).toContain("--dry-run");
+  test("freee Web write command help exposes examples and operation-specific options", async () => {
+    const commands = [
+      { path: ["wallet-txn", "apply-rules"], options: [] },
+      { path: ["wallet-txn", "ignore"], options: [] },
+      {
+        path: ["wallet-txn", "register"],
+        options: ["--account-item-name", "--tax-name", "--description"],
+      },
+      { path: ["wallet-txn", "restore"], options: [] },
+      { path: ["wallet-txn", "settle"], options: ["--deal-id", "--amount"] },
+      {
+        path: ["wallet-txn", "transfer"],
+        options: ["--counterparty-walletable-name", "--description"],
+      },
+      { path: ["invoice", "register-deal"], options: [] },
+      { path: ["walletable", "sync"], options: ["--all", "--id"] },
+    ];
+
+    for (const { path, options } of commands) {
+      const name = path.join(" ");
+      const { stdout, stderr, exitCode } = await runCli(["web", ...path, "--help"]);
+      expect(exitCode, name).toBe(0);
+      expect(stderr, name).toBe("");
+      expect(stdout, name).toContain(`freee web ${name}`);
+      expect(stdout, name).toContain("--dry-run");
+      expect(stdout, name).toContain("--format json");
+      for (const option of options) expect(stdout, name).toContain(option);
+    }
   });
 
   test("read-only commands do not advertise --dry-run", async () => {

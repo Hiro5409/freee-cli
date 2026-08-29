@@ -9,12 +9,11 @@ import { setupServer } from "msw/node";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
 import { saveCredentials } from "../../config/credentials.ts";
-import { handleDestroyDealPayment, handleUpdateDealPayment } from "../../types/freee/msw.gen.ts";
-import { dealPaymentDeleteCommand } from "./payment-delete.ts";
+import { handleUpdateDealPayment } from "../../types/freee/msw.gen.ts";
 import { dealPaymentUpdateCommand } from "./payment-update.ts";
 import { createMockDeal, createMockDealPayment } from "./test-fixtures.ts";
 
-const testDir = join(tmpdir(), `freee-cli-deal-payment-mutation-test-${Date.now()}`);
+const testDir = join(tmpdir(), `freee-cli-deal-payment-update-test-${Date.now()}`);
 const server = setupServer(
   handleUpdateDealPayment(({ params }) =>
     HttpResponse.json({
@@ -33,7 +32,6 @@ const server = setupServer(
       }),
     }),
   ),
-  handleDestroyDealPayment(() => new HttpResponse(null, { status: 204 })),
 );
 
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
@@ -49,7 +47,7 @@ afterEach(() => {
   rmSync(testDir, { recursive: true, force: true });
 });
 
-describe("deal payment mutations", () => {
+describe("deal payment update command", () => {
   test("updates a payment and returns the deal", async () => {
     const result = await cli(
       [
@@ -76,17 +74,8 @@ describe("deal payment mutations", () => {
     expect(JSON.parse(result).payments[0]).toMatchObject({ id: 7, amount: 4000 });
   });
 
-  test("deletes a payment", async () => {
+  test("provides a dry-run request", async () => {
     const result = await cli(
-      ["--company-id", "123", "--id", "42", "--payment-id", "7", "--format", "json"],
-      dealPaymentDeleteCommand,
-    );
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(JSON.parse(result)).toEqual({ dealId: 42, paymentId: 7, deleted: true });
-  });
-
-  test("both mutations provide a dry-run request", async () => {
-    const update = await cli(
       [
         "--company-id",
         "123",
@@ -108,14 +97,7 @@ describe("deal payment mutations", () => {
       ],
       dealPaymentUpdateCommand,
     );
-    const remove = await cli(
-      ["--company-id", "123", "--id", "42", "--payment-id", "7", "--dry-run", "--format", "json"],
-      dealPaymentDeleteCommand,
-    );
-    if (typeof update !== "string" || typeof remove !== "string") {
-      throw new Error("expected string results");
-    }
-    expect(JSON.parse(update).request.method).toBe("PUT");
-    expect(JSON.parse(remove).request.method).toBe("DELETE");
+    if (typeof result !== "string") throw new Error("expected string result");
+    expect(JSON.parse(result).request.method).toBe("PUT");
   });
 });

@@ -2,7 +2,7 @@ const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_MAX_OUTPUT_BYTES = 4 * 1024 * 1024;
 const TERMINATION_GRACE_MS = 100;
 
-export type SubprocessOptions = {
+type SubprocessOptions = {
   environment?: Record<string, string | undefined>;
   stdin?: string;
   timeoutMs?: number;

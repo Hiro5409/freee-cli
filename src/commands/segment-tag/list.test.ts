@@ -7,31 +7,14 @@ import { cli } from "gunshi";
 import { HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 
-import { sectionListCommand } from "../src/commands/section/list.ts";
-import { segmentTagListCommand } from "../src/commands/segment-tag/list.ts";
-import { tagListCommand } from "../src/commands/tag/list.ts";
-import { saveCredentials } from "../src/config/credentials.ts";
-import {
-  handleGetSections,
-  handleGetSegmentTags,
-  handleGetTags,
-} from "../src/types/freee/msw.gen.ts";
-import { MOCK_TOKEN } from "./credentials.ts";
+import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { saveCredentials } from "../../config/credentials.ts";
+import { handleGetSegmentTags } from "../../types/freee/msw.gen.ts";
+import { segmentTagListCommand } from "./list.ts";
 
-const testDir = join(tmpdir(), `freee-cli-master-data-list-${Date.now()}`);
+const testDir = join(tmpdir(), `freee-cli-segment-tag-list-test-${Date.now()}`);
 let segmentUrl = "";
-
 const server = setupServer(
-  handleGetSections(() =>
-    HttpResponse.json({
-      sections: [{ id: 1, name: "Development", available: true, company_id: 123 }],
-    }),
-  ),
-  handleGetTags(() =>
-    HttpResponse.json({
-      tags: [{ id: 2, company_id: 123, name: "Reviewed", update_date: "2026-08-01" }],
-    }),
-  ),
   handleGetSegmentTags(({ request }) => {
     segmentUrl = request.url;
     return HttpResponse.json({
@@ -56,19 +39,7 @@ afterEach(() => {
   rmSync(testDir, { recursive: true, force: true });
 });
 
-describe("accounting master-data list commands", () => {
-  test("lists sections", async () => {
-    const result = await cli(["--company-id", "123", "--format", "json"], sectionListCommand);
-    expect(JSON.parse(String(result))).toEqual([
-      { id: 1, name: "Development", available: true, company_id: 123 },
-    ]);
-  });
-
-  test("lists memo tags", async () => {
-    const result = await cli(["--company-id", "123", "--format", "json"], tagListCommand);
-    expect(JSON.parse(String(result))[0]).toMatchObject({ id: 2, name: "Reviewed" });
-  });
-
+describe("segment tag list command", () => {
   test("lists one segment's tags", async () => {
     const result = await cli(
       ["--company-id", "123", "--segment", "2", "--format", "json"],

@@ -9,29 +9,12 @@ import { setupServer } from "msw/node";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
 import { saveCredentials } from "../../config/credentials.ts";
-import { handleDestroyWalletTxn, handleGetWalletTxn } from "../../types/freee/msw.gen.ts";
+import { handleDestroyWalletTxn } from "../../types/freee/msw.gen.ts";
 import { walletTransactionDeleteCommand } from "./delete.ts";
-import { walletTransactionShowCommand } from "./show.ts";
 
-const testDir = join(tmpdir(), `freee-cli-wallet-transaction-actions-${Date.now()}`);
+const testDir = join(tmpdir(), `freee-cli-wallet-transaction-delete-test-${Date.now()}`);
 const onDelete = mock();
-const txn = {
-  id: 7,
-  company_id: 123,
-  date: "2026-08-01",
-  amount: 5000,
-  due_amount: 0,
-  balance: 10000,
-  entry_side: "expense" as const,
-  walletable_type: "credit_card" as const,
-  walletable_id: 55,
-  description: "TEST",
-  status: 1,
-  rule_matched: false,
-};
-
 const server = setupServer(
-  handleGetWalletTxn(() => HttpResponse.json({ wallet_txn: txn })),
   handleDestroyWalletTxn(({ params }) => {
     onDelete(params.id);
     return new HttpResponse(null, { status: 204 });
@@ -52,15 +35,7 @@ afterEach(() => {
   rmSync(testDir, { recursive: true, force: true });
 });
 
-describe("wallet transaction show/delete commands", () => {
-  test("shows one wallet transaction", async () => {
-    const result = await cli(
-      ["--company-id", "123", "--id", "7", "--format", "json"],
-      walletTransactionShowCommand,
-    );
-    expect(JSON.parse(String(result))).toMatchObject({ id: 7, status: 1 });
-  });
-
+describe("wallet transaction delete command", () => {
   test("previews deletion without writing", async () => {
     const result = await cli(
       ["--company-id", "123", "--id", "7", "--dry-run", "--format", "json"],

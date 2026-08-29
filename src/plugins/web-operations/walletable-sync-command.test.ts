@@ -1,52 +1,36 @@
 import { describe, expect, test } from "bun:test";
 
-import { CliError, ConfigError } from "../../errors.ts";
-import type { FreeeWebClient } from "./freee-web-client.ts";
+import { CliError } from "../../errors.ts";
+import type { FreeeWebOperations } from "./freee-web.ts";
 import { runWalletableSyncCommand } from "./walletable-sync-command.ts";
-import type { WalletableSyncProgress } from "./walletable-sync.ts";
+import type { WalletableSyncProgress, WalletableSyncWeb } from "./walletable-sync.ts";
 
-const client = { close: async () => {} } as FreeeWebClient;
+const scope = {
+  profile: "business",
+  companyId: 42,
+  authProfile: "business-freee",
+};
+const web = {} as FreeeWebOperations;
 
-function dependencies(input?: { client?: FreeeWebClient; web?: boolean }) {
+function dependencies() {
   return {
-    configDirectory: () => "/config",
-    environment: { FREEE_PROFILE: "environment-profile" },
-    resolveProfile: (requested: unknown, directory: string, environment: string | undefined) => {
+    resolveScope: (requested: unknown) => {
       expect(requested).toBe("business");
-      expect(directory).toBe("/config");
-      expect(environment).toBe("environment-profile");
-      return "business";
+      return scope;
     },
-    loadConfiguration: () => ({
-      activeProfile: "business",
-      defaults: { format: "table" },
-      profiles: {
-        business: {
-          companyId: 42,
-          name: "Business",
-          experimental:
-            input?.web === false ? undefined : { web: { authProfile: "business-freee" } },
-        },
-      },
-    }),
-    createClient: (options: {
-      companyId: number;
-      authProfile: string;
-      environment: Record<string, string | undefined>;
-    }) => {
-      expect(options).toEqual({
-        companyId: 42,
-        authProfile: "business-freee",
-        environment: { FREEE_PROFILE: "environment-profile" },
-      });
-      return input?.client ?? client;
+    withWeb: async <T>(
+      receivedScope: { companyId: number; authProfile: string },
+      run: (receivedWeb: FreeeWebOperations) => Promise<T>,
+    ) => {
+      expect(receivedScope).toEqual(scope);
+      return run(web);
     },
     sync: async (
-      received: FreeeWebClient,
-      scope: { kind: "all" } | { kind: "one"; walletableId: number },
+      received: WalletableSyncWeb,
+      requestedSync: { kind: "all" } | { kind: "one"; walletableId: number },
     ) => {
-      expect(received).toBe(input?.client ?? client);
-      expect(scope).toEqual({ kind: "one", walletableId: 20 });
+      expect(received).toBe(web);
+      expect(requestedSync).toEqual({ kind: "one", walletableId: 20 });
       return {
         walletables: [
           {
@@ -64,18 +48,8 @@ function dependencies(input?: { client?: FreeeWebClient; web?: boolean }) {
 
 describe("walletable sync command", () => {
   test("uses the OAuth profile company and its Agent Browser Auth Profile", async () => {
-    let closed = 0;
-    const scopedClient = {
-      ...client,
-      close: async () => {
-        closed += 1;
-      },
-    };
     await expect(
-      runWalletableSyncCommand(
-        { profile: "business", id: "20" },
-        dependencies({ client: scopedClient }),
-      ),
+      runWalletableSyncCommand({ profile: "business", id: "20" }, dependencies()),
     ).resolves.toEqual({
       profile: "business",
       companyId: 42,
@@ -90,53 +64,6 @@ describe("walletable sync command", () => {
         },
       ],
     });
-    expect(closed).toBe(1);
-  });
-
-  test("preserves a synchronization error when closing also fails", async () => {
-    let closed = 0;
-    const synchronizationError = new Error("synchronization failed");
-    const deps = {
-      ...dependencies({
-        client: {
-          ...client,
-          close: async () => {
-            closed += 1;
-            throw new Error("close failed");
-          },
-        },
-      }),
-      sync: async () => {
-        throw synchronizationError;
-      },
-    };
-
-    const error = await runWalletableSyncCommand({ profile: "business", all: true }, deps).catch(
-      (caught: unknown) => caught,
-    );
-
-    expect(error).toBe(synchronizationError);
-    expect(closed).toBe(1);
-  });
-
-  test("warns without failing when only browser cleanup fails", async () => {
-    const messages: string[] = [];
-    const deps = {
-      ...dependencies({
-        client: {
-          ...client,
-          close: async () => {
-            throw new Error("close failed");
-          },
-        },
-      }),
-      writeProgress: (message: string) => messages.push(message),
-    };
-
-    await expect(
-      runWalletableSyncCommand({ profile: "business", id: "20" }, deps),
-    ).resolves.toMatchObject({ walletables: [{ walletableId: 20 }] });
-    expect(messages).toEqual(["Agent Browser session was not closed: close failed"]);
   });
 
   test("writes progress separately from the final result", async () => {
@@ -145,7 +72,7 @@ describe("walletable sync command", () => {
       ...dependencies(),
       writeProgress: (message: string) => messages.push(message),
       sync: async (
-        _client: FreeeWebClient,
+        _web: WalletableSyncWeb,
         _scope: { kind: "all" } | { kind: "one"; walletableId: number },
         onProgress: (event: WalletableSyncProgress) => void,
       ) => {
@@ -173,7 +100,7 @@ describe("walletable sync command", () => {
       ...dependencies(),
       writeProgress: (message: string) => messages.push(message),
       sync: async (
-        _client: FreeeWebClient,
+        _web: WalletableSyncWeb,
         _scope: { kind: "all" } | { kind: "one"; walletableId: number },
         onProgress: (event: WalletableSyncProgress) => void,
       ) => {
@@ -192,12 +119,12 @@ describe("walletable sync command", () => {
     const deps = {
       ...dependencies(),
       sync: async (
-        _client: FreeeWebClient,
-        scope: { kind: "all" } | { kind: "one"; walletableId: number },
+        _web: WalletableSyncWeb,
+        requestedSync: { kind: "all" } | { kind: "one"; walletableId: number },
         _onProgress: (event: WalletableSyncProgress) => void,
         dryRun: boolean,
       ) => {
-        expect(scope).toEqual({ kind: "all" });
+        expect(requestedSync).toEqual({ kind: "all" });
         receivedDryRun = dryRun;
         return { dryRun: true as const, walletables: [] };
       },
@@ -223,26 +150,5 @@ describe("walletable sync command", () => {
     await expect(
       runWalletableSyncCommand({ profile: "business", id: "0" }, dependencies()),
     ).rejects.toThrow("positive integer");
-  });
-
-  test("fails before creating a browser session when the profile has not opted in", async () => {
-    let created = false;
-    const deps = {
-      ...dependencies({ web: false }),
-      createClient: () => {
-        created = true;
-        return client;
-      },
-    };
-
-    const error = await runWalletableSyncCommand({ profile: "business", all: true }, deps).catch(
-      (caught: unknown) => caught,
-    );
-    expect(error).toBeInstanceOf(ConfigError);
-    expect(error).toMatchObject({
-      exitCode: 3,
-      hint: expect.stringContaining('Run "freee setup"'),
-    });
-    expect(created).toBe(false);
   });
 });

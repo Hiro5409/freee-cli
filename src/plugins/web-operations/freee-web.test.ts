@@ -5,11 +5,11 @@ import { OutcomeUnknownError } from "../../errors.ts";
 import {
   type FreeeWebRegistration,
   type FreeeWebWalletTransaction,
-  withFreeeBrowser,
-} from "./bookkeeping-browser.ts";
+  withFreeeWeb,
+} from "./freee-web.ts";
 
 const companyId = 2_021_254;
-const browserScope = { companyId, authProfile: "test-freee" } as const;
+const webScope = { companyId, authProfile: "test-freee" } as const;
 const origin = "https://secure.freee.co.jp";
 const invoiceOrigin = "https://invoice.secure.freee.co.jp";
 const encryptionKey = "a".repeat(64);
@@ -140,6 +140,7 @@ const walletTransaction: FreeeWebWalletTransaction = {
   spentAmount: 1_000,
   status: 1,
   statusName: "未処理",
+  recoveryLocked: false,
   updatedAt: "2026-08-24T00:00:00+09:00",
   walletableId: 7,
   walletableName: "銀行",
@@ -156,8 +157,8 @@ const registration: FreeeWebRegistration = {
   walletTransaction,
   lines: [
     {
-      accountItem: "消耗品費",
-      taxCode: "課対仕入10%",
+      accountItemName: "消耗品費",
+      taxName: "課対仕入10%",
       amount: 1_000,
       description: "secret description",
     },
@@ -165,11 +166,11 @@ const registration: FreeeWebRegistration = {
 };
 
 describe("Agent Browserのfreeeセッション", () => {
-  test("暗号鍵がなければbrowser stateを復元しない", async () => {
+  test("暗号鍵がなければweb stateを復元しない", async () => {
     delete Bun.env.AGENT_BROWSER_ENCRYPTION_KEY;
     delete Bun.env.HOME;
     delete Bun.env.USERPROFILE;
-    await expect(withFreeeBrowser(browserScope, async () => undefined)).rejects.toThrow(
+    await expect(withFreeeWeb(webScope, async () => undefined)).rejects.toThrow(
       "AGENT_BROWSER_ENCRYPTION_KEY",
     );
   });
@@ -183,7 +184,7 @@ describe("Agent Browserのfreeeセッション", () => {
     ]);
     try {
       const result = expect(
-        withFreeeBrowser({ companyId, authProfile: "business-freee" }, async () => undefined),
+        withFreeeWeb({ companyId, authProfile: "business-freee" }, async () => undefined),
       ).rejects;
       await result.toThrow(
         `agent-browser --namespace freee-web --session ${expectedSessionId("fb", companyId, "business-freee")} --restore --headed open "https://secure.freee.co.jp/"`,
@@ -223,29 +224,85 @@ describe("Agent Browserのfreeeセッション", () => {
       webResponse(previewResponse()),
       webResponse(registrationResult),
       webResponse("", 204),
+      webResponse("", 204),
+      webResponse({
+        info: { matchCount: 2, tooManyUnreconciledWalletTxns: false },
+      }),
       webResponse({ wallet_txn_ids: [42, 43] }),
+      webResponse({
+        walletables: [
+          {
+            walletable_id: 7,
+            name: "銀行",
+            walletable_type: "bank_account",
+            walletable_status: "synced",
+            last_synced_at: "2026-08-24T01:00:00.000Z",
+            connected_service_id: 70,
+            is_sync_frequency_limited: false,
+            sync_failed_reason: null,
+          },
+        ],
+        summary: { has_syncing: false, available_sync_all: true, ready_to_sync_all: true },
+      }),
+      webResponse({}),
+      webResponse({
+        walletable_status: "synced",
+        last_synced_at: "2026-08-24T01:10:00.000Z",
+        sync_failed_reason: null,
+      }),
+      webResponse({}),
       null,
     ]);
 
     try {
-      await withFreeeBrowser(browserScope, async (browser) => {
-        await browser.walletTransaction(42);
-        await browser.previewWalletTxnRegistration(registration);
-        await browser.registerWalletTransaction(registration);
-        await browser.previewWalletTxnSettlement({ walletTransaction, dealId: 91, amount: 1_000 });
-        await browser.settleWalletTransaction({ walletTransaction, dealId: 91, amount: 1_000 });
-        await browser.previewWalletTxnTransfer({
+      await withFreeeWeb(webScope, async (web) => {
+        await web.walletTransaction(42);
+        await web.previewWalletTransactionRegistration(registration);
+        await web.registerWalletTransaction(registration);
+        await web.previewWalletTransactionSettlement({
+          walletTransaction,
+          dealId: 91,
+          amount: 1_000,
+        });
+        await web.settleWalletTransaction({ walletTransaction, dealId: 91, amount: 1_000 });
+        await web.previewWalletTransactionTransfer({
           walletTransaction,
           counterpartyWalletableName: "事業主借",
           description: "資金移動",
         });
-        await browser.registerWalletTxnTransfer({
+        await web.registerWalletTransactionTransfer({
           walletTransaction,
           counterpartyWalletableName: "事業主借",
           description: "資金移動",
         });
-        await browser.ignoreWalletTransaction(walletTransaction);
-        await browser.applyAutoRegistrationRules();
+        await web.ignoreWalletTransaction(walletTransaction);
+        await web.restoreIgnoredWalletTransaction(walletTransaction);
+        await web.autoRegistrationRuleMatchCount();
+        await web.applyAutoRegistrationRules();
+        await expect(web.walletableSummary()).resolves.toEqual({
+          walletables: [
+            {
+              id: 7,
+              name: "銀行",
+              type: "bank_account",
+              status: "synced",
+              lastSyncedAt: "2026-08-24T01:00:00.000Z",
+              connectedServiceId: 70,
+              isSyncFrequencyLimited: false,
+              syncFailedReason: null,
+            },
+          ],
+          hasSyncing: false,
+          canSyncAll: true,
+          readyToSyncAll: true,
+        });
+        await web.startWalletableSync("bank_account", 7);
+        await expect(web.walletableSyncState("bank_account", 7)).resolves.toEqual({
+          status: "synced",
+          lastSyncedAt: "2026-08-24T01:10:00.000Z",
+          syncFailedReason: null,
+        });
+        await web.startBulkWalletableSync();
       });
     } finally {
       spawn.mockRestore();
@@ -264,7 +321,13 @@ describe("Agent Browserのfreeeセッション", () => {
       { method: "POST", path: "/api/p/wallet_txns/42/previews/transfer" },
       { method: "PUT", path: "/api/p/wallet_txns/42/reconcile" },
       { method: "PUT", path: "/api/p/wallet_txns/42/ignore" },
+      { method: "PUT", path: "/api/p/wallet_txns/42/recover" },
+      { method: "GET", path: "/wallet_txns/match_count" },
       { method: "POST", path: "/wallet_txns/bulk_match" },
+      { method: "GET", path: "/api/p/v2/walletables/summary" },
+      { method: "PUT", path: "/api/p/v2/walletables/bank_account/7/sync" },
+      { method: "GET", path: "/api/p/v2/walletables/bank_account/7/sync_status" },
+      { method: "PUT", path: "/api/p/v2/walletables/sync_all" },
     ]);
     const registrationReconcile = {
       wallet_txn_id: 42,
@@ -351,6 +414,7 @@ describe("Agent Browserのfreeeセッション", () => {
       reconciled_from: "wallet_txns_index",
       suggest_log_v3: { id: 9 },
     });
+    expect(requestMatching(requests, "PUT", "/api/p/wallet_txns/42/recover").body).toBeUndefined();
     expect(requestMatching(requests, "POST", "/wallet_txns/bulk_match").body).toBeUndefined();
     for (const request of requests) {
       if (request.method === "GET") {
@@ -367,6 +431,21 @@ describe("Agent Browserのfreeeセッション", () => {
     expect(standardInputs.join("\n")).not.toContain("XMLHttpRequest");
   });
 
+  test("walletable summaryの観測schemaが崩れたら失敗する", async () => {
+    Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
+    const { spawn } = mockAgentBrowser([
+      null,
+      { result: JSON.stringify({ origin, companyId }) },
+      webResponse({ walletables: [{ walletable_id: 7, name: "銀行" }], summary: {} }),
+      null,
+    ]);
+    try {
+      await expect(withFreeeWeb(webScope, (web) => web.walletableSummary())).rejects.toThrow();
+    } finally {
+      spawn.mockRestore();
+    }
+  });
+
   test("呼び出し側から渡された取引の事業所がscopeと異なる場合は送信しない", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
     const otherCompanyTransaction = { ...walletTransaction, companyId: companyId + 1 };
@@ -380,35 +459,36 @@ describe("Agent Browserのfreeeセッション", () => {
       null,
     ]);
     try {
-      await withFreeeBrowser(browserScope, async (browser) => {
+      await withFreeeWeb(webScope, async (web) => {
         const operations = [
-          () => browser.previewWalletTxnRegistration(otherCompanyRegistration),
-          () => browser.registerWalletTransaction(otherCompanyRegistration),
+          () => web.previewWalletTransactionRegistration(otherCompanyRegistration),
+          () => web.registerWalletTransaction(otherCompanyRegistration),
           () =>
-            browser.previewWalletTxnSettlement({
+            web.previewWalletTransactionSettlement({
               walletTransaction: otherCompanyTransaction,
               dealId: 91,
               amount: 1_000,
             }),
           () =>
-            browser.settleWalletTransaction({
+            web.settleWalletTransaction({
               walletTransaction: otherCompanyTransaction,
               dealId: 91,
               amount: 1_000,
             }),
           () =>
-            browser.previewWalletTxnTransfer({
+            web.previewWalletTransactionTransfer({
               walletTransaction: otherCompanyTransaction,
               counterpartyWalletableName: "事業主借",
               description: "資金移動",
             }),
           () =>
-            browser.registerWalletTxnTransfer({
+            web.registerWalletTransactionTransfer({
               walletTransaction: otherCompanyTransaction,
               counterpartyWalletableName: "事業主借",
               description: "資金移動",
             }),
-          () => browser.ignoreWalletTransaction(otherCompanyTransaction),
+          () => web.ignoreWalletTransaction(otherCompanyTransaction),
+          () => web.restoreIgnoredWalletTransaction(otherCompanyTransaction),
         ];
         for (const operation of operations) {
           await expect(operation()).rejects.toThrow(`事業所${companyId}`);
@@ -421,6 +501,30 @@ describe("Agent Browserのfreeeセッション", () => {
     expect(
       standardInputs.filter((script) => script.includes("const response = await fetch")),
     ).toHaveLength(0);
+  });
+
+  test("請求書のdry-runはexactな取引登録ボタンの存在を確認する", async () => {
+    Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
+    const { commands, spawn } = mockAgentBrowser([
+      null,
+      { result: JSON.stringify({ origin, companyId }) },
+      null,
+      { result: JSON.stringify({ origin: invoiceOrigin }) },
+      { result: JSON.stringify({ origin: invoiceOrigin, companyId }) },
+      { text: "取引登録" },
+      null,
+    ]);
+    try {
+      await withFreeeWeb(webScope, (web) => web.inspectInvoiceDealRegistration(77));
+    } finally {
+      spawn.mockRestore();
+    }
+
+    expect(commands).toContainEqual(
+      expect.arrayContaining(["find", "role", "button", "text", "--name", "取引登録", "--exact"]),
+    );
+    expect(commands.some((command) => command.includes("click"))).toBe(false);
+    expect(commands.at(-1)?.at(-1)).toBe("close");
   });
 
   test("請求書はexactな取引登録ボタンを押して保存完了を待つ", async () => {
@@ -439,7 +543,7 @@ describe("Agent Browserのfreeeセッション", () => {
       null,
     ]);
     try {
-      await withFreeeBrowser(browserScope, (browser) => browser.postInvoiceDeal(77));
+      await withFreeeWeb(webScope, (web) => web.registerInvoiceDeal(77));
     } finally {
       spawn.mockRestore();
     }
@@ -487,7 +591,7 @@ describe("Agent Browserのfreeeセッション", () => {
     ]);
     try {
       await expect(
-        withFreeeBrowser(browserScope, (browser) => browser.postInvoiceDeal(77)),
+        withFreeeWeb(webScope, (web) => web.registerInvoiceDeal(77)),
       ).rejects.toBeInstanceOf(OutcomeUnknownError);
     } finally {
       spawn.mockRestore();
@@ -512,7 +616,7 @@ describe("Agent Browserのfreeeセッション", () => {
     ]);
     try {
       await expect(
-        withFreeeBrowser(browserScope, (browser) => browser.postInvoiceDeal(77)),
+        withFreeeWeb(webScope, (web) => web.registerInvoiceDeal(77)),
       ).resolves.toBeUndefined();
     } finally {
       spawn.mockRestore();
@@ -535,7 +639,7 @@ describe("Agent Browserのfreeeセッション", () => {
       null,
     ]);
     try {
-      const result = withFreeeBrowser(browserScope, (browser) => browser.postInvoiceDeal(77));
+      const result = withFreeeWeb(webScope, (web) => web.registerInvoiceDeal(77));
       await expect(result).rejects.toBeInstanceOf(OutcomeUnknownError);
       await expect(result).rejects.toMatchObject({ code: "OUTCOME_UNKNOWN" });
     } finally {
@@ -576,9 +680,9 @@ describe("Agent Browserのfreeeセッション", () => {
     ]);
     try {
       await expect(
-        withFreeeBrowser(browserScope, async (browser) => {
-          await browser.postInvoiceDeal(77);
-          return browser.walletTransaction(42);
+        withFreeeWeb(webScope, async (web) => {
+          await web.registerInvoiceDeal(77);
+          return web.walletTransaction(42);
         }),
       ).resolves.toMatchObject({ id: 42, companyId });
     } finally {
@@ -601,9 +705,7 @@ describe("Agent Browserのfreeeセッション", () => {
       null,
     ]);
     try {
-      const result = withFreeeBrowser(browserScope, (browser) =>
-        browser.registerWalletTransaction(registration),
-      );
+      const result = withFreeeWeb(webScope, (web) => web.registerWalletTransaction(registration));
       await expect(result).rejects.toBeInstanceOf(OutcomeUnknownError);
       await expect(result).rejects.toMatchObject({ code: "OUTCOME_UNKNOWN" });
     } finally {
@@ -622,13 +724,11 @@ describe("Agent Browserのfreeeセッション", () => {
       null,
     ]);
     try {
-      await withFreeeBrowser(browserScope, async (browser) => {
-        await expect(browser.ignoreWalletTransaction(walletTransaction)).rejects.toBeInstanceOf(
+      await withFreeeWeb(webScope, async (web) => {
+        await expect(web.ignoreWalletTransaction(walletTransaction)).rejects.toBeInstanceOf(
           OutcomeUnknownError,
         );
-        await expect(browser.ignoreWalletTransaction(walletTransaction)).rejects.toThrow(
-          "HTTP 400",
-        );
+        await expect(web.ignoreWalletTransaction(walletTransaction)).rejects.toThrow("HTTP 400");
       });
     } finally {
       spawn.mockRestore();
@@ -644,8 +744,8 @@ describe("Agent Browserのfreeeセッション", () => {
       null,
     ]);
     try {
-      const result = withFreeeBrowser(browserScope, (browser) =>
-        browser.ignoreWalletTransaction(walletTransaction),
+      const result = withFreeeWeb(webScope, (web) =>
+        web.ignoreWalletTransaction(walletTransaction),
       );
       await expect(result).rejects.toBeInstanceOf(OutcomeUnknownError);
       await expect(result).rejects.toMatchObject({ code: "OUTCOME_UNKNOWN" });
@@ -664,9 +764,7 @@ describe("Agent Browserのfreeeセッション", () => {
     ]);
     try {
       await expect(
-        withFreeeBrowser(browserScope, (browser) =>
-          browser.registerWalletTransaction(registration),
-        ),
+        withFreeeWeb(webScope, (web) => web.registerWalletTransaction(registration)),
       ).resolves.toEqual({ walletTransactionId: 42 });
     } finally {
       spawn.mockRestore();
@@ -684,8 +782,8 @@ describe("Agent Browserのfreeeセッション", () => {
       null,
     ]);
     try {
-      await expect(withFreeeBrowser(browserScope, async () => "first")).resolves.toBe("first");
-      await expect(withFreeeBrowser(browserScope, async () => "second")).resolves.toBe("second");
+      await expect(withFreeeWeb(webScope, async () => "first")).resolves.toBe("first");
+      await expect(withFreeeWeb(webScope, async () => "second")).resolves.toBe("second");
     } finally {
       spawn.mockRestore();
     }

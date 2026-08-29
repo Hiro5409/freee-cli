@@ -1,40 +1,14 @@
-import * as v from "valibot";
-
 import { OutcomeUnknownError } from "../../errors.ts";
-import type { FreeeWebClient } from "./freee-web-client.ts";
+import type {
+  FreeeWebOperations,
+  FreeeWebWalletable,
+  FreeeWebWalletableType,
+} from "./freee-web.ts";
 
-const PositiveIntegerSchema = v.pipe(v.number(), v.integer(), v.minValue(1));
-const NonEmptyStringSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
-const TimestampSchema = v.pipe(v.string(), v.isoTimestamp());
-const WalletableTypeSchema = v.picklist(["bank_account", "credit_card", "wallet"]);
-
-const WalletableSyncStateSchema = v.object({
-  walletable_status: NonEmptyStringSchema,
-  last_synced_at: v.nullable(TimestampSchema),
-  sync_failed_reason: v.nullable(NonEmptyStringSchema),
-});
-
-const WalletableSummaryItemSchema = v.object({
-  walletable_id: PositiveIntegerSchema,
-  name: NonEmptyStringSchema,
-  walletable_type: WalletableTypeSchema,
-  walletable_status: NonEmptyStringSchema,
-  last_synced_at: v.nullable(TimestampSchema),
-  connected_service_id: v.nullable(PositiveIntegerSchema),
-  is_sync_frequency_limited: v.nullable(v.boolean()),
-  sync_failed_reason: v.nullable(NonEmptyStringSchema),
-});
-
-const WalletableSummarySchema = v.object({
-  walletables: v.array(WalletableSummaryItemSchema),
-  summary: v.object({
-    has_syncing: v.boolean(),
-    available_sync_all: v.boolean(),
-    ready_to_sync_all: v.boolean(),
-  }),
-});
-
-const SyncStartedSchema = v.object({});
+export type WalletableSyncWeb = Pick<
+  FreeeWebOperations,
+  "walletableSummary" | "startWalletableSync" | "walletableSyncState" | "startBulkWalletableSync"
+>;
 
 export type WalletableSyncScope = { kind: "all" } | { kind: "one"; walletableId: number };
 
@@ -44,7 +18,7 @@ export type WalletableSyncProgress =
       kind: "walletable";
       walletableId: number;
       walletableName: string;
-      walletableType: v.InferOutput<typeof WalletableTypeSchema>;
+      walletableType: FreeeWebWalletableType;
       status: "started" | "syncing" | "synced";
     };
 
@@ -53,7 +27,7 @@ export type WalletableSyncResult =
       walletables: Array<{
         walletableId: number;
         walletableName: string;
-        walletableType: v.InferOutput<typeof WalletableTypeSchema>;
+        walletableType: FreeeWebWalletableType;
         status: "synced";
         lastSyncedAt: string;
       }>;
@@ -63,9 +37,12 @@ export type WalletableSyncResult =
       walletables: Array<{
         walletableId: number;
         walletableName: string;
-        walletableType: v.InferOutput<typeof WalletableTypeSchema>;
+        walletableType: FreeeWebWalletableType;
         status: "would-request";
       }>;
+    }
+  | {
+      dryRun: true;
     };
 
 type Polling = {
@@ -109,7 +86,7 @@ async function observeAfterStart<T>(operation: () => Promise<T>): Promise<T> {
 }
 
 export function createWalletableSync(input: {
-  client: FreeeWebClient;
+  web: WalletableSyncWeb;
   dryRun?: boolean;
   polling?: Polling;
   onProgress?: (progress: WalletableSyncProgress) => void;
@@ -119,29 +96,26 @@ export function createWalletableSync(input: {
   return async (scope) => {
     const reportedStatuses = new Map<number, "started" | "syncing" | "synced">();
     const reportWalletable = (
-      walletable: v.InferOutput<typeof WalletableSummaryItemSchema>,
+      walletable: FreeeWebWalletable,
       status: "started" | "syncing" | "synced",
     ) => {
-      if (reportedStatuses.get(walletable.walletable_id) === status) return;
-      reportedStatuses.set(walletable.walletable_id, status);
+      if (reportedStatuses.get(walletable.id) === status) return;
+      reportedStatuses.set(walletable.id, status);
       input.onProgress?.({
         kind: "walletable",
-        walletableId: walletable.walletable_id,
+        walletableId: walletable.id,
         walletableName: walletable.name,
-        walletableType: walletable.walletable_type,
+        walletableType: walletable.type,
         status,
       });
     };
-    const initial = await input.client.request(
-      { method: "GET", path: "/api/p/v2/walletables/summary" },
-      WalletableSummarySchema,
-    );
+    const initial = await input.web.walletableSummary();
     const deadline = polling.now() + polling.timeoutMs;
 
     if (scope.kind === "one") {
-      const target = initial.walletables.find(({ walletable_id: id }) => id === scope.walletableId);
+      const target = initial.walletables.find(({ id }) => id === scope.walletableId);
       if (!target) throw new Error(`Walletable ${scope.walletableId} was not found in freee.`);
-      if (target.connected_service_id === null) {
+      if (target.connectedServiceId === null) {
         throw new Error(`${target.name} is not connected to a sync service.`);
       }
       if (input.dryRun) {
@@ -149,65 +123,51 @@ export function createWalletableSync(input: {
           dryRun: true,
           walletables: [
             {
-              walletableId: target.walletable_id,
+              walletableId: target.id,
               walletableName: target.name,
-              walletableType: target.walletable_type,
+              walletableType: target.type,
               status: "would-request",
             },
           ],
         };
       }
 
-      await input.client.request(
-        {
-          method: "PUT",
-          path: `/api/p/v2/walletables/${target.walletable_type}/${target.walletable_id}/sync`,
-        },
-        SyncStartedSchema,
-      );
+      await input.web.startWalletableSync(target.type, target.id);
       reportWalletable(target, "started");
 
       let participating = false;
       while (true) {
         const current = await observeAfterStart(() =>
-          input.client.request(
-            {
-              method: "GET",
-              path: `/api/p/v2/walletables/${target.walletable_type}/${target.walletable_id}/sync_status`,
-            },
-            WalletableSyncStateSchema,
-          ),
+          input.web.walletableSyncState(target.type, target.id),
         );
         if (
-          current.walletable_status === "synced" &&
-          completedAfter(target.last_synced_at, current.last_synced_at)
+          current.status === "synced" &&
+          completedAfter(target.lastSyncedAt, current.lastSyncedAt)
         ) {
           reportWalletable(target, "synced");
           return {
             walletables: [
               {
-                walletableId: target.walletable_id,
+                walletableId: target.id,
                 walletableName: target.name,
-                walletableType: target.walletable_type,
+                walletableType: target.type,
                 status: "synced",
-                lastSyncedAt: current.last_synced_at,
+                lastSyncedAt: current.lastSyncedAt,
               },
             ],
           };
         }
         const wasParticipating = participating;
-        if (current.walletable_status === "syncing") {
+        if (current.status === "syncing") {
           participating = true;
           reportWalletable(target, "syncing");
         }
-        const reason = current.sync_failed_reason;
-        const newlyFailed = reason !== null && reason !== target.sync_failed_reason;
+        const reason = current.syncFailedReason;
+        const newlyFailed = reason !== null && reason !== target.syncFailedReason;
         if (
           reason &&
           (newlyFailed ||
-            (wasParticipating &&
-              current.walletable_status !== "syncing" &&
-              current.walletable_status !== "synced"))
+            (wasParticipating && current.status !== "syncing" && current.status !== "synced"))
         ) {
           throw failure(target.name, reason);
         }
@@ -216,92 +176,72 @@ export function createWalletableSync(input: {
       }
     }
 
-    if (!initial.summary.available_sync_all) {
+    if (!initial.canSyncAll) {
       throw new Error("freee does not currently allow syncing all walletables.");
     }
-    if (!initial.summary.ready_to_sync_all) {
+    if (!initial.readyToSyncAll) {
       throw new Error("freee is not ready to start syncing all walletables.");
+    }
+    if (input.dryRun) {
+      return { dryRun: true };
     }
     const targets = initial.walletables.filter(
       (walletable) =>
-        walletable.connected_service_id !== null && walletable.is_sync_frequency_limited !== true,
+        walletable.connectedServiceId !== null && walletable.isSyncFrequencyLimited !== true,
     );
     if (targets.length === 0) throw new Error("No connected walletables can be synced.");
-    if (input.dryRun) {
-      return {
-        dryRun: true,
-        walletables: targets.map((target) => ({
-          walletableId: target.walletable_id,
-          walletableName: target.name,
-          walletableType: target.walletable_type,
-          status: "would-request" as const,
-        })),
-      };
-    }
 
-    await input.client.request(
-      { method: "PUT", path: "/api/p/v2/walletables/sync_all" },
-      SyncStartedSchema,
-    );
+    await input.web.startBulkWalletableSync();
     input.onProgress?.({ kind: "bulk", status: "started" });
 
     const participatingIds = new Set<number>();
     while (true) {
-      const current = await observeAfterStart(() =>
-        input.client.request(
-          { method: "GET", path: "/api/p/v2/walletables/summary" },
-          WalletableSummarySchema,
-        ),
-      );
-      const states = new Map(
-        current.walletables.map((walletable) => [walletable.walletable_id, walletable]),
-      );
+      const current = await observeAfterStart(() => input.web.walletableSummary());
+      const states = new Map(current.walletables.map((walletable) => [walletable.id, walletable]));
       for (const target of targets) {
-        const state = states.get(target.walletable_id);
-        const reason = state?.sync_failed_reason;
-        const wasParticipating = participatingIds.has(target.walletable_id);
+        const state = states.get(target.id);
+        const reason = state?.syncFailedReason;
+        const wasParticipating = participatingIds.has(target.id);
         const newlyFailed =
-          reason !== null && reason !== undefined && reason !== target.sync_failed_reason;
-        const completed = completedAfter(target.last_synced_at, state?.last_synced_at ?? null);
-        if (state?.walletable_status === "syncing" || completed || newlyFailed) {
-          participatingIds.add(target.walletable_id);
+          reason !== null && reason !== undefined && reason !== target.syncFailedReason;
+        const completed = completedAfter(target.lastSyncedAt, state?.lastSyncedAt ?? null);
+        if (state?.status === "syncing" || completed || newlyFailed) {
+          participatingIds.add(target.id);
         }
-        if (state?.walletable_status === "syncing") reportWalletable(target, "syncing");
-        if (state?.walletable_status === "synced" && completed) {
+        if (state?.status === "syncing") reportWalletable(target, "syncing");
+        if (state?.status === "synced" && completed) {
           reportWalletable(target, "synced");
         }
         if (
           reason &&
           (newlyFailed ||
-            (wasParticipating &&
-              state.walletable_status !== "syncing" &&
-              state.walletable_status !== "synced"))
+            (wasParticipating && state.status !== "syncing" && state.status !== "synced"))
         ) {
           throw failure(target.name, reason);
         }
       }
 
       const completed = targets.flatMap((target) => {
-        if (!participatingIds.has(target.walletable_id)) return [];
-        const state = states.get(target.walletable_id);
+        if (!participatingIds.has(target.id)) return [];
+        const state = states.get(target.id);
         if (
-          state?.walletable_status !== "synced" ||
-          !completedAfter(target.last_synced_at, state.last_synced_at)
+          state?.status !== "synced" ||
+          !completedAfter(target.lastSyncedAt, state.lastSyncedAt)
         ) {
           return [];
         }
         return [
           {
-            walletableId: target.walletable_id,
+            walletableId: target.id,
             walletableName: target.name,
-            walletableType: target.walletable_type,
+            walletableType: target.type,
             status: "synced" as const,
-            lastSyncedAt: state.last_synced_at,
+            lastSyncedAt: state.lastSyncedAt,
           },
         ];
       });
       if (
-        !current.summary.has_syncing &&
+        !current.hasSyncing &&
         participatingIds.size > 0 &&
         completed.length === participatingIds.size
       ) {
@@ -312,10 +252,8 @@ export function createWalletableSync(input: {
         const expected =
           participatingIds.size === 0
             ? targets
-            : targets.filter(({ walletable_id: id }) => participatingIds.has(id));
-        throw timeout(
-          expected.filter(({ walletable_id: id }) => !completedIds.has(id)).map(({ name }) => name),
-        );
+            : targets.filter(({ id }) => participatingIds.has(id));
+        throw timeout(expected.filter(({ id }) => !completedIds.has(id)).map(({ name }) => name));
       }
       await observeAfterStart(() => polling.sleep(polling.pollIntervalMs));
     }

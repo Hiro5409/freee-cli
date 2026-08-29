@@ -123,26 +123,45 @@ Before the first Web operation, set `AGENT_BROWSER_ENCRYPTION_KEY` to 64 hexadec
 
 ```bash
 freee walletable-list
-freee web walletable-sync --all --dry-run
-freee web walletable-sync --id 42
-freee web walletable-sync --all
+freee wallet-txn-list --status unreconciled
+freee web wallet-txn apply-rules --dry-run --format json
+freee web wallet-txn apply-rules
+freee web wallet-txn ignore --id 42 --dry-run --format json
+freee web wallet-txn ignore --id 42
+freee web wallet-txn register --id 42 --account-item-name "通信費" --tax-name "課対仕入10%" --dry-run --format json
+freee web wallet-txn register --id 42 --account-item-name "通信費" --tax-name "課対仕入10%"
+freee web wallet-txn settle --id 42 --deal-id 91 --amount 10000 --dry-run --format json
+freee web wallet-txn settle --id 42 --deal-id 91 --amount 10000
+freee web wallet-txn transfer --id 42 --counterparty-walletable-name "事業主借" --dry-run --format json
+freee web wallet-txn transfer --id 42 --counterparty-walletable-name "事業主借"
+freee wallet-txn-list --status ignored
+freee web wallet-txn restore --id 42 --dry-run --format json
+freee web wallet-txn restore --id 42
+freee invoice-list --deal-status unregistered --cancel-status uncanceled
+freee web invoice register-deal --id 456 --dry-run --format json
+freee web invoice register-deal --id 456
+freee web walletable sync --all --dry-run
+freee web walletable sync --id 42
+freee web walletable sync --all
 ```
 
-Use `freee walletable-list` to obtain the walletable ID from the official API. The Web command starts synchronization and waits for completion for up to one hour. Table output reports state changes to stderr; JSON output suppresses that progress so stdout remains machine-readable.
+These commands are temporary bridges for capabilities missing from freee's official APIs. See the [Web operations module](src/plugins/web-operations/README.md) for why each command exists and the condition for replacing it with a stable command.
 
-`--dry-run` lists the walletables that freee-cli would include in the request without starting synchronization. It does not guarantee that freee will accept or complete the request.
+Use `freee walletable-list` to obtain the walletable ID from the official API. The `freee web walletable sync` command starts synchronization and waits for completion for up to one hour. Table output reports state changes to stderr; JSON output suppresses that progress so stdout remains machine-readable.
+
+With `--id`, `--dry-run` shows the exact walletable without starting synchronization. With `--all`, it confirms only that freee currently allows the bulk request; freee selects the participating walletables after execution.
 
 With `--all`, freee selects the eligible walletables that participate. The result includes only walletables whose synchronization started and completed; use `--id` when a candidate was not selected.
 
 These commands use observed, unsupported freee Web interfaces. They fail when an observed response no longer matches the expected shape and are excluded from the stability expectations of commands generated from official OpenAPI schemas.
 
-Bun applications can use the experimental bookkeeping and invoice-registration adapter directly:
+Bun applications can use the experimental freee Web operations directly:
 
 ```ts
-import { withFreeeBrowser } from "freee-cli/experimental/web";
+import { withFreeeWeb } from "freee-cli/experimental/web";
 ```
 
-The caller owns operation sequencing and supplies the company ID and Auth Profile. Preview methods do not write; registration, settlement, transfer, ignore, invoice-registration, and auto-rule methods write immediately and have no generic dry-run. If an `OutcomeUnknownError` is returned, inspect the affected resource in freee before retrying because the write may already have completed.
+The caller owns operation sequencing and supplies the company ID and Auth Profile. Preview methods do not write; registration, settlement, transfer, ignore, restore, invoice-registration, and auto-rule methods write immediately and have no generic dry-run. If an `OutcomeUnknownError` is returned, inspect the affected resource in freee before retrying because the write may already have completed.
 
 ## Calling from Agents
 

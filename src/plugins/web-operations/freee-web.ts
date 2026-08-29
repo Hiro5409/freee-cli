@@ -45,6 +45,7 @@ const WalletTransactionSchema = v.object({
   ),
   status: v.number(),
   status_str: v.string(),
+  wallet_txn_recover_lock: v.optional(v.boolean()),
   suggestion: v.optional(v.unknown()),
   suggest_event: v.optional(v.unknown()),
   suggest_log_v3: v.optional(v.unknown()),
@@ -97,6 +98,38 @@ const RegistrationResultSchema = v.object({
 const AutoRuleResultSchema = v.object({
   wallet_txn_ids: v.array(PositiveIntegerSchema),
 });
+const AutoRuleMatchCountSchema = v.object({
+  info: v.object({
+    matchCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    tooManyUnreconciledWalletTxns: v.boolean(),
+  }),
+});
+const TimestampSchema = v.pipe(v.string(), v.isoTimestamp());
+const WalletableTypeSchema = v.picklist(["bank_account", "credit_card", "wallet"]);
+const WalletableSyncStateSchema = v.object({
+  walletable_status: NonEmptyStringSchema,
+  last_synced_at: v.nullable(TimestampSchema),
+  sync_failed_reason: v.nullable(NonEmptyStringSchema),
+});
+const WalletableSummaryItemSchema = v.object({
+  walletable_id: PositiveIntegerSchema,
+  name: NonEmptyStringSchema,
+  walletable_type: WalletableTypeSchema,
+  walletable_status: NonEmptyStringSchema,
+  last_synced_at: v.nullable(TimestampSchema),
+  connected_service_id: v.nullable(PositiveIntegerSchema),
+  is_sync_frequency_limited: v.nullable(v.boolean()),
+  sync_failed_reason: v.nullable(NonEmptyStringSchema),
+});
+const WalletableSummarySchema = v.object({
+  walletables: v.array(WalletableSummaryItemSchema),
+  summary: v.object({
+    has_syncing: v.boolean(),
+    available_sync_all: v.boolean(),
+    ready_to_sync_all: v.boolean(),
+  }),
+});
+const WalletableSyncStartedSchema = v.object({});
 
 type FreeeWebResponse = v.InferOutput<typeof FreeeWebResponseSchema>;
 type FreeeWebRequest = (input: {
@@ -116,6 +149,7 @@ export type FreeeWebWalletTransaction = {
   spentAmount: number;
   status: number;
   statusName: string;
+  recoveryLocked: boolean;
   updatedAt: string;
   walletableId: number;
   walletableName: string;
@@ -128,17 +162,42 @@ export type FreeeWebWalletTransaction = {
   };
 };
 
+export type FreeeWebWalletableType = v.InferOutput<typeof WalletableTypeSchema>;
+
+export type FreeeWebWalletable = {
+  id: number;
+  name: string;
+  type: FreeeWebWalletableType;
+  status: string;
+  lastSyncedAt: string | null;
+  connectedServiceId: number | null;
+  isSyncFrequencyLimited: boolean | null;
+  syncFailedReason: string | null;
+};
+
+export type FreeeWebWalletableSummary = {
+  walletables: FreeeWebWalletable[];
+  hasSyncing: boolean;
+  canSyncAll: boolean;
+  readyToSyncAll: boolean;
+};
+
+export type FreeeWebWalletableSyncState = Pick<
+  FreeeWebWalletable,
+  "status" | "lastSyncedAt" | "syncFailedReason"
+>;
+
 export type FreeeWebJournalPreview = {
-  date: string | null;
+  date: string;
   rows: number;
   debits: Array<{
-    accountItem: string | null;
-    taxCode: string | null;
+    accountItemName: string | null;
+    taxName: string | null;
     amount: number;
   }>;
   credits: Array<{
-    accountItem: string | null;
-    taxCode: string | null;
+    accountItemName: string | null;
+    taxName: string | null;
     amount: number;
   }>;
 };
@@ -146,37 +205,22 @@ export type FreeeWebJournalPreview = {
 export type FreeeWebRegistration = {
   walletTransaction: FreeeWebWalletTransaction;
   lines: Array<{
-    accountItem: string;
-    taxCode: string;
+    accountItemName: string;
+    taxName: string;
     amount: number;
     description: string;
   }>;
 };
 
-export type FreeeWebRegistrationPreview = {
-  date: string;
-  rows: number;
-  debits: Array<{
-    accountItem: string | null;
-    taxCode: string | null;
-    amount: number;
-  }>;
-  credits: Array<{
-    accountItem: string | null;
-    taxCode: string | null;
-    amount: number;
-  }>;
-};
-
-export type FreeeBrowser = {
+export type FreeeWebOperations = {
   walletTransaction(id: number): Promise<FreeeWebWalletTransaction>;
-  previewWalletTxnRegistration(
+  previewWalletTransactionRegistration(
     registration: FreeeWebRegistration,
-  ): Promise<FreeeWebRegistrationPreview>;
+  ): Promise<FreeeWebJournalPreview>;
   registerWalletTransaction(
     registration: FreeeWebRegistration,
   ): Promise<{ walletTransactionId: number }>;
-  previewWalletTxnSettlement(input: {
+  previewWalletTransactionSettlement(input: {
     walletTransaction: FreeeWebWalletTransaction;
     dealId: number;
     amount: number;
@@ -186,12 +230,12 @@ export type FreeeBrowser = {
     dealId: number;
     amount: number;
   }): Promise<{ walletTransactionId: number }>;
-  previewWalletTxnTransfer(input: {
+  previewWalletTransactionTransfer(input: {
     walletTransaction: FreeeWebWalletTransaction;
     counterpartyWalletableName: string;
     description: string;
-  }): Promise<FreeeWebRegistrationPreview>;
-  registerWalletTxnTransfer(input: {
+  }): Promise<FreeeWebJournalPreview>;
+  registerWalletTransactionTransfer(input: {
     walletTransaction: FreeeWebWalletTransaction;
     counterpartyWalletableName: string;
     description: string;
@@ -199,11 +243,26 @@ export type FreeeBrowser = {
   ignoreWalletTransaction(
     walletTransaction: FreeeWebWalletTransaction,
   ): Promise<{ walletTransactionId: number }>;
-  postInvoiceDeal(invoiceId: number): Promise<void>;
+  restoreIgnoredWalletTransaction(
+    walletTransaction: FreeeWebWalletTransaction,
+  ): Promise<{ walletTransactionId: number }>;
+  inspectInvoiceDealRegistration(invoiceId: number): Promise<void>;
+  registerInvoiceDeal(invoiceId: number): Promise<void>;
+  autoRegistrationRuleMatchCount(): Promise<{
+    matchCount: number;
+    tooManyUnreconciledWalletTransactions: boolean;
+  }>;
   applyAutoRegistrationRules(): Promise<{ walletTransactionIds: number[] }>;
+  walletableSummary(): Promise<FreeeWebWalletableSummary>;
+  startWalletableSync(type: FreeeWebWalletableType, id: number): Promise<void>;
+  walletableSyncState(
+    type: FreeeWebWalletableType,
+    id: number,
+  ): Promise<FreeeWebWalletableSyncState>;
+  startBulkWalletableSync(): Promise<void>;
 };
 
-export type FreeeBrowserScope = {
+export type FreeeWebScope = {
   companyId: number;
   authProfile: string;
 };
@@ -439,8 +498,8 @@ function registrationPayload(registration: FreeeWebRegistration) {
       issue_date: walletTransaction.date,
       partner_name: "" as const,
       line_items: registration.lines.map((line) => ({
-        account_item_name: line.accountItem,
-        tax_name: line.taxCode,
+        account_item_name: line.accountItemName,
+        tax_name: line.taxName,
         item_name: null,
         section_name: null,
         default_tags: [] as [],
@@ -466,8 +525,8 @@ function journalPreview(
   value: v.InferOutput<typeof RegistrationPreviewSchema>,
 ): FreeeWebJournalPreview[] {
   const normalize = (line: v.InferOutput<typeof RegistrationPreviewLineSchema>) => ({
-    accountItem: line.account_item_name,
-    taxCode: line.tax_name,
+    accountItemName: line.account_item_name,
+    taxName: line.tax_name,
     amount: line.amount,
   });
   return value.models.map((model) => ({
@@ -476,6 +535,32 @@ function journalPreview(
     debits: model.debits.map(normalize),
     credits: model.credits.map(normalize),
   }));
+}
+
+function singleJournalPreview(
+  value: v.InferOutput<typeof RegistrationPreviewSchema>,
+  errorMessage: string,
+): FreeeWebJournalPreview {
+  const previews = journalPreview(value);
+  const [preview] = previews;
+  if (previews.length !== 1 || !preview) throw new Error(errorMessage);
+  return preview;
+}
+
+function reconcileWriteBody(
+  walletTransaction: FreeeWebWalletTransaction,
+  payload: Record<string, unknown>,
+) {
+  return {
+    ...payload,
+    suggestion: walletTransaction.suggestionContext.suggestion,
+    suggest_event: walletTransaction.suggestionContext.suggestEvent,
+    suggest_log_v3: walletTransaction.suggestionContext.suggestLogV3,
+    skip_saving_matcher: true,
+    reconciled_time: 0,
+    reconciled_from: "stream_detail",
+    from: "new_version",
+  };
 }
 
 function settlementPayload(input: {
@@ -514,12 +599,26 @@ function transferPayload(input: {
   };
 }
 
-function createFreeeBrowser(input: {
+function walletable(value: v.InferOutput<typeof WalletableSummaryItemSchema>): FreeeWebWalletable {
+  return {
+    id: value.walletable_id,
+    name: value.name,
+    type: value.walletable_type,
+    status: value.walletable_status,
+    lastSyncedAt: value.last_synced_at,
+    connectedServiceId: value.connected_service_id,
+    isSyncFrequencyLimited: value.is_sync_frequency_limited,
+    syncFailedReason: value.sync_failed_reason,
+  };
+}
+
+function createFreeeWebOperations(input: {
   companyId: number;
   authProfile: string;
   request: FreeeWebRequest;
-  postInvoiceDeal: (invoiceId: number) => Promise<void>;
-}): FreeeBrowser {
+  inspectInvoiceDealRegistration: (invoiceId: number) => Promise<void>;
+  registerInvoiceDeal: (invoiceId: number) => Promise<void>;
+}): FreeeWebOperations {
   const request = input.request;
   const parse = <TSchema extends v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>(
     schema: TSchema,
@@ -554,6 +653,7 @@ function createFreeeBrowser(input: {
         spentAmount: value.get_spent_amount,
         status: value.status,
         statusName: value.status_str,
+        recoveryLocked: value.wallet_txn_recover_lock ?? false,
         updatedAt: value.updated_at,
         walletableId: value.walletable_id,
         walletableName: value.walletable_name,
@@ -567,7 +667,7 @@ function createFreeeBrowser(input: {
       };
     },
 
-    async previewWalletTxnRegistration(registration) {
+    async previewWalletTransactionRegistration(registration) {
       assertWalletTransactionScope(registration.walletTransaction);
       const payload = registrationPayload(registration);
       const value = parse(
@@ -579,21 +679,7 @@ function createFreeeBrowser(input: {
           body: { ...payload, from: "new_version" },
         }),
       );
-      const model = value.models[0];
-      if (value.models.length !== 1 || !model) {
-        throw new Error("freeeの仕訳previewを一意に確認できません");
-      }
-      const normalize = (line: v.InferOutput<typeof RegistrationPreviewLineSchema>) => ({
-        accountItem: line.account_item_name,
-        taxCode: line.tax_name,
-        amount: line.amount,
-      });
-      return {
-        date: model.txn_date,
-        rows: model.rows,
-        debits: model.debits.map(normalize),
-        credits: model.credits.map(normalize),
-      };
+      return singleJournalPreview(value, "freeeの仕訳previewを一意に確認できません");
     },
 
     async registerWalletTransaction(registration) {
@@ -606,22 +692,13 @@ function createFreeeBrowser(input: {
           effect: "write",
           method: "PUT",
           path: `/api/p/wallet_txns/${walletTransaction.id}/reconcile`,
-          body: {
-            ...payload,
-            suggestion: walletTransaction.suggestionContext.suggestion,
-            suggest_event: walletTransaction.suggestionContext.suggestEvent,
-            suggest_log_v3: walletTransaction.suggestionContext.suggestLogV3,
-            skip_saving_matcher: true,
-            reconciled_time: 0,
-            reconciled_from: "stream_detail",
-            from: "new_version",
-          },
+          body: reconcileWriteBody(walletTransaction, payload),
         }),
       );
       return { walletTransactionId: value.wallet_txn.id };
     },
 
-    async previewWalletTxnSettlement(settlement) {
+    async previewWalletTransactionSettlement(settlement) {
       assertWalletTransactionScope(settlement.walletTransaction);
       const value = parse(
         RegistrationPreviewSchema,
@@ -644,22 +721,13 @@ function createFreeeBrowser(input: {
           effect: "write",
           method: "PUT",
           path: `/api/p/wallet_txns/${walletTransaction.id}/reconcile`,
-          body: {
-            ...settlementPayload(settlement),
-            suggestion: walletTransaction.suggestionContext.suggestion,
-            suggest_event: walletTransaction.suggestionContext.suggestEvent,
-            suggest_log_v3: walletTransaction.suggestionContext.suggestLogV3,
-            skip_saving_matcher: true,
-            reconciled_time: 0,
-            reconciled_from: "stream_detail",
-            from: "new_version",
-          },
+          body: reconcileWriteBody(walletTransaction, settlementPayload(settlement)),
         }),
       );
       return { walletTransactionId: value.wallet_txn.id };
     },
 
-    async previewWalletTxnTransfer(transfer) {
+    async previewWalletTransactionTransfer(transfer) {
       assertWalletTransactionScope(transfer.walletTransaction);
       const value = parse(
         RegistrationPreviewSchema,
@@ -670,14 +738,10 @@ function createFreeeBrowser(input: {
           body: { ...transferPayload(transfer), from: "new_version" },
         }),
       );
-      const [preview] = journalPreview(value);
-      if (value.models.length !== 1 || !preview) {
-        throw new Error("freeeの口座振替previewを一意に確認できません");
-      }
-      return { ...preview, date: preview.date ?? "" };
+      return singleJournalPreview(value, "freeeの口座振替previewを一意に確認できません");
     },
 
-    async registerWalletTxnTransfer(transfer) {
+    async registerWalletTransactionTransfer(transfer) {
       const walletTransaction = transfer.walletTransaction;
       assertWalletTransactionScope(walletTransaction);
       const value = parseWrite(
@@ -686,16 +750,7 @@ function createFreeeBrowser(input: {
           effect: "write",
           method: "PUT",
           path: `/api/p/wallet_txns/${walletTransaction.id}/reconcile`,
-          body: {
-            ...transferPayload(transfer),
-            suggestion: walletTransaction.suggestionContext.suggestion,
-            suggest_event: walletTransaction.suggestionContext.suggestEvent,
-            suggest_log_v3: walletTransaction.suggestionContext.suggestLogV3,
-            skip_saving_matcher: true,
-            reconciled_time: 0,
-            reconciled_from: "stream_detail",
-            from: "new_version",
-          },
+          body: reconcileWriteBody(walletTransaction, transferPayload(transfer)),
         }),
       );
       return { walletTransactionId: value.wallet_txn.id };
@@ -718,8 +773,30 @@ function createFreeeBrowser(input: {
       return { walletTransactionId: walletTransaction.id };
     },
 
-    async postInvoiceDeal(invoiceId) {
-      return input.postInvoiceDeal(invoiceId);
+    async restoreIgnoredWalletTransaction(walletTransaction) {
+      assertWalletTransactionScope(walletTransaction);
+      assertSuccessfulWrite(
+        await request({
+          effect: "write",
+          method: "PUT",
+          path: `/api/p/wallet_txns/${walletTransaction.id}/recover`,
+        }),
+      );
+      return { walletTransactionId: walletTransaction.id };
+    },
+
+    inspectInvoiceDealRegistration: input.inspectInvoiceDealRegistration,
+    registerInvoiceDeal: input.registerInvoiceDeal,
+
+    async autoRegistrationRuleMatchCount() {
+      const value = parse(
+        AutoRuleMatchCountSchema,
+        await request({ effect: "read", method: "GET", path: "/wallet_txns/match_count" }),
+      );
+      return {
+        matchCount: value.info.matchCount,
+        tooManyUnreconciledWalletTransactions: value.info.tooManyUnreconciledWalletTxns,
+      };
     },
 
     async applyAutoRegistrationRules() {
@@ -729,12 +806,63 @@ function createFreeeBrowser(input: {
       );
       return { walletTransactionIds: value.wallet_txn_ids };
     },
+
+    async walletableSummary() {
+      const value = parse(
+        WalletableSummarySchema,
+        await request({ effect: "read", method: "GET", path: "/api/p/v2/walletables/summary" }),
+      );
+      return {
+        walletables: value.walletables.map(walletable),
+        hasSyncing: value.summary.has_syncing,
+        canSyncAll: value.summary.available_sync_all,
+        readyToSyncAll: value.summary.ready_to_sync_all,
+      };
+    },
+
+    async startWalletableSync(type, id) {
+      parseWrite(
+        WalletableSyncStartedSchema,
+        await request({
+          effect: "write",
+          method: "PUT",
+          path: `/api/p/v2/walletables/${type}/${id}/sync`,
+        }),
+      );
+    },
+
+    async walletableSyncState(type, id) {
+      const value = parse(
+        WalletableSyncStateSchema,
+        await request({
+          effect: "read",
+          method: "GET",
+          path: `/api/p/v2/walletables/${type}/${id}/sync_status`,
+        }),
+      );
+      return {
+        status: value.walletable_status,
+        lastSyncedAt: value.last_synced_at,
+        syncFailedReason: value.sync_failed_reason,
+      };
+    },
+
+    async startBulkWalletableSync() {
+      parseWrite(
+        WalletableSyncStartedSchema,
+        await request({
+          effect: "write",
+          method: "PUT",
+          path: "/api/p/v2/walletables/sync_all",
+        }),
+      );
+    },
   };
 }
 
-export async function withFreeeBrowser<T>(
-  scope: FreeeBrowserScope,
-  run: (browser: FreeeBrowser) => Promise<T>,
+export async function withFreeeWeb<T>(
+  scope: FreeeWebScope,
+  run: (web: FreeeWebOperations) => Promise<T>,
 ): Promise<T> {
   const { companyId, authProfile } = scope;
   if (!Number.isInteger(companyId) || companyId < 1) {
@@ -766,9 +894,22 @@ export async function withFreeeBrowser<T>(
     await ensureFreeeSession(browserSession, companyId, authProfile);
     accountingSessionReady = true;
   };
-  const postInvoiceDeal = async (invoiceId: number) => {
+  const openInvoiceDealRegistration = async (invoiceId: number) => {
     await ensureInvoiceSession(browserSession, companyId, invoiceId, authProfile);
     accountingSessionReady = false;
+  };
+  const inspectInvoiceDealRegistration = async (invoiceId: number) => {
+    await openInvoiceDealRegistration(invoiceId);
+    try {
+      await browserSession.run(["find", "role", "button", "text", "--name", "取引登録", "--exact"]);
+    } catch (error) {
+      throw new Error(`freee Web does not offer Deal registration for invoice ${invoiceId}.`, {
+        cause: error,
+      });
+    }
+  };
+  const registerInvoiceDeal = async (invoiceId: number) => {
+    await openInvoiceDealRegistration(invoiceId);
     await browserSession.evaluate("performance.clearResourceTimings()");
     await browserSession.run(["network", "requests", "--clear"]);
     const saveUrl = `${FREEE_INVOICE_ORIGIN}/api/p/reports/invoices/${invoiceId}/accounting/deals`;
@@ -825,16 +966,17 @@ export async function withFreeeBrowser<T>(
       cause: interactionError,
     });
   };
-  const browser = createFreeeBrowser({
+  const web = createFreeeWebOperations({
     companyId,
     authProfile,
     request: async (input) => {
       await ensureAccountingSession();
       return runAgentBrowserRequest(browserSession, companyId, input);
     },
-    postInvoiceDeal,
+    inspectInvoiceDealRegistration,
+    registerInvoiceDeal,
   });
-  const outcome = await run(browser).then(
+  const outcome = await run(web).then(
     (value) => ({ success: true as const, value }),
     (error: unknown) => ({ success: false as const, error }),
   );

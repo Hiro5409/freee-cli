@@ -1,10 +1,12 @@
 import { describe, expect, test } from "bun:test";
 
-import * as v from "valibot";
-
 import { OutcomeUnknownError } from "../../errors.ts";
-import type { FreeeWebClient } from "./freee-web-client.ts";
-import { createWalletableSync, type WalletableSyncProgress } from "./walletable-sync.ts";
+import type { FreeeWebWalletableSummary, FreeeWebWalletableSyncState } from "./freee-web.ts";
+import {
+  createWalletableSync,
+  type WalletableSyncProgress,
+  type WalletableSyncWeb,
+} from "./walletable-sync.ts";
 
 function walletable(input: {
   id: number;
@@ -17,15 +19,15 @@ function walletable(input: {
   failure?: string | null;
 }) {
   return {
-    walletable_id: input.id,
+    id: input.id,
     name: input.name,
-    walletable_type: input.type,
-    walletable_status: input.status ?? "synced",
-    last_synced_at:
+    type: input.type,
+    status: input.status ?? "synced",
+    lastSyncedAt:
       input.lastSyncedAt === undefined ? "2026-08-24T01:00:00.000Z" : input.lastSyncedAt,
-    connected_service_id: input.connected === false ? null : input.id + 1000,
-    is_sync_frequency_limited: input.limited ?? false,
-    sync_failed_reason: input.failure ?? null,
+    connectedServiceId: input.connected === false ? null : input.id + 1000,
+    isSyncFrequencyLimited: input.limited ?? false,
+    syncFailedReason: input.failure ?? null,
   };
 }
 
@@ -35,29 +37,44 @@ function summary(
 ) {
   return {
     walletables,
-    summary: {
-      has_syncing: options.hasSyncing ?? false,
-      available_sync_all: options.available ?? true,
-      ready_to_sync_all: options.ready ?? true,
-    },
+    hasSyncing: options.hasSyncing ?? false,
+    canSyncAll: options.available ?? true,
+    readyToSyncAll: options.ready ?? true,
   };
 }
 
-function scriptedClient(values: unknown[]) {
-  const requests: Array<{ method: string; path: string }> = [];
-  const client: FreeeWebClient = {
-    close: async () => {},
-    async request(request, schema) {
-      requests.push(request);
-      const value = values.shift();
-      if (value === undefined) throw new Error("unexpected request");
-      if (value instanceof Error) throw value;
-      const parsed = v.safeParse(schema, value);
-      if (!parsed.success) throw new Error("fixture failed observed schema");
-      return parsed.output;
+function scriptedWeb(values: unknown[]) {
+  const requests: Array<
+    | { operation: "summary" }
+    | { operation: "start"; type: string; id: number }
+    | { operation: "state"; type: string; id: number }
+    | { operation: "start-bulk" }
+  > = [];
+  const next = (): unknown => {
+    const value = values.shift();
+    if (value === undefined) throw new Error("unexpected request");
+    if (value instanceof Error) throw value;
+    return value;
+  };
+  const web: WalletableSyncWeb = {
+    async walletableSummary() {
+      requests.push({ operation: "summary" });
+      return next() as FreeeWebWalletableSummary;
+    },
+    async startWalletableSync(type, id) {
+      requests.push({ operation: "start", type, id });
+      next();
+    },
+    async walletableSyncState(type, id) {
+      requests.push({ operation: "state", type, id });
+      return next() as FreeeWebWalletableSyncState;
+    },
+    async startBulkWalletableSync() {
+      requests.push({ operation: "start-bulk" });
+      next();
     },
   };
-  return { client, requests };
+  return { web, requests };
 }
 
 function immediatePolling() {
@@ -74,10 +91,10 @@ function immediatePolling() {
 
 describe("walletable sync", () => {
   test("previews one walletable request without claiming bulk eligibility", async () => {
-    const { client, requests } = scriptedClient([
+    const { web, requests } = scriptedWeb([
       summary([walletable({ id: 20, name: "Card", type: "credit_card", limited: true })]),
     ]);
-    const sync = createWalletableSync({ client, dryRun: true });
+    const sync = createWalletableSync({ web, dryRun: true });
 
     await expect(sync({ kind: "one", walletableId: 20 })).resolves.toEqual({
       dryRun: true,
@@ -90,56 +107,48 @@ describe("walletable sync", () => {
         },
       ],
     });
-    expect(requests).toEqual([{ method: "GET", path: "/api/p/v2/walletables/summary" }]);
+    expect(requests).toEqual([{ operation: "summary" }]);
   });
 
-  test("previews only eligible bulk walletables without starting synchronization", async () => {
-    const { client, requests } = scriptedClient([
+  test("previews bulk synchronization without inferring freee's participants", async () => {
+    const { web, requests } = scriptedWeb([
       summary([
         walletable({ id: 10, name: "Bank", type: "bank_account" }),
         walletable({ id: 20, name: "Disconnected", type: "credit_card", connected: false }),
         walletable({ id: 30, name: "Limited", type: "credit_card", limited: true }),
       ]),
     ]);
-    const sync = createWalletableSync({ client, dryRun: true });
+    const sync = createWalletableSync({ web, dryRun: true });
 
     await expect(sync({ kind: "all" })).resolves.toEqual({
       dryRun: true,
-      walletables: [
-        {
-          walletableId: 10,
-          walletableName: "Bank",
-          walletableType: "bank_account",
-          status: "would-request",
-        },
-      ],
     });
-    expect(requests).toEqual([{ method: "GET", path: "/api/p/v2/walletables/summary" }]);
+    expect(requests).toEqual([{ operation: "summary" }]);
   });
 
   test("resolves the walletable type and confirms one sync completed", async () => {
     const progress: WalletableSyncProgress[] = [];
-    const { client, requests } = scriptedClient([
+    const { web, requests } = scriptedWeb([
       summary([walletable({ id: 20, name: "Card", type: "credit_card" })]),
       {},
       {
-        walletable_status: "syncing",
-        last_synced_at: "2026-08-24T01:05:00.000Z",
-        sync_failed_reason: null,
+        status: "syncing",
+        lastSyncedAt: "2026-08-24T01:05:00.000Z",
+        syncFailedReason: null,
       },
       {
-        walletable_status: "syncing",
-        last_synced_at: "2026-08-24T01:05:00.000Z",
-        sync_failed_reason: null,
+        status: "syncing",
+        lastSyncedAt: "2026-08-24T01:05:00.000Z",
+        syncFailedReason: null,
       },
       {
-        walletable_status: "synced",
-        last_synced_at: "2026-08-24T01:10:00.000Z",
-        sync_failed_reason: null,
+        status: "synced",
+        lastSyncedAt: "2026-08-24T01:10:00.000Z",
+        syncFailedReason: null,
       },
     ]);
     const sync = createWalletableSync({
-      client,
+      web,
       polling: immediatePolling(),
       onProgress: (event) => progress.push(event),
     });
@@ -156,11 +165,11 @@ describe("walletable sync", () => {
       ],
     });
     expect(requests).toEqual([
-      { method: "GET", path: "/api/p/v2/walletables/summary" },
-      { method: "PUT", path: "/api/p/v2/walletables/credit_card/20/sync" },
-      { method: "GET", path: "/api/p/v2/walletables/credit_card/20/sync_status" },
-      { method: "GET", path: "/api/p/v2/walletables/credit_card/20/sync_status" },
-      { method: "GET", path: "/api/p/v2/walletables/credit_card/20/sync_status" },
+      { operation: "summary" },
+      { operation: "start", type: "credit_card", id: 20 },
+      { operation: "state", type: "credit_card", id: 20 },
+      { operation: "state", type: "credit_card", id: 20 },
+      { operation: "state", type: "credit_card", id: 20 },
     ]);
     expect(progress).toEqual([
       {
@@ -204,30 +213,31 @@ describe("walletable sync", () => {
       type: "credit_card",
       failure: "old provider error",
     });
-    const { client, requests } = scriptedClient([
+    const { web, requests } = scriptedWeb([
       summary([bank, card, disconnected, limited, skipped]),
       {},
       summary([
-        { ...bank, last_synced_at: "2026-08-24T01:05:00.000Z" },
-        { ...card, last_synced_at: "2026-08-24T01:05:01.000Z" },
+        { ...bank, lastSyncedAt: "2026-08-24T01:05:00.000Z" },
+        { ...card, lastSyncedAt: "2026-08-24T01:05:01.000Z" },
         disconnected,
         limited,
         skipped,
       ]),
     ]);
     const sync = createWalletableSync({
-      client,
+      web,
       polling: immediatePolling(),
       onProgress: (event) => progress.push(event),
     });
 
     const result = await sync({ kind: "all" });
 
+    if (!("walletables" in result)) throw new Error("expected completed walletables");
     expect(result.walletables.map(({ walletableId }) => walletableId)).toEqual([10, 20]);
     expect(requests).toEqual([
-      { method: "GET", path: "/api/p/v2/walletables/summary" },
-      { method: "PUT", path: "/api/p/v2/walletables/sync_all" },
-      { method: "GET", path: "/api/p/v2/walletables/summary" },
+      { operation: "summary" },
+      { operation: "start-bulk" },
+      { operation: "summary" },
     ]);
     expect(progress).toEqual([
       { kind: "bulk", status: "started" },
@@ -250,28 +260,28 @@ describe("walletable sync", () => {
 
   test("does not start all when freee says it is unavailable or not ready", async () => {
     for (const options of [{ available: false }, { ready: false }]) {
-      const { client, requests } = scriptedClient([
+      const { web, requests } = scriptedWeb([
         summary([walletable({ id: 10, name: "Bank", type: "bank_account" })], options),
       ]);
-      const sync = createWalletableSync({ client, polling: immediatePolling() });
+      const sync = createWalletableSync({ web, polling: immediatePolling() });
 
       await expect(sync({ kind: "all" })).rejects.toThrow("freee");
-      expect(requests.filter(({ method }) => method === "PUT")).toHaveLength(0);
+      expect(requests.filter(({ operation }) => operation.startsWith("start"))).toHaveLength(0);
     }
   });
 
   test("reports observed failures", async () => {
     const card = walletable({ id: 20, name: "Card", type: "credit_card" });
-    const { client } = scriptedClient([
+    const { web } = scriptedWeb([
       summary([card]),
       {},
       {
-        walletable_status: "failed",
-        last_synced_at: card.last_synced_at,
-        sync_failed_reason: "provider unavailable",
+        status: "failed",
+        lastSyncedAt: card.lastSyncedAt,
+        syncFailedReason: "provider unavailable",
       },
     ]);
-    const sync = createWalletableSync({ client, polling: immediatePolling() });
+    const sync = createWalletableSync({ web, polling: immediatePolling() });
 
     await expect(sync({ kind: "one", walletableId: 20 })).rejects.toThrow("provider unavailable");
   });
@@ -283,21 +293,21 @@ describe("walletable sync", () => {
       type: "credit_card",
       failure: "old provider error",
     });
-    const { client } = scriptedClient([
+    const { web } = scriptedWeb([
       summary([card]),
       {},
       {
-        walletable_status: "syncing",
-        last_synced_at: card.last_synced_at,
-        sync_failed_reason: "old provider error",
+        status: "syncing",
+        lastSyncedAt: card.lastSyncedAt,
+        syncFailedReason: "old provider error",
       },
       {
-        walletable_status: "synced",
-        last_synced_at: "2026-08-24T01:05:00.000Z",
-        sync_failed_reason: "old provider error",
+        status: "synced",
+        lastSyncedAt: "2026-08-24T01:05:00.000Z",
+        syncFailedReason: "old provider error",
       },
     ]);
-    const sync = createWalletableSync({ client, polling: immediatePolling() });
+    const sync = createWalletableSync({ web, polling: immediatePolling() });
 
     await expect(sync({ kind: "one", walletableId: 20 })).resolves.toMatchObject({
       walletables: [{ walletableId: 20, status: "synced" }],
@@ -311,35 +321,33 @@ describe("walletable sync", () => {
       type: "credit_card",
       failure: "provider unavailable",
     });
-    const { client } = scriptedClient([
+    const { web } = scriptedWeb([
       summary([card]),
       {},
       {
-        walletable_status: "syncing",
-        last_synced_at: card.last_synced_at,
-        sync_failed_reason: "provider unavailable",
+        status: "syncing",
+        lastSyncedAt: card.lastSyncedAt,
+        syncFailedReason: "provider unavailable",
       },
       {
-        walletable_status: "failed",
-        last_synced_at: card.last_synced_at,
-        sync_failed_reason: "provider unavailable",
+        status: "failed",
+        lastSyncedAt: card.lastSyncedAt,
+        syncFailedReason: "provider unavailable",
       },
     ]);
-    const sync = createWalletableSync({ client, polling: immediatePolling() });
+    const sync = createWalletableSync({ web, polling: immediatePolling() });
 
     await expect(sync({ kind: "one", walletableId: 20 })).rejects.toThrow("provider unavailable");
   });
 
   test("reports a new failure from sync all", async () => {
     const card = walletable({ id: 20, name: "Card", type: "credit_card" });
-    const { client } = scriptedClient([
+    const { web } = scriptedWeb([
       summary([card]),
       {},
-      summary([
-        { ...card, walletable_status: "failed", sync_failed_reason: "provider unavailable" },
-      ]),
+      summary([{ ...card, status: "failed", syncFailedReason: "provider unavailable" }]),
     ]);
-    const sync = createWalletableSync({ client, polling: immediatePolling() });
+    const sync = createWalletableSync({ web, polling: immediatePolling() });
 
     await expect(sync({ kind: "all" })).rejects.toThrow("provider unavailable");
   });
@@ -351,15 +359,15 @@ describe("walletable sync", () => {
       type: "credit_card",
       failure: "provider unavailable",
     });
-    const { client } = scriptedClient([
+    const { web } = scriptedWeb([
       summary([card]),
       {},
-      summary([{ ...card, walletable_status: "syncing" }], { hasSyncing: true }),
-      summary([{ ...card, walletable_status: "failed" }]),
+      summary([{ ...card, status: "syncing" }], { hasSyncing: true }),
+      summary([{ ...card, status: "failed" }]),
     ]);
     let now = 0;
     const sync = createWalletableSync({
-      client,
+      web,
       polling: {
         timeoutMs: 2,
         pollIntervalMs: 1,
@@ -374,13 +382,13 @@ describe("walletable sync", () => {
   test("times out naming only unfinished participants from sync all", async () => {
     const bank = walletable({ id: 10, name: "Bank", type: "bank_account" });
     const skipped = walletable({ id: 20, name: "Skipped", type: "credit_card" });
-    const { client } = scriptedClient([
+    const { web } = scriptedWeb([
       summary([bank, skipped]),
       {},
-      summary([{ ...bank, walletable_status: "syncing" }, skipped], { hasSyncing: true }),
+      summary([{ ...bank, status: "syncing" }, skipped], { hasSyncing: true }),
     ]);
     const sync = createWalletableSync({
-      client,
+      web,
       polling: {
         timeoutMs: 1,
         pollIntervalMs: 1,
@@ -401,9 +409,9 @@ describe("walletable sync", () => {
   test("times out naming every candidate when sync all never starts", async () => {
     const bank = walletable({ id: 10, name: "Bank", type: "bank_account" });
     const card = walletable({ id: 20, name: "Card", type: "credit_card" });
-    const { client } = scriptedClient([summary([bank, card]), {}, summary([bank, card])]);
+    const { web } = scriptedWeb([summary([bank, card]), {}, summary([bank, card])]);
     const sync = createWalletableSync({
-      client,
+      web,
       polling: {
         timeoutMs: 1,
         pollIntervalMs: 1,
@@ -422,38 +430,38 @@ describe("walletable sync", () => {
 
   test("classifies polling failure after sync starts as outcome unknown", async () => {
     const card = walletable({ id: 20, name: "Card", type: "credit_card" });
-    const { client, requests } = scriptedClient([
+    const { web, requests } = scriptedWeb([
       summary([card]),
       {},
       new Error("status request failed"),
     ]);
-    const sync = createWalletableSync({ client, polling: immediatePolling() });
+    const sync = createWalletableSync({ web, polling: immediatePolling() });
 
     const result = sync({ kind: "one", walletableId: 20 });
 
     await expect(result).rejects.toBeInstanceOf(OutcomeUnknownError);
     await expect(result).rejects.toMatchObject({ code: "OUTCOME_UNKNOWN" });
-    expect(requests.filter(({ method }) => method === "PUT")).toHaveLength(1);
+    expect(requests.filter(({ operation }) => operation.startsWith("start"))).toHaveLength(1);
   });
 
   test("does not treat an unchanged timestamp as completion", async () => {
     const initial = walletable({ id: 20, name: "Card", type: "credit_card" });
-    const { client, requests } = scriptedClient([
+    const { web, requests } = scriptedWeb([
       summary([initial]),
       {},
       {
-        walletable_status: "synced",
-        last_synced_at: initial.last_synced_at,
-        sync_failed_reason: null,
+        status: "synced",
+        lastSyncedAt: initial.lastSyncedAt,
+        syncFailedReason: null,
       },
       {
-        walletable_status: "synced",
-        last_synced_at: initial.last_synced_at,
-        sync_failed_reason: null,
+        status: "synced",
+        lastSyncedAt: initial.lastSyncedAt,
+        syncFailedReason: null,
       },
     ]);
     const sync = createWalletableSync({
-      client,
+      web,
       polling: {
         timeoutMs: 1,
         pollIntervalMs: 1,
@@ -468,16 +476,6 @@ describe("walletable sync", () => {
     const result = sync({ kind: "one", walletableId: 20 });
     await expect(result).rejects.toBeInstanceOf(OutcomeUnknownError);
     await expect(result).rejects.toThrow("completion was not confirmed");
-    expect(requests.filter(({ method }) => method === "PUT")).toHaveLength(1);
-  });
-
-  test("fails closed when the summary schema changes", async () => {
-    const { client, requests } = scriptedClient([
-      { walletables: [{ walletable_id: 20, name: "Card" }], summary: {} },
-    ]);
-    const sync = createWalletableSync({ client, polling: immediatePolling() });
-
-    await expect(sync({ kind: "one", walletableId: 20 })).rejects.toThrow("observed schema");
-    expect(requests).toHaveLength(1);
+    expect(requests.filter(({ operation }) => operation.startsWith("start"))).toHaveLength(1);
   });
 });

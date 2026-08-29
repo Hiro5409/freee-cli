@@ -124,26 +124,46 @@ freee hr-payroll-list --month 2026-08
 
 ```bash
 freee walletable-list
-freee web walletable-sync --all --dry-run
-freee web walletable-sync --id 42
-freee web walletable-sync --all
+freee wallet-txn-list --status unreconciled
+freee web wallet-txn apply-rules --dry-run --format json
+freee web wallet-txn apply-rules
+freee web wallet-txn ignore --id 42 --dry-run --format json
+freee web wallet-txn ignore --id 42
+freee web wallet-txn register --id 42 --account-item-name "通信費" --tax-name "課対仕入10%" --dry-run --format json
+freee web wallet-txn register --id 42 --account-item-name "通信費" --tax-name "課対仕入10%"
+freee web wallet-txn settle --id 42 --deal-id 91 --amount 10000 --dry-run --format json
+freee web wallet-txn settle --id 42 --deal-id 91 --amount 10000
+freee web wallet-txn transfer --id 42 --counterparty-walletable-name "事業主借" --dry-run --format json
+freee web wallet-txn transfer --id 42 --counterparty-walletable-name "事業主借"
+freee wallet-txn-list --status ignored
+freee web wallet-txn restore --id 42 --dry-run --format json
+freee web wallet-txn restore --id 42
+freee invoice-list --deal-status unregistered --cancel-status uncanceled
+freee web invoice register-deal --id 456 --dry-run --format json
+freee web invoice register-deal --id 456
+freee web walletable sync --all --dry-run
+freee web walletable sync --id 42
+freee web walletable sync --all
 ```
 
-口座IDは、公式APIを使う`freee walletable-list`で取得します。Webコマンドは同期を開始し、最大1時間まで完了を待ちます。表形式では状態の変化をstderrへ表示し、JSON形式ではstdoutを機械可読に保つため進捗を表示しません。
+各コマンドは、freeeの公式APIに足りない操作を補う一時的な互換層です。
+必要な理由と安定コマンドへ置き換える条件は、[Web操作モジュールの文書](src/plugins/web-operations/README.md)にまとめています。
 
-`--dry-run`は同期を開始せず、freee-cliがリクエストに含める口座を表示します。freeeがリクエストを受理して同期を完了することまでは保証しません。
+口座IDは、公式APIを使う`freee walletable-list`で取得します。`freee web walletable sync`は同期を開始し、最大1時間まで完了を待ちます。表形式では状態の変化をstderrへ表示し、JSON形式ではstdoutを機械可読に保つため進捗を表示しません。
+
+`--id`のdry-runは同期を開始せず、対象口座を表示します。`--all`のdry-runが確認するのは、freeeが現在一括同期リクエストを許可していることだけです。実際に同期へ参加する口座は実行後にfreeeが選びます。
 
 `--all`では、対象となる口座をfreeeが選びます。結果に含まれるのは、同期が開始して完了した口座だけです。選ばれなかった候補は、必要に応じて`--id`で個別に同期できます。
 
 これらのコマンドは、公開仕様ではないfreee Webの観測結果に基づきます。観測したレスポンスが想定した形と一致しなくなった場合は失敗し、公式OpenAPIから生成したコマンドと同じ安定性は保証しません。
 
-Bunアプリケーションから、試験的な経理・請求書登録アダプターを直接利用できます。
+Bunアプリケーションから、試験的なfreee Web操作を直接利用できます。
 
 ```ts
-import { withFreeeBrowser } from "freee-cli/experimental/web";
+import { withFreeeWeb } from "freee-cli/experimental/web";
 ```
 
-操作の順序は呼び出し側が決め、事業所IDとAuth Profileを明示的に渡します。previewメソッドは書き込みません。登録、消込、口座振替、無視、請求書登録、自動登録ルール適用の各メソッドは即時に書き込み、共通のdry-runはありません。`OutcomeUnknownError`が返った場合は、書き込みが完了済みの可能性があるため、再実行前にfreee上の対象リソースを確認してください。
+操作の順序は呼び出し側が決め、事業所IDとAuth Profileを明示的に渡します。previewメソッドは書き込みません。登録、消込、口座振替、無視、無視の取消、請求書登録、自動登録ルール適用の各メソッドは即時に書き込み、共通のdry-runはありません。`OutcomeUnknownError`が返った場合は、書き込みが完了済みの可能性があるため、再実行前にfreee上の対象リソースを確認してください。
 
 ## エージェントから使う
 
