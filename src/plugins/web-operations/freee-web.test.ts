@@ -582,6 +582,29 @@ describe("Agent Browserのfreeeセッション", () => {
     }
   });
 
+  test("請求書ページのorigin不一致は送信前失敗として扱う", async () => {
+    Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
+    const { spawn } = mockAgentBrowser([
+      null,
+      { result: JSON.stringify({ origin, companyId }) },
+      null,
+      { result: JSON.stringify({ origin: invoiceOrigin }) },
+      { result: JSON.stringify({ origin: invoiceOrigin, companyId }) },
+      new Error("Unexpected freee origin"),
+      null,
+    ]);
+    try {
+      const error = await withFreeeWeb(webScope, (web) =>
+        web.setInvoiceSendingStatus(77, "sent"),
+      ).catch((cause: unknown) => cause);
+      expect(error).toBeInstanceOf(Error);
+      expect(error).not.toBeInstanceOf(OutcomeUnknownError);
+      expect((error as Error).message).toContain("Unexpected freee origin");
+    } finally {
+      spawn.mockRestore();
+    }
+  });
+
   test("請求書はexactな取引登録ボタンを押して保存完了を待つ", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
     const { commands, standardInputs, spawn } = mockAgentBrowser([

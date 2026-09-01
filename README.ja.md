@@ -136,7 +136,6 @@ freee web wallet-txn transfer --id 42 --counterparty-walletable-name "事業主�
 freee web wallet-txn transfer --id 42 --counterparty-walletable-name "事業主借"
 freee wallet-txn-list --status ignored
 freee web wallet-txn restore --id 42
-freee invoice-list --sending-status unsent
 freee web invoice set-sending-status --id 456 --status sent
 freee web invoice set-sending-status --id 456 --status unsent
 freee invoice-list --deal-status unregistered --cancel-status uncanceled

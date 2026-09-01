@@ -364,7 +364,7 @@ function buildInvoiceSetSendingStatusJavaScript(
   });
   return `(async () => {
   if (location.origin !== "${FREEE_INVOICE_ORIGIN}") {
-    throw new Error("Unexpected freee invoice origin");
+    throw new Error("Unexpected freee origin");
   }
   const appStateResponse = await fetch("/api/p/app_state", { credentials: "same-origin" });
   const appState = await appStateResponse.json();
