@@ -11,13 +11,13 @@ const SEGMENTS = ["1", "2", "3"] as const;
 
 export const segmentTagListCommand = define({
   name: "segment-tag-list",
-  description: "List tags for accounting segment 1, 2, or 3",
+  description: "List tags for accounting segment 1, 2, or 3 when available on the company plan",
   args: {
     ...listArgs,
     segment: {
       type: "enum" as const,
       choices: SEGMENTS,
-      description: "Segment number: 1 | 2 | 3",
+      description: "Segment number: 1 | 2 | 3; freee rejects numbers unavailable on the plan",
       required: true,
     },
   },

@@ -74,15 +74,26 @@ const RegistrationPreviewLineSchema = v.object({
   amount: v.number(),
   tax_name: v.nullable(v.string()),
 });
+const RegistrationPreviewModelSchema = v.object({
+  txn_date: v.string(),
+  debits: v.array(RegistrationPreviewLineSchema),
+  credits: v.array(RegistrationPreviewLineSchema),
+  rows: v.pipe(v.number(), v.integer(), v.minValue(1)),
+});
+const EmptyRegistrationPreviewModelSchema = v.object({
+  txn_date: v.null(),
+  debits: v.pipe(v.array(RegistrationPreviewLineSchema), v.empty()),
+  credits: v.pipe(v.array(RegistrationPreviewLineSchema), v.empty()),
+  rows: v.literal(0),
+});
 const RegistrationPreviewSchema = v.object({
   models: v.pipe(
-    v.array(
-      v.object({
-        txn_date: v.string(),
-        debits: v.array(RegistrationPreviewLineSchema),
-        credits: v.array(RegistrationPreviewLineSchema),
-        rows: v.pipe(v.number(), v.integer(), v.minValue(1)),
-      }),
+    v.array(v.union([RegistrationPreviewModelSchema, EmptyRegistrationPreviewModelSchema])),
+    v.transform((models) =>
+      models.filter(
+        (model): model is v.InferOutput<typeof RegistrationPreviewModelSchema> =>
+          model.txn_date !== null,
+      ),
     ),
     v.minLength(1),
   ),

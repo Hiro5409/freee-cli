@@ -17,32 +17,16 @@ If unavailable, ask the user to install freee-cli.
 2. Run the selected command with `--help` before constructing unfamiliar arguments.
 3. Use `--format json` for data consumed by an agent or another command.
 4. For `setup` or `login`, ask the user to run the command in an interactive terminal.
-5. For `freee web`:
-   - For `wallet-txn apply-rules`, run `--dry-run --format json` and present freee's match count for approval. Execution delegates target selection to freee's auto-registration rules.
-   - For `wallet-txn ignore`, select one unchanged ID with `freee wallet-txn-list --status unreconciled`; for `wallet-txn restore`, use `--status ignored`. Present the selected transaction and intended final state for approval.
-   - For `wallet-txn register`, select one unreconciled wallet transaction and supply its account item and tax names. Present freee's `--dry-run --format json` preview before approval. The command registers the statement's full amount as one line; use freee Web directly when additional fields or split lines are required.
-   - For `wallet-txn settle`, select one unreconciled wallet transaction and one existing Deal, then present freee's `--dry-run --format json` journal preview and amount for approval.
-   - For `wallet-txn transfer`, select one unreconciled wallet transaction and the counterparty walletable name, then present freee's `--dry-run --format json` transfer preview for approval.
-   - For `invoice set-sending-status`, read one active invoice with `freee invoice-show`, then present its current and requested `sent` or `unsent` state for approval. This changes status without delivering the invoice.
-   - For `invoice register-deal`, select one unchanged ID with `freee invoice-list --deal-status unregistered --cancel-status uncanceled`, then present the invoice and intended Deal registration for approval.
-   - For `walletable sync`, resolve `--id` with `freee walletable-list`. Use `--all` only when the user explicitly chose bulk scope. Execution waits for the walletables freee selects.
-6. Before a cohesive freee API write batch, use read commands to verify the selected profile, company, referenced IDs, and every value that determines the intended side effects.
+5. Before a cohesive freee write batch, resolve one profile and company and use read commands to verify referenced IDs and every value that determines the intended side effects.
+   `freee web` accepts no `--company-id`; verify its profile's configured company with `freee profile-list --format json` before the batch.
    For File Box uploads, use only the file path the user explicitly selected.
-7. Treat `--dry-run` as a verification tool, not an approval boundary. Use `--dry-run --format json` when its preview can expose a decision-bearing difference: destructive operations, replacement or fetch-merge writes, and multi-target or fan-out writes. A simple create or update whose complete fields are already fixed in the plan does not require a dry-run. A dry-run never sends the write or proves write permission.
-8. Present the complete batch and intended final state, then wait for explicit user approval. One approval covers the unchanged batch, including dependent writes whose IDs are created by earlier steps.
-9. After approval, execute the batch with the same profile and company. Continue through later reads or previews when they confirm the approved batch; request another approval only when current state or a preview changes the approved target, scope, or intended final state.
-
-Plan restrictions:
-
-- `general-ledger` requires corporate Advance or Enterprise.
-- Segment 1 requires corporate Advance or higher.
-- Segments 2 and 3 require corporate Enterprise.
-- `GET /api/1/fixed_assets` requires corporate Enterprise and has no CLI command.
+6. Treat `--dry-run` as a verification tool, not an approval boundary. When the selected command provides it, use `--dry-run --format json` if its preview can expose a decision-bearing difference: destructive operations, replacement or fetch-merge writes, and multi-target or fan-out writes. A simple create or update whose complete fields are already fixed in the plan does not require a dry-run. A dry-run never sends the write or proves write permission.
+7. Present the complete batch and intended final state, then wait for explicit user approval. One approval covers the unchanged batch, including dependent writes whose IDs are created by earlier steps.
+8. After approval, execute and verify the batch with the same resolved profile and company. Continue through later reads or previews when they confirm the approved batch; request another approval only when current state or a preview changes the approved target, scope, or intended final state.
 
 Treat accounting, invoice, and HR resources as separate APIs even when names overlap.
-Keep the same `--profile` and `--company-id` across reads, preview, write, and verification.
-Stop on authentication, access, or identifier errors and follow the error's `Hint`.
+Follow every structured error's `hint` before deciding whether to retry or stop.
 
 Complete a read when the command exits successfully and returns parseable JSON.
 Complete a download or export when the command succeeds and the requested file exists.
-Complete a mutation when the write succeeds and a follow-up read confirms the requested state.
+Complete a mutation when its structured result reports the requested state. Otherwise, confirm it with a follow-up read.

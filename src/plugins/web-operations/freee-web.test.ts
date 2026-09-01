@@ -441,6 +441,48 @@ describe("Agent Browserのfreeeセッション", () => {
     expect(standardInputs.join("\n")).not.toContain("XMLHttpRequest");
   });
 
+  test("仕訳preview末尾の空modelを除外する", async () => {
+    Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
+    const validModel = previewResponse().models[0];
+    const { spawn } = mockAgentBrowser([
+      null,
+      { result: JSON.stringify({ origin, companyId }) },
+      webResponse({
+        models: [
+          validModel,
+          {
+            txn_date: null,
+            rows: 0,
+            debits: [],
+            credits: [],
+          },
+        ],
+      }),
+      null,
+    ]);
+
+    try {
+      await expect(
+        withFreeeWeb(webScope, (web) =>
+          web.previewWalletTransactionSettlement({
+            walletTransaction,
+            dealId: 91,
+            amount: 1_000,
+          }),
+        ),
+      ).resolves.toEqual([
+        {
+          date: "2026-08-24",
+          rows: 1,
+          debits: [{ accountItemName: "消耗品費", taxName: "課対仕入10%", amount: 1_000 }],
+          credits: [{ accountItemName: "銀行", taxName: null, amount: 1_000 }],
+        },
+      ]);
+    } finally {
+      spawn.mockRestore();
+    }
+  });
+
   test("walletable summaryの観測schemaが崩れたら失敗する", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
     const { spawn } = mockAgentBrowser([

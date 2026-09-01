@@ -8,7 +8,7 @@ import { getGeneralLedgers } from "../types/freee/sdk.gen.ts";
 
 export const generalLedgerCommand = define({
   name: "general-ledger",
-  description: "Show general-ledger balances for a date range",
+  description: "Show general-ledger balances for a date range (corporate Advance or Enterprise)",
   args: {
     ...companyArgs,
     "start-date": {

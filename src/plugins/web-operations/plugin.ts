@@ -77,7 +77,7 @@ const walletTransactionIgnoreCommand = define({
     ...globalArgs,
     id: {
       type: "string" as const,
-      description: "Wallet transaction ID from freee wallet-txn-list",
+      description: "Wallet transaction ID from freee wallet-txn-list --status unreconciled",
       required: true,
     },
   },
@@ -120,7 +120,8 @@ const walletTransactionApplyRulesCommand = define({
 
 const walletableSyncCommand = define({
   name: "sync",
-  description: "Synchronize one walletable or start and wait for freee Web's bulk synchronization",
+  description:
+    "Synchronize one walletable or start freee Web's bulk synchronization; may wait up to one hour and, in table format, reports progress lines on stderr",
   args: {
     ...globalArgs,
     all: {
@@ -151,7 +152,7 @@ const walletTransactionRestoreCommand = define({
     ...globalArgs,
     id: {
       type: "string" as const,
-      description: "Wallet transaction ID from freee wallet-txn-list",
+      description: "Wallet transaction ID from freee wallet-txn-list --status ignored",
       required: true,
     },
   },
@@ -168,7 +169,8 @@ const walletTransactionRestoreCommand = define({
 
 const walletTransactionRegisterCommand = define({
   name: "register",
-  description: "Register one unprocessed wallet transaction as a new Deal through freee Web",
+  description:
+    "Register one unprocessed wallet transaction's full amount as a single-line Deal through freee Web; use freee Web directly for split lines or additional fields",
   args: {
     ...globalArgs,
     "dry-run": {
@@ -178,7 +180,7 @@ const walletTransactionRegisterCommand = define({
     },
     id: {
       type: "string" as const,
-      description: "Wallet transaction ID from freee wallet-txn-list",
+      description: "Wallet transaction ID from freee wallet-txn-list --status unreconciled",
       required: true,
     },
     "account-item-name": {
@@ -223,7 +225,7 @@ const walletTransactionSettleCommand = define({
     },
     id: {
       type: "string" as const,
-      description: "Wallet transaction ID from freee wallet-txn-list",
+      description: "Wallet transaction ID from freee wallet-txn-list --status unreconciled",
       required: true,
     },
     "deal-id": {
@@ -265,7 +267,7 @@ const walletTransactionTransferCommand = define({
     },
     id: {
       type: "string" as const,
-      description: "Wallet transaction ID from freee wallet-txn-list",
+      description: "Wallet transaction ID from freee wallet-txn-list --status unreconciled",
       required: true,
     },
     "counterparty-walletable-name": {
