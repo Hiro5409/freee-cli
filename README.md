@@ -157,7 +157,7 @@ Bun applications can use the experimental freee Web operations directly:
 import { withFreeeWeb } from "freee-cli/experimental/web";
 ```
 
-The caller owns operation sequencing and supplies the company ID and Auth Profile. Preview methods do not write; registration, settlement, transfer, ignore, restore, invoice-registration, and auto-rule methods write immediately and have no generic dry-run. If an `OutcomeUnknownError` is returned, inspect the affected resource in freee before retrying because the write may already have completed.
+The caller owns operation sequencing and supplies the company ID and Auth Profile. Preview methods do not write. Methods that register, settle, transfer, ignore, restore, change an invoice's sending status, register an invoice, or apply auto-rules write immediately and have no generic dry-run. If an `OutcomeUnknownError` is returned, inspect the affected resource in freee before retrying because the write may already have completed.
 
 ## Calling from Agents
 
