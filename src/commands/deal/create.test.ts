@@ -91,33 +91,18 @@ describe("deal create command", () => {
     expect(onCreateDeal).toHaveBeenCalledWith(expect.objectContaining({ partner_id: 55 }));
   });
 
-  test("dry-run does not call API", async () => {
-    const result = await cli([...baseArgs, "--partner-id", "55", "--dry-run"], dealCreateCommand);
-
-    expect(onCreateDeal).not.toHaveBeenCalled();
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(result).toContain("Dry run");
-    expect(result).toContain('"company_id": 123');
-    expect(result).toContain('"issue_date": "2026-03-15"');
-    expect(result).toContain('"account_item_id": 101');
-    expect(result).toContain('"partner_id": 55');
-  });
-
-  test("dry-run validates the payload before previewing it", async () => {
+  test("validates the payload before writing", async () => {
     await expect(
-      cli(
-        [...baseArgs, "--type", "invalid", "--amount", "not-a-number", "--dry-run"],
-        dealCreateCommand,
-      ),
+      cli([...baseArgs, "--type", "invalid", "--amount", "not-a-number"], dealCreateCommand),
     ).rejects.toThrow('--type must be "income" or "expense"');
 
     expect(onCreateDeal).not.toHaveBeenCalled();
   });
 
-  test("dry-run rejects an invalid calendar date", async () => {
+  test("rejects an invalid calendar date", async () => {
     const args = baseArgs.map((arg) => (arg === "2026-03-15" ? "2026-02-30" : arg));
 
-    await expect(cli([...args, "--dry-run"], dealCreateCommand)).rejects.toThrow(/YYYY-MM-DD/);
+    await expect(cli(args, dealCreateCommand)).rejects.toThrow(/YYYY-MM-DD/);
     expect(onCreateDeal).not.toHaveBeenCalled();
   });
 
@@ -133,7 +118,7 @@ describe("deal create command", () => {
       const index = baseArgs.indexOf(flag);
       const args =
         index === -1 ? [...baseArgs, ...replacement] : baseArgs.toSpliced(index, 2, ...replacement);
-      await expect(cli([...args, "--dry-run"], dealCreateCommand)).rejects.toThrow(message);
+      await expect(cli(args, dealCreateCommand)).rejects.toThrow(message);
     }
     expect(onCreateDeal).not.toHaveBeenCalled();
   });
@@ -143,35 +128,5 @@ describe("deal create command", () => {
 
     if (typeof result !== "string") throw new Error("expected string result");
     expect(JSON.parse(result).id).toBe(42);
-  });
-
-  test("--dry-run --format json returns a structured request", async () => {
-    const result = await cli(
-      [...baseArgs, "--partner-id", "55", "--dry-run", "--format", "json"],
-      dealCreateCommand,
-    );
-
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(JSON.parse(result)).toEqual({
-      dryRun: true,
-      request: {
-        method: "POST",
-        path: "/api/1/deals",
-        body: {
-          company_id: 123,
-          issue_date: "2026-03-15",
-          type: "expense",
-          details: [
-            {
-              account_item_id: 101,
-              tax_code: 21,
-              amount: 10000,
-              description: "テスト経費",
-            },
-          ],
-          partner_id: 55,
-        },
-      },
-    });
   });
 });

@@ -77,30 +77,6 @@ describe("deal payment create command", () => {
     });
   });
 
-  test("dry-run returns a structured request without calling the API", async () => {
-    const result = await cli(
-      [...baseArgs, "--dry-run", "--format", "json"],
-      dealPaymentCreateCommand,
-    );
-
-    expect(onCreatePayment).not.toHaveBeenCalled();
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(JSON.parse(result)).toEqual({
-      dryRun: true,
-      request: {
-        method: "POST",
-        path: "/api/1/deals/42/payments",
-        body: {
-          company_id: 123,
-          date: "2026-08-15",
-          amount: 5000,
-          from_walletable_type: "bank_account",
-          from_walletable_id: 9,
-        },
-      },
-    });
-  });
-
   test("rejects invalid payment fields before calling the API", async () => {
     const invalidArgs = [
       baseArgs.map((value) => (value === "2026-08-15" ? "2026-02-30" : value)),
@@ -110,9 +86,7 @@ describe("deal payment create command", () => {
     ];
 
     for (const args of invalidArgs) {
-      await expect(cli([...args, "--dry-run"], dealPaymentCreateCommand)).rejects.toBeInstanceOf(
-        Error,
-      );
+      await expect(cli(args, dealPaymentCreateCommand)).rejects.toBeInstanceOf(Error);
     }
     expect(onCreatePayment).not.toHaveBeenCalled();
   });

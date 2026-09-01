@@ -114,28 +114,6 @@ describe("walletable sync command", () => {
     expect(messages).toEqual([]);
   });
 
-  test("passes dry-run through without changing the selected scope", async () => {
-    let receivedDryRun: boolean | undefined;
-    const deps = {
-      ...dependencies(),
-      sync: async (
-        _web: WalletableSyncWeb,
-        requestedSync: { kind: "all" } | { kind: "one"; walletableId: number },
-        _onProgress: (event: WalletableSyncProgress) => void,
-        dryRun: boolean,
-      ) => {
-        expect(requestedSync).toEqual({ kind: "all" });
-        receivedDryRun = dryRun;
-        return { dryRun: true as const, walletables: [] };
-      },
-    };
-
-    await expect(
-      runWalletableSyncCommand({ profile: "business", all: true, "dry-run": true }, deps),
-    ).resolves.toMatchObject({ dryRun: true, walletables: [] });
-    expect(receivedDryRun).toBe(true);
-  });
-
   test("requires exactly one synchronization scope", async () => {
     for (const values of [{ profile: "business" }, { profile: "business", all: true, id: "20" }]) {
       const error = await runWalletableSyncCommand(values, dependencies()).catch(

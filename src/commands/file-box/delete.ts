@@ -2,7 +2,7 @@ import { define } from "gunshi";
 import colors from "yoctocolors";
 
 import { PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
-import { writeArgs } from "../../global-args.ts";
+import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
 import { formatDryRun, formatValue } from "../../output/formatter.ts";
 import { destroyReceipt } from "../../types/freee/sdk.gen.ts";
@@ -11,7 +11,7 @@ export const fileBoxDeleteCommand = define({
   name: "file-box-delete",
   description: "Delete a document from the File Box",
   args: {
-    ...writeArgs,
+    ...dryRunArgs,
     id: { type: "string" as const, description: "File Box document ID", required: true },
   },
   examples: `$ freee file-box-delete --id 55 --dry-run --format json`,

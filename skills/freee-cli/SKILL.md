@@ -19,12 +19,13 @@ If unavailable, ask the user to install freee-cli.
 4. For `setup` or `login`, ask the user to run the command in an interactive terminal.
 5. For `freee web`:
    - For `wallet-txn apply-rules`, run `--dry-run --format json` and present freee's match count for approval. Execution delegates target selection to freee's auto-registration rules.
-   - For `wallet-txn ignore`, select one unchanged ID with `freee wallet-txn-list --status unreconciled`; for `wallet-txn restore`, use `--status ignored`. Run the selected Web command with `--dry-run --format json` before approval.
+   - For `wallet-txn ignore`, select one unchanged ID with `freee wallet-txn-list --status unreconciled`; for `wallet-txn restore`, use `--status ignored`. Present the selected transaction and intended final state for approval.
    - For `wallet-txn register`, select one unreconciled wallet transaction and supply its account item and tax names. Present freee's `--dry-run --format json` preview before approval. The command registers the statement's full amount as one line; use freee Web directly when additional fields or split lines are required.
    - For `wallet-txn settle`, select one unreconciled wallet transaction and one existing Deal, then present freee's `--dry-run --format json` journal preview and amount for approval.
    - For `wallet-txn transfer`, select one unreconciled wallet transaction and the counterparty walletable name, then present freee's `--dry-run --format json` transfer preview for approval.
-   - For `invoice register-deal`, select one unchanged ID with `freee invoice-list --deal-status unregistered --cancel-status uncanceled`. Run `--dry-run --format json` before presenting the invoice and intended Deal registration for approval.
-   - For `walletable sync`, resolve `--id` with `freee walletable-list`. Use `--all` only when the user explicitly chose bulk scope; its dry-run confirms the bulk request without predicting participants. Execution waits for the walletables freee selects.
+   - For `invoice set-sending-status`, read one active invoice with `freee invoice-show`, then present its current and requested `sent` or `unsent` state for approval. This changes status without delivering the invoice.
+   - For `invoice register-deal`, select one unchanged ID with `freee invoice-list --deal-status unregistered --cancel-status uncanceled`, then present the invoice and intended Deal registration for approval.
+   - For `walletable sync`, resolve `--id` with `freee walletable-list`. Use `--all` only when the user explicitly chose bulk scope. Execution waits for the walletables freee selects.
 6. Before a cohesive freee API write batch, use read commands to verify the selected profile, company, referenced IDs, and every value that determines the intended side effects.
    For File Box uploads, use only the file path the user explicitly selected.
 7. Treat `--dry-run` as a verification tool, not an approval boundary. Use `--dry-run --format json` when its preview can expose a decision-bearing difference: destructive operations, replacement or fetch-merge writes, and multi-target or fan-out writes. A simple create or update whose complete fields are already fixed in the plan does not require a dry-run. A dry-run never sends the write or proves write permission.

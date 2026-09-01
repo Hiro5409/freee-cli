@@ -8,7 +8,7 @@ import {
   parseCliInput,
 } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
-import { writeArgs } from "../../global-args.ts";
+import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
 import { formatDryRun, formatValue } from "../../output/formatter.ts";
 import { updateReceipt } from "../../types/freee/sdk.gen.ts";
@@ -21,7 +21,7 @@ export const fileBoxUpdateCommand = define({
   name: "file-box-update",
   description: "Update metadata for a document in the File Box",
   args: {
-    ...writeArgs,
+    ...dryRunArgs,
     id: { type: "string" as const, description: "File Box document ID", required: true },
     description: { type: "string" as const, description: "Memo" },
     "partner-name": { type: "string" as const, description: "Issuer name" },

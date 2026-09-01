@@ -2,7 +2,7 @@ import { define } from "gunshi";
 import colors from "yoctocolors";
 
 import { PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
-import { writeArgs } from "../../global-args.ts";
+import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
 import { formatDryRun, formatValue } from "../../output/formatter.ts";
 import { destroyDeal } from "../../types/freee/sdk.gen.ts";
@@ -11,7 +11,7 @@ export const dealDeleteCommand = define({
   name: "deal-delete",
   description: "Delete a deal (transaction)",
   args: {
-    ...writeArgs,
+    ...dryRunArgs,
     id: { type: "string" as const, description: "Deal ID", required: true },
   },
   examples: `$ freee deal-delete --id 42 --dry-run --format json`,

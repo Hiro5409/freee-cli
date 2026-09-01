@@ -81,31 +81,6 @@ function dependencies(
 }
 
 describe("wallet transaction ignore command", () => {
-  test("dry-run identifies one matching unprocessed transaction without writing", async () => {
-    const { deps, reads, writes } = dependencies();
-
-    await expect(
-      runWalletTransactionIgnoreCommand({ id: "42", profile: "business", "dry-run": true }, deps),
-    ).resolves.toEqual({
-      profile: "business",
-      companyId: 100,
-      dryRun: true,
-      action: "ignore",
-      target: {
-        id: 42,
-        date: "2026-08-06",
-        description: "振込＊ド）バブラボ",
-        amount: 34_025,
-        entrySide: "income",
-        walletableId: 300,
-        walletableName: "住信SBI",
-        updatedAt: "2026-08-06T12:00:00+09:00",
-      },
-    });
-    expect(reads()).toBe(1);
-    expect(writes()).toBe(0);
-  });
-
   test("trusts a successful Web write without rereading the transaction", async () => {
     const { deps, reads, writes } = dependencies();
 
@@ -231,31 +206,6 @@ function restoreDependencies(
 }
 
 describe("wallet transaction restore command", () => {
-  test("dry-run identifies one matching ignored transaction without writing", async () => {
-    const { deps, reads, writes } = restoreDependencies();
-
-    await expect(
-      runWalletTransactionRestoreCommand({ id: "42", profile: "business", "dry-run": true }, deps),
-    ).resolves.toEqual({
-      profile: "business",
-      companyId: 100,
-      dryRun: true,
-      action: "restore",
-      target: {
-        id: 42,
-        date: "2026-08-06",
-        description: "振込＊ド）バブラボ",
-        amount: 34_025,
-        entrySide: "income",
-        walletableId: 300,
-        walletableName: "住信SBI",
-        updatedAt: "2026-08-06T12:00:00+09:00",
-      },
-    });
-    expect(reads()).toBe(1);
-    expect(writes()).toBe(0);
-  });
-
   test("trusts a successful Web write without rereading the transaction", async () => {
     const { deps, reads, writes } = restoreDependencies();
 

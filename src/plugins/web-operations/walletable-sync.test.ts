@@ -90,42 +90,6 @@ function immediatePolling() {
 }
 
 describe("walletable sync", () => {
-  test("previews one walletable request without claiming bulk eligibility", async () => {
-    const { web, requests } = scriptedWeb([
-      summary([walletable({ id: 20, name: "Card", type: "credit_card", limited: true })]),
-    ]);
-    const sync = createWalletableSync({ web, dryRun: true });
-
-    await expect(sync({ kind: "one", walletableId: 20 })).resolves.toEqual({
-      dryRun: true,
-      walletables: [
-        {
-          walletableId: 20,
-          walletableName: "Card",
-          walletableType: "credit_card",
-          status: "would-request",
-        },
-      ],
-    });
-    expect(requests).toEqual([{ operation: "summary" }]);
-  });
-
-  test("previews bulk synchronization without inferring freee's participants", async () => {
-    const { web, requests } = scriptedWeb([
-      summary([
-        walletable({ id: 10, name: "Bank", type: "bank_account" }),
-        walletable({ id: 20, name: "Disconnected", type: "credit_card", connected: false }),
-        walletable({ id: 30, name: "Limited", type: "credit_card", limited: true }),
-      ]),
-    ]);
-    const sync = createWalletableSync({ web, dryRun: true });
-
-    await expect(sync({ kind: "all" })).resolves.toEqual({
-      dryRun: true,
-    });
-    expect(requests).toEqual([{ operation: "summary" }]);
-  });
-
   test("resolves the walletable type and confirms one sync completed", async () => {
     const progress: WalletableSyncProgress[] = [];
     const { web, requests } = scriptedWeb([

@@ -1,16 +1,21 @@
+import * as v from "valibot";
+
 import { configureClient } from "../../api/client.ts";
 import { PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { configDir } from "../../config/config.ts";
 import { CliError, OutcomeUnknownError } from "../../errors.ts";
 import { invoicesShow } from "../../types/freee-invoice/sdk.gen.ts";
 import type { InvoiceShowResponseInvoice } from "../../types/freee-invoice/types.gen.ts";
-import { type FreeeWebOperations, withFreeeWeb } from "./freee-web.ts";
+import { type FreeeWebOperations, type InvoiceSendingStatus, withFreeeWeb } from "./freee-web.ts";
 import { resolveWebCommandScope, type WebCommandScope } from "./web-command-scope.ts";
 
 type Values = {
   id?: unknown;
   profile?: unknown;
+  status?: unknown;
 };
+
+const InvoiceSendingStatusSchema = v.picklist(["sent", "unsent"]);
 
 type Dependencies = {
   resolveScope: (requestedProfile: unknown) => WebCommandScope;
@@ -44,8 +49,8 @@ const defaultDependencies: Dependencies = {
 function invalidInvoice(message: string): CliError {
   return new CliError(message, {
     code: "INVALID_INPUT",
-    why: "Deal registration requires one active, unregistered invoice.",
-    hint: 'Use "freee invoice-list --deal-status unregistered --cancel-status uncanceled --format json" and retry with its ID.',
+    why: "Changing the sending status requires one active invoice in the selected company.",
+    hint: 'Use "freee invoice-show --id <id> --format json" and retry with its ID.',
   });
 }
 
@@ -55,12 +60,6 @@ function identifyTarget(invoice: InvoiceShowResponseInvoice, companyId: number) 
   }
   if (invoice.cancel_status === "canceled") {
     throw invalidInvoice(`Invoice ${invoice.id} is canceled.`);
-  }
-  if (
-    invoice.deal_status !== "unregistered" ||
-    (invoice.deal_id !== null && invoice.deal_id !== undefined)
-  ) {
-    throw invalidInvoice(`Invoice ${invoice.id} is already registered as a Deal.`);
   }
   return {
     id: invoice.id,
@@ -73,26 +72,23 @@ function identifyTarget(invoice: InvoiceShowResponseInvoice, companyId: number) 
   };
 }
 
-function registeredDealId(invoice: InvoiceShowResponseInvoice, companyId: number): number {
-  const dealId = invoice.deal_id;
-  if (
-    invoice.company_id !== companyId ||
-    invoice.deal_status !== "registered" ||
-    typeof dealId !== "number" ||
-    !Number.isSafeInteger(dealId) ||
-    dealId < 1
-  ) {
-    throw new Error("The official invoice API does not report a registered Deal.");
+function assertStatus(
+  invoice: InvoiceShowResponseInvoice,
+  companyId: number,
+  status: InvoiceSendingStatus,
+): void {
+  if (invoice.company_id !== companyId || invoice.sending_status !== status) {
+    throw new Error(`The official invoice API does not report sending status ${status}.`);
   }
-  return dealId;
 }
 
-export async function runInvoiceRegisterDealCommand(
+export async function runInvoiceSetSendingStatusCommand(
   values: Values,
   dependencies: Partial<Dependencies> = {},
 ) {
   const deps = { ...defaultDependencies, ...dependencies };
   const invoiceId = parseCliInput(PositiveIntegerTextSchema, values.id, { label: "--id" });
+  const status = parseCliInput(InvoiceSendingStatusSchema, values.status, { label: "--status" });
   const scope = deps.resolveScope(values.profile);
   const before = await deps.readInvoice({
     profile: scope.profile,
@@ -103,14 +99,20 @@ export async function runInvoiceRegisterDealCommand(
   const result = {
     profile: scope.profile,
     companyId: scope.companyId,
-    action: "register-deal" as const,
+    action: "set-sending-status" as const,
+    before: before.sending_status,
+    after: status,
     target,
   };
+
+  if (before.sending_status === status) {
+    return { ...result, changed: false as const };
+  }
 
   return deps.withWeb(scope, async (web: FreeeWebOperations) => {
     let writeError: unknown;
     try {
-      await web.registerInvoiceDeal(invoiceId);
+      await web.setInvoiceSendingStatus(invoiceId, status);
     } catch (error) {
       if (!(error instanceof OutcomeUnknownError)) throw error;
       writeError = error;
@@ -122,16 +124,13 @@ export async function runInvoiceRegisterDealCommand(
         companyId: scope.companyId,
         invoiceId,
       });
-      return {
-        ...result,
-        registered: true as const,
-        dealId: registeredDealId(after, scope.companyId),
-      };
+      assertStatus(after, scope.companyId, status);
+      return { ...result, changed: true as const };
     } catch (verificationError) {
       const causes =
         writeError === undefined ? [verificationError] : [writeError, verificationError];
-      throw new OutcomeUnknownError("freee invoice Deal registration could not be verified.", {
-        cause: new AggregateError(causes, "Invoice Deal registration verification failed."),
+      throw new OutcomeUnknownError("freee invoice sending status could not be verified.", {
+        cause: new AggregateError(causes, "Invoice sending status verification failed."),
       });
     }
   });

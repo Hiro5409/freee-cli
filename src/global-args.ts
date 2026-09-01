@@ -34,7 +34,7 @@ export const listArgs = {
   },
 };
 
-export const writeArgs = {
+export const dryRunArgs = {
   ...companyArgs,
   "dry-run": {
     type: "boolean" as const,

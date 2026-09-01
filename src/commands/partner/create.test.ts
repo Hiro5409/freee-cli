@@ -72,24 +72,6 @@ describe("partner create command", () => {
     );
   });
 
-  test("dry-run returns the structured request without calling the API", async () => {
-    const result = await cli(
-      ["--company-id", "123", "--name", "Acme", "--code", "P-001", "--dry-run", "--format", "json"],
-      partnerCreateCommand,
-    );
-
-    expect(onCreatePartner).not.toHaveBeenCalled();
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(JSON.parse(result)).toEqual({
-      dryRun: true,
-      request: {
-        method: "POST",
-        path: "/api/1/partners",
-        body: { company_id: 123, name: "Acme", code: "P-001" },
-      },
-    });
-  });
-
   test("omits code when it is not provided", async () => {
     await cli(["--company-id", "123", "--name", "Acme"], partnerCreateCommand);
 

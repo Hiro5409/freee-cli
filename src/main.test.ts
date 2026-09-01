@@ -104,22 +104,18 @@ describe("CLI integration", () => {
     expect(stdout).toMatch(/^  walletable <OPTIONS>/m);
   });
 
-  test("freee Web write command help exposes examples and operation-specific options", async () => {
+  test("freee Web preview commands expose dry-run examples and operation-specific options", async () => {
     const commands = [
       { path: ["wallet-txn", "apply-rules"], options: [] },
-      { path: ["wallet-txn", "ignore"], options: [] },
       {
         path: ["wallet-txn", "register"],
         options: ["--account-item-name", "--tax-name", "--description"],
       },
-      { path: ["wallet-txn", "restore"], options: [] },
       { path: ["wallet-txn", "settle"], options: ["--deal-id", "--amount"] },
       {
         path: ["wallet-txn", "transfer"],
         options: ["--counterparty-walletable-name", "--description"],
       },
-      { path: ["invoice", "register-deal"], options: [] },
-      { path: ["walletable", "sync"], options: ["--all", "--id"] },
     ];
 
     for (const { path, options } of commands) {
@@ -130,6 +126,26 @@ describe("CLI integration", () => {
       expect(stdout, name).toContain(`freee web ${name}`);
       expect(stdout, name).toContain("--dry-run");
       expect(stdout, name).toContain("--format json");
+      for (const option of options) expect(stdout, name).toContain(option);
+    }
+  });
+
+  test("freee Web direct commands do not advertise dry-run", async () => {
+    const commands = [
+      { path: ["wallet-txn", "ignore"], options: [] },
+      { path: ["wallet-txn", "restore"], options: [] },
+      { path: ["invoice", "register-deal"], options: [] },
+      { path: ["invoice", "set-sending-status"], options: ["--status"] },
+      { path: ["walletable", "sync"], options: ["--all", "--id"] },
+    ];
+
+    for (const { path, options } of commands) {
+      const name = path.join(" ");
+      const { stdout, stderr, exitCode } = await runCli(["web", ...path, "--help"]);
+      expect(exitCode, name).toBe(0);
+      expect(stderr, name).toBe("");
+      expect(stdout, name).toContain(`freee web ${name}`);
+      expect(stdout, name).not.toContain("--dry-run");
       for (const option of options) expect(stdout, name).toContain(option);
     }
   });
@@ -148,32 +164,24 @@ describe("CLI integration", () => {
     expect(stdout).not.toContain("--file-box-document-ids");
   });
 
-  test("every write command help includes a dry-run JSON example", async () => {
+  test("commands with decision-bearing previews include a dry-run JSON example", async () => {
     const commands = [
-      "wallet-txn-create",
       "wallet-txn-delete",
       "auto-rule-create",
       "auto-rule-delete",
       "auto-rule-disable",
       "auto-rule-enable",
       "auto-rule-update",
-      "deal-create",
       "deal-delete",
-      "deal-payment-create",
       "deal-payment-delete",
       "deal-payment-update",
       "deal-update",
-      "invoice-create",
       "invoice-cancel",
-      "invoice-restore",
       "invoice-update",
-      "partner-create",
-      "transfer-create",
       "transfer-delete",
       "transfer-update",
       "file-box-delete",
       "file-box-update",
-      "file-box-upload",
     ];
 
     for (const command of commands) {
@@ -183,6 +191,27 @@ describe("CLI integration", () => {
       expect(stdout, command).toContain(`freee ${command}`);
       expect(stdout, command).toContain("--dry-run");
       expect(stdout, command).toContain("--format json");
+    }
+  });
+
+  test("simple and reversible writes do not advertise dry-run", async () => {
+    const commands = [
+      "wallet-txn-create",
+      "deal-create",
+      "deal-payment-create",
+      "invoice-create",
+      "invoice-restore",
+      "partner-create",
+      "transfer-create",
+      "file-box-upload",
+    ];
+
+    for (const command of commands) {
+      const { stdout, stderr, exitCode } = await runCli([command, "--help"]);
+      expect(exitCode, command).toBe(0);
+      expect(stderr, command).toBe("");
+      expect(stdout, command).toContain(`freee ${command}`);
+      expect(stdout, command).not.toContain("--dry-run");
     }
   });
 
@@ -223,19 +252,11 @@ describe("CLI integration", () => {
 
   test("a command that returns its output prints it to stdout", async () => {
     const { stdout, exitCode } = await runCliWithEmptyConfig([
-      "deal-create",
+      "deal-delete",
       "--company-id",
       "123",
-      "--date",
-      "2026-03-15",
-      "--type",
-      "expense",
-      "--account-item-id",
-      "101",
-      "--tax-code",
-      "21",
-      "--amount",
-      "10000",
+      "--id",
+      "42",
       "--dry-run",
     ]);
 
@@ -326,7 +347,6 @@ describe("CLI integration", () => {
       "1",
       "--walletable-type",
       "wallet",
-      "--dry-run",
       "--format",
       "json",
     ]);
@@ -342,15 +362,13 @@ describe("CLI integration", () => {
 
   test("malformed CLI input reports one actionable validation issue", async () => {
     const { stdout, stderr, exitCode } = await runCliWithEmptyConfig([
-      "invoice-create",
+      "invoice-update",
       "--company-id",
       "1",
-      "--partner-id",
+      "--id",
       "2",
       "--billing-date",
       "2026/08/01",
-      "--line",
-      '{"description":"x","quantity":1,"unit_price":"1","tax_rate":10}',
       "--dry-run",
       "--format",
       "json",

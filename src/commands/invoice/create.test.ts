@@ -179,13 +179,4 @@ describe("invoice create command", () => {
     ).rejects.toThrow(/positive integer/);
     expect(onCreate).not.toHaveBeenCalled();
   });
-
-  test("--dry-run は API を叩かず送信内容を返す", async () => {
-    const result = await cli([...baseArgs, "--dry-run"], invoiceCreateCommand);
-
-    expect(onCreate).not.toHaveBeenCalled();
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(result).toContain("Dry run");
-    expect(result).toContain("2026-08-01");
-  });
 });

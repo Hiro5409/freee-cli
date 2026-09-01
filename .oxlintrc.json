@@ -72,10 +72,8 @@
       }
     },
     {
-      // Workflow writes are checked where their command adapter calls them.
       "files": ["src/commands/**"],
       "rules": {
-        "freee-cli/require-dry-run": "error",
         "no-console": ["error", { "allow": ["error"] }]
       }
     }

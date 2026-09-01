@@ -99,13 +99,4 @@ describe("transfer write commands", () => {
       to_walletables: [{ type: "credit_card", id: 20, amount: 5000, description: "card payment" }],
     });
   });
-
-  test("previews creation without writing", async () => {
-    const result = await cli(
-      [...createArgs, "--dry-run", "--format", "json"],
-      transferCreateCommand,
-    );
-    expect(onCreate).not.toHaveBeenCalled();
-    expect(JSON.parse(String(result))).toMatchObject({ request: { method: "POST" } });
-  });
 });

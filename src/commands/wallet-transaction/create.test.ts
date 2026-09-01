@@ -119,16 +119,6 @@ describe("wallet transaction create command", () => {
     expect(onCreateWalletTxn).toHaveBeenCalledWith(expect.objectContaining({ balance: 40000 }));
   });
 
-  test("dry-run validates, prints the payload, and does not call the API", async () => {
-    const result = await cli([...baseArgs, "--dry-run"], walletTransactionCreateCommand);
-
-    expect(onCreateWalletTxn).not.toHaveBeenCalled();
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(result).toContain("Dry run");
-    expect(result).toContain('"walletable_id": 55');
-    expect(result).toContain('"date": "2026-08-01"');
-  });
-
   test("rejects a calendar-invalid --date before calling the API", async () => {
     const args = baseArgs.map((a) => (a === "2026-08-01" ? "2026-02-30" : a));
 

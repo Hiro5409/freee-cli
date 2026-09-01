@@ -2,9 +2,9 @@ import { define } from "gunshi";
 import colors from "yoctocolors";
 
 import { CliError } from "../../errors.ts";
-import { writeArgs } from "../../global-args.ts";
+import { companyArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatDryRun, formatValue } from "../../output/formatter.ts";
+import { formatValue } from "../../output/formatter.ts";
 import { createPartner } from "../../types/freee/sdk.gen.ts";
 import type { PartnerCreateParams } from "../../types/freee/types.gen.ts";
 
@@ -22,12 +22,11 @@ export const partnerCreateCommand = define({
   name: "partner-create",
   description: "Create a partner (transaction counterpart)",
   args: {
-    ...writeArgs,
+    ...companyArgs,
     name: { type: "string" as const, description: "Partner name", required: true },
     code: { type: "string" as const, description: "Partner code" },
   },
-  examples: `# Preview the request before writing
-$ freee partner-create --name "Acme" --code P-001 --dry-run --format json`,
+  examples: `$ freee partner-create --name "Acme" --code P-001 --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const body: PartnerCreateParams = {
@@ -35,14 +34,6 @@ $ freee partner-create --name "Acme" --code P-001 --dry-run --format json`,
       name: parsePartnerName(ctx.values.name),
       ...(ctx.values.code === undefined ? {} : { code: ctx.values.code }),
     };
-
-    if (ctx.values["dry-run"]) {
-      return formatDryRun(
-        format,
-        { method: "POST", path: "/api/1/partners", body },
-        `${colors.yellow("Dry run —")} would create partner: ${JSON.stringify(body, null, 2)}`,
-      );
-    }
 
     const { data } = await createPartner({ body });
     return formatValue(

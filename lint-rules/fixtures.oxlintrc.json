@@ -8,7 +8,6 @@
   "rules": {
     "freee-cli/no-cross-command-import": "error",
     "freee-cli/no-unlimited-disable": "error",
-    "freee-cli/require-disable-reason": "error",
-    "freee-cli/require-dry-run": "error"
+    "freee-cli/require-disable-reason": "error"
   }
 }

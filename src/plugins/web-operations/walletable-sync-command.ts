@@ -12,7 +12,6 @@ import { resolveWebCommandScope, type WebCommandScope } from "./web-command-scop
 
 type Values = {
   all?: boolean;
-  "dry-run"?: boolean;
   format?: unknown;
   id?: unknown;
   profile?: unknown;
@@ -25,7 +24,6 @@ type Dependencies = {
     web: WalletableSyncWeb,
     scope: WalletableSyncScope,
     onProgress: (progress: WalletableSyncProgress) => void,
-    dryRun: boolean,
   ) => Promise<WalletableSyncResult>;
   writeProgress: (message: string) => void;
 };
@@ -33,8 +31,7 @@ type Dependencies = {
 const defaultDependencies: Dependencies = {
   resolveScope: resolveWebCommandScope,
   withWeb: withFreeeWeb,
-  sync: (web, scope, onProgress, dryRun) =>
-    createWalletableSync({ web, dryRun, onProgress })(scope),
+  sync: (web, scope, onProgress) => createWalletableSync({ web, onProgress })(scope),
   writeProgress: (message) => process.stderr.write(`${message}\n`),
 };
 
@@ -71,12 +68,7 @@ export async function runWalletableSyncCommand(
       ? () => undefined
       : (progress: WalletableSyncProgress) => deps.writeProgress(formatProgress(progress));
   return deps.withWeb(commandScope, async (web: FreeeWebOperations) => {
-    const result: WalletableSyncResult = await deps.sync(
-      web,
-      requestedSync,
-      onProgress,
-      values["dry-run"] === true,
-    );
+    const result: WalletableSyncResult = await deps.sync(web, requestedSync, onProgress);
     return {
       profile: commandScope.profile,
       companyId: commandScope.companyId,

@@ -7,7 +7,7 @@ import {
   PositiveIntegerTextSchema,
   parseCliInput,
 } from "../../cli-input.ts";
-import { writeArgs } from "../../global-args.ts";
+import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
 import { formatDryRun, formatValue } from "../../output/formatter.ts";
 import { getDeal, updateDeal } from "../../types/freee/sdk.gen.ts";
@@ -102,7 +102,7 @@ export const dealUpdateCommand = define({
   name: "deal-update",
   description: "Update a deal; omit replacement fields to preserve their current values",
   args: {
-    ...writeArgs,
+    ...dryRunArgs,
     id: { type: "string" as const, description: "Deal ID", required: true },
     detail: {
       type: "string" as const,

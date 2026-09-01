@@ -3,7 +3,7 @@ import colors from "yoctocolors";
 
 import { IsoDateSchema, PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
-import { writeArgs } from "../../global-args.ts";
+import { companyArgs, dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
 import { formatDryRun } from "../../output/formatter.ts";
 import { createTransfer, getTransfer, updateTransfer } from "../../types/freee/sdk.gen.ts";
@@ -78,7 +78,7 @@ export const transferCreateCommand = define({
   name: "transfer-create",
   description: "Create an account transfer",
   args: {
-    ...writeArgs,
+    ...companyArgs,
     ...transferArgs,
     date: { ...transferArgs.date, required: true },
     "from-walletable-id": { ...transferArgs["from-walletable-id"], required: true },
@@ -88,7 +88,7 @@ export const transferCreateCommand = define({
   examples: `$ freee transfer-create --date 2026-08-01 \\
     --from-walletable-id 10 --from-walletable-type bank_account \\
     --to '{"type":"credit_card","id":20,"amount":5000,"description":"Card payment"}' \\
-    --dry-run --format json`,
+    --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const body = {
@@ -103,13 +103,6 @@ export const transferCreateCommand = define({
       to_walletables: parseTransferDestinations(ctx.values.to),
     } satisfies TransferParams;
 
-    if (ctx.values["dry-run"]) {
-      return formatDryRun(
-        format,
-        { method: "POST", path: "/api/1/transfers", body },
-        `${colors.yellow("Dry run —")} would POST /api/1/transfers: ${JSON.stringify(body, null, 2)}`,
-      );
-    }
     const { data } = await createTransfer({ body });
     if (format === "json") return JSON.stringify(data.transfer, null, 2);
     return colors.green(`Transfer created: id=${data.transfer.id}`);
@@ -120,7 +113,7 @@ export const transferUpdateCommand = define({
   name: "transfer-update",
   description: "Update selected fields of an account transfer",
   args: {
-    ...writeArgs,
+    ...dryRunArgs,
     ...transferArgs,
     id: { type: "string" as const, description: "Transfer ID", required: true },
   },

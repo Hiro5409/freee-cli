@@ -22,28 +22,15 @@ export type WalletableSyncProgress =
       status: "started" | "syncing" | "synced";
     };
 
-export type WalletableSyncResult =
-  | {
-      walletables: Array<{
-        walletableId: number;
-        walletableName: string;
-        walletableType: FreeeWebWalletableType;
-        status: "synced";
-        lastSyncedAt: string;
-      }>;
-    }
-  | {
-      dryRun: true;
-      walletables: Array<{
-        walletableId: number;
-        walletableName: string;
-        walletableType: FreeeWebWalletableType;
-        status: "would-request";
-      }>;
-    }
-  | {
-      dryRun: true;
-    };
+export type WalletableSyncResult = {
+  walletables: Array<{
+    walletableId: number;
+    walletableName: string;
+    walletableType: FreeeWebWalletableType;
+    status: "synced";
+    lastSyncedAt: string;
+  }>;
+};
 
 type Polling = {
   timeoutMs: number;
@@ -87,7 +74,6 @@ async function observeAfterStart<T>(operation: () => Promise<T>): Promise<T> {
 
 export function createWalletableSync(input: {
   web: WalletableSyncWeb;
-  dryRun?: boolean;
   polling?: Polling;
   onProgress?: (progress: WalletableSyncProgress) => void;
 }): (scope: WalletableSyncScope) => Promise<WalletableSyncResult> {
@@ -118,20 +104,6 @@ export function createWalletableSync(input: {
       if (target.connectedServiceId === null) {
         throw new Error(`${target.name} is not connected to a sync service.`);
       }
-      if (input.dryRun) {
-        return {
-          dryRun: true,
-          walletables: [
-            {
-              walletableId: target.id,
-              walletableName: target.name,
-              walletableType: target.type,
-              status: "would-request",
-            },
-          ],
-        };
-      }
-
       await input.web.startWalletableSync(target.type, target.id);
       reportWalletable(target, "started");
 
@@ -181,9 +153,6 @@ export function createWalletableSync(input: {
     }
     if (!initial.readyToSyncAll) {
       throw new Error("freee is not ready to start syncing all walletables.");
-    }
-    if (input.dryRun) {
-      return { dryRun: true };
     }
     const targets = initial.walletables.filter(
       (walletable) =>

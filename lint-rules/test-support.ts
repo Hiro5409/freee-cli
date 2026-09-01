@@ -7,7 +7,6 @@ const fixtureRules = [
   "no-cross-command-import",
   "no-unlimited-disable",
   "require-disable-reason",
-  "require-dry-run",
 ] as const;
 
 type Diagnostic = {

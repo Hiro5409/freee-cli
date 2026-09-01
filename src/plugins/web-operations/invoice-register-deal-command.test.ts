@@ -37,13 +37,10 @@ function dependencies(
       ...input.after,
     },
   ];
-  let inspections = 0;
   let reads = 0;
+  let webSessions = 0;
   let writes = 0;
   const web = {
-    inspectInvoiceDealRegistration: async () => {
-      inspections += 1;
-    },
     registerInvoiceDeal: async () => {
       writes += 1;
       if (input.writeError) throw input.writeError;
@@ -63,43 +60,20 @@ function dependencies(
         receivedScope: { companyId: number; authProfile: string },
         run: (receivedWeb: FreeeWebOperations) => Promise<T>,
       ) => {
+        webSessions += 1;
         expect(receivedScope).toMatchObject({ companyId: 100, authProfile: "business-freee" });
         return run(web);
       },
     },
-    inspections: () => inspections,
     reads: () => reads,
+    webSessions: () => webSessions,
     writes: () => writes,
   };
 }
 
 describe("invoice register Deal command", () => {
-  test("dry-run identifies one unregistered invoice and checks the Web action without writing", async () => {
-    const { deps, inspections, writes } = dependencies();
-
-    await expect(
-      runInvoiceRegisterDealCommand({ id: "77", profile: "business", "dry-run": true }, deps),
-    ).resolves.toEqual({
-      profile: "business",
-      companyId: 100,
-      action: "register-deal",
-      dryRun: true,
-      target: {
-        id: 77,
-        invoiceNumber: "INV-77",
-        subject: "8月分制作費",
-        billingDate: "2026-08-31",
-        partnerId: 456,
-        partnerName: "合同会社VAB Labo",
-        totalAmount: 110_000,
-      },
-    });
-    expect(inspections()).toBe(1);
-    expect(writes()).toBe(0);
-  });
-
   test("registers once and verifies the Deal through the official invoice API", async () => {
-    const { deps, inspections, writes } = dependencies();
+    const { deps, webSessions, writes } = dependencies();
 
     await expect(
       runInvoiceRegisterDealCommand({ id: "77", profile: "business" }, deps),
@@ -111,19 +85,19 @@ describe("invoice register Deal command", () => {
       registered: true,
       target: { id: 77 },
     });
-    expect(inspections()).toBe(0);
+    expect(webSessions()).toBe(1);
     expect(writes()).toBe(1);
   });
 
   test("rejects a canceled invoice before opening freee Web", async () => {
-    const { deps, inspections, writes } = dependencies({
+    const { deps, webSessions, writes } = dependencies({
       before: { cancel_status: "canceled" },
     });
 
     await expect(
       runInvoiceRegisterDealCommand({ id: "77", profile: "business" }, deps),
     ).rejects.toThrow("canceled");
-    expect(inspections()).toBe(0);
+    expect(webSessions()).toBe(0);
     expect(writes()).toBe(0);
   });
 
@@ -139,12 +113,12 @@ describe("invoice register Deal command", () => {
   });
 
   test("rejects a company mismatch before opening freee Web", async () => {
-    const { deps, inspections, writes } = dependencies({ before: { company_id: 101 } });
+    const { deps, webSessions, writes } = dependencies({ before: { company_id: 101 } });
 
     await expect(
       runInvoiceRegisterDealCommand({ id: "77", profile: "business" }, deps),
     ).rejects.toThrow("does not belong to company 100");
-    expect(inspections()).toBe(0);
+    expect(webSessions()).toBe(0);
     expect(writes()).toBe(0);
   });
 

@@ -3,7 +3,7 @@ import colors from "yoctocolors";
 
 import { PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { dealPaymentArgs, parseDealPayment } from "../../deal-payment.ts";
-import { writeArgs } from "../../global-args.ts";
+import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
 import { formatDryRun, formatValue } from "../../output/formatter.ts";
 import { updateDealPayment } from "../../types/freee/sdk.gen.ts";
@@ -12,7 +12,7 @@ export const dealPaymentUpdateCommand = define({
   name: "deal-payment-update",
   description: "Update a payment on a deal",
   args: {
-    ...writeArgs,
+    ...dryRunArgs,
     id: { type: "string" as const, description: "Deal ID", required: true },
     "payment-id": { type: "string" as const, description: "Payment ID", required: true },
     ...dealPaymentArgs,

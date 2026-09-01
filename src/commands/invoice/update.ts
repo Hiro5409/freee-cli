@@ -3,7 +3,7 @@ import colors from "yoctocolors";
 
 import { IsoDateSchema, PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
-import { writeArgs } from "../../global-args.ts";
+import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
 import { formatDryRun } from "../../output/formatter.ts";
 import { invoicesShow, invoicesUpdate } from "../../types/freee-invoice/sdk.gen.ts";
@@ -133,7 +133,7 @@ export const invoiceUpdateCommand = define({
   description:
     "Update an invoice via the freee invoice API (fetch-merge-PUT; unspecified fields are resent unchanged)",
   args: {
-    ...writeArgs,
+    ...dryRunArgs,
     ...invoiceArgs,
     id: { type: "string" as const, description: "Invoice ID", required: true },
   },

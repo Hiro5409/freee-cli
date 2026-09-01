@@ -3,9 +3,8 @@ import colors from "yoctocolors";
 
 import { IsoDateSchema, PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
-import { writeArgs } from "../../global-args.ts";
+import { companyArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatDryRun } from "../../output/formatter.ts";
 import { invoicesCreate } from "../../types/freee-invoice/sdk.gen.ts";
 import type { InvoiceRequest } from "../../types/freee-invoice/types.gen.ts";
 import { invoiceArgs } from "./invoice-args.ts";
@@ -39,14 +38,14 @@ function resolvePartner(values: {
 export const invoiceCreateCommand = define({
   name: "invoice-create",
   description: "Create an invoice via the freee invoice API",
-  args: { ...writeArgs, ...invoiceArgs },
+  args: { ...companyArgs, ...invoiceArgs },
   examples: `# 外税・10%の1明細で作成
 $ freee invoice-create --partner-id 456 --billing-date 2026-08-01 \\
-    --line '{"description":"コンサルティング","quantity":1,"unit_price":"100000","tax_rate":10}' --dry-run --format json
+    --line '{"description":"コンサルティング","quantity":1,"unit_price":"100000","tax_rate":10}' --format json
 
 # 自動採番が無効な事業所
 $ freee invoice-create --partner-id 456 --billing-date 2026-08-01 --invoice-number INV-2026-001 \\
-    --line '{"description":"作業費","quantity":1,"unit_price":"50000","tax_rate":10}' --dry-run --format json`,
+    --line '{"description":"作業費","quantity":1,"unit_price":"50000","tax_rate":10}' --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
 
@@ -79,14 +78,6 @@ $ freee invoice-create --partner-id 456 --billing-date 2026-08-01 --invoice-numb
       invoice_note: ctx.values["invoice-note"],
       lines: parseInvoiceLines(ctx.values.line ?? []),
     };
-
-    if (ctx.values["dry-run"]) {
-      return formatDryRun(
-        format,
-        { method: "POST", path: "/invoices", body },
-        `${colors.yellow("Dry run —")} would POST /invoices: ${JSON.stringify(body, null, 2)}`,
-      );
-    }
 
     const { data } = await invoicesCreate({ body });
 

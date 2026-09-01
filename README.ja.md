@@ -23,7 +23,7 @@ CLIなら、coding agent、開発者、スクリプト、CIが同じインター
 コマンドを`--help`で調べ、ファイルやパイプと組み合わせ、不具合の調査では直接実行できます。
 
 そのため、freee-cliは用途固有のワークフローではなく、小さなfreee操作を提供します。
-JSON出力、構造化エラー、更新時の`--dry-run`によって、自動化から予測可能に扱えます。
+JSON出力、構造化エラーに加え、指定済みの引数以上の差分を確認できる操作だけに`--dry-run`を提供します。
 
 ## 公式OpenAPIスキーマへの追従
 
@@ -62,15 +62,15 @@ freee company-switch --id 1234567 --name "My Company"
 ```bash
 freee deal-list --month 2026-08
 freee deal-create --date 2026-08-15 --type expense \
-  --account-item-id 123 --tax-code 136 --amount 5000 --dry-run
+  --account-item-id 123 --tax-code 136 --amount 5000
 freee wallet-txn-list --month 2026-08 --status unreconciled
 freee wallet-txn-show --id 42
 freee transfer-list --month 2026-08
 freee transfer-create --date 2026-08-01 \
   --from-walletable-id 10 --from-walletable-type bank_account \
-  --to '{"type":"credit_card","id":20,"amount":5000}' --dry-run
+  --to '{"type":"credit_card","id":20,"amount":5000}'
 freee file-box-list --start-date 2026-08-01 --end-date 2026-08-31 --category without-deal
-freee file-box-upload --file receipt.jpg --dry-run
+freee file-box-upload --file receipt.jpg
 freee section-list
 freee tag-list
 freee segment-tag-list --segment 1
@@ -93,7 +93,7 @@ freee auto-rule-update --id 42 --account-item-name 通信費 --dry-run
 freee auto-rule-update --id 42 --clear walletable --dry-run --format json
 freee auto-rule-disable --id 42 --dry-run
 freee wallet-txn-create --date 2026-08-01 --entry-side expense --amount 5000 \
-  --walletable-id 55 --walletable-type credit_card --description AMAZON.CO.JP --dry-run
+  --walletable-id 55 --walletable-type credit_card --description AMAZON.CO.JP
 ```
 
 `auto-rule-update --clear <field>` は、JSON `null` を送って任意のルール条件を解除します。
@@ -105,7 +105,7 @@ freee wallet-txn-create --date 2026-08-01 --entry-side expense --amount 5000 \
 ```bash
 freee invoice-list --sending-status unsent
 freee invoice-create --partner-id 123 --billing-date 2026-08-01 \
-  --line '{"description":"コンサルティング","quantity":1,"unit_price":"100000","tax_rate":10,"account_item_id":123,"tax_code":129}' --dry-run
+  --line '{"description":"コンサルティング","quantity":1,"unit_price":"100000","tax_rate":10,"account_item_id":123,"tax_code":129}'
 freee invoice-update --id 456 --subject "8月分ご請求" --dry-run
 ```
 
@@ -127,7 +127,6 @@ freee walletable-list
 freee wallet-txn-list --status unreconciled
 freee web wallet-txn apply-rules --dry-run --format json
 freee web wallet-txn apply-rules
-freee web wallet-txn ignore --id 42 --dry-run --format json
 freee web wallet-txn ignore --id 42
 freee web wallet-txn register --id 42 --account-item-name "通信費" --tax-name "課対仕入10%" --dry-run --format json
 freee web wallet-txn register --id 42 --account-item-name "通信費" --tax-name "課対仕入10%"
@@ -136,12 +135,12 @@ freee web wallet-txn settle --id 42 --deal-id 91 --amount 10000
 freee web wallet-txn transfer --id 42 --counterparty-walletable-name "事業主借" --dry-run --format json
 freee web wallet-txn transfer --id 42 --counterparty-walletable-name "事業主借"
 freee wallet-txn-list --status ignored
-freee web wallet-txn restore --id 42 --dry-run --format json
 freee web wallet-txn restore --id 42
+freee invoice-list --sending-status unsent
+freee web invoice set-sending-status --id 456 --status sent
+freee web invoice set-sending-status --id 456 --status unsent
 freee invoice-list --deal-status unregistered --cancel-status uncanceled
-freee web invoice register-deal --id 456 --dry-run --format json
 freee web invoice register-deal --id 456
-freee web walletable sync --all --dry-run
 freee web walletable sync --id 42
 freee web walletable sync --all
 ```
@@ -150,8 +149,6 @@ freee web walletable sync --all
 必要な理由と安定コマンドへ置き換える条件は、[Web操作モジュールの文書](src/plugins/web-operations/README.md)にまとめています。
 
 口座IDは、公式APIを使う`freee walletable-list`で取得します。`freee web walletable sync`は同期を開始し、最大1時間まで完了を待ちます。表形式では状態の変化をstderrへ表示し、JSON形式ではstdoutを機械可読に保つため進捗を表示しません。
-
-`--id`のdry-runは同期を開始せず、対象口座を表示します。`--all`のdry-runが確認するのは、freeeが現在一括同期リクエストを許可していることだけです。実際に同期へ参加する口座は実行後にfreeeが選びます。
 
 `--all`では、対象となる口座をfreeeが選びます。結果に含まれるのは、同期が開始して完了した口座だけです。選ばれなかった候補は、必要に応じて`--id`で個別に同期できます。
 

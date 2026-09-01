@@ -8,7 +8,7 @@ import {
   parseCliInput,
 } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
-import { writeArgs } from "../../global-args.ts";
+import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
 import { formatDryRun } from "../../output/formatter.ts";
 import { createUserMatcher, getUserMatcher, updateUserMatcher } from "../../types/freee/sdk.gen.ts";
@@ -298,7 +298,7 @@ export const autoRegistrationRuleCreateCommand = define({
   name: "auto-rule-create",
   description: "Create an auto-registration rule",
   args: {
-    ...writeArgs,
+    ...dryRunArgs,
     ...ruleArgs,
     act: { ...ruleArgs.act, required: true },
     description: { ...ruleArgs.description, required: true },
@@ -341,7 +341,7 @@ export const autoRegistrationRuleUpdateCommand = define({
   name: "auto-rule-update",
   description: "Update selected fields of an auto-registration rule",
   args: {
-    ...writeArgs,
+    ...dryRunArgs,
     ...ruleArgs,
     id: { type: "string" as const, description: "Auto-registration rule ID", required: true },
     clear: {

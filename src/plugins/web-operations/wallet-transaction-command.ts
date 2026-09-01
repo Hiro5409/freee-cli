@@ -9,7 +9,6 @@ import { identifyWalletTransactionTarget } from "./wallet-transaction-target.ts"
 import { resolveWebCommandScope, type WebCommandScope } from "./web-command-scope.ts";
 
 type Values = {
-  "dry-run"?: boolean;
   id?: unknown;
   profile?: unknown;
 };
@@ -123,7 +122,6 @@ async function runWalletTransactionTransition(
       walletTransaction,
     });
     const result = { profile: scope.profile, companyId: scope.companyId, action, target };
-    if (values["dry-run"] === true) return { ...result, dryRun: true as const };
 
     try {
       await transitions[action].write(web, walletTransaction);

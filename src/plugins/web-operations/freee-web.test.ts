@@ -45,6 +45,16 @@ function webResponse(body: unknown, status = 200) {
   };
 }
 
+function invoiceWebResponse(body: unknown, status = 200) {
+  return {
+    result: JSON.stringify({
+      origin: invoiceOrigin,
+      status,
+      body: typeof body === "string" ? body : JSON.stringify(body),
+    }),
+  };
+}
+
 function invoiceSaveRequest(invoiceId: number, status: number) {
   return {
     requests: [
@@ -503,28 +513,73 @@ describe("Agent Browserのfreeeセッション", () => {
     ).toHaveLength(0);
   });
 
-  test("請求書のdry-runはexactな取引登録ボタンの存在を確認する", async () => {
+  test("請求書の送付ステータスを専用Web endpointで送付済みにする", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { commands, spawn } = mockAgentBrowser([
+    const { standardInputs, spawn } = mockAgentBrowser([
       null,
       { result: JSON.stringify({ origin, companyId }) },
       null,
       { result: JSON.stringify({ origin: invoiceOrigin }) },
       { result: JSON.stringify({ origin: invoiceOrigin, companyId }) },
-      { text: "取引登録" },
+      invoiceWebResponse({}),
       null,
     ]);
     try {
-      await withFreeeWeb(webScope, (web) => web.inspectInvoiceDealRegistration(77));
+      await expect(
+        withFreeeWeb(webScope, (web) => web.setInvoiceSendingStatus(77, "sent")),
+      ).resolves.toBeUndefined();
     } finally {
       spawn.mockRestore();
     }
 
-    expect(commands).toContainEqual(
-      expect.arrayContaining(["find", "role", "button", "text", "--name", "取引登録", "--exact"]),
-    );
-    expect(commands.some((command) => command.includes("click"))).toBe(false);
-    expect(commands.at(-1)?.at(-1)).toBe("close");
+    const write = standardInputs.find((input) => input.includes("/deliver_status"));
+    expect(write).toContain("/api/p/reports/invoices/77/deliver_status");
+    expect(write).toContain('method: "PUT"');
+    expect(write).toContain('JSON.stringify({"deliver_status":"delivered"})');
+    expect(write).toContain('headers.set("X-Company-Id", "2021254")');
+  });
+
+  test("請求書の送付ステータスを専用Web endpointで送付待ちに戻す", async () => {
+    Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
+    const { standardInputs, spawn } = mockAgentBrowser([
+      null,
+      { result: JSON.stringify({ origin, companyId }) },
+      null,
+      { result: JSON.stringify({ origin: invoiceOrigin }) },
+      { result: JSON.stringify({ origin: invoiceOrigin, companyId }) },
+      invoiceWebResponse({}),
+      null,
+    ]);
+    try {
+      await expect(
+        withFreeeWeb(webScope, (web) => web.setInvoiceSendingStatus(77, "unsent")),
+      ).resolves.toBeUndefined();
+    } finally {
+      spawn.mockRestore();
+    }
+
+    const write = standardInputs.find((input) => input.includes("/deliver_status"));
+    expect(write).toContain('JSON.stringify({"deliver_status":"undelivered"})');
+  });
+
+  test("請求書の送付ステータス変更が5xxなら結果不明とする", async () => {
+    Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
+    const { spawn } = mockAgentBrowser([
+      null,
+      { result: JSON.stringify({ origin, companyId }) },
+      null,
+      { result: JSON.stringify({ origin: invoiceOrigin }) },
+      { result: JSON.stringify({ origin: invoiceOrigin, companyId }) },
+      invoiceWebResponse({}, 500),
+      null,
+    ]);
+    try {
+      await expect(
+        withFreeeWeb(webScope, (web) => web.setInvoiceSendingStatus(77, "sent")),
+      ).rejects.toBeInstanceOf(OutcomeUnknownError);
+    } finally {
+      spawn.mockRestore();
+    }
   });
 
   test("請求書はexactな取引登録ボタンを押して保存完了を待つ", async () => {

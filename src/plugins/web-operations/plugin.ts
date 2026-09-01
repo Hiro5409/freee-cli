@@ -5,6 +5,7 @@ import colors from "yoctocolors";
 import { globalArgs } from "../../global-args.ts";
 import { formatOutput, formatValue } from "../../output/formatter.ts";
 import { runInvoiceRegisterDealCommand } from "./invoice-register-deal-command.ts";
+import { runInvoiceSetSendingStatusCommand } from "./invoice-set-sending-status-command.ts";
 import { runWalletTransactionApplyRulesCommand } from "./wallet-transaction-apply-rules-command.ts";
 import {
   runWalletTransactionIgnoreCommand,
@@ -20,11 +21,6 @@ const invoiceRegisterDealCommand = define({
   description: "Register a Deal from one unregistered invoice through freee Web",
   args: {
     ...globalArgs,
-    "dry-run": {
-      type: "boolean" as const,
-      default: false,
-      description: "Verify and show the target without registering a Deal",
-    },
     id: {
       type: "string" as const,
       description:
@@ -32,18 +28,45 @@ const invoiceRegisterDealCommand = define({
       required: true,
     },
   },
-  examples: `$ freee web invoice register-deal --id 42 --dry-run --format json`,
+  examples: `$ freee web invoice register-deal --id 42 --format json`,
   run: async (context) => {
     const result = await runInvoiceRegisterDealCommand(context.values);
     return formatValue(
       result,
       context.values.format,
-      "dryRun" in result
-        ? `${colors.yellow("Dry run —")} would register a Deal for invoice ${result.target.id}`
-        : colors.green(
-            `Invoice Deal registered: invoice=${result.target.id} deal=${result.dealId}`,
-          ),
+      colors.green(`Invoice Deal registered: invoice=${result.target.id} deal=${result.dealId}`),
     );
+  },
+});
+
+const invoiceSetSendingStatusCommand = define({
+  name: "set-sending-status",
+  description: "Set one invoice's sending status through freee Web without delivering it",
+  args: {
+    ...globalArgs,
+    id: {
+      type: "string" as const,
+      description: "Invoice ID from freee invoice-list or freee invoice-show",
+      required: true,
+    },
+    status: {
+      type: "enum" as const,
+      choices: ["sent", "unsent"] as const,
+      description: "Desired sending status: sent | unsent",
+      required: true,
+    },
+  },
+  examples: `$ freee web invoice set-sending-status --id 42 --status sent --format json`,
+  run: async (context) => {
+    const result = await runInvoiceSetSendingStatusCommand(context.values);
+    const human = result.changed
+      ? colors.green(
+          `Invoice sending status changed: id=${result.target.id} ${result.before} -> ${result.after}`,
+        )
+      : colors.green(
+          `Invoice sending status unchanged: id=${result.target.id} status=${result.after}`,
+        );
+    return formatValue(result, context.values.format, human);
   },
 });
 
@@ -52,26 +75,19 @@ const walletTransactionIgnoreCommand = define({
   description: "Ignore one unprocessed wallet transaction through freee Web",
   args: {
     ...globalArgs,
-    "dry-run": {
-      type: "boolean" as const,
-      default: false,
-      description: "Verify and show the target without ignoring it",
-    },
     id: {
       type: "string" as const,
       description: "Wallet transaction ID from freee wallet-txn-list",
       required: true,
     },
   },
-  examples: `$ freee web wallet-txn ignore --id 42 --dry-run --format json`,
+  examples: `$ freee web wallet-txn ignore --id 42 --format json`,
   run: async (context) => {
     const result = await runWalletTransactionIgnoreCommand(context.values);
     return formatValue(
       result,
       context.values.format,
-      "dryRun" in result
-        ? `${colors.yellow("Dry run —")} would ignore wallet transaction ${result.target.id}`
-        : colors.green(`Wallet transaction ignored: id=${result.target.id}`),
+      colors.green(`Wallet transaction ignored: id=${result.target.id}`),
     );
   },
 });
@@ -107,11 +123,6 @@ const walletableSyncCommand = define({
   description: "Synchronize one walletable or start and wait for freee Web's bulk synchronization",
   args: {
     ...globalArgs,
-    "dry-run": {
-      type: "boolean" as const,
-      default: false,
-      description: "Show the requested synchronization without starting it",
-    },
     all: {
       type: "boolean" as const,
       default: false,
@@ -122,13 +133,10 @@ const walletableSyncCommand = define({
       description: "Walletable ID from freee walletable-list",
     },
   },
-  examples: `$ freee web walletable sync --id 42 --dry-run --format json`,
+  examples: `$ freee web walletable sync --id 42 --format json`,
   run: async (context) => {
     const result = await runWalletableSyncCommand(context.values);
     if (context.values.format === "json") return JSON.stringify(result, null, 2);
-    if (!("walletables" in result)) {
-      return `${colors.yellow("Dry run —")} would request freee Web bulk synchronization`;
-    }
     return formatOutput(
       result.walletables.map((walletable) => ({ ...walletable })),
       "table",
@@ -141,26 +149,19 @@ const walletTransactionRestoreCommand = define({
   description: "Restore one ignored wallet transaction to unprocessed through freee Web",
   args: {
     ...globalArgs,
-    "dry-run": {
-      type: "boolean" as const,
-      default: false,
-      description: "Verify and show the target without restoring it",
-    },
     id: {
       type: "string" as const,
       description: "Wallet transaction ID from freee wallet-txn-list",
       required: true,
     },
   },
-  examples: `$ freee web wallet-txn restore --id 42 --dry-run --format json`,
+  examples: `$ freee web wallet-txn restore --id 42 --format json`,
   run: async (context) => {
     const result = await runWalletTransactionRestoreCommand(context.values);
     return formatValue(
       result,
       context.values.format,
-      "dryRun" in result
-        ? `${colors.yellow("Dry run —")} would restore wallet transaction ${result.target.id}`
-        : colors.green(`Wallet transaction restored: id=${result.target.id}`),
+      colors.green(`Wallet transaction restored: id=${result.target.id}`),
     );
   },
 });
@@ -320,6 +321,7 @@ const invoiceCommand = define({
   name: "invoice",
   description: "Operate on invoices through freee Web",
   subCommands: {
+    "set-sending-status": invoiceSetSendingStatusCommand,
     "register-deal": invoiceRegisterDealCommand,
   },
   run: () => 'Run "freee web invoice --help" for usage information.',

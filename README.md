@@ -22,7 +22,7 @@ freee-cli exists because we believe a CLI is the better interface for coding age
 A CLI gives agents the same interface used by developers, scripts, and CI.
 Commands can be discovered with `--help`, composed with files and pipes, and run directly when debugging.
 
-freee-cli therefore exposes small freee operations rather than application-specific workflows, with JSON output, structured errors, and `--dry-run` for mutations.
+freee-cli therefore exposes small freee operations rather than application-specific workflows, with JSON output, structured errors, and focused `--dry-run` previews where they reveal more than the supplied arguments.
 
 ## Generated from official schemas
 
@@ -61,15 +61,15 @@ freee company-switch --id 1234567 --name "My Company"
 ```bash
 freee deal-list --month 2026-08
 freee deal-create --date 2026-08-15 --type expense \
-  --account-item-id 123 --tax-code 136 --amount 5000 --dry-run
+  --account-item-id 123 --tax-code 136 --amount 5000
 freee wallet-txn-list --month 2026-08 --status unreconciled
 freee wallet-txn-show --id 42
 freee transfer-list --month 2026-08
 freee transfer-create --date 2026-08-01 \
   --from-walletable-id 10 --from-walletable-type bank_account \
-  --to '{"type":"credit_card","id":20,"amount":5000}' --dry-run
+  --to '{"type":"credit_card","id":20,"amount":5000}'
 freee file-box-list --start-date 2026-08-01 --end-date 2026-08-31 --category without-deal
-freee file-box-upload --file receipt.jpg --dry-run
+freee file-box-upload --file receipt.jpg
 freee section-list
 freee tag-list
 freee segment-tag-list --segment 1
@@ -92,7 +92,7 @@ freee auto-rule-update --id 42 --account-item-name 通信費 --dry-run
 freee auto-rule-update --id 42 --clear walletable --dry-run --format json
 freee auto-rule-disable --id 42 --dry-run
 freee wallet-txn-create --date 2026-08-01 --entry-side expense --amount 5000 \
-  --walletable-id 55 --walletable-type credit_card --description AMAZON.CO.JP --dry-run
+  --walletable-id 55 --walletable-type credit_card --description AMAZON.CO.JP
 ```
 
 `auto-rule-update --clear <field>` removes an optional rule condition by sending JSON `null`.
@@ -104,7 +104,7 @@ command keep their current values.
 ```bash
 freee invoice-list --sending-status unsent
 freee invoice-create --partner-id 123 --billing-date 2026-08-01 \
-  --line '{"description":"Consulting","quantity":1,"unit_price":"100000","tax_rate":10,"account_item_id":123,"tax_code":129}' --dry-run
+  --line '{"description":"Consulting","quantity":1,"unit_price":"100000","tax_rate":10,"account_item_id":123,"tax_code":129}'
 freee invoice-update --id 456 --subject "August invoice" --dry-run
 ```
 
@@ -126,7 +126,6 @@ freee walletable-list
 freee wallet-txn-list --status unreconciled
 freee web wallet-txn apply-rules --dry-run --format json
 freee web wallet-txn apply-rules
-freee web wallet-txn ignore --id 42 --dry-run --format json
 freee web wallet-txn ignore --id 42
 freee web wallet-txn register --id 42 --account-item-name "通信費" --tax-name "課対仕入10%" --dry-run --format json
 freee web wallet-txn register --id 42 --account-item-name "通信費" --tax-name "課対仕入10%"
@@ -135,12 +134,11 @@ freee web wallet-txn settle --id 42 --deal-id 91 --amount 10000
 freee web wallet-txn transfer --id 42 --counterparty-walletable-name "事業主借" --dry-run --format json
 freee web wallet-txn transfer --id 42 --counterparty-walletable-name "事業主借"
 freee wallet-txn-list --status ignored
-freee web wallet-txn restore --id 42 --dry-run --format json
 freee web wallet-txn restore --id 42
+freee web invoice set-sending-status --id 456 --status sent
+freee web invoice set-sending-status --id 456 --status unsent
 freee invoice-list --deal-status unregistered --cancel-status uncanceled
-freee web invoice register-deal --id 456 --dry-run --format json
 freee web invoice register-deal --id 456
-freee web walletable sync --all --dry-run
 freee web walletable sync --id 42
 freee web walletable sync --all
 ```
@@ -148,8 +146,6 @@ freee web walletable sync --all
 These commands are temporary bridges for capabilities missing from freee's official APIs. See the [Web operations module](src/plugins/web-operations/README.md) for why each command exists and the condition for replacing it with a stable command.
 
 Use `freee walletable-list` to obtain the walletable ID from the official API. The `freee web walletable sync` command starts synchronization and waits for completion for up to one hour. Table output reports state changes to stderr; JSON output suppresses that progress so stdout remains machine-readable.
-
-With `--id`, `--dry-run` shows the exact walletable without starting synchronization. With `--all`, it confirms only that freee currently allows the bulk request; freee selects the participating walletables after execution.
 
 With `--all`, freee selects the eligible walletables that participate. The result includes only walletables whose synchronization started and completed; use `--id` when a candidate was not selected.
 

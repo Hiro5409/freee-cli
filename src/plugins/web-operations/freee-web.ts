@@ -14,7 +14,7 @@ const PositiveIntegerSchema = v.pipe(v.number(), v.integer(), v.minValue(1));
 const NonEmptyStringSchema = v.pipe(v.string(), v.trim(), v.minLength(1));
 
 const FreeeWebResponseSchema = v.object({
-  origin: v.literal(FREEE_ORIGIN),
+  origin: v.picklist([FREEE_ORIGIN, FREEE_INVOICE_ORIGIN]),
   status: v.number(),
   body: v.string(),
 });
@@ -164,6 +164,8 @@ export type FreeeWebWalletTransaction = {
 
 export type FreeeWebWalletableType = v.InferOutput<typeof WalletableTypeSchema>;
 
+export type InvoiceSendingStatus = "sent" | "unsent";
+
 export type FreeeWebWalletable = {
   id: number;
   name: string;
@@ -246,8 +248,8 @@ export type FreeeWebOperations = {
   restoreIgnoredWalletTransaction(
     walletTransaction: FreeeWebWalletTransaction,
   ): Promise<{ walletTransactionId: number }>;
-  inspectInvoiceDealRegistration(invoiceId: number): Promise<void>;
   registerInvoiceDeal(invoiceId: number): Promise<void>;
+  setInvoiceSendingStatus(invoiceId: number, status: InvoiceSendingStatus): Promise<void>;
   autoRegistrationRuleMatchCount(): Promise<{
     matchCount: number;
     tooManyUnreconciledWalletTransactions: boolean;
@@ -332,8 +334,10 @@ async function ensureInvoiceSession(
   companyId: number,
   invoiceId: number,
   authProfile: string,
+  page: "accounting" | "details" = "accounting",
 ): Promise<void> {
-  const url = `${FREEE_INVOICE_ORIGIN}/reports/invoices/${invoiceId}/accounting`;
+  const suffix = page === "accounting" ? "/accounting" : "";
+  const url = `${FREEE_INVOICE_ORIGIN}/reports/invoices/${invoiceId}${suffix}`;
   await browser.run(["open", url]);
   let origin = await currentOrigin(browser);
   if (origin !== FREEE_INVOICE_ORIGIN) {
@@ -347,6 +351,71 @@ async function ensureInvoiceSession(
   const state = await invoiceSessionState(browser);
   if (state.companyId !== companyId) {
     throw new Error(agentBrowserFailureMessage("FREEE_COMPANY_MISMATCH", authProfile, browser));
+  }
+}
+
+function buildInvoiceSetSendingStatusJavaScript(
+  companyId: number,
+  invoiceId: number,
+  status: InvoiceSendingStatus,
+): string {
+  const body = JSON.stringify({
+    deliver_status: status === "sent" ? "delivered" : "undelivered",
+  });
+  return `(async () => {
+  if (location.origin !== "${FREEE_INVOICE_ORIGIN}") {
+    throw new Error("Unexpected freee invoice origin");
+  }
+  const appStateResponse = await fetch("/api/p/app_state", { credentials: "same-origin" });
+  const appState = await appStateResponse.json();
+  if (Number(appState.company?.id ?? 0) !== ${companyId}) {
+    throw new Error("FREEE_COMPANY_MISMATCH");
+  }
+  const csrfToken = document
+    .querySelector('meta[name="csrf-token"]')
+    ?.getAttribute("content");
+  if (!csrfToken) throw new Error("freee CSRF token is unavailable");
+  const headers = new Headers({ Accept: "application/json" });
+  headers.set("Content-Type", "application/json");
+  headers.set("X-CSRF-Token", csrfToken);
+  headers.set("X-Company-Id", "${companyId}");
+  headers.set("x-freee-client-name", "invoice");
+  const response = await fetch("/api/p/reports/invoices/${invoiceId}/deliver_status", {
+    method: "PUT",
+    headers,
+    credentials: "same-origin",
+    body: JSON.stringify(${body})
+  });
+  return JSON.stringify({
+    origin: location.origin,
+    status: response.status,
+    body: await response.text(),
+  });
+})()`;
+}
+
+async function runInvoiceSetSendingStatusRequest(
+  browser: AgentBrowserSession,
+  companyId: number,
+  invoiceId: number,
+  status: InvoiceSendingStatus,
+): Promise<FreeeWebResponse> {
+  try {
+    return v.parse(
+      FreeeWebResponseSchema,
+      JSON.parse(
+        await browser.evaluate(
+          buildInvoiceSetSendingStatusJavaScript(companyId, invoiceId, status),
+        ),
+      ),
+    );
+  } catch (error) {
+    if (!isPreDispatchFailure(error)) {
+      throw new OutcomeUnknownError("freee invoice status confirmation was lost.", {
+        cause: error,
+      });
+    }
+    throw error;
   }
 }
 
@@ -616,8 +685,8 @@ function createFreeeWebOperations(input: {
   companyId: number;
   authProfile: string;
   request: FreeeWebRequest;
-  inspectInvoiceDealRegistration: (invoiceId: number) => Promise<void>;
   registerInvoiceDeal: (invoiceId: number) => Promise<void>;
+  setInvoiceSendingStatus: (invoiceId: number, status: InvoiceSendingStatus) => Promise<void>;
 }): FreeeWebOperations {
   const request = input.request;
   const parse = <TSchema extends v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>(
@@ -785,8 +854,8 @@ function createFreeeWebOperations(input: {
       return { walletTransactionId: walletTransaction.id };
     },
 
-    inspectInvoiceDealRegistration: input.inspectInvoiceDealRegistration,
     registerInvoiceDeal: input.registerInvoiceDeal,
+    setInvoiceSendingStatus: input.setInvoiceSendingStatus,
 
     async autoRegistrationRuleMatchCount() {
       const value = parse(
@@ -898,16 +967,6 @@ export async function withFreeeWeb<T>(
     await ensureInvoiceSession(browserSession, companyId, invoiceId, authProfile);
     accountingSessionReady = false;
   };
-  const inspectInvoiceDealRegistration = async (invoiceId: number) => {
-    await openInvoiceDealRegistration(invoiceId);
-    try {
-      await browserSession.run(["find", "role", "button", "text", "--name", "取引登録", "--exact"]);
-    } catch (error) {
-      throw new Error(`freee Web does not offer Deal registration for invoice ${invoiceId}.`, {
-        cause: error,
-      });
-    }
-  };
   const registerInvoiceDeal = async (invoiceId: number) => {
     await openInvoiceDealRegistration(invoiceId);
     await browserSession.evaluate("performance.clearResourceTimings()");
@@ -966,6 +1025,20 @@ export async function withFreeeWeb<T>(
       cause: interactionError,
     });
   };
+  const openInvoiceDetails = async (invoiceId: number) => {
+    await ensureInvoiceSession(browserSession, companyId, invoiceId, authProfile, "details");
+    accountingSessionReady = false;
+  };
+  const setInvoiceSendingStatus = async (invoiceId: number, status: InvoiceSendingStatus) => {
+    await openInvoiceDetails(invoiceId);
+    const response = await runInvoiceSetSendingStatusRequest(
+      browserSession,
+      companyId,
+      invoiceId,
+      status,
+    );
+    assertSuccessfulWriteResponse(response, authProfile);
+  };
   const web = createFreeeWebOperations({
     companyId,
     authProfile,
@@ -973,8 +1046,8 @@ export async function withFreeeWeb<T>(
       await ensureAccountingSession();
       return runAgentBrowserRequest(browserSession, companyId, input);
     },
-    inspectInvoiceDealRegistration,
     registerInvoiceDeal,
+    setInvoiceSendingStatus,
   });
   const outcome = await run(web).then(
     (value) => ({ success: true as const, value }),

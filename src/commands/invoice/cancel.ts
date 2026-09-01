@@ -2,7 +2,7 @@ import { define } from "gunshi";
 import colors from "yoctocolors";
 
 import { PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
-import { writeArgs } from "../../global-args.ts";
+import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
 import { formatDryRun, formatValue } from "../../output/formatter.ts";
 import { invoicesCancel } from "../../types/freee-invoice/sdk.gen.ts";
@@ -11,7 +11,7 @@ export const invoiceCancelCommand = define({
   name: "invoice-cancel",
   description: "Cancel an invoice; a linked deal is also deleted by freee",
   args: {
-    ...writeArgs,
+    ...dryRunArgs,
     id: { type: "string" as const, description: "Invoice ID", required: true },
   },
   examples: `$ freee invoice-cancel --id 900 --dry-run --format json`,

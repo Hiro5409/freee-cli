@@ -2,7 +2,7 @@ import { define } from "gunshi";
 import colors from "yoctocolors";
 
 import { PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
-import { writeArgs } from "../../global-args.ts";
+import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
 import { formatDryRun } from "../../output/formatter.ts";
 import { destroyWalletTxn } from "../../types/freee/sdk.gen.ts";
@@ -11,7 +11,7 @@ export const walletTransactionDeleteCommand = define({
   name: "wallet-txn-delete",
   description: "Delete a wallet transaction",
   args: {
-    ...writeArgs,
+    ...dryRunArgs,
     id: { type: "string" as const, description: "Wallet transaction ID", required: true },
   },
   examples: `$ freee wallet-txn-delete --id 42 --dry-run --format json`,
