@@ -1,12 +1,8 @@
 import { define } from "gunshi";
+import { args, choice, integer, merge } from "gunshi/combinators";
 
 import { fetchAll } from "../../api/paginate.ts";
-import {
-  MonthTextSchema,
-  OptionalLimitTextSchema,
-  PositiveIntegerTextSchema,
-  parseCliInput,
-} from "../../cli-input.ts";
+import { monthArg } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { listArgs } from "../../global-args.ts";
 import { initCommand, monthToDateRange } from "../../helpers.ts";
@@ -27,33 +23,31 @@ const ENTRY_SIDES = ["income", "expense"] as const;
 export const walletTransactionListCommand = define({
   name: "wallet-txn-list",
   description: "List wallet transactions for a company",
-  args: {
-    ...listArgs,
-    month: { type: "string" as const, description: "Filter by month (YYYY-MM)" },
-    status: {
-      type: "enum" as const,
-      choices: STATUSES,
-      description: `Filter locally by status: ${STATUSES.join(" | ")}`,
-    },
-    "walletable-id": { type: "string" as const, description: "Filter by walletable ID" },
-    "walletable-type": {
-      type: "enum" as const,
-      choices: WALLET_TYPES,
-      description: `Filter by walletable type: ${WALLET_TYPES.join(" | ")}`,
-    },
-    "entry-side": {
-      type: "enum" as const,
-      choices: ENTRY_SIDES,
-      description: `Filter by entry side: ${ENTRY_SIDES.join(" | ")}`,
-    },
-  },
+  args: merge(
+    listArgs,
+    args({
+      month: monthArg("--month", "Filter by month (YYYY-MM)"),
+      status: choice(STATUSES, {
+        description: `Filter locally by status: ${STATUSES.join(" | ")}`,
+      }),
+      "walletable-id": integer({
+        min: 1,
+        max: Number.MAX_SAFE_INTEGER,
+        description: "Filter by walletable ID",
+      }),
+      "walletable-type": choice(WALLET_TYPES, {
+        description: `Filter by walletable type: ${WALLET_TYPES.join(" | ")}`,
+      }),
+      "entry-side": choice(ENTRY_SIDES, {
+        description: `Filter by entry side: ${ENTRY_SIDES.join(" | ")}`,
+      }),
+    }),
+  ),
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const monthFilter = ctx.values.month
-      ? monthToDateRange(parseCliInput(MonthTextSchema, ctx.values.month, { label: "--month" }))
-      : undefined;
+    const monthFilter = ctx.values.month ? monthToDateRange(ctx.values.month) : undefined;
     const status = ctx.values.status;
-    const limit = parseCliInput(OptionalLimitTextSchema, ctx.values.limit, { label: "--limit" });
+    const limit = ctx.values.limit;
     const walletableId = ctx.values["walletable-id"];
     const walletableType = ctx.values["walletable-type"];
     if ((walletableId === undefined) !== (walletableType === undefined)) {
@@ -73,9 +67,7 @@ export const walletTransactionListCommand = define({
             limit: pageLimit,
             start_date: monthFilter?.start,
             end_date: monthFilter?.end,
-            walletable_id: walletableId
-              ? parseCliInput(PositiveIntegerTextSchema, walletableId, { label: "--walletable-id" })
-              : undefined,
+            walletable_id: walletableId,
             walletable_type: walletableType,
             entry_side: ctx.values["entry-side"],
           },

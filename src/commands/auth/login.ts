@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 
 import { define } from "gunshi";
+import { args, boolean, merge, withDefault } from "gunshi/combinators";
 import colors from "yoctocolors";
 
 import {
@@ -26,19 +27,19 @@ import {
 export const loginCommand = define({
   name: "login",
   description: "Interactive OAuth login; coding agents should ask the user to run it",
-  args: {
-    ...globalArgs,
-    replace: {
-      type: "boolean" as const,
-      description: "Replace credentials already stored under this profile name",
-      default: false,
-    },
-    "set-default": {
-      type: "boolean" as const,
-      description: "Make this profile the persistent default after login",
-      default: false,
-    },
-  },
+  args: merge(
+    globalArgs,
+    args({
+      replace: withDefault(
+        boolean({ description: "Replace credentials already stored under this profile name" }),
+        false,
+      ),
+      "set-default": withDefault(
+        boolean({ description: "Make this profile the persistent default after login" }),
+        false,
+      ),
+    }),
+  ),
   examples: `$ freee login --profile work
 $ freee login --profile work --replace`,
   run: async (ctx) => {

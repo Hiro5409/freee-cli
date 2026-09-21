@@ -1,10 +1,8 @@
 import { describe, expect, test } from "bun:test";
 
 import {
-  IntegerTextSchema,
   IsoDateSchema,
   MonthTextSchema,
-  NonNegativeIntegerTextSchema,
   PositiveIntegerSchema,
   PositiveIntegerTextSchema,
   YearTextSchema,
@@ -26,24 +24,13 @@ describe("parseCliInput", () => {
 });
 
 describe("CLI scalar schemas", () => {
-  test("parses safe integer strings without coercing other syntax", () => {
-    expect(parseCliInput(IntegerTextSchema, "-5000", { label: "--amount" })).toBe(-5000);
-    for (const value of ["1.5", "1e3", "abc", String(Number.MAX_SAFE_INTEGER + 1)]) {
-      expect(() => parseCliInput(IntegerTextSchema, value, { label: "--amount" })).toThrow(
+  test("parses positive integer strings without coercing other syntax", () => {
+    expect(parseCliInput(PositiveIntegerTextSchema, "1", { label: "--id" })).toBe(1);
+    for (const value of ["0", "1.5", "1e3", "abc", String(Number.MAX_SAFE_INTEGER + 1)]) {
+      expect(() => parseCliInput(PositiveIntegerTextSchema, value, { label: "--id" })).toThrow(
         CliError,
       );
     }
-  });
-
-  test("distinguishes positive and non-negative integers", () => {
-    expect(parseCliInput(NonNegativeIntegerTextSchema, "0", { label: "--priority" })).toBe(0);
-    expect(parseCliInput(PositiveIntegerTextSchema, "1", { label: "--id" })).toBe(1);
-    expect(() => parseCliInput(PositiveIntegerTextSchema, "0", { label: "--id" })).toThrow(
-      CliError,
-    );
-    expect(() =>
-      parseCliInput(NonNegativeIntegerTextSchema, "-1", { label: "--priority" }),
-    ).toThrow(CliError);
   });
 
   test("accepts an already numeric positive integer only when safe", () => {

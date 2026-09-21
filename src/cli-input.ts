@@ -1,3 +1,4 @@
+import { combinator } from "gunshi/combinators";
 import * as v from "valibot";
 
 import { CliError, errorHints } from "./errors.ts";
@@ -17,16 +18,9 @@ function integerText(message: string) {
   );
 }
 
-export const IntegerTextSchema = integerText("Expected an integer.");
-
 export const PositiveIntegerTextSchema = v.pipe(
   integerText("Expected a positive integer."),
   v.minValue(1, "Expected a positive integer."),
-);
-
-export const NonNegativeIntegerTextSchema = v.pipe(
-  integerText("Expected a non-negative integer."),
-  v.minValue(0, "Expected a non-negative integer."),
 );
 
 export const PositiveIntegerSchema = v.pipe(
@@ -67,8 +61,6 @@ export const YearTextSchema = v.pipe(
   v.transform(Number),
 );
 
-export const OptionalLimitTextSchema = v.optional(PositiveIntegerTextSchema);
-
 type CliInputContext = {
   label: string;
   why?: string;
@@ -86,4 +78,27 @@ export function parseCliInput<
     why: context.why ?? "The value does not satisfy this command's input requirements.",
     hint: context.hint ?? errorHints.invalidValue,
   });
+}
+
+function validatedArg<const TSchema extends v.BaseSchema<string, unknown, v.BaseIssue<unknown>>>(
+  schema: TSchema,
+  label: string,
+  description: string,
+) {
+  return combinator({
+    description,
+    parse: (value) => parseCliInput(schema, value, { label }),
+  });
+}
+
+export function isoDateArg(label: string, description: string) {
+  return validatedArg(IsoDateSchema, label, description);
+}
+
+export function monthArg(label: string, description: string) {
+  return validatedArg(MonthTextSchema, label, description);
+}
+
+export function yearArg(label: string, description: string) {
+  return validatedArg(YearTextSchema, label, description);
 }

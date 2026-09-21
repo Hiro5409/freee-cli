@@ -1,4 +1,3 @@
-import { PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { type FreeeWebOperations, withFreeeWeb } from "./freee-web.ts";
 import {
@@ -13,7 +12,7 @@ import { resolveWebCommandScope, type WebCommandScope } from "./web-command-scop
 type Values = {
   all?: boolean;
   format?: unknown;
-  id?: unknown;
+  id?: number;
   profile?: unknown;
 };
 
@@ -41,19 +40,18 @@ function formatProgress(progress: WalletableSyncProgress): string {
 }
 
 function syncScope(values: Values): WalletableSyncScope {
-  const hasAll = values.all === true;
-  const hasId = values.id !== undefined;
-  if (hasAll === hasId) {
+  if (values.all === true) {
+    if (values.id === undefined) return { kind: "all" };
     throw new CliError("Pass exactly one of --all or --id.", {
       code: "INVALID_INPUT",
       hint: errorHints.oneIdentifier,
     });
   }
-  if (hasAll) return { kind: "all" };
-  return {
-    kind: "one",
-    walletableId: parseCliInput(PositiveIntegerTextSchema, values.id, { label: "--id" }),
-  };
+  if (values.id !== undefined) return { kind: "one", walletableId: values.id };
+  throw new CliError("Pass exactly one of --all or --id.", {
+    code: "INVALID_INPUT",
+    hint: errorHints.oneIdentifier,
+  });
 }
 
 export async function runWalletableSyncCommand(

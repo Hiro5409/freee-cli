@@ -72,7 +72,7 @@ describe("invoice set sending status command", () => {
     const { deps, writtenStatuses } = dependencies();
 
     await expect(
-      runInvoiceSetSendingStatusCommand({ id: "77", profile: "business", status: "sent" }, deps),
+      runInvoiceSetSendingStatusCommand({ id: 77, profile: "business", status: "sent" }, deps),
     ).resolves.toMatchObject({
       action: "set-sending-status",
       before: "unsent",
@@ -90,7 +90,7 @@ describe("invoice set sending status command", () => {
     });
 
     await expect(
-      runInvoiceSetSendingStatusCommand({ id: "77", profile: "business", status: "unsent" }, deps),
+      runInvoiceSetSendingStatusCommand({ id: 77, profile: "business", status: "unsent" }, deps),
     ).resolves.toMatchObject({ before: "sent", after: "unsent", changed: true });
     expect(writtenStatuses).toEqual(["unsent"]);
   });
@@ -101,7 +101,7 @@ describe("invoice set sending status command", () => {
     });
 
     await expect(
-      runInvoiceSetSendingStatusCommand({ id: "77", profile: "business", status: "sent" }, deps),
+      runInvoiceSetSendingStatusCommand({ id: 77, profile: "business", status: "sent" }, deps),
     ).resolves.toMatchObject({ before: "sent", after: "sent", changed: false });
     expect(reads()).toBe(1);
     expect(webSessions()).toBe(0);
@@ -112,7 +112,7 @@ describe("invoice set sending status command", () => {
     const { deps, webSessions } = dependencies({ before: { cancel_status: "canceled" } });
 
     await expect(
-      runInvoiceSetSendingStatusCommand({ id: "77", profile: "business", status: "sent" }, deps),
+      runInvoiceSetSendingStatusCommand({ id: 77, profile: "business", status: "sent" }, deps),
     ).rejects.toThrow("canceled");
     expect(webSessions()).toBe(0);
   });
@@ -121,7 +121,7 @@ describe("invoice set sending status command", () => {
     const { deps, webSessions } = dependencies({ before: { company_id: 101 } });
 
     await expect(
-      runInvoiceSetSendingStatusCommand({ id: "77", profile: "business", status: "sent" }, deps),
+      runInvoiceSetSendingStatusCommand({ id: 77, profile: "business", status: "sent" }, deps),
     ).rejects.toThrow("does not belong to company 100");
     expect(webSessions()).toBe(0);
   });
@@ -130,7 +130,7 @@ describe("invoice set sending status command", () => {
     const { deps } = dependencies({ after: { sending_status: "unsent" } });
 
     await expect(
-      runInvoiceSetSendingStatusCommand({ id: "77", profile: "business", status: "sent" }, deps),
+      runInvoiceSetSendingStatusCommand({ id: 77, profile: "business", status: "sent" }, deps),
     ).rejects.toBeInstanceOf(OutcomeUnknownError);
   });
 
@@ -140,7 +140,7 @@ describe("invoice set sending status command", () => {
     });
 
     await expect(
-      runInvoiceSetSendingStatusCommand({ id: "77", profile: "business", status: "sent" }, deps),
+      runInvoiceSetSendingStatusCommand({ id: 77, profile: "business", status: "sent" }, deps),
     ).resolves.toMatchObject({ changed: true, after: "sent" });
   });
 
@@ -150,7 +150,7 @@ describe("invoice set sending status command", () => {
     });
 
     await expect(
-      runInvoiceSetSendingStatusCommand({ id: "77", profile: "business", status: "sent" }, deps),
+      runInvoiceSetSendingStatusCommand({ id: 77, profile: "business", status: "sent" }, deps),
     ).rejects.toThrow("rejected the status change");
     expect(reads()).toBe(1);
   });

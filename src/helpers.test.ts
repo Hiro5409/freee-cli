@@ -66,6 +66,6 @@ describe("initCommand", () => {
   });
 
   test("正の整数の --company-id は number で返す", () => {
-    expect(initCommand({ values: { "company-id": "123" } }).companyId).toBe(123);
+    expect(initCommand({ values: { "company-id": 123 } }).companyId).toBe(123);
   });
 });

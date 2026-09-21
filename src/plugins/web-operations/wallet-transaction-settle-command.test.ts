@@ -100,7 +100,7 @@ describe("wallet transaction settle command", () => {
 
     await expect(
       runWalletTransactionSettleCommand(
-        { id: "42", "deal-id": "91", amount: "10000", profile: "business", "dry-run": true },
+        { id: 42, "deal-id": 91, amount: 10000, profile: "business", "dry-run": true },
         deps,
       ),
     ).resolves.toEqual({
@@ -132,7 +132,7 @@ describe("wallet transaction settle command", () => {
 
     await expect(
       runWalletTransactionSettleCommand(
-        { id: "42", "deal-id": "91", amount: "10000", profile: "business" },
+        { id: 42, "deal-id": 91, amount: 10000, profile: "business" },
         deps,
       ),
     ).resolves.toMatchObject({
@@ -154,7 +154,7 @@ describe("wallet transaction settle command", () => {
 
     await expect(
       runWalletTransactionSettleCommand(
-        { id: "42", "deal-id": "91", amount: "10000", profile: "business" },
+        { id: 42, "deal-id": 91, amount: 10000, profile: "business" },
         deps,
       ),
     ).rejects.toThrow("not unprocessed");
@@ -168,7 +168,7 @@ describe("wallet transaction settle command", () => {
 
     await expect(
       runWalletTransactionSettleCommand(
-        { id: "42", "deal-id": "91", amount: "10000", profile: "business" },
+        { id: 42, "deal-id": 91, amount: 10000, profile: "business" },
         deps,
       ),
     ).resolves.toMatchObject({ settled: true, dealId: 91 });
@@ -183,7 +183,7 @@ describe("wallet transaction settle command", () => {
 
     await expect(
       runWalletTransactionSettleCommand(
-        { id: "42", "deal-id": "91", amount: "10000", profile: "business" },
+        { id: 42, "deal-id": 91, amount: 10000, profile: "business" },
         deps,
       ),
     ).rejects.toBeInstanceOf(OutcomeUnknownError);

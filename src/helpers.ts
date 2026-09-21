@@ -1,12 +1,8 @@
-import * as v from "valibot";
-
 import { configureClient } from "./api/client.ts";
-import { PositiveIntegerSchema, PositiveIntegerTextSchema, parseCliInput } from "./cli-input.ts";
+import { PositiveIntegerSchema, parseCliInput } from "./cli-input.ts";
 import { configDir, loadConfig } from "./config/config.ts";
 import { CliError, errorHints } from "./errors.ts";
 import { resolveConfiguredProfile, resolveConfiguredProfileName } from "./profiles.ts";
-
-const CompanyIdSchema = v.union([PositiveIntegerTextSchema, PositiveIntegerSchema]);
 
 export function initCommand(ctx: { values: Record<string, unknown> }): {
   companyId: number;
@@ -33,7 +29,7 @@ export function initCommand(ctx: { values: Record<string, unknown> }): {
 
   const format = String(ctx.values.format ?? "table");
   return {
-    companyId: parseCliInput(CompanyIdSchema, companyId, { label: "--company-id" }),
+    companyId: parseCliInput(PositiveIntegerSchema, companyId, { label: "--company-id" }),
     format,
   };
 }

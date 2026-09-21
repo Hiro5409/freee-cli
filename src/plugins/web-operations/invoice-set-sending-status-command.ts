@@ -1,7 +1,4 @@
-import * as v from "valibot";
-
 import { configureClient } from "../../api/client.ts";
-import { PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { configDir } from "../../config/config.ts";
 import { CliError, OutcomeUnknownError } from "../../errors.ts";
 import { invoicesShow } from "../../types/freee-invoice/sdk.gen.ts";
@@ -10,12 +7,10 @@ import { type FreeeWebOperations, type InvoiceSendingStatus, withFreeeWeb } from
 import { resolveWebCommandScope, type WebCommandScope } from "./web-command-scope.ts";
 
 type Values = {
-  id?: unknown;
+  id: number;
   profile?: unknown;
-  status?: unknown;
+  status: InvoiceSendingStatus;
 };
-
-const InvoiceSendingStatusSchema = v.picklist(["sent", "unsent"]);
 
 type Dependencies = {
   resolveScope: (requestedProfile: unknown) => WebCommandScope;
@@ -87,8 +82,8 @@ export async function runInvoiceSetSendingStatusCommand(
   dependencies: Partial<Dependencies> = {},
 ) {
   const deps = { ...defaultDependencies, ...dependencies };
-  const invoiceId = parseCliInput(PositiveIntegerTextSchema, values.id, { label: "--id" });
-  const status = parseCliInput(InvoiceSendingStatusSchema, values.status, { label: "--status" });
+  const invoiceId = values.id;
+  const status = values.status;
   const scope = deps.resolveScope(values.profile);
   const before = await deps.readInvoice({
     profile: scope.profile,

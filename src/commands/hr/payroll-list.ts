@@ -1,12 +1,8 @@
 import { define } from "gunshi";
+import { args, integer, merge, required } from "gunshi/combinators";
 
 import { fetchAll } from "../../api/paginate.ts";
-import {
-  MonthTextSchema,
-  OptionalLimitTextSchema,
-  PositiveIntegerTextSchema,
-  parseCliInput,
-} from "../../cli-input.ts";
+import { monthArg } from "../../cli-input.ts";
 import { listArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
 import { formatOutput } from "../../output/formatter.ts";
@@ -18,28 +14,23 @@ import {
 export const hrPayrollListCommand = define({
   name: "hr-payroll-list",
   description: "List payroll statements from the freee HR API for a payment month",
-  args: {
-    ...listArgs,
-    month: {
-      type: "string" as const,
-      description: "Payment month (YYYY-MM)",
-      required: true,
-    },
-    "employee-id": {
-      type: "string" as const,
-      description: "Return the statement for one employee ID",
-    },
-  },
+  args: merge(
+    listArgs,
+    args({
+      month: required(monthArg("--month", "Payment month (YYYY-MM)")),
+      "employee-id": integer({
+        min: 1,
+        max: Number.MAX_SAFE_INTEGER,
+        description: "Return the statement for one employee ID",
+      }),
+    }),
+  ),
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const { year, month } = parseCliInput(MonthTextSchema, ctx.values.month, { label: "--month" });
-    const limit = parseCliInput(OptionalLimitTextSchema, ctx.values.limit, { label: "--limit" });
+    const { year, month } = ctx.values.month;
+    const limit = ctx.values.limit;
 
-    const employeeId = ctx.values["employee-id"]
-      ? parseCliInput(PositiveIntegerTextSchema, ctx.values["employee-id"], {
-          label: "--employee-id",
-        })
-      : undefined;
+    const employeeId = ctx.values["employee-id"];
     const statements = employeeId
       ? await getSalariesEmployeePayrollStatement({
           path: { employee_id: employeeId },

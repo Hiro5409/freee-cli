@@ -1,12 +1,8 @@
 import { define } from "gunshi";
+import { args, choice, merge, string } from "gunshi/combinators";
 
 import { fetchAll } from "../../api/paginate.ts";
-import {
-  MonthTextSchema,
-  OptionalLimitTextSchema,
-  PositiveIntegerTextSchema,
-  parseCliInput,
-} from "../../cli-input.ts";
+import { PositiveIntegerTextSchema, monthArg, parseCliInput } from "../../cli-input.ts";
 import { CliError } from "../../errors.ts";
 import { listArgs } from "../../global-args.ts";
 import { initCommand, monthToDateRange } from "../../helpers.ts";
@@ -32,39 +28,26 @@ function parsePartnerIds(value: string | undefined): string | undefined {
 export const invoiceListCommand = define({
   name: "invoice-list",
   description: "List invoices from the freee invoice API",
-  args: {
-    ...listArgs,
-    month: { type: "string" as const, description: "Filter by billing month (YYYY-MM)" },
-    "sending-status": {
-      type: "enum" as const,
-      choices: SENDING_STATUSES,
-      description: "Sending status: sent | unsent",
-    },
-    "deal-status": {
-      type: "enum" as const,
-      choices: DEAL_STATUSES,
-      description: "Deal registration status: registered | unregistered",
-    },
-    "payment-status": {
-      type: "enum" as const,
-      choices: PAYMENT_STATUSES,
-      description: "Payment status: settled | unsettled | canceled | unprocessed | failed",
-    },
-    "cancel-status": {
-      type: "enum" as const,
-      choices: CANCEL_STATUSES,
-      description: "Cancellation status: canceled | uncanceled",
-    },
-    "partner-ids": {
-      type: "string" as const,
-      description: "Comma-separated partner IDs (max 3)",
-    },
-  },
+  args: merge(
+    listArgs,
+    args({
+      month: monthArg("--month", "Filter by billing month (YYYY-MM)"),
+      "sending-status": choice(SENDING_STATUSES, { description: "Sending status: sent | unsent" }),
+      "deal-status": choice(DEAL_STATUSES, {
+        description: "Deal registration status: registered | unregistered",
+      }),
+      "payment-status": choice(PAYMENT_STATUSES, {
+        description: "Payment status: settled | unsettled | canceled | unprocessed | failed",
+      }),
+      "cancel-status": choice(CANCEL_STATUSES, {
+        description: "Cancellation status: canceled | uncanceled",
+      }),
+      "partner-ids": string({ description: "Comma-separated partner IDs (max 3)" }),
+    }),
+  ),
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const month = ctx.values.month
-      ? monthToDateRange(parseCliInput(MonthTextSchema, ctx.values.month, { label: "--month" }))
-      : undefined;
+    const month = ctx.values.month ? monthToDateRange(ctx.values.month) : undefined;
 
     const query = {
       company_id: companyId,
@@ -77,13 +60,10 @@ export const invoiceListCommand = define({
       cancel_status: ctx.values["cancel-status"],
     };
 
-    const invoices = await fetchAll(
-      async (offset, limit) => {
-        const { data } = await invoicesIndex({ query: { ...query, offset, limit } });
-        return data.invoices;
-      },
-      parseCliInput(OptionalLimitTextSchema, ctx.values.limit, { label: "--limit" }),
-    );
+    const invoices = await fetchAll(async (offset, limit) => {
+      const { data } = await invoicesIndex({ query: { ...query, offset, limit } });
+      return data.invoices;
+    }, ctx.values.limit);
 
     return formatOutput(invoices, format);
   },

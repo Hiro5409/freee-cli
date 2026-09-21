@@ -1,7 +1,7 @@
 import { define } from "gunshi";
+import { args, choice, merge, string } from "gunshi/combinators";
 
 import { fetchAll } from "../../api/paginate.ts";
-import { OptionalLimitTextSchema, parseCliInput } from "../../cli-input.ts";
 import { listArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
 import { formatOutput } from "../../output/formatter.ts";
@@ -13,41 +13,34 @@ const ENTRY_SIDES = ["income", "expense"] as const;
 export const autoRegistrationRuleListCommand = define({
   name: "auto-rule-list",
   description: "List a company's auto-registration rules",
-  args: {
-    ...listArgs,
-    active: {
-      type: "enum" as const,
-      choices: ACTIVE_FILTERS,
-      description: `Filter by status: ${ACTIVE_FILTERS.join(" | ")}`,
-    },
-    description: { type: "string" as const, description: "Filter by rule description" },
-    "entry-side": {
-      type: "enum" as const,
-      choices: ENTRY_SIDES,
-      description: "Filter by income or expense",
-    },
-    walletable: { type: "string" as const, description: "Filter by account name" },
-  },
+  args: merge(
+    listArgs,
+    args({
+      active: choice(ACTIVE_FILTERS, {
+        description: `Filter by status: ${ACTIVE_FILTERS.join(" | ")}`,
+      }),
+      description: string({ description: "Filter by rule description" }),
+      "entry-side": choice(ENTRY_SIDES, { description: "Filter by income or expense" }),
+      walletable: string({ description: "Filter by account name" }),
+    }),
+  ),
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
 
-    const rules = await fetchAll(
-      async (offset, limit) => {
-        const { data } = await getUserMatchers({
-          query: {
-            company_id: companyId,
-            offset,
-            limit,
-            active: ctx.values.active,
-            description: ctx.values.description,
-            entry_side_str: ctx.values["entry-side"],
-            walletable: ctx.values.walletable,
-          },
-        });
-        return data.data;
-      },
-      parseCliInput(OptionalLimitTextSchema, ctx.values.limit, { label: "--limit" }),
-    );
+    const rules = await fetchAll(async (offset, limit) => {
+      const { data } = await getUserMatchers({
+        query: {
+          company_id: companyId,
+          offset,
+          limit,
+          active: ctx.values.active,
+          description: ctx.values.description,
+          entry_side_str: ctx.values["entry-side"],
+          walletable: ctx.values.walletable,
+        },
+      });
+      return data.data;
+    }, ctx.values.limit);
 
     return formatOutput(rules, format);
   },

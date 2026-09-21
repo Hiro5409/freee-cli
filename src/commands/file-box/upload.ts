@@ -1,6 +1,7 @@
 import { statSync } from "node:fs";
 
 import { define } from "gunshi";
+import { args, merge, required, string } from "gunshi/combinators";
 import colors from "yoctocolors";
 
 import { CliError } from "../../errors.ts";
@@ -37,11 +38,13 @@ function validateDocument(path: string): Bun.BunFile {
 export const fileBoxUploadCommand = define({
   name: "file-box-upload",
   description: "Upload a document into the File Box",
-  args: {
-    ...companyArgs,
-    file: { type: "string" as const, description: "File path to upload", required: true },
-    description: { type: "string" as const, description: "Document description" },
-  },
+  args: merge(
+    companyArgs,
+    args({
+      file: required(string({ description: "File path to upload" })),
+      description: string({ description: "Document description" }),
+    }),
+  ),
   examples: `$ freee file-box-upload --file receipt.jpg --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);

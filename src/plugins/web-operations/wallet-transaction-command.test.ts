@@ -85,7 +85,7 @@ describe("wallet transaction ignore command", () => {
     const { deps, reads, writes } = dependencies();
 
     await expect(
-      runWalletTransactionIgnoreCommand({ id: "42", profile: "business" }, deps),
+      runWalletTransactionIgnoreCommand({ id: 42, profile: "business" }, deps),
     ).resolves.toMatchObject({
       profile: "business",
       companyId: 100,
@@ -101,7 +101,7 @@ describe("wallet transaction ignore command", () => {
     const { deps, writes } = dependencies({ webBefore: { companyId: 101 } });
 
     await expect(
-      runWalletTransactionIgnoreCommand({ id: "42", profile: "business" }, deps),
+      runWalletTransactionIgnoreCommand({ id: 42, profile: "business" }, deps),
     ).rejects.toThrow("does not belong to company 100");
     expect(writes()).toBe(0);
   });
@@ -112,7 +112,7 @@ describe("wallet transaction ignore command", () => {
     });
 
     await expect(
-      runWalletTransactionIgnoreCommand({ id: "42", profile: "business" }, deps),
+      runWalletTransactionIgnoreCommand({ id: 42, profile: "business" }, deps),
     ).rejects.toThrow("not unprocessed");
     expect(writes()).toBe(0);
   });
@@ -122,7 +122,7 @@ describe("wallet transaction ignore command", () => {
     const { deps, reads } = dependencies({ writeError: rejection });
 
     await expect(
-      runWalletTransactionIgnoreCommand({ id: "42", profile: "business" }, deps),
+      runWalletTransactionIgnoreCommand({ id: 42, profile: "business" }, deps),
     ).rejects.toBe(rejection);
     expect(reads()).toBe(1);
   });
@@ -134,7 +134,7 @@ describe("wallet transaction ignore command", () => {
     });
 
     await expect(
-      runWalletTransactionIgnoreCommand({ id: "42", profile: "business" }, deps),
+      runWalletTransactionIgnoreCommand({ id: 42, profile: "business" }, deps),
     ).rejects.toBeInstanceOf(OutcomeUnknownError);
     expect(reads()).toBe(2);
   });
@@ -145,7 +145,7 @@ describe("wallet transaction ignore command", () => {
     });
 
     await expect(
-      runWalletTransactionIgnoreCommand({ id: "42", profile: "business" }, deps),
+      runWalletTransactionIgnoreCommand({ id: 42, profile: "business" }, deps),
     ).resolves.toMatchObject({ ignored: true, target: { id: 42 } });
     expect(reads()).toBe(2);
   });
@@ -210,7 +210,7 @@ describe("wallet transaction restore command", () => {
     const { deps, reads, writes } = restoreDependencies();
 
     await expect(
-      runWalletTransactionRestoreCommand({ id: "42", profile: "business" }, deps),
+      runWalletTransactionRestoreCommand({ id: 42, profile: "business" }, deps),
     ).resolves.toMatchObject({
       profile: "business",
       companyId: 100,
@@ -226,7 +226,7 @@ describe("wallet transaction restore command", () => {
     const { deps, writes } = restoreDependencies({ webBefore: { status: 1 } });
 
     await expect(
-      runWalletTransactionRestoreCommand({ id: "42", profile: "business" }, deps),
+      runWalletTransactionRestoreCommand({ id: 42, profile: "business" }, deps),
     ).rejects.toThrow("not ignored");
     expect(writes()).toBe(0);
   });
@@ -235,7 +235,7 @@ describe("wallet transaction restore command", () => {
     const { deps, writes } = restoreDependencies({ webBefore: { recoveryLocked: true } });
 
     await expect(
-      runWalletTransactionRestoreCommand({ id: "42", profile: "business" }, deps),
+      runWalletTransactionRestoreCommand({ id: 42, profile: "business" }, deps),
     ).rejects.toThrow("locked from recovery");
     expect(writes()).toBe(0);
   });
@@ -246,7 +246,7 @@ describe("wallet transaction restore command", () => {
     });
 
     await expect(
-      runWalletTransactionRestoreCommand({ id: "42", profile: "business" }, deps),
+      runWalletTransactionRestoreCommand({ id: 42, profile: "business" }, deps),
     ).resolves.toMatchObject({ restored: true, target: { id: 42 } });
     expect(reads()).toBe(2);
   });

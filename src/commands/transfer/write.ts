@@ -1,7 +1,8 @@
 import { define } from "gunshi";
+import { args, choice, integer, merge, multiple, required, string } from "gunshi/combinators";
 import colors from "yoctocolors";
 
-import { IsoDateSchema, PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
+import { isoDateArg } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { companyArgs, dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
@@ -11,24 +12,24 @@ import type { Transfer, TransferParams } from "../../types/freee/types.gen.ts";
 import { parseTransferDestinations } from "./parse-destinations.ts";
 
 const WALLET_TYPES = ["bank_account", "credit_card", "wallet"] as const;
-const transferArgs = {
-  date: { type: "string" as const, description: "Transfer date (YYYY-MM-DD)" },
-  "from-walletable-id": { type: "string" as const, description: "Source walletable ID" },
-  "from-walletable-type": {
-    type: "enum" as const,
-    choices: WALLET_TYPES,
+const transferArgs = args({
+  date: isoDateArg("--date", "Transfer date (YYYY-MM-DD)"),
+  "from-walletable-id": integer({
+    min: 1,
+    max: Number.MAX_SAFE_INTEGER,
+    description: "Source walletable ID",
+  }),
+  "from-walletable-type": choice(WALLET_TYPES, {
     description: `Source walletable type: ${WALLET_TYPES.join(" | ")}`,
-  },
-  to: {
-    type: "string" as const,
-    multiple: true as const,
-    description: "Destination JSON; repeatable and replaces all destinations on update",
-  },
-};
+  }),
+  to: multiple(
+    string({ description: "Destination JSON; repeatable and replaces all destinations on update" }),
+  ),
+});
 
 type TransferValues = {
   date?: string;
-  "from-walletable-id"?: string;
+  "from-walletable-id"?: number;
   "from-walletable-type"?: (typeof WALLET_TYPES)[number];
   to?: string[];
 };
@@ -58,15 +59,9 @@ function currentTransferBody(companyId: number, current: Transfer): TransferPara
 
 function optionalOverrides(values: TransferValues): Partial<TransferParams> {
   const overrides: Partial<TransferParams> = {};
-  if (values.date !== undefined)
-    overrides.date = parseCliInput(IsoDateSchema, values.date, { label: "--date" });
-  if (values["from-walletable-id"] !== undefined) {
-    overrides.from_walletable_id = parseCliInput(
-      PositiveIntegerTextSchema,
-      values["from-walletable-id"],
-      { label: "--from-walletable-id" },
-    );
-  }
+  if (values.date !== undefined) overrides.date = values.date;
+  if (values["from-walletable-id"] !== undefined)
+    overrides.from_walletable_id = values["from-walletable-id"];
   if (values["from-walletable-type"] !== undefined) {
     overrides.from_walletable_type = values["from-walletable-type"];
   }
@@ -77,14 +72,16 @@ function optionalOverrides(values: TransferValues): Partial<TransferParams> {
 export const transferCreateCommand = define({
   name: "transfer-create",
   description: "Create an account transfer",
-  args: {
-    ...companyArgs,
-    ...transferArgs,
-    date: { ...transferArgs.date, required: true },
-    "from-walletable-id": { ...transferArgs["from-walletable-id"], required: true },
-    "from-walletable-type": { ...transferArgs["from-walletable-type"], required: true },
-    to: { ...transferArgs.to, required: true },
-  },
+  args: merge(
+    companyArgs,
+    transferArgs,
+    args({
+      date: required(transferArgs.date),
+      "from-walletable-id": required(transferArgs["from-walletable-id"]),
+      "from-walletable-type": required(transferArgs["from-walletable-type"]),
+      to: required(transferArgs.to),
+    }),
+  ),
   examples: `$ freee transfer-create --date 2026-08-01 \\
     --from-walletable-id 10 --from-walletable-type bank_account \\
     --to '{"type":"credit_card","id":20,"amount":5000,"description":"Card payment"}' \\
@@ -93,12 +90,8 @@ export const transferCreateCommand = define({
     const { companyId, format } = initCommand(ctx);
     const body = {
       company_id: companyId,
-      date: parseCliInput(IsoDateSchema, ctx.values.date, { label: "--date" }),
-      from_walletable_id: parseCliInput(
-        PositiveIntegerTextSchema,
-        ctx.values["from-walletable-id"],
-        { label: "--from-walletable-id" },
-      ),
+      date: ctx.values.date,
+      from_walletable_id: ctx.values["from-walletable-id"],
       from_walletable_type: ctx.values["from-walletable-type"],
       to_walletables: parseTransferDestinations(ctx.values.to),
     } satisfies TransferParams;
@@ -112,15 +105,17 @@ export const transferCreateCommand = define({
 export const transferUpdateCommand = define({
   name: "transfer-update",
   description: "Update selected fields of an account transfer",
-  args: {
-    ...dryRunArgs,
-    ...transferArgs,
-    id: { type: "string" as const, description: "Transfer ID", required: true },
-  },
+  args: merge(
+    dryRunArgs,
+    transferArgs,
+    args({
+      id: required(integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "Transfer ID" })),
+    }),
+  ),
   examples: `$ freee transfer-update --id 42 --date 2026-08-02 --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const id = parseCliInput(PositiveIntegerTextSchema, ctx.values.id, { label: "--id" });
+    const id = ctx.values.id;
     const overrides = optionalOverrides(ctx.values);
     if (Object.keys(overrides).length === 0) {
       throw new CliError("Pass at least one transfer field to update.", {

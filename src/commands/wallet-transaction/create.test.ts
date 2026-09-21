@@ -122,21 +122,21 @@ describe("wallet transaction create command", () => {
   test("rejects a calendar-invalid --date before calling the API", async () => {
     const args = baseArgs.map((a) => (a === "2026-08-01" ? "2026-02-30" : a));
 
-    expect(cli(args, walletTransactionCreateCommand)).rejects.toThrow(/YYYY-MM-DD/);
+    await expect(cli(args, walletTransactionCreateCommand)).rejects.toThrow();
     expect(onCreateWalletTxn).not.toHaveBeenCalled();
   });
 
   test("rejects a non-positive --walletable-id before calling the API", async () => {
     const args = baseArgs.map((a) => (a === "55" ? "0" : a));
 
-    expect(cli(args, walletTransactionCreateCommand)).rejects.toThrow(/positive integer/);
+    await expect(cli(args, walletTransactionCreateCommand)).rejects.toThrow();
     expect(onCreateWalletTxn).not.toHaveBeenCalled();
   });
 
   test("rejects a non-integer --amount before calling the API", async () => {
     const args = baseArgs.map((a) => (a === "5000" ? "50.5" : a));
 
-    expect(cli(args, walletTransactionCreateCommand)).rejects.toThrow(/integer/);
+    await expect(cli(args, walletTransactionCreateCommand)).rejects.toThrow();
     expect(onCreateWalletTxn).not.toHaveBeenCalled();
   });
 

@@ -1,12 +1,16 @@
 import { define, type ArgValues } from "gunshi";
+import {
+  args,
+  boolean,
+  choice,
+  integer,
+  merge,
+  multiple,
+  required,
+  string,
+} from "gunshi/combinators";
 import colors from "yoctocolors";
 
-import {
-  IntegerTextSchema,
-  NonNegativeIntegerTextSchema,
-  PositiveIntegerTextSchema,
-  parseCliInput,
-} from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
@@ -58,61 +62,50 @@ const QUALIFIED_INVOICE_SETTING_CODES = {
   NonNullable<CreateBody["qualified_invoice_setting"]>
 >;
 
-const ruleArgs = {
-  act: {
-    type: "enum" as const,
-    choices: ACTS,
-    description: `Rule action: ${ACTS.join(" | ")}`,
-  },
-  description: {
-    type: "string" as const,
+const ruleArgs = args({
+  act: choice(ACTS, { description: `Rule action: ${ACTS.join(" | ")}` }),
+  description: string({
     description: "Text the wallet transaction description is matched against",
-  },
-  condition: {
-    type: "enum" as const,
-    choices: CONDITIONS,
-    description: `Match condition: ${CONDITIONS.join(" | ")}`,
-  },
-  "entry-side": {
-    type: "enum" as const,
-    choices: ENTRY_SIDES,
-    description: "income or expense",
-  },
-  priority: { type: "string" as const, description: "Rule priority (non-negative integer)" },
-  "tax-name": { type: "string" as const, description: "Tax category name" },
-  "account-item-name": { type: "string" as const, description: "Account item name" },
-  walletable: { type: "string" as const, description: "Limit the rule to this account name" },
-  "card-label": { type: "string" as const, description: "Limit the rule to this card label" },
-  "card-label-id": { type: "string" as const, description: "Card label ID" },
-  "transfer-walletable": {
-    type: "string" as const,
-    description: "Destination account for transfer rules",
-  },
-  "min-amount": { type: "string" as const, description: "Minimum amount (integer yen)" },
-  "max-amount": { type: "string" as const, description: "Maximum amount (integer yen)" },
-  "deal-description": { type: "string" as const, description: "Remarks written on the deal" },
-  "partner-name": { type: "string" as const, description: "Partner name set on the deal" },
-  "item-name": { type: "string" as const, description: "Item name set on the deal" },
-  "section-name": { type: "string" as const, description: "Section name set on the deal" },
-  "qualified-invoice-setting": {
-    type: "enum" as const,
-    choices: QUALIFIED_INVOICE_SETTINGS,
+  }),
+  condition: choice(CONDITIONS, { description: `Match condition: ${CONDITIONS.join(" | ")}` }),
+  "entry-side": choice(ENTRY_SIDES, { description: "income or expense" }),
+  priority: integer({
+    min: 0,
+    max: Number.MAX_SAFE_INTEGER,
+    description: "Rule priority (non-negative integer)",
+  }),
+  "tax-name": string({ description: "Tax category name" }),
+  "account-item-name": string({ description: "Account item name" }),
+  walletable: string({ description: "Limit the rule to this account name" }),
+  "card-label": string({ description: "Limit the rule to this card label" }),
+  "card-label-id": integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "Card label ID" }),
+  "transfer-walletable": string({ description: "Destination account for transfer rules" }),
+  "min-amount": integer({
+    min: Number.MIN_SAFE_INTEGER,
+    max: Number.MAX_SAFE_INTEGER,
+    description: "Minimum amount (integer yen)",
+  }),
+  "max-amount": integer({
+    min: Number.MIN_SAFE_INTEGER,
+    max: Number.MAX_SAFE_INTEGER,
+    description: "Maximum amount (integer yen)",
+  }),
+  "deal-description": string({ description: "Remarks written on the deal" }),
+  "partner-name": string({ description: "Partner name set on the deal" }),
+  "item-name": string({ description: "Item name set on the deal" }),
+  "section-name": string({ description: "Section name set on the deal" }),
+  "qualified-invoice-setting": choice(QUALIFIED_INVOICE_SETTINGS, {
     description: `Invoice qualification: ${QUALIFIED_INVOICE_SETTINGS.join(" | ")}`,
-  },
-  "suggest-tax-from-walletable-invoice": {
-    type: "boolean" as const,
-    negatable: true as const,
+  }),
+  "suggest-tax-from-walletable-invoice": boolean({
     description: "Use the tax category from supported wallet purchase data",
-  },
-  "division-tag-1-name": { type: "string" as const, description: "Segment 1 tag name" },
-  "division-tag-2-name": { type: "string" as const, description: "Segment 2 tag name" },
-  "division-tag-3-name": { type: "string" as const, description: "Segment 3 tag name" },
-  "default-tag": {
-    type: "string" as const,
-    multiple: true as const,
-    description: "Memo tag set on the deal, repeatable",
-  },
-};
+    negatable: true,
+  }),
+  "division-tag-1-name": string({ description: "Segment 1 tag name" }),
+  "division-tag-2-name": string({ description: "Segment 2 tag name" }),
+  "division-tag-3-name": string({ description: "Segment 3 tag name" }),
+  "default-tag": multiple(string({ description: "Memo tag set on the deal, repeatable" })),
+});
 
 type NullableUpdateKey = {
   [K in keyof UpdateBody]-?: null extends UpdateBody[K] ? K : never;
@@ -176,21 +169,10 @@ const SETTABLE_FIELDS = {
   tax_name: (values) => values["tax-name"],
   walletable: (values) => values.walletable,
   card_label: (values) => values["card-label"],
-  card_label_id: (values) =>
-    values["card-label-id"] === undefined
-      ? undefined
-      : parseCliInput(PositiveIntegerTextSchema, values["card-label-id"], {
-          label: "--card-label-id",
-        }),
+  card_label_id: (values) => values["card-label-id"],
   transfer_walletable: (values) => values["transfer-walletable"],
-  min_amount: (values) =>
-    values["min-amount"] === undefined
-      ? undefined
-      : parseCliInput(IntegerTextSchema, values["min-amount"], { label: "--min-amount" }),
-  max_amount: (values) =>
-    values["max-amount"] === undefined
-      ? undefined
-      : parseCliInput(IntegerTextSchema, values["max-amount"], { label: "--max-amount" }),
+  min_amount: (values) => values["min-amount"],
+  max_amount: (values) => values["max-amount"],
   deal_description: (values) => values["deal-description"],
   qualified_invoice_setting: (values) => {
     const setting = values["qualified-invoice-setting"];
@@ -230,9 +212,7 @@ function optionalOverrides(values: RuleValues): Partial<WritableRuleBody> {
     overrides.entry_side_str = values["entry-side"];
   }
   if (values.priority !== undefined) {
-    overrides.priority = parseCliInput(NonNegativeIntegerTextSchema, values.priority, {
-      label: "--priority",
-    });
+    overrides.priority = values.priority;
   }
   for (const [key, read] of Object.entries(SETTABLE_FIELDS)) {
     const value = read(values);
@@ -297,15 +277,17 @@ function validateBody(body: UpdateBody): void {
 export const autoRegistrationRuleCreateCommand = define({
   name: "auto-rule-create",
   description: "Create an auto-registration rule",
-  args: {
-    ...dryRunArgs,
-    ...ruleArgs,
-    act: { ...ruleArgs.act, required: true },
-    description: { ...ruleArgs.description, required: true },
-    condition: { ...ruleArgs.condition, required: true },
-    "entry-side": { ...ruleArgs["entry-side"], required: true },
-    priority: { ...ruleArgs.priority, required: true },
-  },
+  args: merge(
+    dryRunArgs,
+    ruleArgs,
+    args({
+      act: required(ruleArgs.act),
+      description: required(ruleArgs.description),
+      condition: required(ruleArgs.condition),
+      "entry-side": required(ruleArgs["entry-side"]),
+      priority: required(ruleArgs.priority),
+    }),
+  ),
   examples: `$ freee auto-rule-create --act manual-transfer --description 振込 --condition exact \\
     --entry-side expense --priority 5 --transfer-walletable 普通預金 --dry-run --format json`,
   run: async (ctx) => {
@@ -317,9 +299,7 @@ export const autoRegistrationRuleCreateCommand = define({
       condition: CONDITION_CODES[ctx.values.condition],
       description: ctx.values.description,
       entry_side_str: ctx.values["entry-side"],
-      priority: parseCliInput(NonNegativeIntegerTextSchema, ctx.values.priority, {
-        label: "--priority",
-      }),
+      priority: ctx.values.priority,
     } satisfies CreateUserMatcherData["body"];
     validateBody(body);
 
@@ -340,23 +320,26 @@ export const autoRegistrationRuleCreateCommand = define({
 export const autoRegistrationRuleUpdateCommand = define({
   name: "auto-rule-update",
   description: "Update selected fields of an auto-registration rule",
-  args: {
-    ...dryRunArgs,
-    ...ruleArgs,
-    id: { type: "string" as const, description: "Auto-registration rule ID", required: true },
-    clear: {
-      type: "enum" as const,
-      choices: CLEARABLE_FIELD_NAMES,
-      multiple: true as const,
-      description: `Clear an optional field by sending JSON null, repeatable: ${CLEARABLE_FIELD_NAMES.join(" | ")}`,
-    },
-  },
+  args: merge(
+    dryRunArgs,
+    ruleArgs,
+    args({
+      id: required(
+        integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "Auto-registration rule ID" }),
+      ),
+      clear: multiple(
+        choice(CLEARABLE_FIELD_NAMES, {
+          description: `Clear an optional field by sending JSON null, repeatable: ${CLEARABLE_FIELD_NAMES.join(" | ")}`,
+        }),
+      ),
+    }),
+  ),
   examples: `$ freee auto-rule-update --id 42 --account-item-name 通信費 \\
     --deal-description 開発用サービス --dry-run --format json
 $ freee auto-rule-update --id 42 --clear walletable --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const id = parseCliInput(PositiveIntegerTextSchema, ctx.values.id, { label: "--id" });
+    const id = ctx.values.id;
     const valueOverrides = optionalOverrides(ctx.values);
     const clearedOverrides = clearOverrides(ctx.values.clear);
     const conflictingField = CLEARABLE_FIELD_NAMES.find(

@@ -1,7 +1,7 @@
 import { define } from "gunshi";
+import { args, integer, merge, required as requiredArg } from "gunshi/combinators";
 import colors from "yoctocolors";
 
-import { IsoDateSchema, PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
@@ -34,7 +34,7 @@ type PartnerOverride =
   | { partner_code: string; partner_id?: never };
 
 function resolvePartnerOverride(values: {
-  "partner-id"?: string;
+  "partner-id"?: number;
   "partner-code"?: string;
 }): PartnerOverride | undefined {
   const id = values["partner-id"];
@@ -47,8 +47,7 @@ function resolvePartnerOverride(values: {
       hint: errorHints.oneIdentifier,
     });
   }
-  if (id)
-    return { partner_id: parseCliInput(PositiveIntegerTextSchema, id, { label: "--partner-id" }) };
+  if (id) return { partner_id: id };
   if (code) return { partner_code: code };
   return undefined;
 }
@@ -132,15 +131,17 @@ export const invoiceUpdateCommand = define({
   name: "invoice-update",
   description:
     "Update an invoice via the freee invoice API (fetch-merge-PUT; unspecified fields are resent unchanged)",
-  args: {
-    ...dryRunArgs,
-    ...invoiceArgs,
-    id: { type: "string" as const, description: "Invoice ID", required: true },
-  },
+  args: merge(
+    dryRunArgs,
+    invoiceArgs,
+    args({
+      id: requiredArg(integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "Invoice ID" })),
+    }),
+  ),
   examples: `$ freee invoice-update --id 456 --subject "August invoice" --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const id = parseCliInput(PositiveIntegerTextSchema, ctx.values.id, { label: "--id" });
+    const id = ctx.values.id;
     const partnerOverride = resolvePartnerOverride(ctx.values);
 
     const lines = ctx.values.line?.length ? parseInvoiceLines(ctx.values.line) : undefined;
@@ -150,26 +151,16 @@ export const invoiceUpdateCommand = define({
       invoice_number: ctx.values["invoice-number"],
       memo: ctx.values.memo,
       invoice_note: ctx.values["invoice-note"],
-      billing_date: ctx.values["billing-date"]
-        ? parseCliInput(IsoDateSchema, ctx.values["billing-date"], { label: "--billing-date" })
-        : undefined,
-      issue_date: ctx.values["issue-date"]
-        ? parseCliInput(IsoDateSchema, ctx.values["issue-date"], { label: "--issue-date" })
-        : undefined,
-      payment_date: ctx.values["payment-date"]
-        ? parseCliInput(IsoDateSchema, ctx.values["payment-date"], { label: "--payment-date" })
-        : undefined,
+      billing_date: ctx.values["billing-date"],
+      issue_date: ctx.values["issue-date"],
+      payment_date: ctx.values["payment-date"],
       payment_type: ctx.values["payment-type"],
       partner_title: ctx.values["partner-title"],
       tax_entry_method: ctx.values["tax-entry-method"],
       tax_fraction: ctx.values["tax-fraction"],
       line_amount_fraction: ctx.values["line-amount-fraction"],
       withholding_tax_entry_method: ctx.values["withholding-tax-entry-method"],
-      template_id: ctx.values["template-id"]
-        ? parseCliInput(PositiveIntegerTextSchema, ctx.values["template-id"], {
-            label: "--template-id",
-          })
-        : undefined,
+      template_id: ctx.values["template-id"],
       lines,
     };
 

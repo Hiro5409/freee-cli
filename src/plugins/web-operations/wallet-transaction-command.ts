@@ -1,4 +1,3 @@
-import { PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { CliError, OutcomeUnknownError } from "../../errors.ts";
 import {
   type FreeeWebOperations,
@@ -9,7 +8,7 @@ import { identifyWalletTransactionTarget } from "./wallet-transaction-target.ts"
 import { resolveWebCommandScope, type WebCommandScope } from "./web-command-scope.ts";
 
 type Values = {
-  id?: unknown;
+  id: number;
   profile?: unknown;
 };
 
@@ -108,9 +107,7 @@ async function runWalletTransactionTransition(
   dependencies: Partial<Dependencies>,
 ) {
   const deps = { ...defaultDependencies, ...dependencies };
-  const walletTransactionId = parseCliInput(PositiveIntegerTextSchema, values.id, {
-    label: "--id",
-  });
+  const walletTransactionId = values.id;
   const scope = deps.resolveScope(values.profile);
 
   return deps.withWeb(scope, async (web) => {

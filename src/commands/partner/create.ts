@@ -1,4 +1,5 @@
 import { define } from "gunshi";
+import { args, merge, required, string } from "gunshi/combinators";
 import colors from "yoctocolors";
 
 import { CliError } from "../../errors.ts";
@@ -21,11 +22,13 @@ function parsePartnerName(value: unknown): string {
 export const partnerCreateCommand = define({
   name: "partner-create",
   description: "Create a partner (transaction counterpart)",
-  args: {
-    ...companyArgs,
-    name: { type: "string" as const, description: "Partner name", required: true },
-    code: { type: "string" as const, description: "Partner code" },
-  },
+  args: merge(
+    companyArgs,
+    args({
+      name: required(string({ description: "Partner name" })),
+      code: string({ description: "Partner code" }),
+    }),
+  ),
   examples: `$ freee partner-create --name "Acme" --code P-001 --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);

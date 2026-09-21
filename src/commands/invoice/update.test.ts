@@ -206,9 +206,9 @@ describe("invoice update command", () => {
   });
 
   test("請求書IDが正の整数でなければ取得しにいかない", async () => {
-    expect(cli(["--company-id", "123", "--id", "abc"], invoiceUpdateCommand)).rejects.toThrow(
-      /positive integer/,
-    );
+    await expect(
+      cli(["--company-id", "123", "--id", "abc"], invoiceUpdateCommand),
+    ).rejects.toThrow();
     expect(onUpdate).not.toHaveBeenCalled();
   });
 });

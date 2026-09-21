@@ -1,4 +1,14 @@
 import { define } from "gunshi";
+import {
+  args,
+  boolean,
+  choice,
+  integer,
+  merge,
+  required,
+  string,
+  withDefault,
+} from "gunshi/combinators";
 import { plugin } from "gunshi/plugin";
 import colors from "yoctocolors";
 
@@ -19,15 +29,19 @@ import { runWalletableSyncCommand } from "./walletable-sync-command.ts";
 const invoiceRegisterDealCommand = define({
   name: "register-deal",
   description: "Register a Deal from one unregistered invoice through freee Web",
-  args: {
-    ...globalArgs,
-    id: {
-      type: "string" as const,
-      description:
-        "Invoice ID from freee invoice-list --deal-status unregistered --cancel-status uncanceled",
-      required: true,
-    },
-  },
+  args: merge(
+    globalArgs,
+    args({
+      id: required(
+        integer({
+          min: 1,
+          max: Number.MAX_SAFE_INTEGER,
+          description:
+            "Invoice ID from freee invoice-list --deal-status unregistered --cancel-status uncanceled",
+        }),
+      ),
+    }),
+  ),
   examples: `$ freee web invoice register-deal --id 42 --format json`,
   run: async (context) => {
     const result = await runInvoiceRegisterDealCommand(context.values);
@@ -42,20 +56,23 @@ const invoiceRegisterDealCommand = define({
 const invoiceSetSendingStatusCommand = define({
   name: "set-sending-status",
   description: "Set one invoice's sending status through freee Web without delivering it",
-  args: {
-    ...globalArgs,
-    id: {
-      type: "string" as const,
-      description: "Invoice ID from freee invoice-list or freee invoice-show",
-      required: true,
-    },
-    status: {
-      type: "enum" as const,
-      choices: ["sent", "unsent"] as const,
-      description: "Desired sending status: sent | unsent",
-      required: true,
-    },
-  },
+  args: merge(
+    globalArgs,
+    args({
+      id: required(
+        integer({
+          min: 1,
+          max: Number.MAX_SAFE_INTEGER,
+          description: "Invoice ID from freee invoice-list or freee invoice-show",
+        }),
+      ),
+      status: required(
+        choice(["sent", "unsent"] as const, {
+          description: "Desired sending status: sent | unsent",
+        }),
+      ),
+    }),
+  ),
   examples: `$ freee web invoice set-sending-status --id 42 --status sent --format json`,
   run: async (context) => {
     const result = await runInvoiceSetSendingStatusCommand(context.values);
@@ -73,14 +90,18 @@ const invoiceSetSendingStatusCommand = define({
 const walletTransactionIgnoreCommand = define({
   name: "ignore",
   description: "Ignore one unprocessed wallet transaction through freee Web",
-  args: {
-    ...globalArgs,
-    id: {
-      type: "string" as const,
-      description: "Wallet transaction ID from freee wallet-txn-list --status unreconciled",
-      required: true,
-    },
-  },
+  args: merge(
+    globalArgs,
+    args({
+      id: required(
+        integer({
+          min: 1,
+          max: Number.MAX_SAFE_INTEGER,
+          description: "Wallet transaction ID from freee wallet-txn-list --status unreconciled",
+        }),
+      ),
+    }),
+  ),
   examples: `$ freee web wallet-txn ignore --id 42 --format json`,
   run: async (context) => {
     const result = await runWalletTransactionIgnoreCommand(context.values);
@@ -95,14 +116,15 @@ const walletTransactionIgnoreCommand = define({
 const walletTransactionApplyRulesCommand = define({
   name: "apply-rules",
   description: "Show freee's current match count or apply its auto-registration rules",
-  args: {
-    ...globalArgs,
-    "dry-run": {
-      type: "boolean" as const,
-      default: false,
-      description: "Show freee's current match count without applying rules",
-    },
-  },
+  args: merge(
+    globalArgs,
+    args({
+      "dry-run": withDefault(
+        boolean({ description: "Show freee's current match count without applying rules" }),
+        false,
+      ),
+    }),
+  ),
   examples: `$ freee web wallet-txn apply-rules --dry-run --format json`,
   run: async (context) => {
     const result = await runWalletTransactionApplyRulesCommand(context.values);
@@ -122,18 +144,22 @@ const walletableSyncCommand = define({
   name: "sync",
   description:
     "Synchronize one walletable or start freee Web's bulk synchronization; may wait up to one hour and, in table format, reports progress lines on stderr",
-  args: {
-    ...globalArgs,
-    all: {
-      type: "boolean" as const,
-      default: false,
-      description: "Start bulk sync and report walletables that freee actually syncs",
-    },
-    id: {
-      type: "string" as const,
-      description: "Walletable ID from freee walletable-list",
-    },
-  },
+  args: merge(
+    globalArgs,
+    args({
+      all: withDefault(
+        boolean({
+          description: "Start bulk sync and report walletables that freee actually syncs",
+        }),
+        false,
+      ),
+      id: integer({
+        min: 1,
+        max: Number.MAX_SAFE_INTEGER,
+        description: "Walletable ID from freee walletable-list",
+      }),
+    }),
+  ),
   examples: `$ freee web walletable sync --id 42 --format json`,
   run: async (context) => {
     const result = await runWalletableSyncCommand(context.values);
@@ -148,14 +174,18 @@ const walletableSyncCommand = define({
 const walletTransactionRestoreCommand = define({
   name: "restore",
   description: "Restore one ignored wallet transaction to unprocessed through freee Web",
-  args: {
-    ...globalArgs,
-    id: {
-      type: "string" as const,
-      description: "Wallet transaction ID from freee wallet-txn-list --status ignored",
-      required: true,
-    },
-  },
+  args: merge(
+    globalArgs,
+    args({
+      id: required(
+        integer({
+          min: 1,
+          max: Number.MAX_SAFE_INTEGER,
+          description: "Wallet transaction ID from freee wallet-txn-list --status ignored",
+        }),
+      ),
+    }),
+  ),
   examples: `$ freee web wallet-txn restore --id 42 --format json`,
   run: async (context) => {
     const result = await runWalletTransactionRestoreCommand(context.values);
@@ -171,33 +201,31 @@ const walletTransactionRegisterCommand = define({
   name: "register",
   description:
     "Register one unprocessed wallet transaction's full amount as a single-line Deal through freee Web; use freee Web directly for split lines or additional fields",
-  args: {
-    ...globalArgs,
-    "dry-run": {
-      type: "boolean" as const,
-      default: false,
-      description: "Show freee's Deal registration preview without writing",
-    },
-    id: {
-      type: "string" as const,
-      description: "Wallet transaction ID from freee wallet-txn-list --status unreconciled",
-      required: true,
-    },
-    "account-item-name": {
-      type: "string" as const,
-      description: "Account item name exactly as shown by freee account-item-list",
-      required: true,
-    },
-    "tax-name": {
-      type: "string" as const,
-      description: "Tax name exactly as shown by freee tax-code-list",
-      required: true,
-    },
-    description: {
-      type: "string" as const,
-      description: "Optional replacement for the wallet transaction description",
-    },
-  },
+  args: merge(
+    globalArgs,
+    args({
+      "dry-run": withDefault(
+        boolean({ description: "Show freee's Deal registration preview without writing" }),
+        false,
+      ),
+      id: required(
+        integer({
+          min: 1,
+          max: Number.MAX_SAFE_INTEGER,
+          description: "Wallet transaction ID from freee wallet-txn-list --status unreconciled",
+        }),
+      ),
+      "account-item-name": required(
+        string({ description: "Account item name exactly as shown by freee account-item-list" }),
+      ),
+      "tax-name": required(
+        string({ description: "Tax name exactly as shown by freee tax-code-list" }),
+      ),
+      description: string({
+        description: "Optional replacement for the wallet transaction description",
+      }),
+    }),
+  ),
   examples: `$ freee web wallet-txn register --id 42 --account-item-name "通信費" --tax-name "課対仕入10%" --description "クラウド利用料" --dry-run --format json`,
   run: async (context) => {
     const result = await runWalletTransactionRegisterCommand(context.values);
@@ -216,29 +244,36 @@ const walletTransactionRegisterCommand = define({
 const walletTransactionSettleCommand = define({
   name: "settle",
   description: "Settle one existing Deal with an unprocessed wallet transaction through freee Web",
-  args: {
-    ...globalArgs,
-    "dry-run": {
-      type: "boolean" as const,
-      default: false,
-      description: "Show freee's settlement preview without settling the Deal",
-    },
-    id: {
-      type: "string" as const,
-      description: "Wallet transaction ID from freee wallet-txn-list --status unreconciled",
-      required: true,
-    },
-    "deal-id": {
-      type: "string" as const,
-      description: "Existing Deal ID from freee deal-list",
-      required: true,
-    },
-    amount: {
-      type: "string" as const,
-      description: "Positive settlement amount in yen",
-      required: true,
-    },
-  },
+  args: merge(
+    globalArgs,
+    args({
+      "dry-run": withDefault(
+        boolean({ description: "Show freee's settlement preview without settling the Deal" }),
+        false,
+      ),
+      id: required(
+        integer({
+          min: 1,
+          max: Number.MAX_SAFE_INTEGER,
+          description: "Wallet transaction ID from freee wallet-txn-list --status unreconciled",
+        }),
+      ),
+      "deal-id": required(
+        integer({
+          min: 1,
+          max: Number.MAX_SAFE_INTEGER,
+          description: "Existing Deal ID from freee deal-list",
+        }),
+      ),
+      amount: required(
+        integer({
+          min: 1,
+          max: Number.MAX_SAFE_INTEGER,
+          description: "Positive settlement amount in yen",
+        }),
+      ),
+    }),
+  ),
   examples: `$ freee web wallet-txn settle --id 42 --deal-id 91 --amount 10000 --dry-run --format json`,
   run: async (context) => {
     const result = await runWalletTransactionSettleCommand(context.values);
@@ -258,29 +293,29 @@ const walletTransactionTransferCommand = define({
   name: "transfer",
   description:
     "Process one unprocessed wallet transaction as an account transfer through freee Web",
-  args: {
-    ...globalArgs,
-    "dry-run": {
-      type: "boolean" as const,
-      default: false,
-      description: "Show freee's account transfer preview without writing",
-    },
-    id: {
-      type: "string" as const,
-      description: "Wallet transaction ID from freee wallet-txn-list --status unreconciled",
-      required: true,
-    },
-    "counterparty-walletable-name": {
-      type: "string" as const,
-      description:
-        "Counterparty walletable or private-funds account name exactly as shown in freee",
-      required: true,
-    },
-    description: {
-      type: "string" as const,
-      description: "Optional transfer description",
-    },
-  },
+  args: merge(
+    globalArgs,
+    args({
+      "dry-run": withDefault(
+        boolean({ description: "Show freee's account transfer preview without writing" }),
+        false,
+      ),
+      id: required(
+        integer({
+          min: 1,
+          max: Number.MAX_SAFE_INTEGER,
+          description: "Wallet transaction ID from freee wallet-txn-list --status unreconciled",
+        }),
+      ),
+      "counterparty-walletable-name": required(
+        string({
+          description:
+            "Counterparty walletable or private-funds account name exactly as shown in freee",
+        }),
+      ),
+      description: string({ description: "Optional transfer description" }),
+    }),
+  ),
   examples: `$ freee web wallet-txn transfer --id 42 --counterparty-walletable-name "事業主借" --description "資金移動" --dry-run --format json`,
   run: async (context) => {
     const result = await runWalletTransactionTransferCommand(context.values);

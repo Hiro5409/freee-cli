@@ -1,7 +1,7 @@
 import { define } from "gunshi";
+import { args, choice, merge, required } from "gunshi/combinators";
 
 import { fetchAll } from "../../api/paginate.ts";
-import { OptionalLimitTextSchema, parseCliInput } from "../../cli-input.ts";
 import { listArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
 import { formatOutput } from "../../output/formatter.ts";
@@ -12,28 +12,26 @@ const SEGMENTS = ["1", "2", "3"] as const;
 export const segmentTagListCommand = define({
   name: "segment-tag-list",
   description: "List tags for accounting segment 1, 2, or 3 when available on the company plan",
-  args: {
-    ...listArgs,
-    segment: {
-      type: "enum" as const,
-      choices: SEGMENTS,
-      description: "Segment number: 1 | 2 | 3; freee rejects numbers unavailable on the plan",
-      required: true,
-    },
-  },
+  args: merge(
+    listArgs,
+    args({
+      segment: required(
+        choice(SEGMENTS, {
+          description: "Segment number: 1 | 2 | 3; freee rejects numbers unavailable on the plan",
+        }),
+      ),
+    }),
+  ),
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const segmentId = Number(ctx.values.segment);
-    const tags = await fetchAll(
-      async (offset, limit) => {
-        const { data } = await getSegmentTags({
-          path: { segment_id: segmentId },
-          query: { company_id: companyId, offset, limit },
-        });
-        return data.segment_tags;
-      },
-      parseCliInput(OptionalLimitTextSchema, ctx.values.limit, { label: "--limit" }),
-    );
+    const tags = await fetchAll(async (offset, limit) => {
+      const { data } = await getSegmentTags({
+        path: { segment_id: segmentId },
+        query: { company_id: companyId, offset, limit },
+      });
+      return data.segment_tags;
+    }, ctx.values.limit);
     return formatOutput(tags, format);
   },
 });

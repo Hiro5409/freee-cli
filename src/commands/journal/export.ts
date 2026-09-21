@@ -2,9 +2,10 @@ import { existsSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import { define } from "gunshi";
+import { args, choice, merge, multiple, required, string } from "gunshi/combinators";
 import colors from "yoctocolors";
 
-import { IsoDateSchema, parseCliInput } from "../../cli-input.ts";
+import { isoDateArg } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { companyArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
@@ -56,39 +57,28 @@ async function waitForJournal(companyId: number, reportId: number): Promise<void
 export const journalExportCommand = define({
   name: "journal-export",
   description: "Generate and download a journal export",
-  args: {
-    ...companyArgs,
-    "download-type": {
-      type: "enum" as const,
-      choices: DOWNLOAD_TYPES,
-      description: `Export format: ${DOWNLOAD_TYPES.join(" | ")}`,
-      required: true,
-    },
-    encoding: {
-      type: "enum" as const,
-      choices: ENCODINGS,
-      description: `Character encoding: ${ENCODINGS.join(" | ")}`,
-    },
-    "start-date": { type: "string" as const, description: "Range start (YYYY-MM-DD)" },
-    "end-date": { type: "string" as const, description: "Range end (YYYY-MM-DD)" },
-    "visible-tag": {
-      type: "enum" as const,
-      choices: VISIBLE_TAGS,
-      multiple: true as const,
-      description: `Additional tag field, repeatable: ${VISIBLE_TAGS.join(" | ")}`,
-    },
-    "visible-id": {
-      type: "enum" as const,
-      choices: VISIBLE_IDS,
-      multiple: true as const,
-      description: `Additional ID field, repeatable: ${VISIBLE_IDS.join(" | ")}`,
-    },
-    output: {
-      type: "string" as const,
-      description: "Output file path",
-      required: true,
-    },
-  },
+  args: merge(
+    companyArgs,
+    args({
+      "download-type": required(
+        choice(DOWNLOAD_TYPES, { description: `Export format: ${DOWNLOAD_TYPES.join(" | ")}` }),
+      ),
+      encoding: choice(ENCODINGS, { description: `Character encoding: ${ENCODINGS.join(" | ")}` }),
+      "start-date": isoDateArg("--start-date", "Range start (YYYY-MM-DD)"),
+      "end-date": isoDateArg("--end-date", "Range end (YYYY-MM-DD)"),
+      "visible-tag": multiple(
+        choice(VISIBLE_TAGS, {
+          description: `Additional tag field, repeatable: ${VISIBLE_TAGS.join(" | ")}`,
+        }),
+      ),
+      "visible-id": multiple(
+        choice(VISIBLE_IDS, {
+          description: `Additional ID field, repeatable: ${VISIBLE_IDS.join(" | ")}`,
+        }),
+      ),
+      output: required(string({ description: "Output file path" })),
+    }),
+  ),
   examples: `$ freee journal-export --download-type generic_v2 --encoding utf-8 \\
     --start-date 2025-01-01 --end-date 2025-12-31 \\
     --output journal-2025.csv --format json`,
@@ -105,12 +95,8 @@ export const journalExportCommand = define({
 
     const downloadType = ctx.values["download-type"];
     const encoding = ctx.values.encoding;
-    const startDate = ctx.values["start-date"]
-      ? parseCliInput(IsoDateSchema, ctx.values["start-date"], { label: "--start-date" })
-      : undefined;
-    const endDate = ctx.values["end-date"]
-      ? parseCliInput(IsoDateSchema, ctx.values["end-date"], { label: "--end-date" })
-      : undefined;
+    const startDate = ctx.values["start-date"];
+    const endDate = ctx.values["end-date"];
     const visibleTags = ctx.values["visible-tag"];
     const visibleIds = ctx.values["visible-id"];
     const query: GetJournalsData["query"] = {

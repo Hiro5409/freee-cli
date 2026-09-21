@@ -103,7 +103,7 @@ describe("wallet transaction transfer command", () => {
     await expect(
       runWalletTransactionTransferCommand(
         {
-          id: "42",
+          id: 42,
           "counterparty-walletable-name": "事業主借",
           description: "資金移動",
           profile: "business",
@@ -141,7 +141,7 @@ describe("wallet transaction transfer command", () => {
     await expect(
       runWalletTransactionTransferCommand(
         {
-          id: "42",
+          id: 42,
           "counterparty-walletable-name": "事業主借",
           profile: "business",
         },
@@ -173,7 +173,7 @@ describe("wallet transaction transfer command", () => {
     await expect(
       runWalletTransactionTransferCommand(
         {
-          id: "42",
+          id: 42,
           "counterparty-walletable-name": "事業主借",
           profile: "business",
         },
@@ -191,7 +191,7 @@ describe("wallet transaction transfer command", () => {
     await expect(
       runWalletTransactionTransferCommand(
         {
-          id: "42",
+          id: 42,
           "counterparty-walletable-name": "事業主借",
           profile: "business",
         },
@@ -210,7 +210,7 @@ describe("wallet transaction transfer command", () => {
     await expect(
       runWalletTransactionTransferCommand(
         {
-          id: "42",
+          id: 42,
           "counterparty-walletable-name": "事業主借",
           profile: "business",
         },

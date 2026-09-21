@@ -1,7 +1,7 @@
 import { define } from "gunshi";
+import { args, integer, merge, required } from "gunshi/combinators";
 import colors from "yoctocolors";
 
-import { PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
 import { formatDryRun, formatValue } from "../../output/formatter.ts";
@@ -10,18 +10,20 @@ import { destroyDealPayment } from "../../types/freee/sdk.gen.ts";
 export const dealPaymentDeleteCommand = define({
   name: "deal-payment-delete",
   description: "Delete a payment from a deal",
-  args: {
-    ...dryRunArgs,
-    id: { type: "string" as const, description: "Deal ID", required: true },
-    "payment-id": { type: "string" as const, description: "Payment ID", required: true },
-  },
+  args: merge(
+    dryRunArgs,
+    args({
+      id: required(integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "Deal ID" })),
+      "payment-id": required(
+        integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "Payment ID" }),
+      ),
+    }),
+  ),
   examples: `$ freee deal-payment-delete --id 42 --payment-id 7 --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const id = parseCliInput(PositiveIntegerTextSchema, ctx.values.id, { label: "--id" });
-    const paymentId = parseCliInput(PositiveIntegerTextSchema, ctx.values["payment-id"], {
-      label: "--payment-id",
-    });
+    const id = ctx.values.id;
+    const paymentId = ctx.values["payment-id"];
     const path = `/api/1/deals/${id}/payments/${paymentId}`;
     const query = { company_id: companyId };
 

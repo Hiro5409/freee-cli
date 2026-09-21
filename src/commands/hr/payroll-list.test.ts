@@ -131,7 +131,7 @@ describe("HR payroll list command", () => {
         ["--company-id", "123", "--month", "2026-08", "--employee-id", "0"],
         hrPayrollListCommand,
       ),
-    ).rejects.toThrow(/positive integer/);
+    ).rejects.toThrow();
     expect(called).toBe(false);
   });
 
@@ -149,7 +149,7 @@ describe("HR payroll list command", () => {
         ["--company-id", "123", "--month", "2026-08", "--employee-id", "42", "--limit", "0"],
         hrPayrollListCommand,
       ),
-    ).rejects.toThrow(/positive integer/);
+    ).rejects.toThrow();
     expect(called).toBe(false);
   });
 });

@@ -76,7 +76,7 @@ describe("invoice register Deal command", () => {
     const { deps, webSessions, writes } = dependencies();
 
     await expect(
-      runInvoiceRegisterDealCommand({ id: "77", profile: "business" }, deps),
+      runInvoiceRegisterDealCommand({ id: 77, profile: "business" }, deps),
     ).resolves.toMatchObject({
       profile: "business",
       companyId: 100,
@@ -95,7 +95,7 @@ describe("invoice register Deal command", () => {
     });
 
     await expect(
-      runInvoiceRegisterDealCommand({ id: "77", profile: "business" }, deps),
+      runInvoiceRegisterDealCommand({ id: 77, profile: "business" }, deps),
     ).rejects.toThrow("canceled");
     expect(webSessions()).toBe(0);
     expect(writes()).toBe(0);
@@ -107,7 +107,7 @@ describe("invoice register Deal command", () => {
     });
 
     await expect(
-      runInvoiceRegisterDealCommand({ id: "77", profile: "business" }, deps),
+      runInvoiceRegisterDealCommand({ id: 77, profile: "business" }, deps),
     ).rejects.toThrow("already registered");
     expect(writes()).toBe(0);
   });
@@ -116,7 +116,7 @@ describe("invoice register Deal command", () => {
     const { deps, webSessions, writes } = dependencies({ before: { company_id: 101 } });
 
     await expect(
-      runInvoiceRegisterDealCommand({ id: "77", profile: "business" }, deps),
+      runInvoiceRegisterDealCommand({ id: 77, profile: "business" }, deps),
     ).rejects.toThrow("does not belong to company 100");
     expect(webSessions()).toBe(0);
     expect(writes()).toBe(0);
@@ -128,7 +128,7 @@ describe("invoice register Deal command", () => {
     });
 
     await expect(
-      runInvoiceRegisterDealCommand({ id: "77", profile: "business" }, deps),
+      runInvoiceRegisterDealCommand({ id: 77, profile: "business" }, deps),
     ).rejects.toBeInstanceOf(OutcomeUnknownError);
   });
 
@@ -138,7 +138,7 @@ describe("invoice register Deal command", () => {
     });
 
     await expect(
-      runInvoiceRegisterDealCommand({ id: "77", profile: "business" }, deps),
+      runInvoiceRegisterDealCommand({ id: 77, profile: "business" }, deps),
     ).resolves.toMatchObject({ registered: true, dealId: 901 });
   });
 
@@ -148,7 +148,7 @@ describe("invoice register Deal command", () => {
     });
 
     await expect(
-      runInvoiceRegisterDealCommand({ id: "77", profile: "business" }, deps),
+      runInvoiceRegisterDealCommand({ id: 77, profile: "business" }, deps),
     ).rejects.toThrow("rejected the registration");
     expect(reads()).toBe(1);
   });

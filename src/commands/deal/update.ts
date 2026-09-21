@@ -1,4 +1,5 @@
 import { define } from "gunshi";
+import { args, integer, merge, multiple, required, string } from "gunshi/combinators";
 import * as v from "valibot";
 import colors from "yoctocolors";
 
@@ -101,26 +102,27 @@ function dealRequestFromCurrent(
 export const dealUpdateCommand = define({
   name: "deal-update",
   description: "Update a deal; omit replacement fields to preserve their current values",
-  args: {
-    ...dryRunArgs,
-    id: { type: "string" as const, description: "Deal ID", required: true },
-    detail: {
-      type: "string" as const,
-      multiple: true as const,
-      description:
-        'Deal detail as JSON, repeatable; supplied details replace the entire array. e.g. \'{"id":10,"account_item_id":101,"tax_code":21,"amount":5000}\'',
-    },
-    "receipt-ids": {
-      type: "string" as const,
-      description: "Replace File Box document IDs; an empty value clears them",
-    },
-  },
+  args: merge(
+    dryRunArgs,
+    args({
+      id: required(integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "Deal ID" })),
+      detail: multiple(
+        string({
+          description:
+            'Deal detail as JSON, repeatable; supplied details replace the entire array. e.g. \'{"id":10,"account_item_id":101,"tax_code":21,"amount":5000}\'',
+        }),
+      ),
+      "receipt-ids": string({
+        description: "Replace File Box document IDs; an empty value clears them",
+      }),
+    }),
+  ),
   examples: `$ freee deal-update --id 123 \\
     --detail '{"id":10,"account_item_id":101,"tax_code":21,"amount":5000}' \\
     --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const id = parseCliInput(PositiveIntegerTextSchema, ctx.values.id, { label: "--id" });
+    const id = ctx.values.id;
     const details = ctx.values.detail?.length ? parseDealDetails(ctx.values.detail) : undefined;
     const receiptIds = parseReceiptIds(ctx.values["receipt-ids"]);
 

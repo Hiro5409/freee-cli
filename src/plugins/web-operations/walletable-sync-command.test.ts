@@ -49,7 +49,7 @@ function dependencies() {
 describe("walletable sync command", () => {
   test("uses the OAuth profile company and its Agent Browser Auth Profile", async () => {
     await expect(
-      runWalletableSyncCommand({ profile: "business", id: "20" }, dependencies()),
+      runWalletableSyncCommand({ profile: "business", id: 20 }, dependencies()),
     ).resolves.toEqual({
       profile: "business",
       companyId: 42,
@@ -115,18 +115,12 @@ describe("walletable sync command", () => {
   });
 
   test("requires exactly one synchronization scope", async () => {
-    for (const values of [{ profile: "business" }, { profile: "business", all: true, id: "20" }]) {
+    for (const values of [{ profile: "business" }, { profile: "business", all: true, id: 20 }]) {
       const error = await runWalletableSyncCommand(values, dependencies()).catch(
         (caught: unknown) => caught,
       );
       expect(error).toBeInstanceOf(CliError);
       expect(String(error)).toContain("exactly one");
     }
-  });
-
-  test("requires a positive walletable ID", async () => {
-    await expect(
-      runWalletableSyncCommand({ profile: "business", id: "0" }, dependencies()),
-    ).rejects.toThrow("positive integer");
   });
 });

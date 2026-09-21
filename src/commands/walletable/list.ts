@@ -1,4 +1,5 @@
 import { define } from "gunshi";
+import { args, merge, string } from "gunshi/combinators";
 
 import { CliError } from "../../errors.ts";
 import { companyArgs } from "../../global-args.ts";
@@ -16,13 +17,10 @@ function parseWalletType(value: unknown): "bank_account" | "credit_card" | "wall
 export const walletableListCommand = define({
   name: "walletable-list",
   description: "List walletables: bank accounts, credit cards, and cash wallets",
-  args: {
-    ...companyArgs,
-    type: {
-      type: "string" as const,
-      description: "Filter by type: bank_account, credit_card, wallet",
-    },
-  },
+  args: merge(
+    companyArgs,
+    args({ type: string({ description: "Filter by type: bank_account, credit_card, wallet" }) }),
+  ),
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const { data } = await getWalletables({

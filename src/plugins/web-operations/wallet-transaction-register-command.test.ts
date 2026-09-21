@@ -105,7 +105,7 @@ function dependencies(
 }
 
 const values = {
-  id: "42",
+  id: 42,
   "account-item-name": "通信費",
   "tax-name": "課対仕入10%",
   description: "クラウド利用料",
@@ -152,7 +152,7 @@ describe("wallet transaction register command", () => {
     await expect(
       runWalletTransactionRegisterCommand(
         {
-          id: "42",
+          id: 42,
           "account-item-name": "通信費",
           "tax-name": "課対仕入10%",
           profile: "business",

@@ -1,5 +1,4 @@
 import { configureClient } from "../../api/client.ts";
-import { PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { configDir } from "../../config/config.ts";
 import { CliError, OutcomeUnknownError } from "../../errors.ts";
 import { invoicesShow } from "../../types/freee-invoice/sdk.gen.ts";
@@ -8,7 +7,7 @@ import { type FreeeWebOperations, withFreeeWeb } from "./freee-web.ts";
 import { resolveWebCommandScope, type WebCommandScope } from "./web-command-scope.ts";
 
 type Values = {
-  id?: unknown;
+  id: number;
   profile?: unknown;
 };
 
@@ -92,7 +91,7 @@ export async function runInvoiceRegisterDealCommand(
   dependencies: Partial<Dependencies> = {},
 ) {
   const deps = { ...defaultDependencies, ...dependencies };
-  const invoiceId = parseCliInput(PositiveIntegerTextSchema, values.id, { label: "--id" });
+  const invoiceId = values.id;
   const scope = deps.resolveScope(values.profile);
   const before = await deps.readInvoice({
     profile: scope.profile,

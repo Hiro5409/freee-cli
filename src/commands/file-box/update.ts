@@ -1,12 +1,8 @@
 import { define } from "gunshi";
+import { args, choice, integer, merge, required, string } from "gunshi/combinators";
 import colors from "yoctocolors";
 
-import {
-  IntegerTextSchema,
-  IsoDateSchema,
-  PositiveIntegerTextSchema,
-  parseCliInput,
-} from "../../cli-input.ts";
+import { isoDateArg } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
@@ -20,33 +16,36 @@ const QUALIFIED_INVOICE_STATUSES = ["qualified", "not_qualified", "unselected"] 
 export const fileBoxUpdateCommand = define({
   name: "file-box-update",
   description: "Update metadata for a document in the File Box",
-  args: {
-    ...dryRunArgs,
-    id: { type: "string" as const, description: "File Box document ID", required: true },
-    description: { type: "string" as const, description: "Memo" },
-    "partner-name": { type: "string" as const, description: "Issuer name" },
-    "issue-date": { type: "string" as const, description: "Issue date (YYYY-MM-DD)" },
-    amount: { type: "string" as const, description: "Document amount (integer yen)" },
-    "document-type": {
-      type: "enum" as const,
-      choices: DOCUMENT_TYPES,
-      description: `Document type: ${DOCUMENT_TYPES.join(" | ")}`,
-    },
-    "qualified-invoice": {
-      type: "enum" as const,
-      choices: QUALIFIED_INVOICE_STATUSES,
-      description: `Qualified invoice status: ${QUALIFIED_INVOICE_STATUSES.join(" | ")}`,
-    },
-    "registration-number": {
-      type: "string" as const,
-      description: "Qualified invoice issuer registration number",
-    },
-  },
+  args: merge(
+    dryRunArgs,
+    args({
+      id: required(
+        integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "File Box document ID" }),
+      ),
+      description: string({ description: "Memo" }),
+      "partner-name": string({ description: "Issuer name" }),
+      "issue-date": isoDateArg("--issue-date", "Issue date (YYYY-MM-DD)"),
+      amount: integer({
+        min: Number.MIN_SAFE_INTEGER,
+        max: Number.MAX_SAFE_INTEGER,
+        description: "Document amount (integer yen)",
+      }),
+      "document-type": choice(DOCUMENT_TYPES, {
+        description: `Document type: ${DOCUMENT_TYPES.join(" | ")}`,
+      }),
+      "qualified-invoice": choice(QUALIFIED_INVOICE_STATUSES, {
+        description: `Qualified invoice status: ${QUALIFIED_INVOICE_STATUSES.join(" | ")}`,
+      }),
+      "registration-number": string({
+        description: "Qualified invoice issuer registration number",
+      }),
+    }),
+  ),
   examples: `$ freee file-box-update --id 55 --description "Books" --document-type receipt \\
     --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const id = parseCliInput(PositiveIntegerTextSchema, ctx.values.id, { label: "--id" });
+    const id = ctx.values.id;
     const hasMetadata =
       ctx.values["partner-name"] !== undefined ||
       ctx.values["issue-date"] !== undefined ||
@@ -63,13 +62,8 @@ export const fileBoxUpdateCommand = define({
       receipt_metadatum: hasMetadata
         ? {
             partner_name: ctx.values["partner-name"],
-            issue_date: ctx.values["issue-date"]
-              ? parseCliInput(IsoDateSchema, ctx.values["issue-date"], { label: "--issue-date" })
-              : undefined,
-            amount:
-              ctx.values.amount === undefined
-                ? undefined
-                : parseCliInput(IntegerTextSchema, ctx.values.amount, { label: "--amount" }),
+            issue_date: ctx.values["issue-date"],
+            amount: ctx.values.amount,
           }
         : undefined,
       document_type: ctx.values["document-type"],

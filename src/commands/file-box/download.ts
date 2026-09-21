@@ -2,9 +2,9 @@ import { existsSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import { define } from "gunshi";
+import { args, integer, merge, required, string } from "gunshi/combinators";
 import colors from "yoctocolors";
 
-import { PositiveIntegerTextSchema, parseCliInput } from "../../cli-input.ts";
 import { CliError } from "../../errors.ts";
 import { companyArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
@@ -14,15 +14,19 @@ import { downloadReceipt } from "../../types/freee/sdk.gen.ts";
 export const fileBoxDownloadCommand = define({
   name: "file-box-download",
   description: "Download a document from the File Box without overwriting an existing file",
-  args: {
-    ...companyArgs,
-    id: { type: "string" as const, description: "File Box document ID", required: true },
-    output: { type: "string" as const, description: "Output file path", required: true },
-  },
+  args: merge(
+    companyArgs,
+    args({
+      id: required(
+        integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "File Box document ID" }),
+      ),
+      output: required(string({ description: "Output file path" })),
+    }),
+  ),
   examples: `$ freee file-box-download --id 55 --output receipt.pdf --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
-    const id = parseCliInput(PositiveIntegerTextSchema, ctx.values.id, { label: "--id" });
+    const id = ctx.values.id;
     const path = resolve(ctx.values.output);
     if (existsSync(path)) {
       throw new CliError(`Output path already exists: ${path}`, {
