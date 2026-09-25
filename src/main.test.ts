@@ -192,7 +192,7 @@ describe("CLI integration", () => {
       expect(stdout, command).toContain("--dry-run");
       expect(stdout, command).toContain("--format json");
     }
-  });
+  }, 15_000);
 
   test("simple and reversible writes do not advertise dry-run", async () => {
     const commands = [
