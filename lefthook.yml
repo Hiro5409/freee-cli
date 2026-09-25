@@ -30,6 +30,11 @@ pre-commit:
           - name: gitleaks
             run: gitleaks git --pre-commit --staged --no-banner --redact
 
+pre-push:
+  jobs:
+    - name: audit
+      run: bun audit --audit-level=high
+
 # worktree 作成時に依存を入れる。node_modules が無いと型検査も lint も動かない。
 # lefthook 自体は node_modules に無くても PATH（mise の shim）から解決される。
 post-checkout:
