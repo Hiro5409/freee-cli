@@ -609,6 +609,34 @@ export type TransferParams = {
    */
   amount?: number;
   /**
+   * 振替元口座行の取引先ID。更新時にキーを省略すると既存値を引き継ぎます。0またはnullは取引先を外す指定です。作成時にキーを省略するか、0またはnullを指定すると取引先なしになります。「口座振替（口座間移動）での取引先タグ付与ルール」が未設定の場合、既存値と同じIDの指定を除き、取引先の追加・変更・削除はできません。
+   */
+  from_partner_id?: number | null;
+  /**
+   * 振替元口座行の部門ID。更新時にキーを省略すると既存値を引き継ぎます。0またはnullは部門を外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。部門の入力が必須（全ての科目）の事業所では、部門なしになる保存はエラーです。
+   */
+  from_section_id?: number | null;
+  /**
+   * 振替元口座行の品目ID。更新時にキーを省略すると既存値を引き継ぎます。0またはnullは品目を外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。
+   */
+  from_item_id?: number | null;
+  /**
+   * 振替元口座行のメモタグID。更新時にキーを省略すると既存値を引き継ぎます。空配列またはnullはメモタグをすべて外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。
+   */
+  from_tag_ids?: Array<number> | null;
+  /**
+   * 振替元口座行のセグメント１タグID。更新時にキーを省略すると既存値を引き継ぎます。0またはnullはタグを外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。セグメントタグを利用できないプランでは指定を無視します。
+   */
+  from_segment_1_tag_id?: number | null;
+  /**
+   * 振替元口座行のセグメント２タグID。更新時にキーを省略すると既存値を引き継ぎます。0またはnullはタグを外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。セグメントタグを利用できないプランでは指定を無視します。
+   */
+  from_segment_2_tag_id?: number | null;
+  /**
+   * 振替元口座行のセグメント３タグID。更新時にキーを省略すると既存値を引き継ぎます。0またはnullはタグを外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。セグメントタグを利用できないプランでは指定を無視します。
+   */
+  from_segment_3_tag_id?: number | null;
+  /**
    * 振替日 (yyyy-mm-dd)
    */
   date: string;
@@ -645,6 +673,34 @@ export type TransferParams = {
      * 備考
      */
     description?: string;
+    /**
+     * 振替先口座行の取引先ID。更新時にキーを省略すると同一口座の既存行から引き継ぎます。0またはnullは取引先を外す指定です。作成時にキーを省略するか、0またはnullを指定すると取引先なしになります。「口座振替（口座間移動）での取引先タグ付与ルール」が未設定の場合、既存値と同じIDの指定を除き、取引先の追加・変更・削除はできません。
+     */
+    partner_id?: number | null;
+    /**
+     * 振替先口座行の部門ID。更新時にキーを省略すると同一口座の既存行から引き継ぎます。0またはnullは部門を外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。部門の入力が必須（全ての科目）の事業所では、部門なしになる保存はエラーです。
+     */
+    section_id?: number | null;
+    /**
+     * 振替先口座行の品目ID。更新時にキーを省略すると同一口座の既存行から引き継ぎます。0またはnullは品目を外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。
+     */
+    item_id?: number | null;
+    /**
+     * 振替先口座行のメモタグID。更新時にキーを省略すると同一口座の既存行から引き継ぎます。空配列またはnullはメモタグをすべて外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。
+     */
+    tag_ids?: Array<number> | null;
+    /**
+     * 振替先口座行のセグメント１タグID。更新時にキーを省略すると同一口座の既存行から引き継ぎます。0またはnullはタグを外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。セグメントタグを利用できないプランでは指定を無視します。
+     */
+    segment_1_tag_id?: number | null;
+    /**
+     * 振替先口座行のセグメント２タグID。更新時にキーを省略すると同一口座の既存行から引き継ぎます。0またはnullはタグを外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。セグメントタグを利用できないプランでは指定を無視します。
+     */
+    segment_2_tag_id?: number | null;
+    /**
+     * 振替先口座行のセグメント３タグID。更新時にキーを省略すると同一口座の既存行から引き継ぎます。0またはnullはタグを外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。セグメントタグを利用できないプランでは指定を無視します。
+     */
+    segment_3_tag_id?: number | null;
   }>;
 };
 
@@ -746,7 +802,9 @@ export type ExpenseApplicationCreateParams = {
        */
       amount?: number;
       /**
-       * 経費科目ID
+       * 経費科目ID<br>
+       * 申請時（draftにfalseを指定した時）は、経費科目の利用可能範囲（部門・申請者）により、section_idの部門と申請者で利用できない経費科目を指定すると400エラーになります。下書きでは利用可否を検証しません。<br>
+       * 利用可能な経費科目は、経費科目一覧APIのsection_ids[]に部門IDを指定して取得してください。
        */
       expense_application_line_template_id?: number;
     }>;
@@ -913,7 +971,9 @@ export type ExpenseApplicationUpdateParams = {
        */
       amount?: number;
       /**
-       * 経費科目ID
+       * 経費科目ID<br>
+       * 申請時（draftにfalseを指定した時）は、経費科目の利用可能範囲（部門・申請者）により、section_idの部門と申請者で利用できない経費科目を指定すると400エラーになります。下書きでは利用可否を検証しません。<br>
+       * 利用可能な経費科目は、経費科目一覧APIのsection_ids[]に部門IDを指定して取得してください。
        */
       expense_application_line_template_id?: number;
     }>;
@@ -5798,7 +5858,7 @@ export type TrialCrResponse = {
         composition_ratio?: number;
       }>;
       /**
-       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用など）
+       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用 など）
        */
       account_category_name?: string;
       /**
@@ -6116,7 +6176,7 @@ export type TrialCrTwoYearsResponse = {
         year_on_year?: number;
       }>;
       /**
-       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用など）
+       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用 など）
        */
       account_category_name?: string;
       /**
@@ -6450,7 +6510,7 @@ export type TrialCrThreeYearsResponse = {
         year_on_year?: number;
       }>;
       /**
-       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用など）
+       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用 など）
        */
       account_category_name?: string;
       /**
@@ -6716,7 +6776,7 @@ export type TrialCrSectionsResponse = {
         }>;
       }>;
       /**
-       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用など）
+       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用 など）
        */
       account_category_name?: string;
       /**
@@ -6933,7 +6993,7 @@ export type TrialCrSegment1TagsResponse = {
         }>;
       }>;
       /**
-       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用など）
+       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用 など）
        */
       account_category_name?: string;
       /**
@@ -7150,7 +7210,7 @@ export type TrialCrSegment2TagsResponse = {
         }>;
       }>;
       /**
-       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用など）
+       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用 など）
        */
       account_category_name?: string;
       /**
@@ -7367,7 +7427,7 @@ export type TrialCrSegment3TagsResponse = {
         }>;
       }>;
       /**
-       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用など）
+       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用 など）
        */
       account_category_name?: string;
       /**
@@ -8313,28 +8373,34 @@ export type DealResponse = {
   deal: Deal;
 };
 
+/**
+ * フォーム用選択項目情報。includes に account_item を指定しない場合は空のオブジェクトになります。
+ */
 export type SelectablesIndexResponse = {
+  /**
+   * 勘定科目を用途別に分類したカテゴリーの一覧
+   */
   account_categories?: Array<{
     /**
-     * 収支
+     * 収支区分（expense: 支出、income: 収入）
      */
     balance: "expense" | "income";
     /**
-     * 事業形態（個人事業主: personal、法人: corporate）
+     * 事業形態（personal: 個人事業主、corporate: 法人）
      */
     org_code: "personal" | "corporate";
     /**
-     * カテゴリーコード
+     * 勘定科目カテゴリーを識別するコード
      */
     role: string;
     /**
-     * カテゴリー名
+     * フォームに表示する勘定科目カテゴリー名
      */
     title: string;
     /**
-     * カテゴリーの説明
+     * 勘定科目カテゴリーの用途。説明がない場合は空文字列になります。
      */
-    desc?: string;
+    desc: string;
     /**
      * 勘定科目の一覧
      */
@@ -8344,261 +8410,328 @@ export type SelectablesIndexResponse = {
        */
       id: number;
       /**
-       * 勘定科目
+       * 勘定科目名
        */
-      name?: string;
+      name: string;
       /**
-       * 勘定科目の説明
+       * 勘定科目の用途。説明がない場合は空文字列になります。
        */
-      desc?: string;
+      desc: string;
       /**
-       * 勘定科目の説明（詳細）
+       * 勘定科目の詳細な用途。説明がない場合は空文字列になります。
        */
-      help?: string;
+      help: string;
       /**
-       * ショートカット
+       * 勘定科目を検索するためのショートカット。設定されていない場合は null になります。
        */
-      shortcut?: string;
-      default_tax?: {
+      shortcut: string | null;
+      /**
+       * 事業所で有効な税率ごとのデフォルト税区分。利用できない税率・控除割合のキーは返りません。
+       */
+      default_tax: {
+        /**
+         * 税率5%に適用するデフォルト税区分。事業所で税率5%を利用しない場合は返りません。
+         */
         tax_rate_5?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number | null;
           /**
            * 税区分
            */
-          name?: string;
+          name: string | null;
         };
+        /**
+         * 税率8%に適用するデフォルト税区分。事業所で税率8%を利用しない場合は返りません。
+         */
         tax_rate_8?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number | null;
           /**
            * 税区分
            */
-          name?: string;
+          name: string | null;
         };
+        /**
+         * 税率10%に適用するデフォルト税区分。事業所で税率10%を利用しない場合は返りません。
+         */
         tax_rate_10?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number | null;
           /**
            * 税区分
            */
-          name?: string;
+          name: string | null;
         };
+        /**
+         * 軽減税率8%に適用するデフォルト税区分。事業所で軽減税率8%を利用しない場合は返りません。
+         */
         tax_rate_r8?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number | null;
           /**
            * 税区分
            */
-          name?: string;
+          name: string | null;
         };
+        /**
+         * 税率5%・仕入税額控除80%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
+         */
         tax_rate_5_exempt_80?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number;
           /**
            * 税区分
            */
-          name?: string;
+          name: string;
         };
+        /**
+         * 税率5%・仕入税額控除50%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
+         */
         tax_rate_5_exempt_50?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number;
           /**
            * 税区分
            */
-          name?: string;
+          name: string;
         };
+        /**
+         * 税率8%・仕入税額控除80%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
+         */
         tax_rate_8_exempt_80?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number;
           /**
            * 税区分
            */
-          name?: string;
+          name: string;
         };
+        /**
+         * 税率8%・仕入税額控除50%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
+         */
         tax_rate_8_exempt_50?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number;
           /**
            * 税区分
            */
-          name?: string;
+          name: string;
         };
+        /**
+         * 税率10%・仕入税額控除80%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
+         */
         tax_rate_10_exempt_80?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number;
           /**
            * 税区分
            */
-          name?: string;
+          name: string;
         };
+        /**
+         * 税率10%・仕入税額控除50%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
+         */
         tax_rate_10_exempt_50?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number;
           /**
            * 税区分
            */
-          name?: string;
+          name: string;
         };
+        /**
+         * 軽減税率8%・仕入税額控除80%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
+         */
         tax_rate_r8_exempt_80?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number;
           /**
            * 税区分
            */
-          name?: string;
+          name: string;
         };
+        /**
+         * 軽減税率8%・仕入税額控除50%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
+         */
         tax_rate_r8_exempt_50?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number;
           /**
            * 税区分
            */
-          name?: string;
+          name: string;
         };
+        /**
+         * 税率5%・仕入税額控除70%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
+         */
         tax_rate_5_exempt_70?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number;
           /**
            * 税区分
            */
-          name?: string;
+          name: string;
         };
+        /**
+         * 税率5%・仕入税額控除30%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
+         */
         tax_rate_5_exempt_30?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number;
           /**
            * 税区分
            */
-          name?: string;
+          name: string;
         };
+        /**
+         * 税率8%・仕入税額控除70%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
+         */
         tax_rate_8_exempt_70?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number;
           /**
            * 税区分
            */
-          name?: string;
+          name: string;
         };
+        /**
+         * 税率8%・仕入税額控除30%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
+         */
         tax_rate_8_exempt_30?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number;
           /**
            * 税区分
            */
-          name?: string;
+          name: string;
         };
+        /**
+         * 税率10%・仕入税額控除70%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
+         */
         tax_rate_10_exempt_70?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number;
           /**
            * 税区分
            */
-          name?: string;
+          name: string;
         };
+        /**
+         * 税率10%・仕入税額控除30%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
+         */
         tax_rate_10_exempt_30?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number;
           /**
            * 税区分
            */
-          name?: string;
+          name: string;
         };
+        /**
+         * 軽減税率8%・仕入税額控除70%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
+         */
         tax_rate_r8_exempt_70?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number;
           /**
            * 税区分
            */
-          name?: string;
+          name: string;
         };
+        /**
+         * 軽減税率8%・仕入税額控除30%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
+         */
         tax_rate_r8_exempt_30?: {
           /**
            * 税区分コード
            */
-          code?: number;
+          code: number;
           /**
            * 税区分
            */
-          name?: string;
+          name: string;
         };
       };
     }>;
   }>;
   /**
-   * 決算書表示名（小カテゴリー）
+   * 勘定科目を決算書上で集約するための決算書表示名（小カテゴリー）の一覧
    */
   account_groups?: Array<{
     /**
-     * 決算書表示名（小カテゴリー）ID
+     * 決算書表示名（小カテゴリー）を識別するID
      */
     id: number;
     /**
-     * 決算書表示名
+     * 決算書に表示する小カテゴリー名
      */
     name: string;
     /**
-     * 年度ID
+     * 決算書表示名が属する勘定科目体系のID
      */
     account_structure_id: number;
     /**
-     * 勘定科目カテゴリーID
+     * 決算書表示名が属する勘定科目カテゴリーのID
      */
     account_category_id: number;
     /**
-     * 詳細パラメータの種類
+     * 事業所ID
      */
-    detail_type?: number;
+    company_id: number;
     /**
-     * 並び順
+     * 補助項目種別（現状は常に `0`（補助項目なし）が返ります）
+     */
+    detail_type: 0 | 1 | 2 | 3 | 4;
+    /**
+     * 決算書表示名の並び順。小さい値ほど先に表示されます。
      */
     index: number;
     /**
-     * 作成日時
+     * 作成日時（ISO 8601）。記録されていない場合は null になります。
      */
-    created_at?: string;
+    created_at: string | null;
     /**
-     * 更新日時
+     * 更新日時（ISO 8601）。記録されていない場合は null になります。
      */
-    updated_at?: string;
+    updated_at: string | null;
   }>;
 };
 
@@ -8814,48 +8947,48 @@ export type ManualJournalResponse = {
 
 export type TagParams = {
   /**
-   * 事業所ID
+   * 事業所ID。メモタグを作成・更新する対象の事業所を指定します。
    */
   company_id: number;
   /**
-   * メモタグ名 (30文字以内)
+   * メモタグ名 (30文字以内)。事業所内で重複できません。既に同名のメモタグが存在する場合は 400 エラーになります。
    */
   name: string;
   /**
-   * ショートカット1 (20文字以内)
+   * ショートカット１ (20文字以内)。Web画面などでメモタグを検索する際のキーワードとして使用します。更新時に省略した場合は未設定（null）に更新されます。
    */
   shortcut1?: string;
   /**
-   * ショートカット2 (20文字以内)
+   * ショートカット２ (20文字以内)。Web画面などでメモタグを検索する際のキーワードとして使用します。更新時に省略した場合は未設定（null）に更新されます。
    */
   shortcut2?: string;
 };
 
 export type Tag = {
   /**
-   * タグID
+   * メモタグID。メモタグの取得・更新・削除 API のパスパラメータや、取引作成時の明細に指定します。
    */
   id: number;
   /**
-   * 事業所ID
+   * メモタグが属する事業所のID
    */
   company_id: number;
   /**
-   * 名前(30文字以内)
+   * メモタグ名 (30文字以内)。事業所内で重複しません。
    */
   name: string;
   /**
-   * 更新日(yyyy-mm-dd)
+   * メモタグの最終更新日 (yyyy-mm-dd, JST)。メモタグ一覧の取得 API の start_update_date / end_update_date による絞り込みの対象です。
    */
   update_date: string;
   /**
-   * ショートカット1 (255文字以内)
+   * ショートカット１。Web画面などでメモタグを検索する際のキーワードとして使用します。未設定の場合は null が返ります。
    */
-  shortcut1?: string | null;
+  shortcut1: string | null;
   /**
-   * ショートカット2 (255文字以内)
+   * ショートカット２。Web画面などでメモタグを検索する際のキーワードとして使用します。未設定の場合は null が返ります。
    */
-  shortcut2?: string | null;
+  shortcut2: string | null;
 };
 
 export type TagResponse = {
@@ -9514,6 +9647,14 @@ export type BadRequestError = {
 };
 
 export type BadRequestNotFoundError = {
+  status_code?: number;
+  errors?: Array<{
+    messages: Array<string>;
+    type: "status" | "validation" | "error";
+  }>;
+};
+
+export type ConflictError = {
   status_code?: number;
   errors?: Array<{
     messages: Array<string>;
@@ -10218,6 +10359,58 @@ export type Transfer = {
    */
   from_walletable_id: number;
   /**
+   * 振替元口座行の取引先ID。取引先が設定されていない場合は0を返します。
+   */
+  from_partner_id: number;
+  /**
+   * 振替元口座行の取引先コード。事業所の設定で取引先コードの利用が無効の場合、または取引先が設定されていない場合はnullを返します。
+   */
+  from_partner_code: string | null;
+  /**
+   * 振替元口座行の部門ID。部門が設定されていない場合はnullを返します。
+   */
+  from_section_id: number | null;
+  /**
+   * 振替元口座行の部門コード。事業所の設定で部門コードの利用が無効の場合、または部門が設定されていない場合はnullを返します。
+   */
+  from_section_code: string | null;
+  /**
+   * 振替元口座行の品目ID。品目が設定されていない場合はnullを返します。
+   */
+  from_item_id: number | null;
+  /**
+   * 振替元口座行の品目コード。事業所の設定で品目コードの利用が無効の場合、または品目が設定されていない場合はnullを返します。
+   */
+  from_item_code: string | null;
+  /**
+   * 振替元口座行のメモタグID
+   */
+  from_tag_ids: Array<number>;
+  /**
+   * 振替元口座行のセグメント１タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント１タグが設定されていない場合はnullを返します。
+   */
+  from_segment_1_tag_id?: number | null;
+  /**
+   * 振替元口座行のセグメント１タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント１タグが設定されていない場合はnullを返します。
+   */
+  from_segment_1_tag_code?: string | null;
+  /**
+   * 振替元口座行のセグメント２タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント２タグが設定されていない場合はnullを返します。
+   */
+  from_segment_2_tag_id?: number | null;
+  /**
+   * 振替元口座行のセグメント２タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント２タグが設定されていない場合はnullを返します。
+   */
+  from_segment_2_tag_code?: string | null;
+  /**
+   * 振替元口座行のセグメント３タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント３タグが設定されていない場合はnullを返します。
+   */
+  from_segment_3_tag_id?: number | null;
+  /**
+   * 振替元口座行のセグメント３タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント３タグが設定されていない場合はnullを返します。
+   */
+  from_segment_3_tag_code?: string | null;
+  /**
    * 振替先口座の口座区分。振替先が複数ある場合は金額が最大の行の値を返します。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesを利用してください。
    * * `bank_account` - 銀行口座
    * * `credit_card` - クレジットカード
@@ -10261,6 +10454,58 @@ export type Transfer = {
      * 備考。振替先の複数指定に対応する以前に作成された取引（振替）では、行の備考が未設定の場合に取引（振替）全体の備考を返します。備考が未設定の場合はnullを返します。
      */
     description: string | null;
+    /**
+     * 振替先口座行の取引先ID。取引先が設定されていない場合は0を返します。
+     */
+    partner_id: number;
+    /**
+     * 振替先口座行の取引先コード。事業所の設定で取引先コードの利用が無効の場合、または取引先が設定されていない場合はnullを返します。
+     */
+    partner_code: string | null;
+    /**
+     * 振替先口座行の部門ID。部門が設定されていない場合はnullを返します。
+     */
+    section_id: number | null;
+    /**
+     * 振替先口座行の部門コード。事業所の設定で部門コードの利用が無効の場合、または部門が設定されていない場合はnullを返します。
+     */
+    section_code: string | null;
+    /**
+     * 振替先口座行の品目ID。品目が設定されていない場合はnullを返します。
+     */
+    item_id: number | null;
+    /**
+     * 振替先口座行の品目コード。事業所の設定で品目コードの利用が無効の場合、または品目が設定されていない場合はnullを返します。
+     */
+    item_code: string | null;
+    /**
+     * 振替先口座行のメモタグID
+     */
+    tag_ids: Array<number>;
+    /**
+     * 振替先口座行のセグメント１タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント１タグが設定されていない場合はnullを返します。
+     */
+    segment_1_tag_id?: number | null;
+    /**
+     * 振替先口座行のセグメント１タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント１タグが設定されていない場合はnullを返します。
+     */
+    segment_1_tag_code?: string | null;
+    /**
+     * 振替先口座行のセグメント２タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント２タグが設定されていない場合はnullを返します。
+     */
+    segment_2_tag_id?: number | null;
+    /**
+     * 振替先口座行のセグメント２タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント２タグが設定されていない場合はnullを返します。
+     */
+    segment_2_tag_code?: string | null;
+    /**
+     * 振替先口座行のセグメント３タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント３タグが設定されていない場合はnullを返します。
+     */
+    segment_3_tag_id?: number | null;
+    /**
+     * 振替先口座行のセグメント３タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント３タグが設定されていない場合はnullを返します。
+     */
+    segment_3_tag_code?: string | null;
   }>;
 };
 
@@ -11144,11 +11389,180 @@ export type ExpenseApplicationLineTemplate = {
    * 添付ファイルの必須/任意（true: 経費申請の作成時に領収書などのファイル添付が必須, false: ファイル添付は任意）
    */
   required_receipt: boolean;
+  /**
+   * 内容の入力設定（optional: 経費申請の作成時に内容欄の入力が任意, required: 内容欄の入力が必須, disable: 内容欄を表示しない）
+   */
+  line_content_setting?: "optional" | "required" | "disable";
+  /**
+   * カスタム申請項目。表示順に並びます。定義はリクエストと共通で、取得した内容をそのまま作成・更新へ送り返せます
+   */
+  custom_form_parts?: Array<ExpenseApplicationLineTemplateCustomFormPart>;
+  /**
+   * 金額計算設定。定義はリクエストと共通で、取得した内容をそのまま作成・更新へ送り返せます
+   */
+  amount_calculation_setting?: ExpenseApplicationLineTemplateAmountCalculationSetting;
 };
 
 export type ExpenseApplicationLineTemplateResponse = {
   expense_application_line_template: ExpenseApplicationLineTemplate;
 };
+
+export type ExpenseApplicationLineTemplateCustomFormPart = {
+  /**
+   * カスタム申請項目ID。サーバーが採番し、レスポンスでは常に返します。
+   * 更新時に既存の項目を指す場合だけ指定し、新規に追加する項目では省略します。
+   * 作成時は指定しても無視され、新しいIDが採番されます。取得した経費科目の内容をそのまま送ると、その内容をコピーした経費科目を作成できます。
+   * 経費科目の更新で経費科目が作り直されると振り直されるため、項目を安定して識別する用途にはkeyを使ってください。
+   */
+  id?: number;
+  /**
+   * カスタム申請項目を識別する永続キー。英小文字で始まる1〜64文字の半角英小文字・数字・アンダースコアで、経費科目内で一意です。
+   * 金額計算式からはこのキーを {key} の形式で参照します。
+   * Web版freee会計で作成した項目など、キーが未設定の項目にはシステムが custom_field_ の後ろにカスタム申請項目IDを付けたキー (例: custom_field_12) を補って返します。
+   * custom_field_ で始まるキーはシステム採番に予約されているため、新しい項目には指定できません。既存の項目には取得した値をそのまま送り返せます。
+   */
+  key: string;
+  /**
+   * カスタム申請項目名 (255文字以内)
+   */
+  name: string;
+  /**
+   * カスタム申請項目の入力形式 (single_line_string: 一行文字列, multi_line_string: 複数行文字列, date: 日付, date_range: 期間, datetime: 日時, number: 数値, pulldown: プルダウン, checkbox: チェックボックス, radio_button: ラジオボタン)。
+   * 金額計算式から参照できるのは number (入力された数値)、pulldown (選択された選択肢の calculation_value)、date_range (開始日から終了日までの日数) の項目です。
+   */
+  type:
+    | "single_line_string"
+    | "multi_line_string"
+    | "date"
+    | "date_range"
+    | "datetime"
+    | "number"
+    | "pulldown"
+    | "checkbox"
+    | "radio_button";
+  /**
+   * 経費申請の作成時にこの項目の入力を必須にするかどうか (true: 必須, false: 任意)
+   */
+  required: boolean;
+  /**
+   * カスタム申請項目の補足説明。未設定の場合はnull
+   */
+  annotation: string | null;
+  /**
+   * カスタム申請項目の初期値。typeに応じた値で指定します (single_line_string: 255文字以内の文字列, multi_line_string: 10000文字以内の文字列, number: 整数部10桁・小数部3桁以内の数値)。
+   * それ以外のtypeでは初期値を持てないためnullを指定します。未設定の場合はnull
+   */
+  default_value: string | null | number;
+  /**
+   * 数値の単位 (255文字以内)。typeがnumberの場合だけ指定できます。未設定の場合はnull
+   */
+  unit: string | null;
+  /**
+   * 選択肢。typeがpulldown、checkbox、radio_buttonの場合に1件以上指定し、それ以外のtypeでは空配列を指定します。
+   * calculation_valueはpulldownの選択肢を金額計算式から参照するときの評価値で、計算に使わない場合はすべての選択肢でnullにします。calculation_valueを指定する場合はすべての選択肢に指定します。
+   */
+  options: Array<{
+    /**
+     * 選択肢の表示値
+     */
+    value: string;
+    /**
+     * 金額計算式から参照されたときの評価値。計算に使わない選択肢はnull
+     */
+    calculation_value: number | null;
+  }>;
+};
+
+/**
+ * 金額計算設定。methodの値によって指定できるフィールドが変わります。
+ * - none: 金額設定なし (申請者が金額を入力します)。他のフィールドは持ちません
+ * - fixed: 固定金額。fixed_amountを持ちます
+ * - formula: 計算式から算出。rounding、rules、default_formulaを持ちます
+ */
+export type ExpenseApplicationLineTemplateAmountCalculationSetting =
+  | {
+      /**
+       * 金額設定 (none: 金額設定なし)
+       */
+      method: "none";
+    }
+  | {
+      /**
+       * 金額設定 (fixed: 固定金額)
+       */
+      method: "fixed";
+      /**
+       * 固定金額 (1以上の整数)
+       */
+      fixed_amount: number;
+    }
+  | {
+      /**
+       * 金額設定 (formula: 計算式から算出)
+       */
+      method: "formula";
+      /**
+       * 計算結果の端数処理 (omit: 切り捨て, round_up: 切り上げ, round: 四捨五入)。申請フォーム設定のauto_calculation_amount_fractionと同じ語彙です
+       */
+      rounding: "omit" | "round_up" | "round";
+      /**
+       * 条件付きの金額計算ルール (50件以内)。配列の並び順に評価し、最初に条件へ一致したルールの計算式を適用します
+       */
+      rules: Array<{
+        /**
+         * ルールの適用条件。typeで条件の種類を表します。
+         * - applicant_position: 申請者の役職による条件。match と position_ids を持ちます
+         * - unsupported: 本APIで表現できない条件 (Web版freee会計の旧設定で作成された条件式)。レスポンス専用で、リクエストには指定できません。条件を変更する場合は applicant_position の条件で送り直してください
+         */
+        condition:
+          | {
+              /**
+               * 条件の種類 (applicant_position: 申請者の役職による条件)
+               */
+              type: "applicant_position";
+              /**
+               * 役職の比較方法 (any_of: いずれかに一致, none_of: いずれにも一致しない)
+               */
+              match: "any_of" | "none_of";
+              /**
+               * 条件に使用する役職IDの配列 (1件以上)。役職IDは人事労務の役職から取得します
+               */
+              position_ids: Array<number>;
+            }
+          | {
+              /**
+               * 条件の種類 (unsupported: 本APIで表現できない条件)
+               */
+              type: "unsupported";
+            };
+        /**
+         * 条件に一致した場合の金額計算式。次の文法 (EBNF) で表記します。
+         * <pre>
+         * formula  = expr ;
+         * expr     = term { ( "+" | "-" ) term } ;
+         * term     = factor { ( "*" | "/" ) factor } ;
+         * factor   = number | variable | "(" expr ")" ;
+         * variable = "{" key "}" ;             key はカスタム申請項目の key
+         * number   = digit+ [ "." digit{1,3} ] ;  整数部10桁まで、負数は不可
+         * </pre>
+         * 四則演算・括弧・符号なし数値・{key} 以外は指定できません。トークンの間の空白は無視し、レスポンスでは空白を除いた式を返します。
+         * 参照できるカスタム申請項目と評価値は次のとおりです。
+         * - number: 入力された数値
+         * - pulldown: 選択された選択肢のcalculation_value (calculation_valueがnullの選択肢を持つ項目は参照できません)
+         * - date_range: 開始日から終了日までの日数
+         * - それ以外のtypeの項目は参照できません
+         * 評価結果はroundingの指定で整数円に丸めます。
+         * 式が文法に合わない場合は400エラーになり、エラーメッセージにエラーコード・原因のトークン・位置 (先頭を0とした文字位置) を含めます。
+         * 除数が{key}を含まず定数として0になる式 ({amount}/0、{amount}/(1-1) など) も、同じ形式の400エラー (エラーコード division_by_zero、位置は該当する「/」) になります。除数に{key}を含む式は保存でき、申請時に0で割ることになった場合は経費申請の作成・更新が400エラーになります。
+         */
+        formula: string;
+      }>;
+      /**
+       * どのルールにも一致しない場合に適用する金額計算式。ルールを持たない場合はこの式で金額を算出します。
+       * 式の文法は rules[].formula と同じです。既定の式を持たない場合はnull
+       */
+      default_formula: string | null;
+    };
 
 export type PaymentRequestResponse = {
   payment_request: {
@@ -12046,6 +12460,256 @@ export type ExpenseApplicationLineTemplateParams = {
    * 未指定の時は申請時の領収書の添付を任意とします。
    */
   required_receipt?: boolean;
+  /**
+   * 内容の入力設定（optional: 経費申請の作成時に内容欄の入力が任意, required: 内容欄の入力が必須, disable: 内容欄を表示しない）<br>
+   * 作成時に未指定の場合はrequiredになります。<br>
+   * 更新時に省略した場合は変更しません（他の基本項目と異なり全置換の対象外です）。
+   */
+  line_content_setting?: "optional" | "required" | "disable";
+  /**
+   * 利用可能な部門IDの配列。経費申請の部門が指定した部門のいずれかの場合に、この経費科目を選択できます（申請者の所属部門ではなく、経費申請で指定した部門で判定します）。<br>
+   * available_user_idsと両方を設定した場合は、どちらかの設定に該当すれば選択できます。両方が空の場合は制限なしとなり、全従業員が選択できます。<br>
+   * 空配列を指定すると部門による制限を解除します。更新時に省略した場合は変更しません。
+   */
+  available_section_ids?: Array<number>;
+  /**
+   * 利用可能な事業所メンバー (ユーザー) IDの配列。経費申請の申請者が指定したメンバーのいずれかの場合に、経費申請の部門に関わらずこの経費科目を選択できます。<br>
+   * available_section_idsと両方を設定した場合は、どちらかの設定に該当すれば選択できます。両方が空の場合は制限なしとなり、全従業員が選択できます。<br>
+   * 空配列を指定するとメンバーによる制限を解除します。更新時に省略した場合は変更しません。
+   */
+  available_user_ids?: Array<number>;
+  /**
+   * カスタム申請項目 (20件以内)。配列の並び順が経費申請の作成時の表示順になります。定義はレスポンスと共通で、取得した内容をそのまま送り返せます。
+   * 作成時はidを指定しても無視され、すべて新しい項目として作成されます。
+   * 更新時は指定した内容でカスタム申請項目を全置換します。既存の項目を残す場合はidとkeyを、新しく追加する項目はidを省略してkeyを指定します。
+   * 更新時に省略した場合は変更しません。空配列を指定した場合はカスタム申請項目をすべて削除します。
+   */
+  custom_form_parts?: Array<ExpenseApplicationLineTemplateCustomFormPart>;
+  /**
+   * 金額計算設定。定義はレスポンスと共通で、取得した内容をそのまま送り返せます。
+   * 計算式はカスタム申請項目のkeyを {key} の形式で参照します。同じリクエストのcustom_form_partsで指定したkeyを参照できます。
+   * 更新時は指定した内容で金額計算設定を全置換します。更新時に省略した場合は変更しません。
+   */
+  amount_calculation_setting?: ExpenseApplicationLineTemplateAmountCalculationSetting;
+};
+
+export type ExpenseApplicationCurrency = {
+  /**
+   * 外貨ID
+   */
+  id: number;
+  /**
+   * 外貨名 (30文字以内)
+   */
+  name: string;
+  /**
+   * 通貨コード (半角英大文字3文字)
+   */
+  code: string;
+  /**
+   * 備考
+   */
+  description: string | null;
+  /**
+   * 利用状態 (usable: 利用可能, unusable: 利用不可)
+   */
+  search_status: "usable" | "unusable";
+  /**
+   * 更新日時 (ISO8601形式)
+   */
+  updated_at: string;
+};
+
+export type ExpenseApplicationCurrencyParams = {
+  /**
+   * 事業所ID
+   */
+  company_id: number;
+  /**
+   * 外貨名 (30文字以内、前後の空白を除去した上で事業所内で重複不可)
+   */
+  name: string;
+  /**
+   * 通貨コード (半角英大文字3文字)
+   */
+  code: string;
+  /**
+   * 利用状態 (usable: 利用可能, unusable: 利用不可)
+   */
+  search_status: "usable" | "unusable";
+  /**
+   * 備考
+   */
+  description?: string | null;
+};
+
+export type ExpenseApplicationCurrenciesIndexResponse = {
+  /**
+   * 外貨一覧
+   */
+  data: Array<ExpenseApplicationCurrency>;
+};
+
+export type ExpenseApplicationForm = {
+  /**
+   * 部門の入力設定 (optional: 任意入力, required: 必須入力)
+   */
+  section_setting: "optional" | "required";
+  /**
+   * メモタグの入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
+   */
+  tag_setting: "optional" | "required" | "disable";
+  /**
+   * 経費科目の入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)。経費科目は `/api/1/expense_application_line_templates` で取得できます。
+   */
+  line_template_setting: "optional" | "required" | "disable";
+  /**
+   * セグメント1タグの入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
+   */
+  segment_1_tag_setting: "optional" | "required" | "disable";
+  /**
+   * セグメント2タグの入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
+   */
+  segment_2_tag_setting: "optional" | "required" | "disable";
+  /**
+   * セグメント3タグの入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
+   */
+  segment_3_tag_setting: "optional" | "required" | "disable";
+  /**
+   * 備考の入力設定 (optional: 任意入力, required: 必須入力)
+   */
+  description_setting: "optional" | "required";
+  /**
+   * 定期券区間控除の利用設定 (disable: 利用しない, enable: 利用する)
+   */
+  commuter_pass_deduction: "disable" | "enable";
+  /**
+   * デフォルトで選択する申請経路のID (未設定の場合は null)。申請経路一覧の取得API (`/api/1/approval_flow_routes`) のレスポンス id と同じ値です。
+   */
+  default_flow_route_src_id: number | null;
+  /**
+   * 承認者以外の閲覧者追加の利用設定 (disable: 利用しない, enable: 利用する)
+   */
+  observer_addition: "disable" | "enable";
+  /**
+   * 支払先の入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
+   */
+  receipt_partner_name_setting: "optional" | "required" | "disable";
+  /**
+   * 申請タイトルの初期値 (255文字以内)
+   */
+  default_title: string;
+  /**
+   * 外貨の利用設定
+   */
+  use_currency: boolean;
+  /**
+   * 金額の自動計算結果の端数処理 (omit: 切り捨て, round_up: 切り上げ, round: 四捨五入)
+   */
+  auto_calculation_amount_fraction: "omit" | "round_up" | "round";
+  /**
+   * 申請者による親申請の変更を許可するか
+   */
+  allow_modify_parent_application_by_applicant: boolean;
+  /**
+   * 承認者による親申請の変更を許可するか
+   */
+  allow_modify_parent_application_by_approver: boolean;
+  /**
+   * 管理者による親申請の変更を許可するか
+   */
+  allow_modify_parent_application_by_admin: boolean;
+  /**
+   * 親となる購買申請を必須にするか
+   */
+  require_parent_purchase_request: boolean;
+  /**
+   * 承認中の申請の変更を許可するか
+   */
+  allow_modify_on_approval: boolean;
+};
+
+export type ExpenseApplicationFormParams = {
+  /**
+   * 事業所ID
+   */
+  company_id: number;
+  /**
+   * 部門の入力設定 (optional: 任意入力, required: 必須入力)
+   */
+  section_setting: "optional" | "required";
+  /**
+   * メモタグの入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
+   */
+  tag_setting: "optional" | "required" | "disable";
+  /**
+   * 経費科目の入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)。経費科目は `/api/1/expense_application_line_templates` で取得できます。
+   */
+  line_template_setting: "optional" | "required" | "disable";
+  /**
+   * セグメント1タグの入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
+   */
+  segment_1_tag_setting: "optional" | "required" | "disable";
+  /**
+   * セグメント2タグの入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
+   */
+  segment_2_tag_setting: "optional" | "required" | "disable";
+  /**
+   * セグメント3タグの入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
+   */
+  segment_3_tag_setting: "optional" | "required" | "disable";
+  /**
+   * 備考の入力設定 (optional: 任意入力, required: 必須入力)
+   */
+  description_setting: "optional" | "required";
+  /**
+   * 定期券区間控除の利用設定 (disable: 利用しない, enable: 利用する)
+   */
+  commuter_pass_deduction: "disable" | "enable";
+  /**
+   * デフォルトで選択する申請経路のID (未設定の場合は null)。申請経路一覧の取得API (`/api/1/approval_flow_routes`) のレスポンス id と同じ値です。
+   */
+  default_flow_route_src_id: number | null;
+  /**
+   * 承認者以外の閲覧者追加の利用設定 (disable: 利用しない, enable: 利用する)
+   */
+  observer_addition: "disable" | "enable";
+  /**
+   * 支払先の入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
+   */
+  receipt_partner_name_setting: "optional" | "required" | "disable";
+  /**
+   * 申請タイトルの初期値 (255文字以内)
+   */
+  default_title: string;
+  /**
+   * 外貨の利用設定
+   */
+  use_currency: boolean;
+  /**
+   * 金額の自動計算結果の端数処理 (omit: 切り捨て, round_up: 切り上げ, round: 四捨五入)
+   */
+  auto_calculation_amount_fraction: "omit" | "round_up" | "round";
+  /**
+   * 申請者による親申請の変更を許可するか
+   */
+  allow_modify_parent_application_by_applicant: boolean;
+  /**
+   * 承認者による親申請の変更を許可するか
+   */
+  allow_modify_parent_application_by_approver: boolean;
+  /**
+   * 管理者による親申請の変更を許可するか
+   */
+  allow_modify_parent_application_by_admin: boolean;
+  /**
+   * 親となる購買申請を必須にするか
+   */
+  require_parent_purchase_request: boolean;
+  /**
+   * 承認中の申請の変更を許可するか
+   */
+  allow_modify_on_approval: boolean;
 };
 
 export type ApprovalRequestsIndexResponse = {
@@ -13776,19 +14440,19 @@ export type SegmentTagParams = {
    */
   name: string;
   /**
-   * 備考 (30文字以内)。更新時に省略した場合は未設定（null）に更新されます。
+   * 備考 (30文字以内)。省略した場合は未設定（null）になります。
    */
   description?: string | null;
   /**
-   * ショートカット1 (20文字以内)。Web画面などでセグメントタグを検索する際のキーワードとして使用します。更新時に省略した場合は未設定（null）に更新されます。
+   * ショートカット1 (20文字以内)。Web画面などでセグメントタグを検索する際のキーワードとして使用します。省略した場合は未設定（null）になります。
    */
   shortcut1?: string | null;
   /**
-   * ショートカット2 (20文字以内)。Web画面などでセグメントタグを検索する際のキーワードとして使用します。更新時に省略した場合は未設定（null）に更新されます。
+   * ショートカット2 (20文字以内)。Web画面などでセグメントタグを検索する際のキーワードとして使用します。省略した場合は未設定（null）になります。
    */
   shortcut2?: string | null;
   /**
-   * セグメントタグコード (20文字以内、半角英数字・ハイフン・アンダースコアのみ)。事業所内の同じセグメント区分で重複できません。事業所の設定でセグメントタグコードを使用する設定にしている場合のみ保存され、設定が無効の場合は指定しても保存されません。更新時に省略した場合は未設定（null）に更新されます。
+   * セグメントタグコード (20文字以内、半角英数字・ハイフン・アンダースコアのみ)。事業所内の同じセグメント区分で重複できません。事業所の設定でセグメントタグコードを使用する設定にしている場合のみ保存され、設定が無効の場合は指定しても保存されません。省略した場合は未設定（null）になります。
    */
   code?: string | null;
 };
@@ -15925,7 +16589,8 @@ export type GetFormsSelectablesData = {
      */
     company_id: number;
     /**
-     * 取得する項目(項目: account_item)
+     * 取得する選択項目
+     * * `account_item` - 勘定科目カテゴリー、勘定科目、デフォルト税区分、決算書表示名
      */
     includes?: "account_item";
   };
@@ -15933,15 +16598,30 @@ export type GetFormsSelectablesData = {
 };
 
 export type GetFormsSelectablesErrors = {
+  /**
+   * リクエストパラメータが不正
+   */
   400: BadRequestError;
+  /**
+   * アクセストークンが無効
+   */
   401: UnauthorizedError;
+  /**
+   * 指定した事業所へのアクセス権限がない
+   */
   403: ForbiddenError;
+  /**
+   * サーバー内部エラー
+   */
   500: InternalServerError;
 };
 
 export type GetFormsSelectablesError = GetFormsSelectablesErrors[keyof GetFormsSelectablesErrors];
 
 export type GetFormsSelectablesResponses = {
+  /**
+   * フォーム用選択項目情報の取得に成功
+   */
   200: SelectablesIndexResponse;
 };
 
@@ -16226,23 +16906,23 @@ export type GetTagsData = {
   path?: never;
   query: {
     /**
-     * 事業所ID
+     * 事業所ID。取得対象の事業所を指定します。
      */
     company_id: number;
     /**
-     * 更新日で絞り込み：開始日(yyyy-mm-dd)
+     * 更新日で絞り込む開始日 (yyyy-mm-dd, JST)。指定日を含む、それ以降に更新されたメモタグを対象にします。
      */
     start_update_date?: string;
     /**
-     * 更新日で絞り込み：終了日(yyyy-mm-dd)
+     * 更新日で絞り込む終了日 (yyyy-mm-dd, JST)。指定日を含む、それ以前に更新されたメモタグを対象にします。
      */
     end_update_date?: string;
     /**
-     * 取得レコードのオフセット (デフォルト: 0)
+     * 取得レコードのオフセット (デフォルト: 0)。ページング用に、スキップする件数を指定します。
      */
     offset?: number;
     /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 3000)
+     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 3000)。1 回のリクエストで取得する上限件数を指定します。
      */
     limit?: number;
   };
@@ -16250,16 +16930,34 @@ export type GetTagsData = {
 };
 
 export type GetTagsErrors = {
+  /**
+   * リクエストパラメータが不正です。日付形式や範囲などを確認してください。
+   */
   400: BadRequestError;
+  /**
+   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
+   */
   401: UnauthorizedError;
+  /**
+   * 指定した事業所またはメモタグへのアクセス権限がありません。
+   */
   403: ForbiddenError;
+  /**
+   * サーバ内部エラー。時間を空けて再試行してください。
+   */
   500: InternalServerError;
 };
 
 export type GetTagsError = GetTagsErrors[keyof GetTagsErrors];
 
 export type GetTagsResponses = {
+  /**
+   * メモタグ一覧の取得に成功しました。
+   */
   200: {
+    /**
+     * メモタグの一覧
+     */
     tags: Array<Tag>;
   };
 };
@@ -16274,15 +16972,30 @@ export type CreateTagData = {
 };
 
 export type CreateTagErrors = {
+  /**
+   * リクエストパラメータが不正です。メモタグ名の重複や文字数制限などを確認してください。
+   */
   400: BadRequestError;
+  /**
+   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
+   */
   401: UnauthorizedError;
+  /**
+   * 指定した事業所またはメモタグへのアクセス権限がありません。
+   */
   403: ForbiddenError;
+  /**
+   * サーバ内部エラー。時間を空けて再試行してください。
+   */
   500: InternalServerError;
 };
 
 export type CreateTagError = CreateTagErrors[keyof CreateTagErrors];
 
 export type CreateTagResponses = {
+  /**
+   * メモタグの作成に成功しました。作成されたメモタグを返します。
+   */
   201: TagResponse;
 };
 
@@ -16292,13 +17005,13 @@ export type DestroyTagData = {
   body?: never;
   path: {
     /**
-     * タグID
+     * メモタグID。メモタグ一覧の取得 API のレスポンスに含まれる id を指定します。
      */
     id: number;
   };
   query: {
     /**
-     * 事業所ID
+     * 事業所ID。削除対象のメモタグが属する事業所を指定します。
      */
     company_id: number;
   };
@@ -16306,16 +17019,34 @@ export type DestroyTagData = {
 };
 
 export type DestroyTagErrors = {
+  /**
+   * リクエストパラメータが不正、または取引や配賦基準で使用中のメモタグのため削除できません。
+   */
   400: BadRequestError;
+  /**
+   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
+   */
   401: UnauthorizedError;
+  /**
+   * 指定した事業所またはメモタグへのアクセス権限がありません。
+   */
   403: ForbiddenError;
+  /**
+   * 指定したメモタグIDに該当するメモタグが存在しないか、既に削除されています。
+   */
   404: BadRequestNotFoundError;
+  /**
+   * サーバ内部エラー。時間を空けて再試行してください。
+   */
   500: InternalServerError;
 };
 
 export type DestroyTagError = DestroyTagErrors[keyof DestroyTagErrors];
 
 export type DestroyTagResponses = {
+  /**
+   * メモタグの削除に成功しました。レスポンスボディはありません。
+   */
   204: void;
 };
 
@@ -16325,13 +17056,13 @@ export type GetTagData = {
   body?: never;
   path: {
     /**
-     * タグID
+     * メモタグID。メモタグ一覧の取得 API のレスポンスに含まれる id を指定します。
      */
     id: number;
   };
   query: {
     /**
-     * 事業所ID
+     * 事業所ID。取得対象の事業所を指定します。
      */
     company_id: number;
   };
@@ -16339,16 +17070,34 @@ export type GetTagData = {
 };
 
 export type GetTagErrors = {
+  /**
+   * リクエストパラメータが不正です。
+   */
   400: BadRequestError;
+  /**
+   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
+   */
   401: UnauthorizedError;
+  /**
+   * 指定した事業所またはメモタグへのアクセス権限がありません。
+   */
   403: ForbiddenError;
+  /**
+   * 指定したメモタグIDに該当するメモタグが存在しないか、既に削除されています。
+   */
   404: BadRequestNotFoundError;
+  /**
+   * サーバ内部エラー。時間を空けて再試行してください。
+   */
   500: InternalServerError;
 };
 
 export type GetTagError = GetTagErrors[keyof GetTagErrors];
 
 export type GetTagResponses = {
+  /**
+   * メモタグの取得に成功しました。
+   */
   200: TagResponse;
 };
 
@@ -16358,7 +17107,7 @@ export type UpdateTagData = {
   body?: TagParams;
   path: {
     /**
-     * メモタグID
+     * メモタグID。メモタグ一覧の取得 API のレスポンスに含まれる id を指定します。
      */
     id: number;
   };
@@ -16367,16 +17116,34 @@ export type UpdateTagData = {
 };
 
 export type UpdateTagErrors = {
+  /**
+   * リクエストパラメータが不正です。メモタグ名の重複や文字数制限などを確認してください。
+   */
   400: BadRequestError;
+  /**
+   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
+   */
   401: UnauthorizedError;
+  /**
+   * 指定した事業所またはメモタグへのアクセス権限がありません。
+   */
   403: ForbiddenError;
+  /**
+   * 指定したメモタグIDに該当するメモタグが存在しないか、既に削除されています。
+   */
   404: BadRequestNotFoundError;
+  /**
+   * サーバ内部エラー。時間を空けて再試行してください。
+   */
   500: InternalServerError;
 };
 
 export type UpdateTagError = UpdateTagErrors[keyof UpdateTagErrors];
 
 export type UpdateTagResponses = {
+  /**
+   * メモタグの更新に成功しました。更新後のメモタグを返します。
+   */
   200: TagResponse;
 };
 
@@ -16607,6 +17374,7 @@ export type UpdateSectionErrors = {
   403: ForbiddenError;
   /**
    * 指定した部門が存在しないか、既に削除されています。部門一覧を再取得してIDを確認してください。
+   * parent_id で指定した親部門が存在しないか、既に削除されている場合もこのエラーになります。
    */
   404: BadRequestNotFoundError;
   /**
@@ -16670,6 +17438,7 @@ export type ApiV1SectionsUpsertByCodeData = {
 export type ApiV1SectionsUpsertByCodeErrors = {
   /**
    * リクエストパラメータが不正です。部門コードを使用する設定、部門名の重複、文字数制限などを確認してください。
+   * parent_code で指定した親部門が存在しない場合もこのエラーになります。
    */
   400: BadRequestError;
   /**
@@ -16680,10 +17449,6 @@ export type ApiV1SectionsUpsertByCodeErrors = {
    * 指定した事業所または部門マスタへのアクセス権限がありません。
    */
   403: ForbiddenError;
-  /**
-   * 指定した親部門コードに対応する部門が存在しません。部門一覧を再取得して code を確認してください。
-   */
-  404: BadRequestNotFoundError;
   /**
    * サーバ内部エラー。時間を空けて再試行してください。
    */
@@ -22005,6 +22770,217 @@ export type UpdateExpenseApplicationParentApprovableRequestsResponses = {
 export type UpdateExpenseApplicationParentApprovableRequestsResponse =
   UpdateExpenseApplicationParentApprovableRequestsResponses[keyof UpdateExpenseApplicationParentApprovableRequestsResponses];
 
+export type ListExpenseApplicationCurrenciesData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * 事業所ID
+     */
+    company_id: number;
+    /**
+     * 利用状態での絞り込み (usable: 利用可能, unusable: 利用不可)
+     */
+    search_status?: "usable" | "unusable";
+  };
+  url: "/api/1/expense_applications/currencies";
+};
+
+export type ListExpenseApplicationCurrenciesErrors = {
+  400: BadRequestError;
+  401: UnauthorizedError;
+  403: ForbiddenError;
+  500: InternalServerError;
+};
+
+export type ListExpenseApplicationCurrenciesError =
+  ListExpenseApplicationCurrenciesErrors[keyof ListExpenseApplicationCurrenciesErrors];
+
+export type ListExpenseApplicationCurrenciesResponses = {
+  200: ExpenseApplicationCurrenciesIndexResponse;
+};
+
+export type ListExpenseApplicationCurrenciesResponse =
+  ListExpenseApplicationCurrenciesResponses[keyof ListExpenseApplicationCurrenciesResponses];
+
+export type CreateExpenseApplicationCurrencyData = {
+  body: ExpenseApplicationCurrencyParams;
+  path?: never;
+  query?: never;
+  url: "/api/1/expense_applications/currencies";
+};
+
+export type CreateExpenseApplicationCurrencyErrors = {
+  400: BadRequestError;
+  401: UnauthorizedError;
+  403: ForbiddenError;
+  500: InternalServerError;
+};
+
+export type CreateExpenseApplicationCurrencyError =
+  CreateExpenseApplicationCurrencyErrors[keyof CreateExpenseApplicationCurrencyErrors];
+
+export type CreateExpenseApplicationCurrencyResponses = {
+  201: ExpenseApplicationCurrency;
+};
+
+export type CreateExpenseApplicationCurrencyResponse =
+  CreateExpenseApplicationCurrencyResponses[keyof CreateExpenseApplicationCurrencyResponses];
+
+export type DeleteExpenseApplicationCurrencyData = {
+  body?: never;
+  path: {
+    /**
+     * 外貨ID
+     */
+    id: number;
+  };
+  query: {
+    /**
+     * 事業所ID
+     */
+    company_id: number;
+  };
+  url: "/api/1/expense_applications/currencies/{id}";
+};
+
+export type DeleteExpenseApplicationCurrencyErrors = {
+  400: BadRequestError;
+  401: UnauthorizedError;
+  403: ForbiddenError;
+  404: BadRequestNotFoundError;
+  500: InternalServerError;
+};
+
+export type DeleteExpenseApplicationCurrencyError =
+  DeleteExpenseApplicationCurrencyErrors[keyof DeleteExpenseApplicationCurrencyErrors];
+
+export type DeleteExpenseApplicationCurrencyResponses = {
+  204: void;
+};
+
+export type DeleteExpenseApplicationCurrencyResponse =
+  DeleteExpenseApplicationCurrencyResponses[keyof DeleteExpenseApplicationCurrencyResponses];
+
+export type GetExpenseApplicationCurrencyData = {
+  body?: never;
+  path: {
+    /**
+     * 外貨ID
+     */
+    id: number;
+  };
+  query: {
+    /**
+     * 事業所ID
+     */
+    company_id: number;
+  };
+  url: "/api/1/expense_applications/currencies/{id}";
+};
+
+export type GetExpenseApplicationCurrencyErrors = {
+  400: BadRequestError;
+  401: UnauthorizedError;
+  403: ForbiddenError;
+  404: BadRequestNotFoundError;
+  500: InternalServerError;
+};
+
+export type GetExpenseApplicationCurrencyError =
+  GetExpenseApplicationCurrencyErrors[keyof GetExpenseApplicationCurrencyErrors];
+
+export type GetExpenseApplicationCurrencyResponses = {
+  200: ExpenseApplicationCurrency;
+};
+
+export type GetExpenseApplicationCurrencyResponse =
+  GetExpenseApplicationCurrencyResponses[keyof GetExpenseApplicationCurrencyResponses];
+
+export type UpdateExpenseApplicationCurrencyData = {
+  body: ExpenseApplicationCurrencyParams;
+  path: {
+    /**
+     * 外貨ID
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/1/expense_applications/currencies/{id}";
+};
+
+export type UpdateExpenseApplicationCurrencyErrors = {
+  400: BadRequestError;
+  401: UnauthorizedError;
+  403: ForbiddenError;
+  404: BadRequestNotFoundError;
+  500: InternalServerError;
+};
+
+export type UpdateExpenseApplicationCurrencyError =
+  UpdateExpenseApplicationCurrencyErrors[keyof UpdateExpenseApplicationCurrencyErrors];
+
+export type UpdateExpenseApplicationCurrencyResponses = {
+  200: ExpenseApplicationCurrency;
+};
+
+export type UpdateExpenseApplicationCurrencyResponse =
+  UpdateExpenseApplicationCurrencyResponses[keyof UpdateExpenseApplicationCurrencyResponses];
+
+export type GetExpenseApplicationFormData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * 事業所ID
+     */
+    company_id: number;
+  };
+  url: "/api/1/expense_applications/form";
+};
+
+export type GetExpenseApplicationFormErrors = {
+  400: BadRequestError;
+  401: UnauthorizedError;
+  403: ForbiddenError;
+  500: InternalServerError;
+};
+
+export type GetExpenseApplicationFormError =
+  GetExpenseApplicationFormErrors[keyof GetExpenseApplicationFormErrors];
+
+export type GetExpenseApplicationFormResponses = {
+  200: ExpenseApplicationForm;
+};
+
+export type GetExpenseApplicationFormResponse =
+  GetExpenseApplicationFormResponses[keyof GetExpenseApplicationFormResponses];
+
+export type UpdateExpenseApplicationFormData = {
+  body: ExpenseApplicationFormParams;
+  path?: never;
+  query?: never;
+  url: "/api/1/expense_applications/form";
+};
+
+export type UpdateExpenseApplicationFormErrors = {
+  400: BadRequestError;
+  401: UnauthorizedError;
+  403: ForbiddenError;
+  409: ConflictError;
+  500: InternalServerError;
+};
+
+export type UpdateExpenseApplicationFormError =
+  UpdateExpenseApplicationFormErrors[keyof UpdateExpenseApplicationFormErrors];
+
+export type UpdateExpenseApplicationFormResponses = {
+  200: ExpenseApplicationForm;
+};
+
+export type UpdateExpenseApplicationFormResponse =
+  UpdateExpenseApplicationFormResponses[keyof UpdateExpenseApplicationFormResponses];
+
 export type GetExpenseApplicationLineTemplatesData = {
   body?: never;
   path?: never;
@@ -22021,6 +22997,10 @@ export type GetExpenseApplicationLineTemplatesData = {
      * 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)
      */
     limit?: number;
+    /**
+     * 申請部門ID。指定した場合、指定部門と認証ユーザー（申請者）で利用可能な経費科目のみを返します。指定しない場合は利用可能範囲による絞り込みを行わず、従来どおりの経費科目を返します。
+     */
+    "section_ids[]"?: Array<number>;
   };
   url: "/api/1/expense_application_line_templates";
 };
@@ -22072,7 +23052,8 @@ export type DestroyExpenseApplicationLineTemplateData = {
   body?: never;
   path: {
     /**
-     * 経費科目ID
+     * 経費科目ID、または経費科目のsource_line_template_id。
+     * 経費科目は設定内容を変更すると経費科目IDが変わることがあります。変更前に取得した経費科目IDと、設定を変更しても変わらないsource_line_template_idのどちらを指定しても、最新の経費科目を操作できます。
      */
     id: number;
   };
@@ -22107,7 +23088,8 @@ export type GetExpenseApplicationLineTemplateData = {
   body?: never;
   path: {
     /**
-     * 経費科目ID
+     * 経費科目ID、または経費科目のsource_line_template_id。
+     * 経費科目は設定内容を変更すると経費科目IDが変わることがあります。変更前に取得した経費科目IDと、設定を変更しても変わらないsource_line_template_idのどちらを指定しても、最新の経費科目を操作できます。
      */
     id: number;
   };
@@ -22142,7 +23124,8 @@ export type UpdateExpenseApplicationLineTemplateData = {
   body: ExpenseApplicationLineTemplateParams;
   path: {
     /**
-     * 経費科目ID
+     * 経費科目ID、または経費科目のsource_line_template_id。
+     * 経費科目は設定内容を変更すると経費科目IDが変わることがあります。変更前に取得した経費科目IDと、設定を変更しても変わらないsource_line_template_idのどちらを指定しても、最新の経費科目を操作できます。
      */
     id: number;
   };
@@ -23369,15 +24352,15 @@ export type UpsertSegmentTagData = {
        */
       name: string;
       /**
-       * 備考 (30文字以内)。更新時に省略した場合は未設定（null）に更新されます。
+       * 備考 (30文字以内)。省略した場合は未設定（null）になります。
        */
       description?: string | null;
       /**
-       * ショートカット1 (20文字以内)。Web画面などでセグメントタグを検索する際のキーワードとして使用します。更新時に省略した場合は未設定（null）に更新されます。
+       * ショートカット1 (20文字以内)。Web画面などでセグメントタグを検索する際のキーワードとして使用します。省略した場合は未設定（null）になります。
        */
       shortcut1?: string | null;
       /**
-       * ショートカット2 (20文字以内)。Web画面などでセグメントタグを検索する際のキーワードとして使用します。更新時に省略した場合は未設定（null）に更新されます。
+       * ショートカット2 (20文字以内)。Web画面などでセグメントタグを検索する際のキーワードとして使用します。省略した場合は未設定（null）になります。
        */
       shortcut2?: string | null;
     };

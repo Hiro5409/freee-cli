@@ -1057,10 +1057,11 @@ export type InvoiceIndexResponseInvoices = {
    */
   payment_date?: string | null;
   /**
-   * 入金方法 (振込: transfer, 振替: direct_debit, カード: card)
+   * 入金方法 (振込: transfer, 振替: direct_debit, カード: card, 現金: cash, 手形: bill_payable)
    * - payment_typeがdirect_debitの場合、決済連携（M's PayBridge連携）の設定状況によって入金方法種別が異なります。M's PayBridge連携を設定済みで取引先決済連携で有効な口座が登録されている取引先の場合は、M's PayBridgeを通じて口座振替を行う入金方法種別「振替（M's PayBridge）」の請求書であることを示します。それ以外の場合は、決済基盤と連携しない入金方法種別「振替」の請求書であることを示します。
+   * - cash（現金）、bill_payable（手形）はレスポンスでのみ返却される値です。既存データやインポート、freee販売連携などで登録された請求書で返却されます。Public APIの請求書の作成・更新では指定できません。
    */
-  payment_type?: "transfer" | "direct_debit" | "card";
+  payment_type?: "transfer" | "direct_debit" | "card" | "cash" | "bill_payable";
   /**
    * 社内メモ
    */
@@ -1468,11 +1469,12 @@ export type InvoiceResponseInvoice = {
    */
   payment_date?: string | null;
   /**
-   * 入金方法 (振込: transfer, 振替: direct_debit, カード: card)
+   * 入金方法 (振込: transfer, 振替: direct_debit, カード: card, 現金: cash, 手形: bill_payable)
    * - payment_typeがcardの場合、決済連携（M's PayBridge連携）の設定が必要です。
    * - payment_typeがdirect_debitの場合、決済連携（M's PayBridge連携）の設定状況によって入金方法種別が異なります。M's PayBridge連携を設定済みで取引先決済連携で有効な口座が登録されている取引先の場合は、M's PayBridgeを通じて口座振替を行う入金方法種別「振替（M's PayBridge）」の請求書であることを示します。それ以外の場合は、決済基盤と連携しない入金方法種別「振替」の請求書であることを示します。
+   * - cash（現金）、bill_payable（手形）はレスポンスでのみ返却される値です。既存データやインポート、freee販売連携などで登録された請求書で返却されます。Public APIの請求書の作成・更新では指定できません。
    */
-  payment_type?: "transfer" | "direct_debit" | "card";
+  payment_type?: "transfer" | "direct_debit" | "card" | "cash" | "bill_payable";
   /**
    * 備考
    */
@@ -1842,10 +1844,11 @@ export type InvoiceShowResponseInvoice = {
    */
   payment_date?: string | null;
   /**
-   * 入金方法 (振込: transfer, 振替: direct_debit, カード: card)
+   * 入金方法 (振込: transfer, 振替: direct_debit, カード: card, 現金: cash, 手形: bill_payable)
    * - payment_typeがdirect_debitの場合、決済連携（M's PayBridge連携）の設定状況によって入金方法種別が異なります。M's PayBridge連携を設定済みで取引先決済連携で有効な口座が登録されている取引先の場合は、M's PayBridgeを通じて口座振替を行う入金方法種別「振替（M's PayBridge）」の請求書であることを示します。それ以外の場合は、決済基盤と連携しない入金方法種別「振替」の請求書であることを示します。
+   * - cash（現金）、bill_payable（手形）はレスポンスでのみ返却される値です。既存データやインポート、freee販売連携などで登録された請求書で返却されます。Public APIの請求書の作成・更新では指定できません。
    */
-  payment_type?: "transfer" | "direct_debit" | "card";
+  payment_type?: "transfer" | "direct_debit" | "card" | "cash" | "bill_payable";
   /**
    * 備考
    */
@@ -5873,11 +5876,11 @@ export type DeliverySlipsIndexData = {
      */
     end_delivery_slip_date?: string;
     /**
-     * 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)
+     * 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)。limit と offset の合計は 10,000 を超えることはできません。
      */
     limit?: number;
     /**
-     * 取得レコードのオフセット (デフォルト: 0)
+     * 取得レコードのオフセット (デフォルト: 0)。limit と offset の合計は 10,000 を超えることはできません。
      */
     offset?: number;
     /**
@@ -6258,11 +6261,11 @@ export type InvoicesIndexData = {
      */
     end_payment_date?: string;
     /**
-     * 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)
+     * 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)。limit と offset の合計は 10,000 を超えることはできません。
      */
     limit?: number;
     /**
-     * 取得レコードのオフセット (デフォルト: 0)
+     * 取得レコードのオフセット (デフォルト: 0)。limit と offset の合計は 10,000 を超えることはできません。
      */
     offset?: number;
     /**
@@ -6628,11 +6631,11 @@ export type PaymentNoticesIndexData = {
      */
     end_collects_on?: string;
     /**
-     * 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)
+     * 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)。limit と offset の合計は 10,000 を超えることはできません。
      */
     limit?: number;
     /**
-     * 取得レコードのオフセット (デフォルト: 0)
+     * 取得レコードのオフセット (デフォルト: 0)。limit と offset の合計は 10,000 を超えることはできません。
      */
     offset?: number;
   };
@@ -7388,11 +7391,11 @@ export type QuotationsIndexData = {
      */
     end_expiration_date?: string;
     /**
-     * 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)
+     * 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)。limit と offset の合計は 10,000 を超えることはできません。
      */
     limit?: number;
     /**
-     * 取得レコードのオフセット (デフォルト: 0)
+     * 取得レコードのオフセット (デフォルト: 0)。limit と offset の合計は 10,000 を超えることはできません。
      */
     offset?: number;
     /**
@@ -7759,11 +7762,11 @@ export type ReceiptsIndexData = {
      */
     end_receipt_date?: string;
     /**
-     * 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)
+     * 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)。limit と offset の合計は 10,000 を超えることはできません。
      */
     limit?: number;
     /**
-     * 取得レコードのオフセット (デフォルト: 0)
+     * 取得レコードのオフセット (デフォルト: 0)。limit と offset の合計は 10,000 を超えることはできません。
      */
     offset?: number;
   };

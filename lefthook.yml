@@ -8,13 +8,13 @@ pre-commit:
         # 整形の結果に対して lint --fix を当てるため直列
         piped: true
         jobs:
-          - name: oxfmt
+          - name: format
             glob: "*.{ts,json,jsonc,md,yaml,yml}"
-            run: bunx oxfmt --no-error-on-unmatched-pattern {staged_files}
+            run: bunx vp fmt --no-error-on-unmatched-pattern {staged_files}
             stage_fixed: true
-          - name: oxlint
+          - name: lint
             glob: "*.ts"
-            run: bunx oxlint --fix --no-error-on-unmatched-pattern {staged_files}
+            run: bunx vp lint --fix --no-error-on-unmatched-pattern {staged_files}
             stage_fixed: true
     - group:
         parallel: true
@@ -22,7 +22,7 @@ pre-commit:
           # 型と未使用検出は staged file 単位に切れないため、TS が触られたときだけ全体を回す
           - name: typecheck
             glob: "*.ts"
-            run: bun run typecheck
+            run: bunx vp check --no-fmt --no-lint
           - name: knip
             glob: "*.ts"
             run: bun run knip

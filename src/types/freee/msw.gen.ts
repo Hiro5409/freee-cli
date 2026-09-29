@@ -30,6 +30,8 @@ import type {
   CreateDealRenewData,
   CreateDealRenewResponses,
   CreateDealResponses,
+  CreateExpenseApplicationCurrencyData,
+  CreateExpenseApplicationCurrencyResponses,
   CreateExpenseApplicationData,
   CreateExpenseApplicationLineTemplateData,
   CreateExpenseApplicationLineTemplateResponses,
@@ -63,6 +65,7 @@ import type {
   CreateWalletTxnData,
   CreateWalletTxnResponses,
   DeleteDealRenewResponses,
+  DeleteExpenseApplicationCurrencyResponses,
   DestroyAccountItemResponses,
   DestroyApprovalRequestResponses,
   DestroyDealPaymentResponses,
@@ -98,6 +101,8 @@ import type {
   GetCompanyResponses,
   GetDealResponses,
   GetDealsResponses,
+  GetExpenseApplicationCurrencyResponses,
+  GetExpenseApplicationFormResponses,
   GetExpenseApplicationLineTemplateResponses,
   GetExpenseApplicationLineTemplatesResponses,
   GetExpenseApplicationResponses,
@@ -160,6 +165,7 @@ import type {
   GetWalletablesResponses,
   GetWalletTxnResponses,
   GetWalletTxnsResponses,
+  ListExpenseApplicationCurrenciesResponses,
   UpdateAccountItemData,
   UpdateAccountItemResponses,
   UpdateApprovalRequestActionData,
@@ -174,7 +180,11 @@ import type {
   UpdateDealResponses,
   UpdateExpenseApplicationActionData,
   UpdateExpenseApplicationActionResponses,
+  UpdateExpenseApplicationCurrencyData,
+  UpdateExpenseApplicationCurrencyResponses,
   UpdateExpenseApplicationData,
+  UpdateExpenseApplicationFormData,
+  UpdateExpenseApplicationFormResponses,
   UpdateExpenseApplicationLineTemplateData,
   UpdateExpenseApplicationLineTemplateResponses,
   UpdateExpenseApplicationParentApprovableRequestsData,
@@ -4608,6 +4618,284 @@ export function handleUpdateExpenseApplicationParentApprovableRequests(
   );
 }
 
+export type HandleListExpenseApplicationCurrenciesResponse = {
+  body: ListExpenseApplicationCurrenciesResponses[200];
+  status?: 200;
+};
+
+/**
+ * Handler for the `GET /api/1/expense_applications/currencies` operation.
+ */
+export function handleListExpenseApplicationCurrencies(
+  response?: HandleListExpenseApplicationCurrenciesResponse | HttpResponseResolver<never, never>,
+  options?: RequestHandlerOptions,
+): HttpHandler {
+  return http.get<never, never>(
+    `${options?.baseUrl ?? "*"}/api/1/expense_applications/currencies`,
+    (info) => {
+      if (typeof response === "function") {
+        return response(info);
+      }
+      const body = response?.body;
+      if (body !== undefined) {
+        return HttpResponse.json(body, { status: response?.status ?? 200 });
+      }
+      if (options?.responseFallback === "passthrough") {
+        return;
+      }
+      return new Response("Not Implemented", {
+        status: 501,
+        statusText: "Not Implemented",
+      });
+    },
+    options,
+  );
+}
+
+export type HandleCreateExpenseApplicationCurrencyResponse = {
+  body: CreateExpenseApplicationCurrencyResponses[201];
+  status?: 201;
+};
+
+/**
+ * Handler for the `POST /api/1/expense_applications/currencies` operation.
+ */
+export function handleCreateExpenseApplicationCurrency(
+  response?:
+    | HandleCreateExpenseApplicationCurrencyResponse
+    | HttpResponseResolver<never, CreateExpenseApplicationCurrencyData["body"]>,
+  options?: RequestHandlerOptions,
+): HttpHandler {
+  return http.post<never, CreateExpenseApplicationCurrencyData["body"]>(
+    `${options?.baseUrl ?? "*"}/api/1/expense_applications/currencies`,
+    (info) => {
+      if (typeof response === "function") {
+        return response(info);
+      }
+      const body = response?.body;
+      if (body !== undefined) {
+        return HttpResponse.json(body, { status: response?.status ?? 201 });
+      }
+      if (options?.responseFallback === "passthrough") {
+        return;
+      }
+      return new Response("Not Implemented", {
+        status: 501,
+        statusText: "Not Implemented",
+      });
+    },
+    options,
+  );
+}
+
+export type HandleDeleteExpenseApplicationCurrencyResponse = {
+  body: DeleteExpenseApplicationCurrencyResponses[204];
+  status?: 204;
+};
+
+/**
+ * Handler for the `DELETE /api/1/expense_applications/currencies/{id}` operation.
+ */
+export function handleDeleteExpenseApplicationCurrency(
+  response?:
+    | HandleDeleteExpenseApplicationCurrencyResponse
+    | HttpResponseResolver<
+        {
+          id: string;
+        },
+        never
+      >,
+  options?: RequestHandlerOptions,
+): HttpHandler {
+  return http.delete<
+    {
+      id: string;
+    },
+    never
+  >(
+    `${options?.baseUrl ?? "*"}/api/1/expense_applications/currencies/:id`,
+    (info) => {
+      if (typeof response === "function") {
+        return response(info);
+      }
+      const body = response?.body;
+      if (body !== undefined) {
+        return new HttpResponse(body, { status: response?.status ?? 204 });
+      }
+      if (options?.responseFallback === "passthrough") {
+        return;
+      }
+      return new Response("Not Implemented", {
+        status: 501,
+        statusText: "Not Implemented",
+      });
+    },
+    options,
+  );
+}
+
+export type HandleGetExpenseApplicationCurrencyResponse = {
+  body: GetExpenseApplicationCurrencyResponses[200];
+  status?: 200;
+};
+
+/**
+ * Handler for the `GET /api/1/expense_applications/currencies/{id}` operation.
+ */
+export function handleGetExpenseApplicationCurrency(
+  response?:
+    | HandleGetExpenseApplicationCurrencyResponse
+    | HttpResponseResolver<
+        {
+          id: string;
+        },
+        never
+      >,
+  options?: RequestHandlerOptions,
+): HttpHandler {
+  return http.get<
+    {
+      id: string;
+    },
+    never
+  >(
+    `${options?.baseUrl ?? "*"}/api/1/expense_applications/currencies/:id`,
+    (info) => {
+      if (typeof response === "function") {
+        return response(info);
+      }
+      const body = response?.body;
+      if (body !== undefined) {
+        return HttpResponse.json(body, { status: response?.status ?? 200 });
+      }
+      if (options?.responseFallback === "passthrough") {
+        return;
+      }
+      return new Response("Not Implemented", {
+        status: 501,
+        statusText: "Not Implemented",
+      });
+    },
+    options,
+  );
+}
+
+export type HandleUpdateExpenseApplicationCurrencyResponse = {
+  body: UpdateExpenseApplicationCurrencyResponses[200];
+  status?: 200;
+};
+
+/**
+ * Handler for the `PUT /api/1/expense_applications/currencies/{id}` operation.
+ */
+export function handleUpdateExpenseApplicationCurrency(
+  response?:
+    | HandleUpdateExpenseApplicationCurrencyResponse
+    | HttpResponseResolver<
+        {
+          id: string;
+        },
+        UpdateExpenseApplicationCurrencyData["body"]
+      >,
+  options?: RequestHandlerOptions,
+): HttpHandler {
+  return http.put<
+    {
+      id: string;
+    },
+    UpdateExpenseApplicationCurrencyData["body"]
+  >(
+    `${options?.baseUrl ?? "*"}/api/1/expense_applications/currencies/:id`,
+    (info) => {
+      if (typeof response === "function") {
+        return response(info);
+      }
+      const body = response?.body;
+      if (body !== undefined) {
+        return HttpResponse.json(body, { status: response?.status ?? 200 });
+      }
+      if (options?.responseFallback === "passthrough") {
+        return;
+      }
+      return new Response("Not Implemented", {
+        status: 501,
+        statusText: "Not Implemented",
+      });
+    },
+    options,
+  );
+}
+
+export type HandleGetExpenseApplicationFormResponse = {
+  body: GetExpenseApplicationFormResponses[200];
+  status?: 200;
+};
+
+/**
+ * Handler for the `GET /api/1/expense_applications/form` operation.
+ */
+export function handleGetExpenseApplicationForm(
+  response?: HandleGetExpenseApplicationFormResponse | HttpResponseResolver<never, never>,
+  options?: RequestHandlerOptions,
+): HttpHandler {
+  return http.get<never, never>(
+    `${options?.baseUrl ?? "*"}/api/1/expense_applications/form`,
+    (info) => {
+      if (typeof response === "function") {
+        return response(info);
+      }
+      const body = response?.body;
+      if (body !== undefined) {
+        return HttpResponse.json(body, { status: response?.status ?? 200 });
+      }
+      if (options?.responseFallback === "passthrough") {
+        return;
+      }
+      return new Response("Not Implemented", {
+        status: 501,
+        statusText: "Not Implemented",
+      });
+    },
+    options,
+  );
+}
+
+export type HandleUpdateExpenseApplicationFormResponse = {
+  body: UpdateExpenseApplicationFormResponses[200];
+  status?: 200;
+};
+
+/**
+ * Handler for the `PUT /api/1/expense_applications/form` operation.
+ */
+export function handleUpdateExpenseApplicationForm(
+  response?:
+    | HandleUpdateExpenseApplicationFormResponse
+    | HttpResponseResolver<never, UpdateExpenseApplicationFormData["body"]>,
+  options?: RequestHandlerOptions,
+): HttpHandler {
+  return http.put<never, UpdateExpenseApplicationFormData["body"]>(
+    `${options?.baseUrl ?? "*"}/api/1/expense_applications/form`,
+    (info) => {
+      if (typeof response === "function") {
+        return response(info);
+      }
+      const body = response?.body;
+      if (body !== undefined) {
+        return HttpResponse.json(body, { status: response?.status ?? 200 });
+      }
+      if (options?.responseFallback === "passthrough") {
+        return;
+      }
+      return new Response("Not Implemented", {
+        status: 501,
+        statusText: "Not Implemented",
+      });
+    },
+    options,
+  );
+}
+
 export type HandleGetExpenseApplicationLineTemplatesResponse = {
   body: GetExpenseApplicationLineTemplatesResponses[200];
   status?: 200;
@@ -6769,6 +7057,34 @@ export type MswHandlerFactories = {
    */
   updateExpenseApplicationParentApprovableRequests: typeof handleUpdateExpenseApplicationParentApprovableRequests;
   /**
+   * Handler for the `GET /api/1/expense_applications/currencies` operation.
+   */
+  listExpenseApplicationCurrencies: typeof handleListExpenseApplicationCurrencies;
+  /**
+   * Handler for the `POST /api/1/expense_applications/currencies` operation.
+   */
+  createExpenseApplicationCurrency: typeof handleCreateExpenseApplicationCurrency;
+  /**
+   * Handler for the `DELETE /api/1/expense_applications/currencies/{id}` operation.
+   */
+  deleteExpenseApplicationCurrency: typeof handleDeleteExpenseApplicationCurrency;
+  /**
+   * Handler for the `GET /api/1/expense_applications/currencies/{id}` operation.
+   */
+  getExpenseApplicationCurrency: typeof handleGetExpenseApplicationCurrency;
+  /**
+   * Handler for the `PUT /api/1/expense_applications/currencies/{id}` operation.
+   */
+  updateExpenseApplicationCurrency: typeof handleUpdateExpenseApplicationCurrency;
+  /**
+   * Handler for the `GET /api/1/expense_applications/form` operation.
+   */
+  getExpenseApplicationForm: typeof handleGetExpenseApplicationForm;
+  /**
+   * Handler for the `PUT /api/1/expense_applications/form` operation.
+   */
+  updateExpenseApplicationForm: typeof handleUpdateExpenseApplicationForm;
+  /**
    * Handler for the `GET /api/1/expense_application_line_templates` operation.
    */
   getExpenseApplicationLineTemplates: typeof handleGetExpenseApplicationLineTemplates;
@@ -7062,6 +7378,13 @@ export function createMswHandlers(config: RequestHandlerOptions = {}): CreateMsw
     updateExpenseApplicationParentApprovableRequests: wrap(
       handleUpdateExpenseApplicationParentApprovableRequests,
     ),
+    listExpenseApplicationCurrencies: wrap(handleListExpenseApplicationCurrencies),
+    createExpenseApplicationCurrency: wrap(handleCreateExpenseApplicationCurrency),
+    deleteExpenseApplicationCurrency: wrap(handleDeleteExpenseApplicationCurrency),
+    getExpenseApplicationCurrency: wrap(handleGetExpenseApplicationCurrency),
+    updateExpenseApplicationCurrency: wrap(handleUpdateExpenseApplicationCurrency),
+    getExpenseApplicationForm: wrap(handleGetExpenseApplicationForm),
+    updateExpenseApplicationForm: wrap(handleUpdateExpenseApplicationForm),
     getExpenseApplicationLineTemplates: wrap(handleGetExpenseApplicationLineTemplates),
     createExpenseApplicationLineTemplate: wrap(handleCreateExpenseApplicationLineTemplate),
     destroyExpenseApplicationLineTemplate: wrap(handleDestroyExpenseApplicationLineTemplate),
@@ -7126,6 +7449,9 @@ export function createMswHandlers(config: RequestHandlerOptions = {}): CreateMsw
       invoke(pick.updatePartnerByCode, overrides.updatePartnerByCode),
       invoke(pick.getTaxCode, overrides.getTaxCode),
       invoke(pick.getTaxesCompanies, overrides.getTaxesCompanies),
+      invoke(pick.deleteExpenseApplicationCurrency, overrides.deleteExpenseApplicationCurrency),
+      invoke(pick.getExpenseApplicationCurrency, overrides.getExpenseApplicationCurrency),
+      invoke(pick.updateExpenseApplicationCurrency, overrides.updateExpenseApplicationCurrency),
       invoke(pick.getApprovalRequestForm, overrides.getApprovalRequestForm),
       invoke(pick.getPurchaseRequestsForm, overrides.getPurchaseRequestsForm),
       invoke(pick.createDealRenew, overrides.createDealRenew),
@@ -7167,6 +7493,10 @@ export function createMswHandlers(config: RequestHandlerOptions = {}): CreateMsw
       invoke(pick.getTrialCrSegment2Tags, overrides.getTrialCrSegment2Tags),
       invoke(pick.getTrialCrSegment3Tags, overrides.getTrialCrSegment3Tags),
       invoke(pick.getGeneralLedgers, overrides.getGeneralLedgers),
+      invoke(pick.listExpenseApplicationCurrencies, overrides.listExpenseApplicationCurrencies),
+      invoke(pick.createExpenseApplicationCurrency, overrides.createExpenseApplicationCurrency),
+      invoke(pick.getExpenseApplicationForm, overrides.getExpenseApplicationForm),
+      invoke(pick.updateExpenseApplicationForm, overrides.updateExpenseApplicationForm),
       invoke(pick.getApprovalRequestForms, overrides.getApprovalRequestForms),
       invoke(pick.getPurchaseRequestsForms, overrides.getPurchaseRequestsForms),
       invoke(pick.destroyPartner, overrides.destroyPartner),

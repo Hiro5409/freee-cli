@@ -15,7 +15,7 @@ type SchemaObject =
   | OpenApiSchemaObject.V3_1_X;
 
 const freeeApiSchemaBaseUrl =
-  "https://raw.githubusercontent.com/freee/freee-api-schema/d193f57c86fd3f8f976b1e71cd7908005235bf92";
+  "https://raw.githubusercontent.com/freee/freee-api-schema/8bd4efb2bc63c908f340026865473a2f2d221df1";
 
 function markDeprecatedProperties(...names: ReadonlyArray<string>) {
   return (schema: SchemaObject) => {
@@ -69,20 +69,20 @@ const parser = {
   patch: {
     operations: {
       "GET /api/1/fixed_assets": (operation: OperationObject) => {
-        // 公式のプラン制限が変わったらCLIの対応範囲を見直す: https://github.com/freee/freee-api-schema/blob/d193f57c86fd3f8f976b1e71cd7908005235bf92/v2020_06_15/open-api-3/api-schema.json#L19321
+        // 公式のプラン制限が変わったらCLIの対応範囲を見直す: https://github.com/freee/freee-api-schema/blob/8bd4efb2bc63c908f340026865473a2f2d221df1/v2020_06_15/open-api-3/api-schema.json#L19930
         const restriction = "このAPIは法人エンタープライズに加入している事業所のみが利用できます。";
         if (!operation.description?.includes(restriction)) {
           throw new Error("Review the plan restriction for GET /api/1/fixed_assets");
         }
       },
-      // freee OASがdescriptionでのみ廃止予定を示すため、deprecatedフラグへ補正する: https://github.com/freee/freee-api-schema/blob/d193f57c86fd3f8f976b1e71cd7908005235bf92/v2020_06_15/open-api-3/api-schema.json#L7123
+      // freee OASがdescriptionでのみ廃止予定を示すため、deprecatedフラグへ補正する: https://github.com/freee/freee-api-schema/blob/8bd4efb2bc63c908f340026865473a2f2d221df1/v2020_06_15/open-api-3/api-schema.json#L7125
       "GET /api/1/taxes/codes": (operation: OperationObject) => {
         operation.deprecated = true;
       },
       // Hey API requires nullable enum members to be explicit in the enum to preserve null in the generated union.
       "PUT /api/1/user_matchers/{id}": includeNullInRequestEnum("qualified_invoice_setting"),
     },
-    // freee OASがdescriptionでのみ非推奨を示すため、deprecatedフラグへ補正する: https://github.com/freee/freee-api-schema/blob/d193f57c86fd3f8f976b1e71cd7908005235bf92/hr/open-api-3/api-schema.json#L13876
+    // freee OASがdescriptionでのみ非推奨を示すため、deprecatedフラグへ補正する: https://github.com/freee/freee-api-schema/blob/8bd4efb2bc63c908f340026865473a2f2d221df1/hr/open-api-3/api-schema.json#L13876
     schemas: {
       LegacyApiV1PaidHolidayIndexResponseParams: markDeprecatedProperties(
         "holiday_type",
@@ -115,6 +115,12 @@ const parser = {
   },
 } as const;
 
+const formatGeneratedOutput = {
+  name: "Vite+ format",
+  command: "vp",
+  args: ["fmt", "{{path}}"],
+} as const;
+
 // freee は製品ごとに別スキーマ・別ベースURLで API を公開している。
 // ベースURLが違う以上 1 クライアントには畳めないので、生成物も分ける。
 export default defineConfig([
@@ -122,7 +128,7 @@ export default defineConfig([
     input: `${freeeApiSchemaBaseUrl}/v2020_06_15/open-api-3/api-schema.json`,
     output: {
       path: "src/types/freee",
-      postProcess: ["oxfmt"],
+      postProcess: [formatGeneratedOutput],
     },
     parser,
     plugins: [...plugins],
@@ -131,7 +137,7 @@ export default defineConfig([
     input: `${freeeApiSchemaBaseUrl}/iv/open-api-3/api-schema.yml`,
     output: {
       path: "src/types/freee-invoice",
-      postProcess: ["oxfmt"],
+      postProcess: [formatGeneratedOutput],
     },
     parser,
     plugins: [...plugins],
@@ -140,7 +146,7 @@ export default defineConfig([
     input: `${freeeApiSchemaBaseUrl}/hr/open-api-3/api-schema.json`,
     output: {
       path: "src/types/freee-hr",
-      postProcess: ["oxfmt"],
+      postProcess: [formatGeneratedOutput],
     },
     parser,
     plugins: [...plugins],

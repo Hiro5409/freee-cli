@@ -194,6 +194,15 @@ describe("invoice update command", () => {
     expect(onUpdate).toHaveBeenCalledWith(expect.objectContaining({ tax_entry_method: "in" }));
   });
 
+  test("Public APIで指定できない入金方法の請求書は更新しない", async () => {
+    stub({ payment_type: "cash" });
+
+    await expect(cli([...baseArgs, "--subject", "9月分"], invoiceUpdateCommand)).rejects.toThrow(
+      /cash.*Public API/,
+    );
+    expect(onUpdate).not.toHaveBeenCalled();
+  });
+
   test("--dry-run は PUT しない", async () => {
     const result = await cli(
       [...baseArgs, "--subject", "9月分", "--dry-run"],

@@ -29,6 +29,24 @@ function nullToUndefined<T>(value: T | null | undefined): T | undefined {
   return value ?? undefined;
 }
 
+function paymentTypeForRequest(
+  override: InvoiceRequest["payment_type"],
+  current: InvoiceShowResponseInvoice["payment_type"],
+): InvoiceRequest["payment_type"] {
+  if (override !== undefined) return override;
+  if (current === "cash" || current === "bill_payable") {
+    throw new CliError(
+      `freee returned payment_type ${current}, which cannot be sent by the Public API; pass --payment-type to change it explicitly.`,
+      {
+        code: "INVALID_INPUT",
+        why: "PUT /invoices/{id} replaces the whole document, so omitting an unsupported current value could silently change the invoice.",
+        hint: errorHints.invalidValue,
+      },
+    );
+  }
+  return current;
+}
+
 type PartnerOverride =
   | { partner_id: number; partner_code?: never }
   | { partner_code: string; partner_id?: never };
@@ -90,7 +108,7 @@ function invoiceRequestFromCurrent(
     template_id: overrides.template_id ?? current.template_id,
     issue_date: overrides.issue_date ?? nullToUndefined(current.issue_date),
     payment_date: overrides.payment_date ?? nullToUndefined(current.payment_date),
-    payment_type: overrides.payment_type ?? current.payment_type,
+    payment_type: paymentTypeForRequest(overrides.payment_type, current.payment_type),
     line_amount_fraction: overrides.line_amount_fraction ?? current.line_amount_fraction,
     subject: overrides.subject ?? current.subject,
     memo: overrides.memo ?? current.memo,

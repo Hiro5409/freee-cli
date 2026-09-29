@@ -210,7 +210,11 @@ async function createWorkingCopy(repoRoot: string): Promise<string> {
     for (const path of listedFiles.stdout.split("\0").filter(Boolean)) {
       const target = join(workingCopy, path);
       await mkdir(dirname(target), { recursive: true });
-      await cp(join(repoRoot, path), target);
+      try {
+        await cp(join(repoRoot, path), target);
+      } catch (error) {
+        if (!(error instanceof Error && "code" in error && error.code === "ENOENT")) throw error;
+      }
     }
     await symlink(join(repoRoot, "node_modules"), join(workingCopy, "node_modules"), "dir");
     return workingCopy;
@@ -309,8 +313,7 @@ function formatChanges(api: ApiName, changes: ReadonlyArray<OasChange>): Array<s
 
 async function validateGeneratedClient(workingCopy: string): Promise<Array<ValidationResult>> {
   const validations: ReadonlyArray<{ command: Array<string>; name: string }> = [
-    { command: ["bun", "run", "typecheck"], name: "typecheck" },
-    { command: ["bun", "run", "lint"], name: "lint" },
+    { command: ["bun", "run", "check:static"], name: "static checks" },
     { command: ["bun", "run", "test"], name: "test" },
   ];
 

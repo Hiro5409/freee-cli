@@ -40,6 +40,9 @@ import type {
   CreateDealRenewErrors,
   CreateDealRenewResponses,
   CreateDealResponses,
+  CreateExpenseApplicationCurrencyData,
+  CreateExpenseApplicationCurrencyErrors,
+  CreateExpenseApplicationCurrencyResponses,
   CreateExpenseApplicationData,
   CreateExpenseApplicationErrors,
   CreateExpenseApplicationLineTemplateData,
@@ -91,6 +94,9 @@ import type {
   DeleteDealRenewData,
   DeleteDealRenewErrors,
   DeleteDealRenewResponses,
+  DeleteExpenseApplicationCurrencyData,
+  DeleteExpenseApplicationCurrencyErrors,
+  DeleteExpenseApplicationCurrencyResponses,
   DestroyAccountItemData,
   DestroyAccountItemErrors,
   DestroyAccountItemResponses,
@@ -196,8 +202,14 @@ import type {
   GetDealsData,
   GetDealsErrors,
   GetDealsResponses,
+  GetExpenseApplicationCurrencyData,
+  GetExpenseApplicationCurrencyErrors,
+  GetExpenseApplicationCurrencyResponses,
   GetExpenseApplicationData,
   GetExpenseApplicationErrors,
+  GetExpenseApplicationFormData,
+  GetExpenseApplicationFormErrors,
+  GetExpenseApplicationFormResponses,
   GetExpenseApplicationLineTemplateData,
   GetExpenseApplicationLineTemplateErrors,
   GetExpenseApplicationLineTemplateResponses,
@@ -382,6 +394,9 @@ import type {
   GetWalletTxnsData,
   GetWalletTxnsErrors,
   GetWalletTxnsResponses,
+  ListExpenseApplicationCurrenciesData,
+  ListExpenseApplicationCurrenciesErrors,
+  ListExpenseApplicationCurrenciesResponses,
   UpdateAccountItemData,
   UpdateAccountItemErrors,
   UpdateAccountItemResponses,
@@ -403,8 +418,14 @@ import type {
   UpdateExpenseApplicationActionData,
   UpdateExpenseApplicationActionErrors,
   UpdateExpenseApplicationActionResponses,
+  UpdateExpenseApplicationCurrencyData,
+  UpdateExpenseApplicationCurrencyErrors,
+  UpdateExpenseApplicationCurrencyResponses,
   UpdateExpenseApplicationData,
   UpdateExpenseApplicationErrors,
+  UpdateExpenseApplicationFormData,
+  UpdateExpenseApplicationFormErrors,
+  UpdateExpenseApplicationFormResponses,
   UpdateExpenseApplicationLineTemplateData,
   UpdateExpenseApplicationLineTemplateErrors,
   UpdateExpenseApplicationLineTemplateResponses,
@@ -730,9 +751,16 @@ export const apiV1Partners_upsertByCode = <ThrowOnError extends boolean = true>(
  * フォーム用選択項目情報の取得
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>指定した事業所のフォーム用選択項目情報を取得する</p>
+ * <p>指定した事業所で勘定科目の入力フォームを構築するための、勘定科目カテゴリー、勘定科目、デフォルト税区分、決算書表示名を取得します。</p>
+ *
+ * <h2 id="_2">注意点</h2>
+ *
+ * <ul>
+ *   <li><code>includes</code> に <code>account_item</code> を指定した場合に、<code>account_categories</code> と <code>account_groups</code> を返します。</li>
+ *   <li><code>includes</code> を指定しない場合、レスポンスは空のオブジェクトになります。</li>
+ * </ul>
  */
 export const getFormsSelectables = <ThrowOnError extends boolean = true>(
   options: Options<GetFormsSelectablesData, ThrowOnError>,
@@ -913,9 +941,15 @@ export const apiV1AccountItems_upsertByCode = <ThrowOnError extends boolean = tr
  * メモタグ一覧の取得
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>指定した事業所のメモタグ一覧を取得する</p>
+ * <p>指定した事業所に登録されているメモタグの一覧を取得します。取引や口座振替の明細に付与するメモタグを確認する用途を想定しています。</p>
+ *
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>start_update_date / end_update_date でメモタグの更新日を範囲指定して絞り込めます。JST の日付を <code>yyyy-mm-dd</code> で指定してください（どちらも指定日を含みます）。</li>
+ *   <li>結果はメモタグIDの昇順で返します。</li>
+ * </ul>
  */
 export const getTags = <ThrowOnError extends boolean = true>(
   options: Options<GetTagsData, ThrowOnError>,
@@ -930,9 +964,15 @@ export const getTags = <ThrowOnError extends boolean = true>(
  * メモタグの作成
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>指定した事業所のメモタグを作成する</p>
+ * <p>指定した事業所に新しいメモタグを作成します。作成したメモタグは取引や口座振替の明細に付与できます。</p>
+ *
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>メモタグ名（name）は事業所内で重複できません。既に同名のメモタグが存在する場合は 400 エラーになります。</li>
+ *   <li>shortcut1 / shortcut2 は、Web画面などでメモタグを検索する際のキーワードとして使用します。</li>
+ * </ul>
  */
 export const createTag = <ThrowOnError extends boolean = true>(
   options: Options<CreateTagData, ThrowOnError>,
@@ -951,9 +991,15 @@ export const createTag = <ThrowOnError extends boolean = true>(
  * メモタグの削除
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>指定した事業所のメモタグを削除する</p>
+ * <p>指定した事業所のメモタグを削除します。</p>
+ *
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>取引または配賦基準で使用されているメモタグは削除できず、400 エラーになります。</li>
+ *   <li>存在しないか既に削除されたメモタグIDを指定した場合は 404 を返します。</li>
+ * </ul>
  */
 export const destroyTag = <ThrowOnError extends boolean = true>(
   options: Options<DestroyTagData, ThrowOnError>,
@@ -968,9 +1014,14 @@ export const destroyTag = <ThrowOnError extends boolean = true>(
  * メモタグの取得
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>指定した事業所のメモタグを取得する</p>
+ * <p>指定した事業所のメモタグを 1 件取得します。メモタグID（id）はメモタグ一覧の取得 API で確認できます。</p>
+ *
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>存在しないか既に削除されたメモタグIDを指定した場合は 404 を返します。</li>
+ * </ul>
  */
 export const getTag = <ThrowOnError extends boolean = true>(
   options: Options<GetTagData, ThrowOnError>,
@@ -985,9 +1036,16 @@ export const getTag = <ThrowOnError extends boolean = true>(
  * メモタグの更新
  *
  *
- * <h2 id="">概要</h2>
+ * <h2 id="_1">概要</h2>
  *
- * <p>指定した事業所のメモタグを更新する</p>
+ * <p>指定した事業所のメモタグを更新します。</p>
+ *
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>リクエストボディで shortcut1 / shortcut2 を省略した場合は未設定（null）に更新されます。値を維持したい場合は、現在の値も含めて指定してください。</li>
+ *   <li>メモタグ名（name）は事業所内で重複できません。別のメモタグと同名になる更新は 400 エラーになります。</li>
+ *   <li>存在しないか既に削除されたメモタグIDを指定した場合は 404 を返します。</li>
+ * </ul>
  */
 export const updateTag = <ThrowOnError extends boolean = true>(
   options: Options<UpdateTagData, ThrowOnError>,
@@ -4823,7 +4881,6 @@ export const destroyExpenseApplication = <ThrowOnError extends boolean = true>(
  *
  * <h2 id="_2">注意点</h2>
  * <ul>
- *   <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は取得できません。</li>
  *   <li>本APIは外貨には非対応です。外貨を利用する経費申請は取得できません。</li>
  *   <li>本APIはカスタム申請項目には非対応です。カスタム申請項目を使用した経費申請は取得できません。</li>
  *   <li>本APIは金額計算方法には非対応です。金額計算方法を設定した経費申請は取得できません。</li>
@@ -5042,6 +5099,193 @@ export const updateExpenseApplicationParentApprovableRequests = <
   });
 
 /**
+ * 経費精算の外貨一覧の取得
+ *
+ *
+ * <h2 id="_1">概要</h2>
+ *
+ * <p>指定した事業所の経費精算で利用する外貨の一覧を取得します。</p>
+ */
+export const listExpenseApplicationCurrencies = <ThrowOnError extends boolean = true>(
+  options: Options<ListExpenseApplicationCurrenciesData, ThrowOnError>,
+): RequestResult<
+  ListExpenseApplicationCurrenciesResponses,
+  ListExpenseApplicationCurrenciesErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    ListExpenseApplicationCurrenciesResponses,
+    ListExpenseApplicationCurrenciesErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/1/expense_applications/currencies",
+    ...options,
+  });
+
+/**
+ * 経費精算の外貨の作成
+ *
+ *
+ * <h2 id="_1">概要</h2>
+ *
+ * <p>指定した事業所の経費精算で利用する外貨を作成します。</p>
+ */
+export const createExpenseApplicationCurrency = <ThrowOnError extends boolean = true>(
+  options: Options<CreateExpenseApplicationCurrencyData, ThrowOnError>,
+): RequestResult<
+  CreateExpenseApplicationCurrencyResponses,
+  CreateExpenseApplicationCurrencyErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    CreateExpenseApplicationCurrencyResponses,
+    CreateExpenseApplicationCurrencyErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/1/expense_applications/currencies",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * 経費精算の外貨の削除
+ *
+ *
+ * <h2 id="_1">概要</h2>
+ *
+ * <p>指定した事業所の経費精算で利用する外貨を削除します。</p>
+ */
+export const deleteExpenseApplicationCurrency = <ThrowOnError extends boolean = true>(
+  options: Options<DeleteExpenseApplicationCurrencyData, ThrowOnError>,
+): RequestResult<
+  DeleteExpenseApplicationCurrencyResponses,
+  DeleteExpenseApplicationCurrencyErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).delete<
+    DeleteExpenseApplicationCurrencyResponses,
+    DeleteExpenseApplicationCurrencyErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/1/expense_applications/currencies/{id}",
+    ...options,
+  });
+
+/**
+ * 経費精算の外貨の取得
+ *
+ *
+ * <h2 id="_1">概要</h2>
+ *
+ * <p>指定した事業所の経費精算で利用する外貨を取得します。</p>
+ */
+export const getExpenseApplicationCurrency = <ThrowOnError extends boolean = true>(
+  options: Options<GetExpenseApplicationCurrencyData, ThrowOnError>,
+): RequestResult<
+  GetExpenseApplicationCurrencyResponses,
+  GetExpenseApplicationCurrencyErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    GetExpenseApplicationCurrencyResponses,
+    GetExpenseApplicationCurrencyErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/1/expense_applications/currencies/{id}",
+    ...options,
+  });
+
+/**
+ * 経費精算の外貨の更新
+ *
+ *
+ * <h2 id="_1">概要</h2>
+ *
+ * <p>指定した事業所の経費精算で利用する外貨を更新します。</p>
+ */
+export const updateExpenseApplicationCurrency = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateExpenseApplicationCurrencyData, ThrowOnError>,
+): RequestResult<
+  UpdateExpenseApplicationCurrencyResponses,
+  UpdateExpenseApplicationCurrencyErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    UpdateExpenseApplicationCurrencyResponses,
+    UpdateExpenseApplicationCurrencyErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/1/expense_applications/currencies/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * 経費申請フォームの取得
+ *
+ *
+ * <h2 id="_1">概要</h2>
+ *
+ * <p>指定した事業所の経費申請フォームの設定を取得します。設定が未作成の場合は初期値を返します。</p>
+ */
+export const getExpenseApplicationForm = <ThrowOnError extends boolean = true>(
+  options: Options<GetExpenseApplicationFormData, ThrowOnError>,
+): RequestResult<
+  GetExpenseApplicationFormResponses,
+  GetExpenseApplicationFormErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    GetExpenseApplicationFormResponses,
+    GetExpenseApplicationFormErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/1/expense_applications/form",
+    ...options,
+  });
+
+/**
+ * 経費申請フォームの更新
+ *
+ *
+ * <h2 id="_1">概要</h2>
+ *
+ * <p>指定した事業所の経費申請フォームの設定を更新します。設定が未作成の場合は作成します。</p>
+ */
+export const updateExpenseApplicationForm = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateExpenseApplicationFormData, ThrowOnError>,
+): RequestResult<
+  UpdateExpenseApplicationFormResponses,
+  UpdateExpenseApplicationFormErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    UpdateExpenseApplicationFormResponses,
+    UpdateExpenseApplicationFormErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/1/expense_applications/form",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * 経費科目一覧の取得
  *
  *
@@ -5182,6 +5426,14 @@ export const getExpenseApplicationLineTemplate = <ThrowOnError extends boolean =
  * <h2 id="_2">注意点</h2>
  * <ul>
  *   <li>本APIはリクエストボディで指定した内容への全置換で更新します。任意パラメータ（item_id, description, line_description, required_receipt）を未指定にした場合、その項目は未設定（required_receiptは任意 = false）にリセットされます。更新前の値を維持したい場合は、経費科目の取得APIで現在の値を確認し、すべてのパラメータを指定してください。</li>
+ *   <li>custom_form_parts と amount_calculation_setting は、パラメータ自体を省略した場合のみ現在の設定を維持します。指定した場合はその内容で全置換し、空配列（custom_form_parts: []）を指定した場合はカスタム申請項目をすべて削除します。既存のカスタム申請項目を残す場合は取得した id と key をそのまま指定してください。</li>
+ *   <li>
+ *     更新内容によっては経費科目が作り直され、レスポンスのidが更新前と変わります。カスタム申請項目や金額計算設定を変更した場合に発生し、custom_form_parts[].idも同時に振り直されます。custom_form_parts[].key は作り直されても変わらないため、カスタム申請項目を識別する用途には key を使ってください。
+ *     <ul>
+ *       <li>設定を変更してもsource_line_template_idは変わりません。経費科目を長期的に識別する用途にはこちらを保存してください。</li>
+ *       <li>本APIのidパラメータは変更前の経費科目IDでも受け付けますが、取得・更新・削除の前に一覧取得または経費科目の取得APIで最新のidを引き直すことを推奨します。</li>
+ *     </ul>
+ *   </li>
  *   <li>
  *     以下のいずれかに該当する経費科目はWeb版freee会計専用のため、本APIでは404エラーになります。
  *     <ul>

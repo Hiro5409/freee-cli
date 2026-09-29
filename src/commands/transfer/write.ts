@@ -34,7 +34,19 @@ type TransferValues = {
   to?: string[];
 };
 
-type FullTransferParams = { [K in keyof Required<TransferParams>]: TransferParams[K] };
+type LegacySingleDestinationKey =
+  | "to_walletable_id"
+  | "to_walletable_type"
+  | "amount"
+  | "description";
+type CurrentTransferParams = Omit<TransferParams, LegacySingleDestinationKey>;
+type FullTransferParams = {
+  [K in keyof Required<CurrentTransferParams>]: CurrentTransferParams[K];
+};
+type TransferDestination = NonNullable<TransferParams["to_walletables"]>[number];
+type FullTransferDestination = {
+  [K in keyof Required<TransferDestination>]: TransferDestination[K];
+};
 
 function currentTransferBody(companyId: number, current: Transfer): TransferParams {
   return {
@@ -42,18 +54,29 @@ function currentTransferBody(companyId: number, current: Transfer): TransferPara
     date: current.date,
     from_walletable_id: current.from_walletable_id,
     from_walletable_type: current.from_walletable_type,
-    to_walletables: current.to_walletables.map((destination) => ({
-      type: destination.type,
-      id: destination.id,
-      amount: destination.amount,
-      description: destination.description ?? undefined,
-    })),
-    /* oxlint-disable typescript/no-deprecated -- Explicit legacy keys make schema additions fail type-checking while JSON omits these mutually exclusive fields. */
-    to_walletable_id: undefined,
-    to_walletable_type: undefined,
-    amount: undefined,
-    description: undefined,
-    /* oxlint-enable typescript/no-deprecated */
+    from_partner_id: current.from_partner_id,
+    from_section_id: current.from_section_id,
+    from_item_id: current.from_item_id,
+    from_tag_ids: current.from_tag_ids,
+    from_segment_1_tag_id: current.from_segment_1_tag_id,
+    from_segment_2_tag_id: current.from_segment_2_tag_id,
+    from_segment_3_tag_id: current.from_segment_3_tag_id,
+    to_walletables: current.to_walletables.map(
+      (destination) =>
+        ({
+          type: destination.type,
+          id: destination.id,
+          amount: destination.amount,
+          description: destination.description ?? undefined,
+          partner_id: destination.partner_id,
+          section_id: destination.section_id,
+          item_id: destination.item_id,
+          tag_ids: destination.tag_ids,
+          segment_1_tag_id: destination.segment_1_tag_id,
+          segment_2_tag_id: destination.segment_2_tag_id,
+          segment_3_tag_id: destination.segment_3_tag_id,
+        }) satisfies FullTransferDestination,
+    ),
   } satisfies FullTransferParams;
 }
 
