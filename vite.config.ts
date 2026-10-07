@@ -116,4 +116,7 @@ export default defineConfig({
       },
     ],
   },
+  staged: {
+    "*.{ts,json,jsonc,md,yaml,yml}": "vp check --fix",
+  },
 });
