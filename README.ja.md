@@ -169,11 +169,55 @@ gh skill install Hiro5409/freee-cli freee-cli
 
 ## 開発
 
+[mise](https://mise.jdx.dev/getting-started.html) をインストールして有効化します。`mise.toml` は Bun、Node.js、GitHub CLI、Gitleaks、Lefthook のバージョンを固定し、ローカルにインストールした Vite+ のコマンドを `PATH` に追加します。
+
 ```bash
+mise trust
 mise install
 bun install --frozen-lockfile
+lefthook install
 bun run check
 ```
+
+[Lefthook](https://lefthook.dev/) が `lefthook.yml` の Git フックを実行します。pre-commit はステージしたファイルを整形・lint・型検査し、続けて Gitleaks で秘匿情報を検査します。pre-push は CI と同じ `bun audit --audit-level=high` を実行します。post-checkout は `node_modules` が無いときに lockfile どおりに依存をインストールします。CI は `bun run check` の全項目を実行し、同じバージョンの Gitleaks で Git 履歴を検査します。
+
+## リリース
+
+メンテナーは `main` からリリースします。`package.json` の新しい `version` をコミットして `main` に push し、そのバージョンの注釈付きタグを push します。
+
+```bash
+git tag -a v1.2.3 --cleanup=verbatim -F - <<'NOTES'
+## Changes
+
+- Describe a change a user will notice.
+NOTES
+git push origin v1.2.3
+```
+
+タグメッセージには、利用者が気づく変更を Markdown で書きます。このメッセージが GitHub Release のリリースノートになります。Git はメッセージを標準入力から読み取り、`--cleanup=verbatim` によって、見出しなど `#` で始まる行がコメントとして削除されずに残ります。
+
+タグの push で Release ワークフローが始まります。ワークフローは、タグが注釈付きであること、`package.json` と一致すること、`main` に含まれることを検証し、タグのコミットで CI を実行します。CI は npm 成果物を一度だけ pack してその tarball をスモークテストし、公開用の2つのジョブはビルドし直さずにテスト済みの成果物をダウンロードします。
+
+1つ目のジョブは trusted publishing で成果物を provenance 付きで npm に公開します。npm は新しいバージョンを配信前に[スキャンする](https://github.blog/changelog/2026-07-28-npm-publish-time-malware-scanning-and-dual-use-metadata/)ため、ジョブはバージョンが見えるようになるまで最大30分待ちます。2つ目のジョブは、npm に公開されたバージョンの integrity がテスト済みの成果物と一致するときだけ GitHub Release を作成します。immutable release は公開後にアセットを変更できないため、ドラフトの段階で成果物を添付してから公開します。
+
+ワークフローはリポジトリ外の2つの設定に依存します。
+
+- npm の [trusted publisher](https://docs.npmjs.com/trusted-publishers/): ユーザー `Hiro5409`、リポジトリ `freee-cli`、ワークフローファイル名 `release.yml`、environment は指定なし。
+- リポジトリの [immutable releases](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases): 公開済み GitHub Release のタグと添付成果物は変更できません。
+
+失敗した実行をやり直すには、同じタグからワークフローを再実行します。
+
+```bash
+gh workflow run release.yml --ref v1.2.3
+```
+
+再実行はタグのコミットをもう一度 pack してテストします。pack は再現可能なので、以前の実行が公開した成果物と同じものをテストします。どの実行も現在の状態に応じて動きます。npm にバージョンが見えなければ成果物を公開し、タグに公開済みの Release が無ければ GitHub Release を作成します。テスト済みの成果物を持つ公開済み Release は完了しているので、そのままにします。ブランチから開始した実行はタグの検証で止まります。ワークフローが `main`、バージョン、タグを変更することはありません。
+
+npm または GitHub を読み取れないとき、公開済みのバージョンがテスト済みの成果物と異なるとき、公開済み Release にテスト済みの成果物が無いか digest が異なるとき、実行は止まります。ワークフローはそのような Release を修復しません。
+
+npm が30分以内にバージョンを配信しないと実行は失敗します。npm でバージョンが見えるようになってからワークフローを再実行します。それより前に開始した実行は、同じバージョンをもう一度公開しようとします。
+
+GitHub CLI は成果物の添付または Release の公開に失敗するとドラフトの削除を試みます。削除の失敗や実行の中断でドラフトが残ることがあります。ワークフローはドラフトを探さないため、メンテナーが削除します。
 
 ## ライセンス
 
