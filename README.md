@@ -196,7 +196,7 @@ The tag message lists, as Markdown, the changes a user will notice, and becomes 
 
 The tag starts the Release workflow. The workflow verifies that the tag is annotated, matches `package.json`, and belongs to `main`, then runs CI on the tagged commit. CI packs the npm artifact once and smoke-tests that tarball, and both publishing jobs download the tested artifact instead of building it again.
 
-The first job publishes the artifact to npm through trusted publishing, with provenance. npm [scans a new version](https://github.blog/changelog/2026-07-28-npm-publish-time-malware-scanning-and-dual-use-metadata/) before serving it, so the job waits up to 30 minutes for the version to become visible. The second job creates the GitHub Release only when the version published on npm has the integrity of the tested artifact. It attaches the artifact while the release is still a draft and then publishes it, because an immutable release locks its assets once it is published.
+The first job publishes the artifact to npm through trusted publishing, with provenance. npm [scans a new version](https://github.blog/changelog/2026-07-28-npm-publish-time-malware-scanning-and-dual-use-metadata/) before serving it, so the second job waits up to 30 minutes for the version to become visible. It creates the GitHub Release only when the version published on npm has the integrity of the tested artifact. It attaches the artifact while the release is still a draft and then publishes it, because an immutable release locks its assets once it is published.
 
 The workflow relies on two settings outside the repository:
 

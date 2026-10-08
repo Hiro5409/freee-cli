@@ -50,7 +50,7 @@ jobs:
   publish:
     needs: check
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 10
     # npm's trusted publisher for this package names no GitHub environment, so the job sets none.
     permissions:
       contents: read
@@ -77,12 +77,6 @@ jobs:
         if: steps.state.outputs.npmPublished == 'false'
         working-directory: ${{ runner.temp }}/package
         run: npm publish ./*.tgz --provenance --access public
-      # npm scans a new version before serving it, so publishing returns before the version is visible.
-      - name: Wait for npm to serve the tested artifact
-        if: steps.state.outputs.npmPublished == 'false'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: node scripts/release-state.ts "$RUNNER_TEMP"/package/*.tgz --wait
 
   release:
     needs: publish
@@ -103,6 +97,7 @@ jobs:
         with:
           name: npm-package
           path: ${{ runner.temp }}/package
+      # npm scans a new version before serving it, so publishing returns before the version is visible.
       - name: Inspect publication state
         id: state
         env:

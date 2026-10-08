@@ -198,7 +198,7 @@ git push origin v1.2.3
 
 タグの push で Release ワークフローが始まります。ワークフローは、タグが注釈付きであること、`package.json` と一致すること、`main` に含まれることを検証し、タグのコミットで CI を実行します。CI は npm 成果物を一度だけ pack してその tarball をスモークテストし、公開用の2つのジョブはビルドし直さずにテスト済みの成果物をダウンロードします。
 
-1つ目のジョブは trusted publishing で成果物を provenance 付きで npm に公開します。npm は新しいバージョンを配信前に[スキャンする](https://github.blog/changelog/2026-07-28-npm-publish-time-malware-scanning-and-dual-use-metadata/)ため、ジョブはバージョンが見えるようになるまで最大30分待ちます。2つ目のジョブは、npm に公開されたバージョンの integrity がテスト済みの成果物と一致するときだけ GitHub Release を作成します。immutable release は公開後にアセットを変更できないため、ドラフトの段階で成果物を添付してから公開します。
+1つ目のジョブは trusted publishing で成果物を provenance 付きで npm に公開します。npm は新しいバージョンを配信前に[スキャンする](https://github.blog/changelog/2026-07-28-npm-publish-time-malware-scanning-and-dual-use-metadata/)ため、2つ目のジョブはバージョンが見えるようになるまで最大30分待ちます。そのうえで、npm に公開されたバージョンの integrity がテスト済みの成果物と一致するときだけ GitHub Release を作成します。immutable release は公開後にアセットを変更できないため、ドラフトの段階で成果物を添付してから公開します。
 
 ワークフローはリポジトリ外の2つの設定に依存します。
 

@@ -36,6 +36,9 @@ jobs:
 
       - name: Set up tools
         uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        with:
+          # This job packs the artifact that the Release workflow publishes, so its tools never come from a cache.
+          cache: false
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -51,6 +54,16 @@ jobs:
           mkdir -p "$RUNNER_TEMP/package"
           bun pm pack --ignore-scripts --destination "$RUNNER_TEMP/package" --quiet
 
+      # Uploaded straight after packing, before any later step installs or runs the tarball.
+      - name: Upload npm artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: npm-package
+          path: ${{ runner.temp }}/package/*.tgz
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 7
+
       - name: Smoke-test installed npm artifact
         run: |
           package_test_dir=$(mktemp -d)
@@ -65,15 +78,6 @@ jobs:
 
       - name: Smoke-test standalone executable
         run: ./freee --version
-
-      - name: Upload npm artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: npm-package
-          path: ${{ runner.temp }}/package/*.tgz
-          if-no-files-found: error
-          overwrite: true
-          retention-days: 7
 
   secrets:
     runs-on: ubuntu-latest
