@@ -1,0 +1,240 @@
+<h1 align="center">freee-cli</h1>
+
+<p align="center">
+  An unofficial CLI for the <a href="https://developer.freee.co.jp/">freee API</a>.
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/freee-cli"><img src="https://img.shields.io/npm/v/freee-cli" alt="npm version"></a>
+  <a href="https://github.com/Hiro5409/freee-cli/actions/workflows/ci.yml"><img src="https://github.com/Hiro5409/freee-cli/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/github/license/Hiro5409/freee-cli" alt="License: MIT"></a>
+</p>
+
+<p align="center">
+  English | <a href="README.ja.md">日本語</a>
+</p>
+
+## Why a CLI?
+
+freee already provides an [official MCP server](https://github.com/freee/freee-mcp).
+freee-cli exists because we believe a CLI is the better interface for coding agents that already have shell access.
+
+A CLI gives agents the same interface used by developers, scripts, and CI.
+Commands can be discovered with `--help`, composed with files and pipes, and run directly when debugging.
+
+freee-cli therefore exposes small freee operations rather than application-specific workflows, with JSON output, structured errors, and focused `--dry-run` previews where they reveal more than the supplied arguments.
+
+## Generated from official schemas
+
+API clients are generated from freee's maintained [OpenAPI schemas](https://github.com/freee/freee-api-schema).
+
+## Quick Start
+
+```bash
+bunx freee-cli setup
+```
+
+## Installation
+
+```bash
+bun add -g freee-cli
+```
+
+## Usage
+
+```bash
+freee --help
+freee <command> --help
+```
+
+### Authentication
+
+```bash
+freee login --profile personal
+freee profile-list
+freee company-list
+freee company-switch --id 1234567 --name "My Company"
+```
+
+### Accounting
+
+```bash
+freee deal-list --month 2026-08
+freee deal-create --date 2026-08-15 --type expense \
+  --account-item-id 123 --tax-code 136 --amount 5000
+freee wallet-txn-list --month 2026-08 --status unreconciled
+freee wallet-txn-show --id 42
+freee transfer-list --month 2026-08
+freee transfer-create --date 2026-08-01 \
+  --from-walletable-id 10 --from-walletable-type bank_account \
+  --to '{"type":"credit_card","id":20,"amount":5000}'
+freee file-box-list --start-date 2026-08-01 --end-date 2026-08-31 --category without-deal
+freee file-box-upload --file receipt.jpg
+freee section-list
+freee tag-list
+freee segment-tag-list --segment 1
+freee bs --fiscal-year 2025
+freee pl --fiscal-year 2025
+freee general-ledger --start-date 2025-01-01 --end-date 2025-12-31 \
+  --account-item-name Sales --format json
+freee journal-export --download-type generic_v2 --encoding utf-8 \
+  --start-date 2025-01-01 --end-date 2025-12-31 --output journal-2025.csv
+```
+
+### Auto-registration rules
+
+```bash
+freee auto-rule-list --active active
+freee auto-rule-create --act auto-standard --description AMAZON --condition partial \
+  --entry-side expense --priority 5 --tax-name 課対仕入10% \
+  --account-item-name 消耗品費 --qualified-invoice-setting qualified --dry-run
+freee auto-rule-update --id 42 --account-item-name 通信費 --dry-run
+freee auto-rule-update --id 42 --clear walletable --dry-run --format json
+freee auto-rule-disable --id 42 --dry-run
+freee wallet-txn-create --date 2026-08-01 --entry-side expense --amount 5000 \
+  --walletable-id 55 --walletable-type credit_card --description AMAZON.CO.JP
+```
+
+`auto-rule-update --clear <field>` removes an optional rule condition by sending JSON `null`.
+Repeat `--clear` to remove multiple conditions in one full-state update; fields not named in the
+command keep their current values.
+
+### Invoices
+
+```bash
+freee invoice-list --sending-status unsent
+freee invoice-create --partner-id 123 --billing-date 2026-08-01 \
+  --line '{"description":"Consulting","quantity":1,"unit_price":"100000","tax_rate":10,"account_item_id":123,"tax_code":129}'
+freee invoice-update --id 456 --subject "August invoice" --dry-run
+```
+
+### Quotations
+
+Quotations use the freee invoice API and their own document templates.
+
+```bash
+freee quotation-list --month 2026-10 --format json
+freee quotation-show --id 456 --format json
+freee quotation-template-list --format json
+freee quotation-create --partner-id 123 --quotation-date 2026-10-01 \
+  --expiration-date 2026-10-31 --subject "Development estimate" \
+  --line '{"description":"Development","quantity":1,"unit_price":"100000","tax_rate":10}' --format json
+```
+
+Use either `--partner-id` or `--partner-code`. Repeat `--line` for multiple lines;
+text lines accept only `type` and `description`. `--delivery-deadline` and
+`--delivery-location` set delivery terms. Pass `--quotation-number` when the company
+does not auto-number quotations. Creating a quotation saves the document without sending it.
+
+### Human resources
+
+```bash
+freee hr-employee-list --month 2026-08
+freee hr-payroll-list --month 2026-08
+```
+
+### Experimental freee Web operations
+
+`freee setup` can enable Web-only operations for an OAuth profile. They require [Agent Browser](https://github.com/vercel-labs/agent-browser) and a separate Agent Browser Auth Profile. freee-cli stores only the Auth Profile name; Agent Browser owns the login and saved session.
+
+Before the first Web operation, set `AGENT_BROWSER_ENCRYPTION_KEY` to 64 hexadecimal characters or store the key in `~/.agent-browser/.encryption-key`.
+
+```bash
+freee walletable-list
+freee wallet-txn-list --status unreconciled
+freee web wallet-txn apply-rules --dry-run --format json
+freee web wallet-txn apply-rules
+freee web wallet-txn ignore --id 42
+freee web wallet-txn register --id 42 --account-item-name "通信費" --tax-name "課対仕入10%" --dry-run --format json
+freee web wallet-txn register --id 42 --account-item-name "通信費" --tax-name "課対仕入10%"
+freee web wallet-txn settle --id 42 --deal-id 91 --amount 10000 --dry-run --format json
+freee web wallet-txn settle --id 42 --deal-id 91 --amount 10000
+freee web wallet-txn transfer --id 42 --counterparty-walletable-name "事業主借" --dry-run --format json
+freee web wallet-txn transfer --id 42 --counterparty-walletable-name "事業主借"
+freee wallet-txn-list --status ignored
+freee web wallet-txn restore --id 42
+freee web invoice set-sending-status --id 456 --status sent
+freee web invoice set-sending-status --id 456 --status unsent
+freee invoice-list --deal-status unregistered --cancel-status uncanceled
+freee web invoice register-deal --id 456
+freee web walletable sync --id 42
+freee web walletable sync --all
+```
+
+These commands are temporary bridges for capabilities missing from freee's official APIs. See the [Web operations module](src/plugins/web-operations/README.md) for why each command exists and the condition for replacing it with a stable command.
+
+Use `freee walletable-list` to obtain the walletable ID from the official API. The `freee web walletable sync` command starts synchronization and waits for completion for up to one hour. Table output reports state changes to stderr; JSON output suppresses that progress so stdout remains machine-readable.
+
+With `--all`, freee selects the eligible walletables that participate. The result includes only walletables whose synchronization started and completed; use `--id` when a candidate was not selected.
+
+These commands use observed, unsupported freee Web interfaces. They fail when an observed response no longer matches the expected shape and are excluded from the stability expectations of commands generated from official OpenAPI schemas.
+
+Bun applications can use the experimental freee Web operations directly:
+
+```ts
+import { withFreeeWeb } from "freee-cli/experimental/web";
+```
+
+The caller owns operation sequencing and supplies the company ID and Auth Profile. Preview methods do not write. Methods that register, settle, transfer, ignore, restore, change an invoice's sending status, register an invoice, or apply auto-rules write immediately and have no generic dry-run. If an `OutcomeUnknownError` is returned, inspect the affected resource in freee before retrying because the write may already have completed.
+
+## Calling from Agents
+
+```bash
+gh skill install Hiro5409/freee-cli freee-cli
+```
+
+## Development
+
+Install and [activate mise](https://mise.jdx.dev/getting-started.html). `mise.toml` pins Bun, Node.js, GitHub CLI, Gitleaks, and Lefthook and puts the locally installed Vite+ commands on `PATH`:
+
+```bash
+mise trust
+mise install
+bun install --frozen-lockfile
+lefthook install
+bun run check
+```
+
+[Lefthook](https://lefthook.dev/) runs the Git hooks defined in `lefthook.yml`. The pre-commit hook formats, lints, and type-checks staged files, then scans them for secrets with Gitleaks. The pre-push hook runs `bun audit --audit-level=high`, the same audit that CI runs. The post-checkout hook installs dependencies from the lockfile when `node_modules` is missing. CI runs the full `bun run check` and scans Git history with the same Gitleaks version.
+
+## Releases
+
+A maintainer releases from `main`: commit the new `version` in `package.json`, push the commit to `main`, then push the annotated tag for that version:
+
+```bash
+git tag -a v1.2.3 --cleanup=verbatim -F - <<'NOTES'
+## Changes
+
+- Describe a change a user will notice.
+NOTES
+git push origin v1.2.3
+```
+
+The tag message lists, as Markdown, the changes a user will notice, and becomes the GitHub Release notes. Git reads it from standard input, and `--cleanup=verbatim` keeps lines that start with `#`, such as headings, which Git otherwise strips as comments.
+
+The tag starts the Release workflow. The workflow verifies that the tag is annotated, matches `package.json`, and belongs to `main`, then runs CI on the tagged commit. CI packs the npm artifact once and smoke-tests that tarball, and both publishing jobs download the tested artifact instead of building it again.
+
+The first job publishes the artifact to npm through trusted publishing, with provenance. npm [scans a new version](https://github.blog/changelog/2026-07-28-npm-publish-time-malware-scanning-and-dual-use-metadata/) before serving it, so the second job waits up to 30 minutes for the version to become visible. It creates the GitHub Release only when the version published on npm has the integrity of the tested artifact. It attaches the artifact while the release is still a draft and then publishes it, because an immutable release locks its assets once it is published.
+
+The workflow relies on two settings outside the repository:
+
+- An npm [trusted publisher](https://docs.npmjs.com/trusted-publishers/) for user `Hiro5409`, repository `freee-cli`, and workflow filename `release.yml`, with no environment.
+- [Immutable releases](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases) for the repository, so that the tag and the attached artifact of a published GitHub Release cannot change.
+
+To retry a failed run, run the workflow again from its tag:
+
+```bash
+gh workflow run release.yml --ref v1.2.3
+```
+
+This run packs and tests the tagged commit again; packing is reproducible, so it tests the artifact an earlier run published. Every run acts on what it finds: it publishes the artifact while the version is not visible on npm, and creates the GitHub Release while no published release exists for the tag. A published release that carries the tested artifact is complete, and the run leaves it as it is. A run started from a branch stops at tag verification; the workflow never changes `main`, the version, or tags.
+
+A run stops when it cannot read npm or GitHub, when the published version differs from the tested artifact, and when a published release lacks the tested artifact or carries one with a different digest. The workflow does not repair such a release.
+
+A run fails when npm does not serve the version within 30 minutes. Run the workflow again once the version is visible on npm; a run that starts earlier attempts to publish the version again.
+
+GitHub CLI attempts to delete its draft when attaching the artifact or publishing the release fails. A failed cleanup or an interrupted run can leave a draft release behind; the workflow does not look for drafts, so a maintainer deletes it.
+
+## License
+
+MIT
