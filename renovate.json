@@ -8,7 +8,6 @@
     "group:vitePlus"
   ],
   "timezone": "Asia/Tokyo",
-  "automerge": false,
   "minimumReleaseAge": "1 day",
   "internalChecksFilter": "strict",
   "prConcurrentLimit": 2,
@@ -24,15 +23,10 @@
       "dependencyDashboardApproval": true
     },
     {
-      "description": "Preserve dependency overrides as repository compatibility decisions.",
+      "description": "Preserve compatibility overrides except the core package updated with Vite+.",
       "matchDepTypes": ["overrides"],
+      "matchPackageNames": ["!@voidzero-dev/vite-plus-core"],
       "enabled": false
-    },
-    {
-      "description": "Keep the Vite core override eligible for coordinated Vite+ updates.",
-      "matchDepTypes": ["overrides"],
-      "matchPackageNames": ["@voidzero-dev/vite-plus-core"],
-      "enabled": true
     }
   ]
 }
