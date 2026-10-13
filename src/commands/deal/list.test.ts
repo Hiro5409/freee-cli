@@ -121,7 +121,7 @@ describe("deal list command", () => {
         expect(new URL(request.url).searchParams.get("limit")).toBe("1");
         return new Response(
           JSON.stringify({
-            deals: [createMockDeal({ id: 1 }), createMockDeal({ id: 2 })],
+            deals: [createMockDeal({ id: 1 })],
             meta: { total_count: 2 },
           }),
           { headers: { "Content-Type": "application/json" } },

@@ -135,7 +135,7 @@ describe("invoice list command", () => {
   });
 
   test("freee が受け付けないステータスは API を叩く前に弾く", async () => {
-    expect(
+    await expect(
       cli(["--company-id", "123", "--sending-status", "draft"], invoiceListCommand),
     ).rejects.toThrow();
   });

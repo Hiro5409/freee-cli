@@ -1,7 +1,7 @@
 import { define } from "gunshi";
 import { args, choice, merge, string } from "gunshi/combinators";
 
-import { fetchAll } from "../../api/paginate.ts";
+import { fetchAllInvoiceRecords } from "../../api/invoice-paginate.ts";
 import { monthArg } from "../../cli-input.ts";
 import { listArgs } from "../../global-args.ts";
 import { initCommand, monthToDateRange } from "../../helpers.ts";
@@ -29,7 +29,7 @@ export const quotationListCommand = define({
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const month = ctx.values.month ? monthToDateRange(ctx.values.month) : undefined;
-    const quotations = await fetchAll(async (offset, limit) => {
+    const quotations = await fetchAllInvoiceRecords(async (offset, limit) => {
       const { data } = await quotationsIndex({
         query: {
           company_id: companyId,

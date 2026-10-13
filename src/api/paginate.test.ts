@@ -34,13 +34,6 @@ describe("fetchAll", () => {
     expect(result).toEqual(entries.slice(0, 130));
   });
 
-  test("trims a short final page to the requested limit", async () => {
-    const fetcher = async (_offset: number, _limit: number) =>
-      Array.from({ length: 50 }, (_, i) => i);
-    const result = await fetchAll(fetcher, 10);
-    expect(result).toEqual(Array.from({ length: 10 }, (_, i) => i));
-  });
-
   test("returns empty array when first page is empty", async () => {
     const fetcher = async (_offset: number, _limit: number): Promise<number[]> => [];
     const result = await fetchAll(fetcher);

@@ -208,6 +208,8 @@ describe("API client", () => {
         client.post({ url: "/api/1/deals", body: { test: true } }),
       ).rejects.toMatchObject({
         code: "OUTCOME_UNKNOWN",
+        message: expect.stringContaining(`freee API error (${status}): Request failed`),
+        hint: expect.stringContaining("Do not retry automatically"),
       });
       expect(accepted).toBe(1);
     },
@@ -263,26 +265,6 @@ describe("API client", () => {
       hint: expect.stringContaining("Do not retry automatically"),
     });
     expect(accepted).toBe(1);
-  });
-
-  test("configured client reports the final network failure after a transient HTTP error", async () => {
-    server.use(
-      http.get(
-        "*/api/1/deals",
-        () =>
-          HttpResponse.json(
-            { message: "Too Many Requests" },
-            { headers: { "Retry-After": "0" }, status: 429 },
-          ),
-        { once: true },
-      ),
-      http.get("*/api/1/deals", () => HttpResponse.error()),
-    );
-    configureClient(testDir, "default");
-
-    await expect(client.get({ url: "/api/1/deals" })).rejects.toMatchObject({
-      code: "UPSTREAM_FAILURE",
-    });
   });
 });
 

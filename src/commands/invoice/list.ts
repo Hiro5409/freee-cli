@@ -1,7 +1,7 @@
 import { define } from "gunshi";
 import { args, choice, merge, string } from "gunshi/combinators";
 
-import { fetchAll } from "../../api/paginate.ts";
+import { fetchAllInvoiceRecords } from "../../api/invoice-paginate.ts";
 import { PositiveIntegerTextSchema, monthArg, parseCliInput } from "../../cli-input.ts";
 import { CliError } from "../../errors.ts";
 import { listArgs } from "../../global-args.ts";
@@ -60,7 +60,7 @@ export const invoiceListCommand = define({
       cancel_status: ctx.values["cancel-status"],
     };
 
-    const invoices = await fetchAll(async (offset, limit) => {
+    const invoices = await fetchAllInvoiceRecords(async (offset, limit) => {
       const { data } = await invoicesIndex({ query: { ...query, offset, limit } });
       return data.invoices;
     }, ctx.values.limit);

@@ -18,14 +18,29 @@ type FreeeClient = typeof client | typeof hrClient | typeof invoiceClient;
 const apiFetch = Object.assign(
   async (request: Parameters<typeof fetch>[0]) => {
     try {
-      return await ky(request, { retry: { methods: ["get", "head"] } });
+      return await ky(request, {
+        retry: { methods: ["get", "head"] },
+        // Upload duration depends on document size and uplink speed; callers can still abort.
+        timeout:
+          request instanceof Request &&
+          request.headers.get("content-type")?.startsWith("multipart/form-data")
+            ? false
+            : undefined,
+      });
     } catch (error) {
       if (
         request instanceof Request &&
         isWrite(request) &&
         (!isHTTPError(error) || error.response.status === 408 || error.response.status >= 500)
       ) {
-        throw new OutcomeUnknownError("Could not confirm the freee API write.", { cause: error });
+        const detail = isHTTPError(error)
+          ? freeeApiError(error.data ?? error, { status: error.response.status }).message
+          : error instanceof Error
+            ? error.name
+            : "Transport error";
+        throw new OutcomeUnknownError(`Could not confirm the freee API write: ${detail}`, {
+          cause: error,
+        });
       }
       throw error;
     }
