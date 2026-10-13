@@ -3,7 +3,7 @@ import { mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { HttpResponse, http, passthrough } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 
 import { loadCredentials, saveCredentials, updateCredentials } from "../config/credentials.ts";
@@ -43,13 +43,10 @@ afterEach(() => {
     throwOnError: true,
   });
   client.interceptors.request.clear();
-  client.interceptors.response.clear();
   client.interceptors.error.clear();
   invoiceClient.interceptors.request.clear();
-  invoiceClient.interceptors.response.clear();
   invoiceClient.interceptors.error.clear();
   hrClient.interceptors.request.clear();
-  hrClient.interceptors.response.clear();
   hrClient.interceptors.error.clear();
   rmSync(testDir, { recursive: true, force: true });
 });
@@ -128,34 +125,25 @@ describe("API client", () => {
   });
 
   test("configured invoice client preserves HTTP error details and product-specific guidance", async () => {
-    // Exercise a real response stream: Bun/MSW JSON fixtures can expose an empty reader.
-    const api = Bun.serve({
-      hostname: "127.0.0.1",
-      port: 0,
-      fetch: () =>
-        Response.json(
+    server.use(
+      http.get("https://api.freee.co.jp/iv/error", () =>
+        HttpResponse.json(
           {
             status_code: 403,
             errors: [{ type: "status", messages: ["この操作を行う権限がありません。"] }],
           },
           { status: 403 },
         ),
-    });
-    server.use(http.get(new URL("error", api.url).href, passthrough));
+      ),
+    );
     configureClient(testDir, "default");
 
-    try {
-      await expect(
-        invoiceClient.get({ baseUrl: api.url.origin, url: "/error" }),
-      ).rejects.toMatchObject({
-        code: "ACCESS_DENIED",
-        exitCode: 2,
-        hint: errorHints.invoiceAccess,
-        message: expect.stringContaining("この操作を行う権限がありません。"),
-      });
-    } finally {
-      await api.stop(true);
-    }
+    await expect(invoiceClient.get({ url: "/error" })).rejects.toMatchObject({
+      code: "ACCESS_DENIED",
+      exitCode: 2,
+      hint: errorHints.invoiceAccess,
+      message: expect.stringContaining("この操作を行う権限がありません。"),
+    });
   });
 
   test("configured client retries read-only transient responses", async () => {
@@ -203,6 +191,79 @@ describe("API client", () => {
       expect(callCount).toBe(1);
     },
   );
+
+  test.each([408, 503])(
+    "a %s write response does not prove the write was rejected",
+    async (status) => {
+      let accepted = 0;
+      server.use(
+        http.post("*/api/1/deals", () => {
+          accepted++;
+          return HttpResponse.json({ message: "Request failed" }, { status });
+        }),
+      );
+      configureClient(testDir, "default");
+
+      await expect(
+        client.post({ url: "/api/1/deals", body: { test: true } }),
+      ).rejects.toMatchObject({
+        code: "OUTCOME_UNKNOWN",
+      });
+      expect(accepted).toBe(1);
+    },
+  );
+
+  test("an unreadable successful write response requires checking the resource", async () => {
+    server.use(
+      http.post(
+        "*/api/1/deals",
+        () =>
+          new HttpResponse("{invalid", {
+            headers: { "Content-Type": "application/json" },
+          }),
+      ),
+    );
+    configureClient(testDir, "default");
+
+    await expect(client.post({ url: "/api/1/deals", body: { test: true } })).rejects.toMatchObject({
+      code: "OUTCOME_UNKNOWN",
+    });
+  });
+
+  test("missing credentials reject a write before dispatch with authentication guidance", async () => {
+    saveCredentials(testDir, {});
+    let writes = 0;
+    server.use(
+      http.post("*/api/1/deals", () => {
+        writes++;
+        return HttpResponse.json({ deal: { id: 1 } });
+      }),
+    );
+    configureClient(testDir, "default");
+
+    await expect(client.post({ url: "/api/1/deals", body: { test: true } })).rejects.toMatchObject({
+      code: "AUTHENTICATION",
+      hint: errorHints.authentication,
+    });
+    expect(writes).toBe(0);
+  });
+
+  test("a lost write response requires checking the resource before retrying", async () => {
+    let accepted = 0;
+    server.use(
+      http.post("*/api/1/deals", () => {
+        accepted++;
+        return HttpResponse.error();
+      }),
+    );
+    configureClient(testDir, "default");
+
+    await expect(client.post({ url: "/api/1/deals", body: { test: true } })).rejects.toMatchObject({
+      code: "OUTCOME_UNKNOWN",
+      hint: expect.stringContaining("Do not retry automatically"),
+    });
+    expect(accepted).toBe(1);
+  });
 
   test("configured client reports the final network failure after a transient HTTP error", async () => {
     server.use(

@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { cli } from "gunshi";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { loadConfig, saveConfig } from "../../config/config.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import { companySetDefaultCommand } from "./set-default.ts";
 
@@ -28,6 +29,19 @@ describe("company set-default command", () => {
       await expect(cli(["--id", id], companySetDefaultCommand)).rejects.toThrow();
       expect(existsSync(join(testDir, "config.json"))).toBe(false);
     }
+  });
+
+  test("switches company while preserving the profile's Web authentication", async () => {
+    const experimental = { web: { authProfile: "test-freee" } };
+    saveConfig(testDir, {
+      activeProfile: "default",
+      defaults: { format: "json" },
+      profiles: { default: { companyId: 1, name: "First company", experimental } },
+    });
+
+    await cli(["--id", "2", "--format", "json"], companySetDefaultCommand);
+
+    expect(loadConfig(testDir).profiles.default).toEqual({ companyId: 2, name: "2", experimental });
   });
 
   test("stores and returns a numeric company ID", async () => {

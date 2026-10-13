@@ -5,12 +5,12 @@ export async function fetchAll<T>(
   limit?: number,
 ): Promise<T[]> {
   const all: T[] = [];
+  const pageSize = Math.min(PAGE_SIZE, limit ?? PAGE_SIZE);
   for (let offset = 0; ;) {
-    const pageSize = limit === undefined ? PAGE_SIZE : Math.min(PAGE_SIZE, limit - all.length);
     if (pageSize === 0) break;
 
     const page = await fetcher(offset, pageSize);
-    all.push(...page.slice(0, pageSize));
+    all.push(...page.slice(0, limit === undefined ? pageSize : limit - all.length));
     if (page.length < pageSize || all.length === limit) break;
     offset += pageSize;
   }

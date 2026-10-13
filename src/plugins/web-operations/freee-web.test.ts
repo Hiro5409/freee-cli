@@ -1,17 +1,20 @@
-import { afterEach, describe, expect, spyOn, test } from "bun:test";
-import { createHash } from "node:crypto";
+import { afterEach, beforeEach, describe, expect, spyOn, test } from "bun:test";
+import { createHash, randomUUID } from "node:crypto";
+import { createContext, runInContext } from "node:vm";
 
 import { OutcomeUnknownError } from "../../errors.ts";
 import {
   type FreeeWebRegistration,
+  type FreeeWebScope,
   type FreeeWebWalletTransaction,
   withFreeeWeb,
 } from "./freee-web.ts";
 
 const companyId = 1_234_567;
-const webScope = { companyId, authProfile: "test-freee" } as const;
-const origin = "https://secure.freee.co.jp";
+let webScope: FreeeWebScope;
 const invoiceOrigin = "https://invoice.secure.freee.co.jp";
+const loginOrigin = "https://accounts.secure.freee.co.jp";
+const csrfToken = "csrf-token-value";
 const encryptionKey = "a".repeat(64);
 const previousEncryptionKey = Bun.env.AGENT_BROWSER_ENCRYPTION_KEY;
 const previousHome = Bun.env.HOME;
@@ -22,6 +25,11 @@ function expectedSessionId(prefix: string, scopedCompanyId: number, authProfile:
   return `${prefix}-${scopedCompanyId}-${profileKey}`;
 }
 
+// Session locks live in a machine-wide directory, so each test owns its Auth Profile.
+beforeEach(() => {
+  webScope = { companyId, authProfile: `test-${randomUUID()}` };
+});
+
 afterEach(() => {
   if (previousEncryptionKey === undefined) delete Bun.env.AGENT_BROWSER_ENCRYPTION_KEY;
   else Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = previousEncryptionKey;
@@ -31,28 +39,121 @@ afterEach(() => {
   else Bun.env.USERPROFILE = previousUserProfile;
 });
 
-function agentBrowserSuccess(data: unknown): string {
-  return JSON.stringify({ success: true, data, error: null });
-}
+type PageResponse = { status?: number; body?: unknown };
+type PageRequest = {
+  method: string;
+  path: string;
+  headers: Record<string, string>;
+  body: unknown;
+};
+type FreeePage = {
+  origin: string;
+  meta: Record<string, string>;
+  responses: Array<PageResponse | (() => PageResponse)>;
+  requests: PageRequest[];
+  resourceTimingClears: number;
+};
 
-function webResponse(body: unknown, status = 200) {
+// The page state that scripts sent to Agent Browser observe: where the tab is, which
+// Company and CSRF token its document declares, and what the network answers in order.
+function freeePage(responses: FreeePage["responses"] = []): FreeePage {
   return {
-    result: JSON.stringify({
-      origin,
-      status,
-      body: typeof body === "string" ? body : JSON.stringify(body),
-    }),
+    origin: "about:blank",
+    meta: { "company-id": String(companyId), "csrf-token": csrfToken },
+    responses,
+    requests: [],
+    resourceTimingClears: 0,
   };
 }
 
-function invoiceWebResponse(body: unknown, status = 200) {
+function appState(appStateCompanyId: number): PageResponse {
+  return { body: { company: { id: appStateCompanyId } } };
+}
+
+function metaElement(page: FreeePage, selector: string) {
+  const names = [...selector.matchAll(/meta\[name="([^"]+)"\]/g)].map((match) => match[1]);
+  if (names.length === 0) throw new Error(`unsupported selector: ${selector}`);
+  const name = names.find((candidate) => candidate !== undefined && candidate in page.meta);
+  if (name === undefined) return null;
   return {
-    result: JSON.stringify({
-      origin: invoiceOrigin,
-      status,
-      body: typeof body === "string" ? body : JSON.stringify(body),
-    }),
+    getAttribute: (attribute: string) => (attribute === "content" ? page.meta[name] : null),
   };
+}
+
+async function evaluateInPage(page: FreeePage, script: string): Promise<string> {
+  const context = createContext({
+    Headers,
+    location: {
+      get origin() {
+        return page.origin;
+      },
+    },
+    document: { querySelector: (selector: string) => metaElement(page, selector) },
+    performance: {
+      clearResourceTimings() {
+        page.resourceTimingClears += 1;
+      },
+    },
+    async fetch(path: string, init: RequestInit = {}) {
+      page.requests.push({
+        method: init.method ?? "GET",
+        path,
+        headers: Object.fromEntries(new Headers(init.headers)),
+        body: typeof init.body === "string" ? JSON.parse(init.body) : init.body,
+      });
+      const next = page.responses.shift();
+      if (!next) throw new Error(`unexpected fetch: ${path}`);
+      const { status = 200, body } = typeof next === "function" ? next() : next;
+      const text = typeof body === "string" ? body : JSON.stringify(body);
+      return new Response(text || null, { status });
+    },
+  });
+  return String(await runInContext(script, context));
+}
+
+function mockAgentBrowser(
+  page: FreeePage,
+  commandResult: (command: string[]) => unknown = () => null,
+) {
+  const commands: string[][] = [];
+  const respond = async (command: string[], stdin: string): Promise<unknown> => {
+    if (command.includes("state") && command.includes("list")) return { files: [] };
+    if (command.includes("eval")) return { result: await evaluateInPage(page, stdin) };
+    if (command.at(-2) === "open") page.origin = new URL(command.at(-1) ?? "").origin;
+    return commandResult(command);
+  };
+  const spawn = spyOn(Bun, "spawn").mockImplementation(((command: string[]) => {
+    commands.push([...command]);
+    let stdin = "";
+    const stdout = Promise.withResolvers<string>();
+    return {
+      exited: stdout.promise.then(() => 0),
+      killed: false,
+      stdin: {
+        write(value: string | Uint8Array) {
+          stdin += typeof value === "string" ? value : new TextDecoder().decode(value);
+        },
+        end() {
+          stdout.resolve(
+            respond(command, stdin).then(
+              (data) => JSON.stringify({ success: true, data, error: null }),
+              (error: { message?: unknown }) =>
+                JSON.stringify({ success: false, error: String(error.message) }),
+            ),
+          );
+        },
+      },
+      stdout: new ReadableStream<Uint8Array>({
+        async start(controller) {
+          controller.enqueue(new TextEncoder().encode(await stdout.promise));
+          controller.close();
+        },
+      }),
+      stderr: new Response("").body,
+      kill() {},
+    };
+  }) as typeof Bun.spawn);
+  return { commands, spawn };
 }
 
 function invoiceSaveRequest(invoiceId: number, status: number) {
@@ -65,6 +166,11 @@ function invoiceSaveRequest(invoiceId: number, status: number) {
       },
     ],
   };
+}
+
+function observedInvoiceSave(status: number) {
+  return (command: string[]) =>
+    command.includes("--filter") ? invoiceSaveRequest(77, status) : null;
 }
 
 function previewResponse() {
@@ -80,60 +186,7 @@ function previewResponse() {
   };
 }
 
-function mockAgentBrowser(responses: unknown[]) {
-  const commands: string[][] = [];
-  const standardInputs: string[] = [];
-  const spawn = spyOn(Bun, "spawn").mockImplementation(((command: string[]) => {
-    const inputIndex = commands.length;
-    commands.push([...command]);
-    let stdout: string;
-    if (command.includes("state") && command.includes("list")) {
-      stdout = agentBrowserSuccess({ files: [] });
-    } else {
-      if (responses.length === 0) throw new Error(`unexpected command: ${command.join(" ")}`);
-      const response = responses.shift();
-      stdout =
-        response instanceof Error
-          ? JSON.stringify({ success: false, error: response.message })
-          : agentBrowserSuccess(response);
-    }
-    return {
-      exited: Promise.resolve(0),
-      killed: false,
-      stdin: {
-        write(value: string | Uint8Array) {
-          standardInputs[inputIndex] =
-            typeof value === "string" ? value : new TextDecoder().decode(value);
-        },
-        end() {},
-      },
-      stdout: new Response(stdout).body,
-      stderr: new Response("").body,
-      kill() {},
-    };
-  }) as typeof Bun.spawn);
-  return { commands, standardInputs, spawn };
-}
-
-function requestFromScript(script: string) {
-  const path = script.match(/const response = await fetch\(("[^"]+"),/);
-  const method = script.match(/method: ("(?:GET|POST|PUT)"),/);
-  const body = script.match(/body: JSON\.stringify\((.+)\)\n/);
-  if (!path || !method) throw new Error("request script is malformed");
-  return {
-    method: JSON.parse(method[1] as string),
-    path: JSON.parse(path[1] as string),
-    body: body ? JSON.parse(body[1] as string) : undefined,
-    script,
-  };
-}
-
-function requestMatching(
-  requests: ReturnType<typeof requestFromScript>[],
-  method: string,
-  path: string,
-  occurrence = 0,
-) {
+function requestMatching(requests: PageRequest[], method: string, path: string, occurrence = 0) {
   const matches = requests.filter((request) => request.method === method && request.path === path);
   const request = matches[occurrence];
   if (!request) throw new Error(`request not found: ${method} ${path}`);
@@ -187,82 +240,80 @@ describe("Agent Browserのfreeeセッション", () => {
 
   test("Auth Profileをsession IDへ含め、事業所不一致時は同じsessionの復旧手順を示す", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { commands, spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId: 999 }) },
-      null,
-    ]);
+    const page = freeePage();
+    page.meta["company-id"] = "999";
+    const { commands, spawn } = mockAgentBrowser(page);
     try {
-      const result = expect(
-        withFreeeWeb({ companyId, authProfile: "business-freee" }, async () => undefined),
-      ).rejects;
+      const result = expect(withFreeeWeb(webScope, async () => undefined)).rejects;
       await result.toThrow(
-        `agent-browser --namespace freee-web --session ${expectedSessionId("fb", companyId, "business-freee")} --restore --headed open "https://secure.freee.co.jp/"`,
+        `agent-browser --namespace freee-web --session ${expectedSessionId("fb", companyId, webScope.authProfile)} --restore --headed open "https://secure.freee.co.jp/"`,
       );
       await result.toThrow("別名のAuth Profile");
-      await result.toThrow("現在のAuth Profileはbusiness-freee");
+      await result.toThrow(`現在のAuth Profileは${webScope.authProfile}`);
     } finally {
       spawn.mockRestore();
     }
-    expect(commands.flat()).toContain(expectedSessionId("fb", companyId, "business-freee"));
+    expect(commands.flat()).toContain(expectedSessionId("fb", companyId, webScope.authProfile));
   });
 
-  test("Web内部APIのmethod、path、payloadをAdapter境界で固定する", async () => {
+  test("Web内部APIのmethod、path、header、payloadをページのfetch境界で固定する", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
     const registrationResult = { wallet_txn: { id: 42, status: 2 } };
-    const { commands, standardInputs, spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      webResponse({
-        id: 42,
-        company_id: companyId,
-        description: walletTransaction.description,
-        entry_side_str: "expense",
-        get_received_amount: 0,
-        get_spent_amount: 1_000,
-        status: 1,
-        status_str: "未処理",
-        txn_date: "2026-08-24",
-        updated_at: "2026-08-24T00:00:00+09:00",
-        walletable_id: 7,
-        walletable_name: "銀行",
-      }),
-      webResponse(previewResponse()),
-      webResponse(registrationResult),
-      webResponse(previewResponse()),
-      webResponse(registrationResult),
-      webResponse(previewResponse()),
-      webResponse(registrationResult),
-      webResponse("", 204),
-      webResponse("", 204),
-      webResponse({
-        info: { matchCount: 2, tooManyUnreconciledWalletTxns: false },
-      }),
-      webResponse({ wallet_txn_ids: [42, 43] }),
-      webResponse({
-        walletables: [
-          {
-            walletable_id: 7,
-            name: "銀行",
-            walletable_type: "bank_account",
-            walletable_status: "synced",
-            last_synced_at: "2026-08-24T01:00:00.000Z",
-            connected_service_id: 70,
-            is_sync_frequency_limited: false,
-            sync_failed_reason: null,
-          },
-        ],
-        summary: { has_syncing: false, available_sync_all: true, ready_to_sync_all: true },
-      }),
-      webResponse({}),
-      webResponse({
-        walletable_status: "synced",
-        last_synced_at: "2026-08-24T01:10:00.000Z",
-        sync_failed_reason: null,
-      }),
-      webResponse({}),
-      null,
+    const page = freeePage([
+      {
+        body: {
+          id: 42,
+          company_id: companyId,
+          description: walletTransaction.description,
+          entry_side_str: "expense",
+          get_received_amount: 0,
+          get_spent_amount: 1_000,
+          status: 1,
+          status_str: "未処理",
+          txn_date: "2026-08-24",
+          updated_at: "2026-08-24T00:00:00+09:00",
+          walletable_id: 7,
+          walletable_name: "銀行",
+        },
+      },
+      { body: previewResponse() },
+      { body: registrationResult },
+      { body: previewResponse() },
+      { body: registrationResult },
+      { body: previewResponse() },
+      { body: registrationResult },
+      { status: 204, body: "" },
+      { status: 204, body: "" },
+      { body: { info: { matchCount: 2, tooManyUnreconciledWalletTxns: false } } },
+      { body: { wallet_txn_ids: [42, 43] } },
+      {
+        body: {
+          walletables: [
+            {
+              walletable_id: 7,
+              name: "銀行",
+              walletable_type: "bank_account",
+              walletable_status: "synced",
+              last_synced_at: "2026-08-24T01:00:00.000Z",
+              connected_service_id: 70,
+              is_sync_frequency_limited: false,
+              sync_failed_reason: null,
+            },
+          ],
+          summary: { has_syncing: false, available_sync_all: true, ready_to_sync_all: true },
+        },
+      },
+      { body: {} },
+      {
+        body: {
+          walletable_status: "synced",
+          last_synced_at: "2026-08-24T01:10:00.000Z",
+          sync_failed_reason: null,
+        },
+      },
+      { body: {} },
     ]);
+    const { commands, spawn } = mockAgentBrowser(page);
 
     try {
       await withFreeeWeb(webScope, async (web) => {
@@ -318,10 +369,7 @@ describe("Agent Browserのfreeeセッション", () => {
       spawn.mockRestore();
     }
 
-    const requestScripts = standardInputs.filter((script) =>
-      script.includes("const response = await fetch"),
-    );
-    const requests = requestScripts.map(requestFromScript);
+    const requests = page.requests;
     expect(requests.map(({ method, path }) => ({ method, path }))).toEqual([
       { method: "GET", path: "/api/p/wallet_txns/42" },
       { method: "POST", path: "/api/p/wallet_txns/42/previews/standard" },
@@ -428,38 +476,82 @@ describe("Agent Browserのfreeeセッション", () => {
     expect(requestMatching(requests, "POST", "/wallet_txns/bulk_match").body).toBeUndefined();
     for (const request of requests) {
       if (request.method === "GET") {
-        expect(request.script).not.toContain("X-CSRF-Token");
+        expect(request.headers).toEqual({ accept: "application/json" });
       } else {
-        expect(request.script).toContain("X-CSRF-Token");
-        expect(request.script).toContain(
-          request.body === undefined ? "application/x-www-form-urlencoded" : "application/json",
-        );
+        expect(request.headers).toEqual({
+          accept: "application/json",
+          "x-csrf-token": csrfToken,
+          "content-type":
+            request.body === undefined
+              ? "application/x-www-form-urlencoded; charset=UTF-8"
+              : "application/json",
+        });
       }
     }
     expect(commands.at(-1)?.at(-1)).toBe("close");
     expect(commands.flat().join(" ")).not.toContain("secret description");
-    expect(standardInputs.join("\n")).not.toContain("XMLHttpRequest");
+  });
+
+  test.each([
+    [
+      "ログイン画面へ遷移していたら",
+      (page: FreeePage) => {
+        page.origin = loginOrigin;
+      },
+      "Unexpected freee origin",
+    ],
+    [
+      "別の事業所へ切り替わっていたら",
+      (page: FreeePage) => {
+        page.meta["company-id"] = "999";
+      },
+      "FREEE_COMPANY_MISMATCH",
+    ],
+    [
+      "CSRF tokenがなければ",
+      (page: FreeePage) => {
+        page.meta = { "company-id": String(companyId) };
+      },
+      "freee CSRF token is unavailable",
+    ],
+  ])("会計画面が%s書き込みを送信せず確定失敗とする", async (_condition, change, message) => {
+    Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
+    const page = freeePage();
+    const { spawn } = mockAgentBrowser(page);
+    try {
+      const error = await withFreeeWeb(webScope, (web) => {
+        change(page);
+        return web.ignoreWalletTransaction(walletTransaction);
+      }).catch((cause: unknown) => cause);
+      expect(error).toBeInstanceOf(Error);
+      expect(error).not.toBeInstanceOf(OutcomeUnknownError);
+      expect((error as Error).message).toContain(message);
+    } finally {
+      spawn.mockRestore();
+    }
+    expect(page.requests).toEqual([]);
   });
 
   test("仕訳preview末尾の空modelを除外する", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
     const validModel = previewResponse().models[0];
-    const { spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      webResponse({
-        models: [
-          validModel,
-          {
-            txn_date: null,
-            rows: 0,
-            debits: [],
-            credits: [],
+    const { spawn } = mockAgentBrowser(
+      freeePage([
+        {
+          body: {
+            models: [
+              validModel,
+              {
+                txn_date: null,
+                rows: 0,
+                debits: [],
+                credits: [],
+              },
+            ],
           },
-        ],
-      }),
-      null,
-    ]);
+        },
+      ]),
+    );
 
     try {
       await expect(
@@ -485,12 +577,9 @@ describe("Agent Browserのfreeeセッション", () => {
 
   test("walletable summaryの観測schemaが崩れたら失敗する", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      webResponse({ walletables: [{ walletable_id: 7, name: "銀行" }], summary: {} }),
-      null,
-    ]);
+    const { spawn } = mockAgentBrowser(
+      freeePage([{ body: { walletables: [{ walletable_id: 7, name: "銀行" }], summary: {} } }]),
+    );
     try {
       await expect(withFreeeWeb(webScope, (web) => web.walletableSummary())).rejects.toThrow();
     } finally {
@@ -505,11 +594,8 @@ describe("Agent Browserのfreeeセッション", () => {
       ...registration,
       walletTransaction: otherCompanyTransaction,
     };
-    const { standardInputs, spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      null,
-    ]);
+    const page = freeePage();
+    const { spawn } = mockAgentBrowser(page);
     try {
       await withFreeeWeb(webScope, async (web) => {
         const operations = [
@@ -550,22 +636,13 @@ describe("Agent Browserのfreeeセッション", () => {
       spawn.mockRestore();
     }
 
-    expect(
-      standardInputs.filter((script) => script.includes("const response = await fetch")),
-    ).toHaveLength(0);
+    expect(page.requests).toEqual([]);
   });
 
   test("請求書の送付ステータスを専用Web endpointで送付済みにする", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { standardInputs, spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      null,
-      { result: JSON.stringify({ origin: invoiceOrigin }) },
-      { result: JSON.stringify({ origin: invoiceOrigin, companyId }) },
-      invoiceWebResponse({}),
-      null,
-    ]);
+    const page = freeePage([appState(companyId), appState(companyId), { body: {} }]);
+    const { spawn } = mockAgentBrowser(page);
     try {
       await expect(
         withFreeeWeb(webScope, (web) => web.setInvoiceSendingStatus(77, "sent")),
@@ -574,24 +651,25 @@ describe("Agent Browserのfreeeセッション", () => {
       spawn.mockRestore();
     }
 
-    const write = standardInputs.find((input) => input.includes("/deliver_status"));
-    expect(write).toContain("/api/p/reports/invoices/77/deliver_status");
-    expect(write).toContain('method: "PUT"');
-    expect(write).toContain('JSON.stringify({"deliver_status":"delivered"})');
-    expect(write).toContain('headers.set("X-Company-Id", "1234567")');
+    expect(page.origin).toBe(invoiceOrigin);
+    expect(page.requests.at(-1)).toEqual({
+      method: "PUT",
+      path: "/api/p/reports/invoices/77/deliver_status",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+        "x-csrf-token": csrfToken,
+        "x-company-id": "1234567",
+        "x-freee-client-name": "invoice",
+      },
+      body: { deliver_status: "delivered" },
+    });
   });
 
   test("請求書の送付ステータスを専用Web endpointで送付待ちに戻す", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { standardInputs, spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      null,
-      { result: JSON.stringify({ origin: invoiceOrigin }) },
-      { result: JSON.stringify({ origin: invoiceOrigin, companyId }) },
-      invoiceWebResponse({}),
-      null,
-    ]);
+    const page = freeePage([appState(companyId), appState(companyId), { body: {} }]);
+    const { spawn } = mockAgentBrowser(page);
     try {
       await expect(
         withFreeeWeb(webScope, (web) => web.setInvoiceSendingStatus(77, "unsent")),
@@ -600,21 +678,14 @@ describe("Agent Browserのfreeeセッション", () => {
       spawn.mockRestore();
     }
 
-    const write = standardInputs.find((input) => input.includes("/deliver_status"));
-    expect(write).toContain('JSON.stringify({"deliver_status":"undelivered"})');
+    expect(page.requests.at(-1)?.body).toEqual({ deliver_status: "undelivered" });
   });
 
   test("請求書の送付ステータス変更が5xxなら結果不明とする", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      null,
-      { result: JSON.stringify({ origin: invoiceOrigin }) },
-      { result: JSON.stringify({ origin: invoiceOrigin, companyId }) },
-      invoiceWebResponse({}, 500),
-      null,
-    ]);
+    const { spawn } = mockAgentBrowser(
+      freeePage([appState(companyId), appState(companyId), { status: 500, body: {} }]),
+    );
     try {
       await expect(
         withFreeeWeb(webScope, (web) => web.setInvoiceSendingStatus(77, "sent")),
@@ -624,44 +695,59 @@ describe("Agent Browserのfreeeセッション", () => {
     }
   });
 
-  test("請求書ページのorigin不一致は送信前失敗として扱う", async () => {
-    Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      null,
-      { result: JSON.stringify({ origin: invoiceOrigin }) },
-      { result: JSON.stringify({ origin: invoiceOrigin, companyId }) },
-      new Error("Unexpected freee origin"),
-      null,
-    ]);
-    try {
-      const error = await withFreeeWeb(webScope, (web) =>
-        web.setInvoiceSendingStatus(77, "sent"),
-      ).catch((cause: unknown) => cause);
-      expect(error).toBeInstanceOf(Error);
-      expect(error).not.toBeInstanceOf(OutcomeUnknownError);
-      expect((error as Error).message).toContain("Unexpected freee origin");
-    } finally {
-      spawn.mockRestore();
-    }
-  });
+  test.each([
+    [
+      "ログイン画面へ遷移していたら",
+      (page: FreeePage) => {
+        page.responses = [
+          () => {
+            page.origin = loginOrigin;
+            return appState(companyId);
+          },
+        ];
+      },
+      "Unexpected freee origin",
+    ],
+    [
+      "別の事業所へ切り替わっていたら",
+      (page: FreeePage) => {
+        page.responses = [appState(companyId), appState(999)];
+      },
+      "FREEE_COMPANY_MISMATCH",
+    ],
+    [
+      "CSRF tokenがなければ",
+      (page: FreeePage) => {
+        page.responses = [appState(companyId), appState(companyId)];
+        page.meta = { "company-id": String(companyId) };
+      },
+      "freee CSRF token is unavailable",
+    ],
+  ])(
+    "請求書画面が%s送付ステータスを送信せず確定失敗とする",
+    async (_condition, arrange, message) => {
+      Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
+      const page = freeePage();
+      arrange(page);
+      const { spawn } = mockAgentBrowser(page);
+      try {
+        const error = await withFreeeWeb(webScope, (web) =>
+          web.setInvoiceSendingStatus(77, "sent"),
+        ).catch((cause: unknown) => cause);
+        expect(error).toBeInstanceOf(Error);
+        expect(error).not.toBeInstanceOf(OutcomeUnknownError);
+        expect((error as Error).message).toContain(message);
+      } finally {
+        spawn.mockRestore();
+      }
+      expect(page.requests.filter(({ path }) => path !== "/api/p/app_state")).toEqual([]);
+    },
+  );
 
   test("請求書はexactな取引登録ボタンを押して保存完了を待つ", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { commands, standardInputs, spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      null,
-      { result: JSON.stringify({ origin: invoiceOrigin }) },
-      { result: JSON.stringify({ origin: invoiceOrigin, companyId }) },
-      { result: "undefined" },
-      null,
-      null,
-      null,
-      invoiceSaveRequest(77, 200),
-      null,
-    ]);
+    const page = freeePage([appState(companyId)]);
+    const { commands, spawn } = mockAgentBrowser(page, observedInvoiceSave(200));
     try {
       await withFreeeWeb(webScope, (web) => web.registerInvoiceDeal(77));
     } finally {
@@ -679,7 +765,7 @@ describe("Agent Browserのfreeeセッション", () => {
           command.join(" ").includes("accounting/deals"),
       ),
     ).toBe(true);
-    expect(standardInputs.join("\n")).toContain("performance.clearResourceTimings()");
+    expect(page.resourceTimingClears).toBe(1);
     expect(commands).toContainEqual(expect.arrayContaining(["network", "requests", "--clear"]));
     expect(commands).toContainEqual(
       expect.arrayContaining([
@@ -696,19 +782,10 @@ describe("Agent Browserのfreeeセッション", () => {
 
   test("請求書の保存通信が5xxなら結果不明とする", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { commands, spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      null,
-      { result: JSON.stringify({ origin: invoiceOrigin }) },
-      { result: JSON.stringify({ origin: invoiceOrigin, companyId }) },
-      { result: "undefined" },
-      null,
-      null,
-      null,
-      invoiceSaveRequest(77, 500),
-      null,
-    ]);
+    const { commands, spawn } = mockAgentBrowser(
+      freeePage([appState(companyId)]),
+      observedInvoiceSave(500),
+    );
     try {
       await expect(
         withFreeeWeb(webScope, (web) => web.registerInvoiceDeal(77)),
@@ -721,19 +798,10 @@ describe("Agent Browserのfreeeセッション", () => {
 
   test("請求書の保存待機が失敗しても2xx通信を確認できれば成功とする", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      null,
-      { result: JSON.stringify({ origin: invoiceOrigin }) },
-      { result: JSON.stringify({ origin: invoiceOrigin, companyId }) },
-      { result: "undefined" },
-      null,
-      null,
-      new Error("wait timed out"),
-      invoiceSaveRequest(77, 200),
-      null,
-    ]);
+    const { spawn } = mockAgentBrowser(freeePage([appState(companyId)]), (command) => {
+      if (command.includes("wait")) throw new Error("wait timed out");
+      return observedInvoiceSave(200)(command);
+    });
     try {
       await expect(
         withFreeeWeb(webScope, (web) => web.registerInvoiceDeal(77)),
@@ -745,19 +813,10 @@ describe("Agent Browserのfreeeセッション", () => {
 
   test("請求書の保存操作後に通信結果を確認できなければ結果不明とする", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      null,
-      { result: JSON.stringify({ origin: invoiceOrigin }) },
-      { result: JSON.stringify({ origin: invoiceOrigin, companyId }) },
-      { result: "undefined" },
-      null,
-      null,
-      new Error("wait timed out"),
-      { requests: [] },
-      null,
-    ]);
+    const { spawn } = mockAgentBrowser(freeePage([appState(companyId)]), (command) => {
+      if (command.includes("wait")) throw new Error("wait timed out");
+      return command.includes("--filter") ? { requests: [] } : null;
+    });
     try {
       const result = withFreeeWeb(webScope, (web) => web.registerInvoiceDeal(77));
       await expect(result).rejects.toBeInstanceOf(OutcomeUnknownError);
@@ -769,35 +828,26 @@ describe("Agent Browserのfreeeセッション", () => {
 
   test("請求書登録後の会計操作では会計画面と事業所を再確認する", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { commands, spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      null,
-      { result: JSON.stringify({ origin: invoiceOrigin }) },
-      { result: JSON.stringify({ origin: invoiceOrigin, companyId }) },
-      { result: "undefined" },
-      null,
-      null,
-      null,
-      invoiceSaveRequest(77, 200),
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      webResponse({
-        id: 42,
-        company_id: companyId,
-        description: walletTransaction.description,
-        entry_side_str: "expense",
-        get_received_amount: 0,
-        get_spent_amount: 1_000,
-        status: 1,
-        status_str: "未処理",
-        txn_date: "2026-08-24",
-        updated_at: "2026-08-24T00:00:00+09:00",
-        walletable_id: 7,
-        walletable_name: "銀行",
-      }),
-      null,
+    const page = freeePage([
+      appState(companyId),
+      {
+        body: {
+          id: 42,
+          company_id: companyId,
+          description: walletTransaction.description,
+          entry_side_str: "expense",
+          get_received_amount: 0,
+          get_spent_amount: 1_000,
+          status: 1,
+          status_str: "未処理",
+          txn_date: "2026-08-24",
+          updated_at: "2026-08-24T00:00:00+09:00",
+          walletable_id: 7,
+          walletable_name: "銀行",
+        },
+      },
     ]);
+    const { commands, spawn } = mockAgentBrowser(page, observedInvoiceSave(200));
     try {
       await expect(
         withFreeeWeb(webScope, async (web) => {
@@ -818,12 +868,9 @@ describe("Agent Browserのfreeeセッション", () => {
 
   test("書き込み応答schemaが崩れたら結果不明とする", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { commands, spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      webResponse({ wallet_txn: { id: 42, status: 1 } }),
-      null,
-    ]);
+    const { commands, spawn } = mockAgentBrowser(
+      freeePage([{ body: { wallet_txn: { id: 42, status: 1 } } }]),
+    );
     try {
       const result = withFreeeWeb(webScope, (web) => web.registerWalletTransaction(registration));
       await expect(result).rejects.toBeInstanceOf(OutcomeUnknownError);
@@ -836,13 +883,12 @@ describe("Agent Browserのfreeeセッション", () => {
 
   test("書き込みの5xxは結果不明、4xxは確定失敗とする", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      webResponse({ error: "failed" }, 500),
-      webResponse({ error: "invalid" }, 400),
-      null,
-    ]);
+    const { spawn } = mockAgentBrowser(
+      freeePage([
+        { status: 500, body: { error: "failed" } },
+        { status: 400, body: { error: "invalid" } },
+      ]),
+    );
     try {
       await withFreeeWeb(webScope, async (web) => {
         await expect(web.ignoreWalletTransaction(walletTransaction)).rejects.toBeInstanceOf(
@@ -857,12 +903,12 @@ describe("Agent Browserのfreeeセッション", () => {
 
   test("書き込み通信の確認を失ったら結果不明とする", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      new Error("Agent Browser timed out."),
-      null,
+    const page = freeePage([
+      () => {
+        throw new TypeError("Failed to fetch");
+      },
     ]);
+    const { spawn } = mockAgentBrowser(page);
     try {
       const result = withFreeeWeb(webScope, (web) =>
         web.ignoreWalletTransaction(walletTransaction),
@@ -872,16 +918,20 @@ describe("Agent Browserのfreeeセッション", () => {
     } finally {
       spawn.mockRestore();
     }
+    expect(page.requests.map(({ method, path }) => ({ method, path }))).toEqual([
+      { method: "PUT", path: "/api/p/wallet_txns/42/ignore" },
+    ]);
   });
 
   test("書き込み成功後のsession cleanup失敗で成功を上書きしない", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      webResponse({ wallet_txn: { id: 42, status: 2 } }),
-      new Error("close failed"),
-    ]);
+    const { spawn } = mockAgentBrowser(
+      freeePage([{ body: { wallet_txn: { id: 42, status: 2 } } }]),
+      (command) => {
+        if (command.at(-1) === "close") throw new Error("close failed");
+        return null;
+      },
+    );
     try {
       await expect(
         withFreeeWeb(webScope, (web) => web.registerWalletTransaction(registration)),
@@ -893,19 +943,19 @@ describe("Agent Browserのfreeeセッション", () => {
 
   test("session cleanup失敗後も同じscopeを再取得できる", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { spawn } = mockAgentBrowser([
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      new Error("close failed"),
-      null,
-      { result: JSON.stringify({ origin, companyId }) },
-      null,
-    ]);
+    let closeAttempts = 0;
+    const { spawn } = mockAgentBrowser(freeePage(), (command) => {
+      if (command.at(-1) !== "close") return null;
+      closeAttempts += 1;
+      if (closeAttempts === 1) throw new Error("close failed");
+      return null;
+    });
     try {
       await expect(withFreeeWeb(webScope, async () => "first")).resolves.toBe("first");
       await expect(withFreeeWeb(webScope, async () => "second")).resolves.toBe("second");
     } finally {
       spawn.mockRestore();
     }
+    expect(closeAttempts).toBe(2);
   });
 });

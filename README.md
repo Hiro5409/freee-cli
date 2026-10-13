@@ -216,18 +216,21 @@ The tag starts the Release workflow. The workflow verifies that the tag is annot
 
 The first job publishes the artifact to npm through trusted publishing, with provenance. npm [scans a new version](https://github.blog/changelog/2026-07-28-npm-publish-time-malware-scanning-and-dual-use-metadata/) before serving it, so the second job waits up to 30 minutes for the version to become visible. It creates the GitHub Release only when the version published on npm has the integrity of the tested artifact. It attaches the artifact while the release is still a draft and then publishes it, because an immutable release locks its assets once it is published.
 
-The workflow relies on two settings outside the repository:
+Release configuration includes these settings outside the repository:
 
 - An npm [trusted publisher](https://docs.npmjs.com/trusted-publishers/) for user `Hiro5409`, repository `freee-cli`, and workflow filename `release.yml`, with no environment.
 - [Immutable releases](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases) for the repository, so that the tag and the attached artifact of a published GitHub Release cannot change.
+- An active tag ruleset for `v*` that restricts updates and deletions, allows creation, and has no bypass actors. Tags are protected from the moment they are pushed, including while CI and npm publication are in progress.
 
-To retry a failed run, run the workflow again from its tag:
+To retry a transient failure, run the workflow again from its tag:
 
 ```bash
 gh workflow run release.yml --ref v1.2.3
 ```
 
 This run packs and tests the tagged commit again; packing is reproducible, so it tests the artifact an earlier run published. Every run acts on what it finds: it publishes the artifact while the version is not visible on npm, and creates the GitHub Release while no published release exists for the tag. A published release that carries the tested artifact is complete, and the run leaves it as it is. A run started from a branch stops at tag verification; the workflow never changes `main`, the version, or tags.
+
+A retry uses the code and workflow at the same tag. To correct the tagged commit, tag metadata, or workflow, fix `main` and release a new version with a new annotated tag. Existing release tags are not moved or reused.
 
 A run stops when it cannot read npm or GitHub, when the published version differs from the tested artifact, and when a published release lacks the tested artifact or carries one with a different digest. The workflow does not repair such a release.
 

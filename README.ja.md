@@ -218,18 +218,21 @@ git push origin v1.2.3
 
 1つ目のジョブは trusted publishing で成果物を provenance 付きで npm に公開します。npm は新しいバージョンを配信前に[スキャンする](https://github.blog/changelog/2026-07-28-npm-publish-time-malware-scanning-and-dual-use-metadata/)ため、2つ目のジョブはバージョンが見えるようになるまで最大30分待ちます。そのうえで、npm に公開されたバージョンの integrity がテスト済みの成果物と一致するときだけ GitHub Release を作成します。immutable release は公開後にアセットを変更できないため、ドラフトの段階で成果物を添付してから公開します。
 
-ワークフローはリポジトリ外の2つの設定に依存します。
+リリースには、リポジトリ外で次の設定を行います。
 
 - npm の [trusted publisher](https://docs.npmjs.com/trusted-publishers/): ユーザー `Hiro5409`、リポジトリ `freee-cli`、ワークフローファイル名 `release.yml`、environment は指定なし。
 - リポジトリの [immutable releases](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases): 公開済み GitHub Release のタグと添付成果物は変更できません。
+- `v*` を対象とする有効なタグRuleset: 更新・削除を禁止し、新規作成は許可します。バイパス対象は設定しません。タグはpush直後から保護され、CIやnpm公開の実行中も変更できません。
 
-失敗した実行をやり直すには、同じタグからワークフローを再実行します。
+通信などの一時的な失敗は、同じタグからワークフローを再実行します。
 
 ```bash
 gh workflow run release.yml --ref v1.2.3
 ```
 
 再実行はタグのコミットをもう一度 pack してテストします。pack は再現可能なので、以前の実行が公開した成果物と同じものをテストします。どの実行も現在の状態に応じて動きます。npm にバージョンが見えなければ成果物を公開し、タグに公開済みの Release が無ければ GitHub Release を作成します。テスト済みの成果物を持つ公開済み Release は完了しているので、そのままにします。ブランチから開始した実行はタグの検証で止まります。ワークフローが `main`、バージョン、タグを変更することはありません。
+
+再実行では同じタグのコードとワークフローを使います。タグの参照先・注釈・ワークフローを修正する場合は、`main` を直し、新しいバージョンと注釈付きタグでリリースします。既存のリリースタグは付け替え・再利用しません。
 
 npm または GitHub を読み取れないとき、公開済みのバージョンがテスト済みの成果物と異なるとき、公開済み Release にテスト済みの成果物が無いか digest が異なるとき、実行は止まります。ワークフローはそのような Release を修復しません。
 

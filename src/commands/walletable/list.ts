@@ -1,32 +1,28 @@
 import { define } from "gunshi";
-import { args, merge, string } from "gunshi/combinators";
+import { args, merge, choice } from "gunshi/combinators";
 
-import { CliError } from "../../errors.ts";
 import { companyArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
 import { formatOutput } from "../../output/formatter.ts";
 import { getWalletables } from "../../types/freee/sdk.gen.ts";
-
-function parseWalletType(value: unknown): "bank_account" | "credit_card" | "wallet" {
-  if (value === "bank_account" || value === "credit_card" || value === "wallet") return value;
-  throw new CliError(`--type must be "bank_account", "credit_card", or "wallet", got "${value}"`, {
-    code: "INVALID_INPUT",
-  });
-}
 
 export const walletableListCommand = define({
   name: "walletable-list",
   description: "List walletables: bank accounts, credit cards, and cash wallets",
   args: merge(
     companyArgs,
-    args({ type: string({ description: "Filter by type: bank_account, credit_card, wallet" }) }),
+    args({
+      type: choice(["bank_account", "credit_card", "wallet"] as const, {
+        description: "Filter by walletable type",
+      }),
+    }),
   ),
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const { data } = await getWalletables({
       query: {
         company_id: companyId,
-        type: ctx.values.type ? parseWalletType(ctx.values.type) : undefined,
+        type: ctx.values.type,
       },
     });
     return formatOutput(data.walletables, format);

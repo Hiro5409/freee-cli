@@ -2,7 +2,7 @@ import ky, { isHTTPError } from "ky";
 
 import type { TokenSet } from "../config/credentials.ts";
 import { loadCredentials, updateCredentials } from "../config/credentials.ts";
-import { AuthError } from "../errors.ts";
+import { AuthError, OutcomeUnknownError } from "../errors.ts";
 import { client as hrClient } from "../types/freee-hr/client.gen.ts";
 import { client as invoiceClient } from "../types/freee-invoice/client.gen.ts";
 import { client } from "../types/freee/client.gen.ts";
@@ -16,11 +16,27 @@ type FreeeClient = typeof client | typeof hrClient | typeof invoiceClient;
 // Only reads are safe to retry automatically; writes can create accounting records.
 // Hey API passes a fully constructed Request to its fetch implementation.
 const apiFetch = Object.assign(
-  (request: Parameters<typeof fetch>[0]) => ky(request, { retry: { methods: ["get", "head"] } }),
+  async (request: Parameters<typeof fetch>[0]) => {
+    try {
+      return await ky(request, { retry: { methods: ["get", "head"] } });
+    } catch (error) {
+      if (
+        request instanceof Request &&
+        isWrite(request) &&
+        (!isHTTPError(error) || error.response.status === 408 || error.response.status >= 500)
+      ) {
+        throw new OutcomeUnknownError("Could not confirm the freee API write.", { cause: error });
+      }
+      throw error;
+    }
+  },
   { preconnect: fetch.preconnect },
 );
 
-// interceptor: setConfig({ auth }) + security は SDK 専用で raw call に効かない
+function isWrite(request: Request): boolean {
+  return request.method !== "GET" && request.method !== "HEAD";
+}
+
 function configure(
   target: FreeeClient,
   configDir: string,
@@ -35,10 +51,13 @@ function configure(
     return request;
   });
 
-  target.interceptors.response.clear();
-
   target.interceptors.error.clear();
-  target.interceptors.error.use((error, response) => {
+  target.interceptors.error.use((error, response, request) => {
+    if (request && isWrite(request) && response?.ok) {
+      return new OutcomeUnknownError("Could not read the freee API write response.", {
+        cause: error,
+      });
+    }
     if (isHTTPError(error)) {
       return freeeApiError(error.data ?? error, { product, status: error.response.status });
     }

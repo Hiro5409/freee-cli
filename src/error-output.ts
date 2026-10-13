@@ -54,11 +54,6 @@ function gunshiValidationMessage(error: unknown): string | undefined {
   if (error.code === ArgsValidationErrorKeys.requiredOption) {
     return `Argument ${displayName} is required.`;
   }
-  if (error.code === ArgsValidationErrorKeys.invalidChoice) {
-    const choices = error.values.choiceValues;
-    if (!Array.isArray(choices)) return undefined;
-    return `Argument ${displayName} must be one of: ${choices.map(String).join(", ")}.`;
-  }
   return undefined;
 }
 

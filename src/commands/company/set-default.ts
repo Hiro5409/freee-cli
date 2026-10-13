@@ -30,6 +30,7 @@ export const companySetDefaultCommand = define({
     const companyId = ctx.values.id;
 
     const selectedCompany = {
+      ...config.profiles[profile],
       companyId,
       name: ctx.values.name ?? String(companyId),
     };

@@ -1,10 +1,15 @@
 import { describe, expect, test } from "bun:test";
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 
 import { createAgentBrowserSession } from "./agent-browser.ts";
 import type { RunSubprocess, SubprocessResult } from "./subprocess.ts";
 
 const encryptedEnvironment = { AGENT_BROWSER_ENCRYPTION_KEY: "a".repeat(64) };
+
+// Session locks live in a machine-wide directory, so each test owns its namespace.
+function uniqueNamespace(): string {
+  return `freee-web-test-${randomUUID()}`;
+}
 
 function expectedSessionId(prefix: string, companyId: number, authProfile: string): string {
   const profileKey = createHash("sha256").update(authProfile).digest("hex").slice(0, 16);
@@ -43,8 +48,9 @@ describe("Agent Browser session", () => {
       return response;
     };
 
+    const namespace = uniqueNamespace();
     const browser = await createAgentBrowserSession({
-      namespace: "freee-web-test",
+      namespace,
       sessionPrefix: "fb",
       companyId: 123,
       authProfile: "business-freee",
@@ -57,7 +63,7 @@ describe("Agent Browser session", () => {
     expect(calls[0]?.command).toEqual([
       "agent-browser",
       "--namespace",
-      "freee-web-test",
+      namespace,
       "state",
       "list",
       "--json",
@@ -78,7 +84,7 @@ describe("Agent Browser session", () => {
       return command.includes("state") ? success({ files: [] }) : success(null);
     };
     const input = {
-      namespace: `freee-web-lock-${process.pid}`,
+      namespace: uniqueNamespace(),
       sessionPrefix: "lock",
       companyId: 987_654,
       authProfile: "business-freee",
@@ -102,7 +108,7 @@ describe("Agent Browser session", () => {
       return command.includes("state") ? success({ files: [] }) : success(null);
     };
     const browser = await createAgentBrowserSession({
-      namespace: `freee-web-closed-${process.pid}`,
+      namespace: uniqueNamespace(),
       sessionPrefix: "closed",
       companyId: 123,
       authProfile: "business-freee",
@@ -129,7 +135,7 @@ describe("Agent Browser session", () => {
       return success(null);
     };
     const input = {
-      namespace: `freee-web-close-retry-${process.pid}`,
+      namespace: uniqueNamespace(),
       sessionPrefix: "retry",
       companyId: 987_655,
       authProfile: "business-freee",
@@ -150,7 +156,7 @@ describe("Agent Browser session", () => {
     const run: RunSubprocess = async (command) =>
       command.includes("state") ? success({ files: [] }) : success(null);
     const browser = await createAgentBrowserSession({
-      namespace: "freee-web",
+      namespace: uniqueNamespace(),
       sessionPrefix: "fb",
       companyId: 1_234_567,
       authProfile,
@@ -184,7 +190,7 @@ describe("Agent Browser session", () => {
 
     await expect(
       createAgentBrowserSession({
-        namespace: "freee-web-test",
+        namespace: uniqueNamespace(),
         sessionPrefix: "fb",
         companyId: 123,
         authProfile: "business-freee",
@@ -202,7 +208,7 @@ describe("Agent Browser session", () => {
 
     await expect(
       createAgentBrowserSession({
-        namespace: "freee-web-test",
+        namespace: uniqueNamespace(),
         sessionPrefix: "fb",
         companyId: 123,
         authProfile: "business-freee",

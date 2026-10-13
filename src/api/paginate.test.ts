@@ -23,11 +23,15 @@ describe("fetchAll", () => {
     expect(result[249]).toBe(249);
   });
 
-  test("respects limit parameter", async () => {
-    const fetcher = async (_offset: number, _limit: number) =>
-      Array.from({ length: 100 }, (_, i) => i);
-    const result = await fetchAll(fetcher, 150);
-    expect(result.length).toBe(150);
+  test("returns the requested count when the API requires offset to be a multiple of limit", async () => {
+    const entries = Array.from({ length: 240 }, (_, i) => i);
+    const fetcher = async (offset: number, limit: number) => {
+      if (offset % limit !== 0) throw new Error("offset must be a multiple of limit");
+      return entries.slice(offset, offset + limit);
+    };
+
+    const result = await fetchAll(fetcher, 130);
+    expect(result).toEqual(entries.slice(0, 130));
   });
 
   test("trims a short final page to the requested limit", async () => {
