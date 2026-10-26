@@ -40,7 +40,7 @@ function defaultOrOnlyProfile(
 function requireStoredProfile(profile: string, storedProfiles: string[]): string {
   if (storedProfiles.includes(profile)) return profile;
   throw new AuthError(
-    `No credentials found for profile "${profile}". Run "freee login --profile ${profile}" first.`,
+    `No credentials found for profile "${profile}". Run "freee auth login --profile ${profile}" first.`,
   );
 }
 
@@ -52,11 +52,11 @@ export function resolveProfile(selection: ProfileSelection): string {
   if (defaultProfile) return defaultProfile;
 
   if (selection.storedProfiles.length === 0) {
-    throw new AuthError('No credentials found. Run "freee login --profile <name>" first.');
+    throw new AuthError('No credentials found. Run "freee auth login --profile <name>" first.');
   }
 
   throw new ConfigError(
-    'Multiple profiles are authenticated. Use --profile, set FREEE_PROFILE, or run "freee profile-set-default".',
+    'Multiple profiles are authenticated. Use --profile, set FREEE_PROFILE, or run "freee profile set-default".',
   );
 }
 
@@ -75,7 +75,7 @@ export function resolveProfileName(selection: ProfileSelection): string {
   if (selection.storedProfiles.length === 0) return "default";
 
   throw new ConfigError(
-    'Multiple profiles are authenticated. Use --profile, set FREEE_PROFILE, or run "freee profile-set-default".',
+    'Multiple profiles are authenticated. Use --profile, set FREEE_PROFILE, or run "freee profile set-default".',
   );
 }
 
@@ -183,4 +183,19 @@ export function listProfiles(dir = configDir()): ProfileSummary[] {
       company_name: company?.name ?? null,
     };
   });
+}
+
+export type FreeeScope = { profile: string; companyId: number };
+
+export function resolveFreeeScope(requestedProfile?: unknown): FreeeScope {
+  const directory = configDir();
+  const profile = resolveConfiguredProfile(requestedProfile, directory);
+  const configuredProfile = loadConfig(directory).profiles[profile];
+  if (!configuredProfile) {
+    throw new ConfigError(`Profile "${profile}" has no configured freee company.`);
+  }
+  return {
+    profile,
+    companyId: configuredProfile.companyId,
+  };
 }

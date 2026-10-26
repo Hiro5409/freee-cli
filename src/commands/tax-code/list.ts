@@ -6,7 +6,7 @@ import { formatOutput } from "../../output/formatter.ts";
 import { getTaxesCompanies } from "../../types/freee/sdk.gen.ts";
 
 export const taxCodeListCommand = define({
-  name: "tax-code-list",
+  name: "list",
   description: "List tax codes",
   args: companyArgs,
   run: async (ctx) => {

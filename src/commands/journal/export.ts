@@ -55,7 +55,7 @@ async function waitForJournal(companyId: number, reportId: number): Promise<void
 }
 
 export const journalExportCommand = define({
-  name: "journal-export",
+  name: "export",
   description: "Generate and download a journal export",
   args: merge(
     companyArgs,
@@ -79,7 +79,7 @@ export const journalExportCommand = define({
       output: required(string({ description: "Output file path" })),
     }),
   ),
-  examples: `$ freee journal-export --download-type generic_v2 --encoding utf-8 \\
+  examples: `$ freee journal export --download-type generic_v2 --encoding utf-8 \\
     --start-date 2025-01-01 --end-date 2025-12-31 \\
     --output journal-2025.csv --format json`,
   run: async (ctx) => {

@@ -12,7 +12,7 @@ import { formatValue } from "../../output/formatter.ts";
 import { downloadReceipt } from "../../types/freee/sdk.gen.ts";
 
 export const fileBoxDownloadCommand = define({
-  name: "file-box-download",
+  name: "download",
   description: "Download a document from the File Box without overwriting an existing file",
   args: merge(
     companyArgs,
@@ -23,7 +23,7 @@ export const fileBoxDownloadCommand = define({
       output: required(string({ description: "Output file path" })),
     }),
   ),
-  examples: `$ freee file-box-download --id 55 --output receipt.pdf --format json`,
+  examples: `$ freee file-box download --id 55 --output receipt.pdf --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const id = ctx.values.id;

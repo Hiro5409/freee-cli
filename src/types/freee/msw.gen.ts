@@ -17,6 +17,8 @@ import type {
   ApiV1PartnersUpsertByCodeResponses,
   ApiV1SectionsUpsertByCodeData,
   ApiV1SectionsUpsertByCodeResponses,
+  ApplyUserMatchersData,
+  ApplyUserMatchersResponses,
   ClientOptions,
   CreateAccountGroupData,
   CreateAccountGroupResponses,
@@ -30,6 +32,8 @@ import type {
   CreateDealRenewData,
   CreateDealRenewResponses,
   CreateDealResponses,
+  CreateExpenseApplicationAmountCalculationData,
+  CreateExpenseApplicationAmountCalculationResponses,
   CreateExpenseApplicationCurrencyData,
   CreateExpenseApplicationCurrencyResponses,
   CreateExpenseApplicationData,
@@ -63,7 +67,13 @@ import type {
   CreateWalletableData,
   CreateWalletableResponses,
   CreateWalletTxnData,
+  CreateWalletTxnDealData,
+  CreateWalletTxnDealResponses,
+  CreateWalletTxnPrivateDealData,
+  CreateWalletTxnPrivateDealResponses,
   CreateWalletTxnResponses,
+  CreateWalletTxnTransferData,
+  CreateWalletTxnTransferResponses,
   DeleteDealRenewResponses,
   DeleteExpenseApplicationCurrencyResponses,
   DestroyAccountItemResponses,
@@ -165,7 +175,13 @@ import type {
   GetWalletablesResponses,
   GetWalletTxnResponses,
   GetWalletTxnsResponses,
+  IgnoreWalletTxnData,
+  IgnoreWalletTxnResponses,
   ListExpenseApplicationCurrenciesResponses,
+  ReconcileWalletTxnData,
+  ReconcileWalletTxnResponses,
+  ResetWalletTxnData,
+  ResetWalletTxnResponses,
   UpdateAccountItemData,
   UpdateAccountItemResponses,
   UpdateApprovalRequestActionData,
@@ -3324,6 +3340,282 @@ export function handleGetWalletTxn(
   );
 }
 
+export type HandleReconcileWalletTxnResponse = {
+  body: ReconcileWalletTxnResponses[200];
+  status?: 200;
+};
+
+/**
+ * Handler for the `POST /api/1/wallet_txns/{id}/reconcile` operation.
+ */
+export function handleReconcileWalletTxn(
+  response?:
+    | HandleReconcileWalletTxnResponse
+    | HttpResponseResolver<
+        {
+          id: string;
+        },
+        ReconcileWalletTxnData["body"]
+      >,
+  options?: RequestHandlerOptions,
+): HttpHandler {
+  return http.post<
+    {
+      id: string;
+    },
+    ReconcileWalletTxnData["body"]
+  >(
+    `${options?.baseUrl ?? "*"}/api/1/wallet_txns/:id/reconcile`,
+    (info) => {
+      if (typeof response === "function") {
+        return response(info);
+      }
+      const body = response?.body;
+      if (body !== undefined) {
+        return HttpResponse.json(body, { status: response?.status ?? 200 });
+      }
+      if (options?.responseFallback === "passthrough") {
+        return;
+      }
+      return new Response("Not Implemented", {
+        status: 501,
+        statusText: "Not Implemented",
+      });
+    },
+    options,
+  );
+}
+
+export type HandleCreateWalletTxnDealResponse = {
+  body: CreateWalletTxnDealResponses[200];
+  status?: 200;
+};
+
+/**
+ * Handler for the `POST /api/1/wallet_txns/{id}/create_deal` operation.
+ */
+export function handleCreateWalletTxnDeal(
+  response?:
+    | HandleCreateWalletTxnDealResponse
+    | HttpResponseResolver<
+        {
+          id: string;
+        },
+        CreateWalletTxnDealData["body"]
+      >,
+  options?: RequestHandlerOptions,
+): HttpHandler {
+  return http.post<
+    {
+      id: string;
+    },
+    CreateWalletTxnDealData["body"]
+  >(
+    `${options?.baseUrl ?? "*"}/api/1/wallet_txns/:id/create_deal`,
+    (info) => {
+      if (typeof response === "function") {
+        return response(info);
+      }
+      const body = response?.body;
+      if (body !== undefined) {
+        return HttpResponse.json(body, { status: response?.status ?? 200 });
+      }
+      if (options?.responseFallback === "passthrough") {
+        return;
+      }
+      return new Response("Not Implemented", {
+        status: 501,
+        statusText: "Not Implemented",
+      });
+    },
+    options,
+  );
+}
+
+export type HandleCreateWalletTxnTransferResponse = {
+  body: CreateWalletTxnTransferResponses[200];
+  status?: 200;
+};
+
+/**
+ * Handler for the `POST /api/1/wallet_txns/{id}/create_transfer` operation.
+ */
+export function handleCreateWalletTxnTransfer(
+  response?:
+    | HandleCreateWalletTxnTransferResponse
+    | HttpResponseResolver<
+        {
+          id: string;
+        },
+        CreateWalletTxnTransferData["body"]
+      >,
+  options?: RequestHandlerOptions,
+): HttpHandler {
+  return http.post<
+    {
+      id: string;
+    },
+    CreateWalletTxnTransferData["body"]
+  >(
+    `${options?.baseUrl ?? "*"}/api/1/wallet_txns/:id/create_transfer`,
+    (info) => {
+      if (typeof response === "function") {
+        return response(info);
+      }
+      const body = response?.body;
+      if (body !== undefined) {
+        return HttpResponse.json(body, { status: response?.status ?? 200 });
+      }
+      if (options?.responseFallback === "passthrough") {
+        return;
+      }
+      return new Response("Not Implemented", {
+        status: 501,
+        statusText: "Not Implemented",
+      });
+    },
+    options,
+  );
+}
+
+export type HandleCreateWalletTxnPrivateDealResponse = {
+  body: CreateWalletTxnPrivateDealResponses[200];
+  status?: 200;
+};
+
+/**
+ * Handler for the `POST /api/1/wallet_txns/{id}/create_private_deal` operation.
+ */
+export function handleCreateWalletTxnPrivateDeal(
+  response?:
+    | HandleCreateWalletTxnPrivateDealResponse
+    | HttpResponseResolver<
+        {
+          id: string;
+        },
+        CreateWalletTxnPrivateDealData["body"]
+      >,
+  options?: RequestHandlerOptions,
+): HttpHandler {
+  return http.post<
+    {
+      id: string;
+    },
+    CreateWalletTxnPrivateDealData["body"]
+  >(
+    `${options?.baseUrl ?? "*"}/api/1/wallet_txns/:id/create_private_deal`,
+    (info) => {
+      if (typeof response === "function") {
+        return response(info);
+      }
+      const body = response?.body;
+      if (body !== undefined) {
+        return HttpResponse.json(body, { status: response?.status ?? 200 });
+      }
+      if (options?.responseFallback === "passthrough") {
+        return;
+      }
+      return new Response("Not Implemented", {
+        status: 501,
+        statusText: "Not Implemented",
+      });
+    },
+    options,
+  );
+}
+
+export type HandleIgnoreWalletTxnResponse = {
+  body: IgnoreWalletTxnResponses[200];
+  status?: 200;
+};
+
+/**
+ * Handler for the `POST /api/1/wallet_txns/{id}/ignore` operation.
+ */
+export function handleIgnoreWalletTxn(
+  response?:
+    | HandleIgnoreWalletTxnResponse
+    | HttpResponseResolver<
+        {
+          id: string;
+        },
+        IgnoreWalletTxnData["body"]
+      >,
+  options?: RequestHandlerOptions,
+): HttpHandler {
+  return http.post<
+    {
+      id: string;
+    },
+    IgnoreWalletTxnData["body"]
+  >(
+    `${options?.baseUrl ?? "*"}/api/1/wallet_txns/:id/ignore`,
+    (info) => {
+      if (typeof response === "function") {
+        return response(info);
+      }
+      const body = response?.body;
+      if (body !== undefined) {
+        return new HttpResponse(body, { status: response?.status ?? 200 });
+      }
+      if (options?.responseFallback === "passthrough") {
+        return;
+      }
+      return new Response("Not Implemented", {
+        status: 501,
+        statusText: "Not Implemented",
+      });
+    },
+    options,
+  );
+}
+
+export type HandleResetWalletTxnResponse = {
+  body: ResetWalletTxnResponses[200];
+  status?: 200;
+};
+
+/**
+ * Handler for the `POST /api/1/wallet_txns/{id}/reset` operation.
+ */
+export function handleResetWalletTxn(
+  response?:
+    | HandleResetWalletTxnResponse
+    | HttpResponseResolver<
+        {
+          id: string;
+        },
+        ResetWalletTxnData["body"]
+      >,
+  options?: RequestHandlerOptions,
+): HttpHandler {
+  return http.post<
+    {
+      id: string;
+    },
+    ResetWalletTxnData["body"]
+  >(
+    `${options?.baseUrl ?? "*"}/api/1/wallet_txns/:id/reset`,
+    (info) => {
+      if (typeof response === "function") {
+        return response(info);
+      }
+      const body = response?.body;
+      if (body !== undefined) {
+        return new HttpResponse(body, { status: response?.status ?? 200 });
+      }
+      if (options?.responseFallback === "passthrough") {
+        return;
+      }
+      return new Response("Not Implemented", {
+        status: 501,
+        statusText: "Not Implemented",
+      });
+    },
+    options,
+  );
+}
+
 export type HandleGetJournalsResponse = {
   body: GetJournalsResponses[202];
   status?: 202;
@@ -4876,6 +5168,42 @@ export function handleUpdateExpenseApplicationForm(
 ): HttpHandler {
   return http.put<never, UpdateExpenseApplicationFormData["body"]>(
     `${options?.baseUrl ?? "*"}/api/1/expense_applications/form`,
+    (info) => {
+      if (typeof response === "function") {
+        return response(info);
+      }
+      const body = response?.body;
+      if (body !== undefined) {
+        return HttpResponse.json(body, { status: response?.status ?? 200 });
+      }
+      if (options?.responseFallback === "passthrough") {
+        return;
+      }
+      return new Response("Not Implemented", {
+        status: 501,
+        statusText: "Not Implemented",
+      });
+    },
+    options,
+  );
+}
+
+export type HandleCreateExpenseApplicationAmountCalculationResponse = {
+  body: CreateExpenseApplicationAmountCalculationResponses[200];
+  status?: 200;
+};
+
+/**
+ * Handler for the `POST /api/1/expense_applications/amount_calculations` operation.
+ */
+export function handleCreateExpenseApplicationAmountCalculation(
+  response?:
+    | HandleCreateExpenseApplicationAmountCalculationResponse
+    | HttpResponseResolver<never, CreateExpenseApplicationAmountCalculationData["body"]>,
+  options?: RequestHandlerOptions,
+): HttpHandler {
+  return http.post<never, CreateExpenseApplicationAmountCalculationData["body"]>(
+    `${options?.baseUrl ?? "*"}/api/1/expense_applications/amount_calculations`,
     (info) => {
       if (typeof response === "function") {
         return response(info);
@@ -6619,6 +6947,42 @@ export function handleUpdateUserMatcher(
   );
 }
 
+export type HandleApplyUserMatchersResponse = {
+  body: ApplyUserMatchersResponses[200];
+  status?: 200;
+};
+
+/**
+ * Handler for the `POST /api/1/user_matchers/apply` operation.
+ */
+export function handleApplyUserMatchers(
+  response?:
+    | HandleApplyUserMatchersResponse
+    | HttpResponseResolver<never, ApplyUserMatchersData["body"]>,
+  options?: RequestHandlerOptions,
+): HttpHandler {
+  return http.post<never, ApplyUserMatchersData["body"]>(
+    `${options?.baseUrl ?? "*"}/api/1/user_matchers/apply`,
+    (info) => {
+      if (typeof response === "function") {
+        return response(info);
+      }
+      const body = response?.body;
+      if (body !== undefined) {
+        return new HttpResponse(body, { status: response?.status ?? 200 });
+      }
+      if (options?.responseFallback === "passthrough") {
+        return;
+      }
+      return new Response("Not Implemented", {
+        status: 501,
+        statusText: "Not Implemented",
+      });
+    },
+    options,
+  );
+}
+
 export type MswHandlerFactories = {
   /**
    * Handler for the `GET /api/1/partners` operation.
@@ -6921,6 +7285,30 @@ export type MswHandlerFactories = {
    */
   getWalletTxn: typeof handleGetWalletTxn;
   /**
+   * Handler for the `POST /api/1/wallet_txns/{id}/reconcile` operation.
+   */
+  reconcileWalletTxn: typeof handleReconcileWalletTxn;
+  /**
+   * Handler for the `POST /api/1/wallet_txns/{id}/create_deal` operation.
+   */
+  createWalletTxnDeal: typeof handleCreateWalletTxnDeal;
+  /**
+   * Handler for the `POST /api/1/wallet_txns/{id}/create_transfer` operation.
+   */
+  createWalletTxnTransfer: typeof handleCreateWalletTxnTransfer;
+  /**
+   * Handler for the `POST /api/1/wallet_txns/{id}/create_private_deal` operation.
+   */
+  createWalletTxnPrivateDeal: typeof handleCreateWalletTxnPrivateDeal;
+  /**
+   * Handler for the `POST /api/1/wallet_txns/{id}/ignore` operation.
+   */
+  ignoreWalletTxn: typeof handleIgnoreWalletTxn;
+  /**
+   * Handler for the `POST /api/1/wallet_txns/{id}/reset` operation.
+   */
+  resetWalletTxn: typeof handleResetWalletTxn;
+  /**
    * Handler for the `GET /api/1/journals` operation.
    */
   getJournals: typeof handleGetJournals;
@@ -7085,6 +7473,10 @@ export type MswHandlerFactories = {
    */
   updateExpenseApplicationForm: typeof handleUpdateExpenseApplicationForm;
   /**
+   * Handler for the `POST /api/1/expense_applications/amount_calculations` operation.
+   */
+  createExpenseApplicationAmountCalculation: typeof handleCreateExpenseApplicationAmountCalculation;
+  /**
    * Handler for the `GET /api/1/expense_application_line_templates` operation.
    */
   getExpenseApplicationLineTemplates: typeof handleGetExpenseApplicationLineTemplates;
@@ -7248,6 +7640,10 @@ export type MswHandlerFactories = {
    * Handler for the `PUT /api/1/user_matchers/{id}` operation.
    */
   updateUserMatcher: typeof handleUpdateUserMatcher;
+  /**
+   * Handler for the `POST /api/1/user_matchers/apply` operation.
+   */
+  applyUserMatchers: typeof handleApplyUserMatchers;
 };
 
 export type CreateMswHandlersResult = {
@@ -7342,6 +7738,12 @@ export function createMswHandlers(config: RequestHandlerOptions = {}): CreateMsw
     createWalletTxn: wrap(handleCreateWalletTxn),
     destroyWalletTxn: wrap(handleDestroyWalletTxn),
     getWalletTxn: wrap(handleGetWalletTxn),
+    reconcileWalletTxn: wrap(handleReconcileWalletTxn),
+    createWalletTxnDeal: wrap(handleCreateWalletTxnDeal),
+    createWalletTxnTransfer: wrap(handleCreateWalletTxnTransfer),
+    createWalletTxnPrivateDeal: wrap(handleCreateWalletTxnPrivateDeal),
+    ignoreWalletTxn: wrap(handleIgnoreWalletTxn),
+    resetWalletTxn: wrap(handleResetWalletTxn),
     getJournals: wrap(handleGetJournals),
     getJournalStatus: wrap(handleGetJournalStatus),
     downloadJournal: wrap(handleDownloadJournal),
@@ -7385,6 +7787,9 @@ export function createMswHandlers(config: RequestHandlerOptions = {}): CreateMsw
     updateExpenseApplicationCurrency: wrap(handleUpdateExpenseApplicationCurrency),
     getExpenseApplicationForm: wrap(handleGetExpenseApplicationForm),
     updateExpenseApplicationForm: wrap(handleUpdateExpenseApplicationForm),
+    createExpenseApplicationAmountCalculation: wrap(
+      handleCreateExpenseApplicationAmountCalculation,
+    ),
     getExpenseApplicationLineTemplates: wrap(handleGetExpenseApplicationLineTemplates),
     createExpenseApplicationLineTemplate: wrap(handleCreateExpenseApplicationLineTemplate),
     destroyExpenseApplicationLineTemplate: wrap(handleDestroyExpenseApplicationLineTemplate),
@@ -7426,6 +7831,7 @@ export function createMswHandlers(config: RequestHandlerOptions = {}): CreateMsw
     destroyUserMatcher: wrap(handleDestroyUserMatcher),
     getUserMatcher: wrap(handleGetUserMatcher),
     updateUserMatcher: wrap(handleUpdateUserMatcher),
+    applyUserMatchers: wrap(handleApplyUserMatchers),
   };
   const all: CreateMswHandlersResult["all"] = (options = {}) => {
     type OverrideValue<R> = R | [response?: R, options?: RequestHandlerOptions];
@@ -7456,6 +7862,12 @@ export function createMswHandlers(config: RequestHandlerOptions = {}): CreateMsw
       invoke(pick.getPurchaseRequestsForm, overrides.getPurchaseRequestsForm),
       invoke(pick.createDealRenew, overrides.createDealRenew),
       invoke(pick.createDealPayment, overrides.createDealPayment),
+      invoke(pick.reconcileWalletTxn, overrides.reconcileWalletTxn),
+      invoke(pick.createWalletTxnDeal, overrides.createWalletTxnDeal),
+      invoke(pick.createWalletTxnTransfer, overrides.createWalletTxnTransfer),
+      invoke(pick.createWalletTxnPrivateDeal, overrides.createWalletTxnPrivateDeal),
+      invoke(pick.ignoreWalletTxn, overrides.ignoreWalletTxn),
+      invoke(pick.resetWalletTxn, overrides.resetWalletTxn),
       invoke(pick.downloadReceipt, overrides.downloadReceipt),
       invoke(pick.updateExpenseApplicationAction, overrides.updateExpenseApplicationAction),
       invoke(
@@ -7497,8 +7909,13 @@ export function createMswHandlers(config: RequestHandlerOptions = {}): CreateMsw
       invoke(pick.createExpenseApplicationCurrency, overrides.createExpenseApplicationCurrency),
       invoke(pick.getExpenseApplicationForm, overrides.getExpenseApplicationForm),
       invoke(pick.updateExpenseApplicationForm, overrides.updateExpenseApplicationForm),
+      invoke(
+        pick.createExpenseApplicationAmountCalculation,
+        overrides.createExpenseApplicationAmountCalculation,
+      ),
       invoke(pick.getApprovalRequestForms, overrides.getApprovalRequestForms),
       invoke(pick.getPurchaseRequestsForms, overrides.getPurchaseRequestsForms),
+      invoke(pick.applyUserMatchers, overrides.applyUserMatchers),
       invoke(pick.destroyPartner, overrides.destroyPartner),
       invoke(pick.getPartner, overrides.getPartner),
       invoke(pick.updatePartner, overrides.updatePartner),

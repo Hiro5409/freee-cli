@@ -93,7 +93,7 @@ function optionalOverrides(values: TransferValues): Partial<TransferParams> {
 }
 
 export const transferCreateCommand = define({
-  name: "transfer-create",
+  name: "create",
   description: "Create an account transfer",
   args: merge(
     companyArgs,
@@ -105,7 +105,7 @@ export const transferCreateCommand = define({
       to: required(transferArgs.to),
     }),
   ),
-  examples: `$ freee transfer-create --date 2026-08-01 \\
+  examples: `$ freee transfer create --date 2026-08-01 \\
     --from-walletable-id 10 --from-walletable-type bank_account \\
     --to '{"type":"credit_card","id":20,"amount":5000,"description":"Card payment"}' \\
     --format json`,
@@ -126,7 +126,7 @@ export const transferCreateCommand = define({
 });
 
 export const transferUpdateCommand = define({
-  name: "transfer-update",
+  name: "update",
   description: "Update selected fields of an account transfer",
   args: merge(
     dryRunArgs,
@@ -135,7 +135,7 @@ export const transferUpdateCommand = define({
       id: required(integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "Transfer ID" })),
     }),
   ),
-  examples: `$ freee transfer-update --id 42 --date 2026-08-02 --dry-run --format json`,
+  examples: `$ freee transfer update --id 42 --date 2026-08-02 --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const id = ctx.values.id;

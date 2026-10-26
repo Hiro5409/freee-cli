@@ -6,7 +6,7 @@ import { formatOutput } from "../../output/formatter.ts";
 import { getSections } from "../../types/freee/sdk.gen.ts";
 
 export const sectionListCommand = define({
-  name: "section-list",
+  name: "list",
   description: "List accounting sections (departments)",
   args: companyArgs,
   run: async (ctx) => {

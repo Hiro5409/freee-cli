@@ -8,7 +8,6 @@ import { runInvoiceRegisterDealCommand } from "./invoice-register-deal-command.t
 const scope = {
   profile: "business",
   companyId: 100,
-  authProfile: "business-freee",
 };
 
 const invoice = createMockInvoice({
@@ -57,11 +56,11 @@ function dependencies(
         return state;
       },
       withWeb: async <T>(
-        receivedScope: { companyId: number; authProfile: string },
+        receivedScope: { companyId: number; profile: string },
         run: (receivedWeb: FreeeWebOperations) => Promise<T>,
       ) => {
         webSessions += 1;
-        expect(receivedScope).toMatchObject({ companyId: 100, authProfile: "business-freee" });
+        expect(receivedScope).toMatchObject({ companyId: 100, profile: "business" });
         return run(web);
       },
     },

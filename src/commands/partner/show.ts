@@ -7,7 +7,7 @@ import { formatResource } from "../../output/formatter.ts";
 import { getPartner } from "../../types/freee/sdk.gen.ts";
 
 export const partnerShowCommand = define({
-  name: "partner-show",
+  name: "show",
   description: "Show partner details",
   args: merge(
     companyArgs,
@@ -15,7 +15,7 @@ export const partnerShowCommand = define({
       id: required(integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "Partner ID" })),
     }),
   ),
-  examples: `$ freee partner-show --id 42 --format json`,
+  examples: `$ freee partner show --id 42 --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const { data } = await getPartner({

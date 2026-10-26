@@ -8,7 +8,7 @@ import { formatOutput } from "../output/formatter.ts";
 import { getGeneralLedgers } from "../types/freee/sdk.gen.ts";
 
 export const generalLedgerCommand = define({
-  name: "general-ledger",
+  name: "list",
   description: "Show general-ledger balances for a date range (corporate Advance or Enterprise)",
   args: merge(
     companyArgs,
@@ -22,7 +22,7 @@ export const generalLedgerCommand = define({
       "tag-name": string({ description: "Filter by memo tag name" }),
     }),
   ),
-  examples: `$ freee general-ledger --start-date 2026-01-01 --end-date 2026-12-31 \\
+  examples: `$ freee general-ledger list --start-date 2026-01-01 --end-date 2026-12-31 \\
     --account-item-name 売上高 --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);

@@ -8,7 +8,7 @@ import { formatDryRun, formatValue } from "../../output/formatter.ts";
 import { invoicesCancel } from "../../types/freee-invoice/sdk.gen.ts";
 
 export const invoiceCancelCommand = define({
-  name: "invoice-cancel",
+  name: "cancel",
   description: "Cancel an invoice; a linked deal is also deleted by freee",
   args: merge(
     dryRunArgs,
@@ -16,7 +16,7 @@ export const invoiceCancelCommand = define({
       id: required(integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "Invoice ID" })),
     }),
   ),
-  examples: `$ freee invoice-cancel --id 900 --dry-run --format json`,
+  examples: `$ freee invoice cancel --id 900 --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const id = ctx.values.id;

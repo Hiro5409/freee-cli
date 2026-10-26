@@ -7,7 +7,7 @@ import { formatResource } from "../../output/formatter.ts";
 import { getDeal } from "../../types/freee/sdk.gen.ts";
 
 export const dealShowCommand = define({
-  name: "deal-show",
+  name: "show",
   description: "Show deal details",
   args: merge(
     companyArgs,

@@ -11,7 +11,7 @@ const ACTIVE_FILTERS = ["active", "inactive", "all"] as const;
 const ENTRY_SIDES = ["income", "expense"] as const;
 
 export const autoRegistrationRuleListCommand = define({
-  name: "auto-rule-list",
+  name: "list",
   description: "List a company's auto-registration rules",
   args: merge(
     listArgs,

@@ -8,7 +8,6 @@ import type { WalletableSyncProgress, WalletableSyncWeb } from "./walletable-syn
 const scope = {
   profile: "business",
   companyId: 42,
-  authProfile: "business-freee",
 };
 const web = {} as FreeeWebOperations;
 
@@ -19,7 +18,7 @@ function dependencies() {
       return scope;
     },
     withWeb: async <T>(
-      receivedScope: { companyId: number; authProfile: string },
+      receivedScope: { companyId: number; profile: string },
       run: (receivedWeb: FreeeWebOperations) => Promise<T>,
     ) => {
       expect(receivedScope).toEqual(scope);
@@ -47,7 +46,7 @@ function dependencies() {
 }
 
 describe("walletable sync command", () => {
-  test("uses the OAuth profile company and its Agent Browser Auth Profile", async () => {
+  test("uses the selected CLI profile and company", async () => {
     await expect(
       runWalletableSyncCommand({ profile: "business", id: 20 }, dependencies()),
     ).resolves.toEqual({

@@ -49,14 +49,25 @@ async function runCliWithEmptyConfig(
 }
 
 describe("CLI integration", () => {
+  test("resources expose API and browser operations under the same command group", async () => {
+    for (const args of [
+      ["deal", "list"],
+      ["wallet-txn", "list"],
+      ["wallet-txn", "ignore"],
+      ["invoice", "register-deal"],
+    ]) {
+      const result = await runCli([...args, "--help"]);
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toContain("--profile");
+    }
+  });
   test("freee --help shows usage with subcommands", async () => {
     const { stdout } = await runCli(["--help"]);
     expect(stdout.split("USAGE:").length - 1).toBe(1);
     expect(stdout).toContain("freee");
-    expect(stdout).toContain("login");
+    expect(stdout).toContain("auth");
     expect(stdout).toContain("setup");
-    expect(stdout).toContain("quotation-create");
-    expect(stdout).toContain("web");
+    expect(stdout).toContain("quotation");
     expect(stdout).toContain("freee setup");
     expect(stdout).toContain("--no-color");
   });
@@ -67,30 +78,16 @@ describe("CLI integration", () => {
     expect(stdout.trim()).toMatch(/^\d+\.\d+\.\d+$/);
   });
 
-  test("freee login --help shows login usage", async () => {
-    const { stdout } = await runCli(["login", "--help"]);
+  test("freee auth login --help shows login usage", async () => {
+    const { stdout } = await runCli(["auth", "login", "--help"]);
     expect(stdout).toContain("login");
-    expect(stdout).toContain("coding agents should ask the user");
-    expect(stdout).toContain("freee login --profile");
+    expect(stdout).toContain("--web");
+    expect(stdout).toContain("freee auth login --profile");
   });
 
-  test("freee setup --help shows setup usage", async () => {
-    const { stdout } = await runCli(["setup", "--help"]);
-    expect(stdout).toContain("setup");
-    expect(stdout).toContain("coding agents should ask the user");
-  });
-
-  test("freee web --help describes experimental Web-only operations", async () => {
-    const { stdout, stderr, exitCode } = await runCli(["web", "--help"]);
-    expect(exitCode).toBe(0);
-    expect(stderr).toBe("");
-    expect(stdout).toContain("Experimental");
-    expect(stdout).toContain("wallet-txn");
-    expect(stdout).toContain("walletable");
-  });
-
-  test("freee status --format json emits JSON error to stderr when credentials are missing", async () => {
+  test("freee auth status --format json emits JSON error to stderr when credentials are missing", async () => {
     const { stdout, stderr, exitCode } = await runCliWithEmptyConfig([
+      "auth",
       "status",
       "--format",
       "json",
@@ -103,25 +100,26 @@ describe("CLI integration", () => {
     expect(payload.error).toContain("No credentials found");
     expect(payload.exitCode).toBe(2);
     expect(payload.why).toBe("Authentication credentials are missing or invalid.");
-    expect(payload.hint).toContain("freee login --profile <name>");
+    expect(payload.hint).toContain("freee auth login --profile <name>");
     expect(payload.hint).toContain("retry with --profile <name>");
   });
 
-  test("freee status keeps human error output by default", async () => {
-    const { stdout, stderr, exitCode } = await runCliWithEmptyConfig(["status"]);
+  test("freee auth status keeps human error output by default", async () => {
+    const { stdout, stderr, exitCode } = await runCliWithEmptyConfig(["auth", "status"]);
 
     expect(exitCode).toBe(2);
     expect(stdout).toBe("");
     expect(stderr).toContain("No credentials found");
     expect(stderr).toContain("Authentication credentials are missing or invalid.");
-    expect(stderr).toContain('Ask the user to run "freee login --profile <name>"');
+    expect(stderr).toContain('Run "freee auth login --profile <name>"');
     expect(() => JSON.parse(stderr)).toThrow();
     expect(stderr).not.toContain("\u001B[");
   });
 
   test("a command that returns its output prints it to stdout", async () => {
     const { stdout, exitCode } = await runCliWithEmptyConfig([
-      "deal-delete",
+      "deal",
+      "delete",
       "--company-id",
       "123",
       "--id",
@@ -144,7 +142,8 @@ describe("CLI integration", () => {
 
   test("missing required arguments report one error without an internal stack trace", async () => {
     const { stdout, stderr, exitCode } = await runCliWithEmptyConfig([
-      "deal-show",
+      "deal",
+      "show",
       "--format",
       "json",
     ]);
@@ -155,7 +154,7 @@ describe("CLI integration", () => {
     expect(payload.error).toContain("Argument '--id' is required");
     expect(payload.exitCode).toBe(1);
     expect(payload.why).toContain("command interface");
-    expect(payload.hint).toContain("freee deal-show --help");
+    expect(payload.hint).toContain("freee deal show --help");
     expect(stderr.match(/Argument '--id' is required/g)).toHaveLength(1);
     expect(stderr).not.toContain("TypeError");
     expect(stderr).not.toContain("Bun v");
@@ -163,7 +162,8 @@ describe("CLI integration", () => {
 
   test("unknown options fail before a write command can run", async () => {
     const { stdout, stderr, exitCode } = await runCliWithEmptyConfig([
-      "deal-create",
+      "deal",
+      "create",
       "--company-id",
       "123",
       "--date",
@@ -190,7 +190,8 @@ describe("CLI integration", () => {
 
   test("unsupported output formats fail validation", async () => {
     const { stdout, stderr, exitCode } = await runCliWithEmptyConfig([
-      "company-list",
+      "company",
+      "list",
       "--format",
       "yaml",
     ]);
@@ -203,7 +204,8 @@ describe("CLI integration", () => {
 
   test("malformed CLI input reports one actionable validation issue", async () => {
     const { stdout, stderr, exitCode } = await runCliWithEmptyConfig([
-      "invoice-update",
+      "invoice",
+      "update",
       "--company-id",
       "1",
       "--id",

@@ -3,7 +3,6 @@ import { chmodSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { loadConfig, saveConfig } from "../config/config.ts";
 import { loadOAuthCredentials, saveOAuthCredentials } from "../config/oauth.ts";
 import { CliError } from "../errors.ts";
 import { runSetupWizard, type SetupPrompts } from "./setup.ts";
@@ -82,16 +81,18 @@ describe("setup wizard", () => {
       [
         "/usr/local/bin/bun",
         "/workspace/src/main.ts",
+        "auth",
         "login",
         "--profile",
         "work",
         "--set-default",
       ],
-      ["/usr/local/bin/bun", "/workspace/src/main.ts", "company-list", "--profile", "work"],
+      ["/usr/local/bin/bun", "/workspace/src/main.ts", "company", "list", "--profile", "work"],
       [
         "/usr/local/bin/bun",
         "/workspace/src/main.ts",
-        "company-switch",
+        "company",
+        "switch",
         "--profile",
         "work",
         "--id",
@@ -132,27 +133,18 @@ describe("setup wizard", () => {
     });
     expect(statSync(join(testDir, "oauth.env")).mode & 0o777).toBe(0o600);
     expect(spawn.mock.calls.map(([command]) => command)).toEqual([
-      ["/usr/bin/freee", "profile-set-default", "--name", "default"],
-      ["/usr/bin/freee", "company-list", "--profile", "default"],
-      ["/usr/bin/freee", "company-switch", "--profile", "default", "--id", "7"],
+      ["/usr/bin/freee", "profile", "set-default", "--name", "default"],
+      ["/usr/bin/freee", "company", "list", "--profile", "default"],
+      ["/usr/bin/freee", "company", "switch", "--profile", "default", "--id", "7"],
     ]);
   });
 
-  test("enables experimental Web operations for the selected profile", async () => {
+  test("opens Web login for the same selected CLI profile", async () => {
     saveOAuthCredentials(testDir, { clientId: "stored-id", clientSecret: "stored-secret" });
-    saveConfig(testDir, {
-      activeProfile: "work",
-      defaults: { format: "table" },
-      profiles: { work: { companyId: 42, name: "Business" } },
-    });
-    const prompts = createPrompts({
-      confirms: [true, true, true, true],
-      texts: ["work", "42", "business-freee"],
-    });
-    const notes: string[] = [];
-    prompts.note = (message) => notes.push(message);
-    const spawn = mock(() => ({ exited: Promise.resolve(0) }));
-
+    const prompts = createPrompts({ confirms: [true, true, true, true], texts: ["work", "42"] });
+    const spawn = mock((_command: string[], _options: SpawnOptions) => ({
+      exited: Promise.resolve(0),
+    }));
     await runSetupWizard({
       configDirectory: testDir,
       entrypoint: "",
@@ -162,50 +154,14 @@ describe("setup wizard", () => {
       runtime: "/usr/bin/freee",
       spawn,
     });
-
-    expect(loadConfig(testDir).profiles.work?.experimental).toEqual({
-      web: { authProfile: "business-freee" },
-    });
-    expect(notes.join("\n")).toContain("agent-browser auth save business-freee");
-  });
-
-  test("disables existing experimental Web operations when the profile opts out", async () => {
-    saveOAuthCredentials(testDir, { clientId: "stored-id", clientSecret: "stored-secret" });
-    saveConfig(testDir, {
-      activeProfile: "work",
-      defaults: { format: "table" },
-      profiles: {
-        work: {
-          companyId: 42,
-          name: "Business",
-          experimental: { web: { authProfile: "business-freee" } },
-        },
-      },
-    });
-    const prompts = createPrompts({
-      confirms: [true, true, true, false],
-      texts: ["work", "42"],
-    });
-    const confirmationOptions: Array<{ initialValue?: boolean; message: string }> = [];
-    const confirm = prompts.confirm.bind(prompts);
-    prompts.confirm = async (options) => {
-      confirmationOptions.push(options);
-      return confirm(options);
-    };
-    const spawn = mock(() => ({ exited: Promise.resolve(0) }));
-
-    await runSetupWizard({
-      configDirectory: testDir,
-      entrypoint: "",
-      interactive: true,
-      openBrowser: () => true,
-      prompts,
-      runtime: "/usr/bin/freee",
-      spawn,
-    });
-
-    expect(confirmationOptions[3]).toMatchObject({ initialValue: true });
-    expect(loadConfig(testDir).profiles.work?.experimental).toBeUndefined();
+    expect(spawn.mock.calls.at(-1)?.[0]).toEqual([
+      "/usr/bin/freee",
+      "auth",
+      "login",
+      "--web",
+      "--profile",
+      "work",
+    ]);
   });
 
   test("stops cleanly when the user cancels a prompt", async () => {

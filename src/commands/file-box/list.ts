@@ -21,7 +21,7 @@ const CATEGORY_CODES = {
 >;
 
 export const fileBoxListCommand = define({
-  name: "file-box-list",
+  name: "list",
   description: "List documents in the File Box",
   args: merge(
     listArgs,

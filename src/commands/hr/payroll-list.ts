@@ -12,7 +12,7 @@ import {
 } from "../../types/freee-hr/sdk.gen.ts";
 
 export const hrPayrollListCommand = define({
-  name: "hr-payroll-list",
+  name: "list",
   description: "List payroll statements from the freee HR API for a payment month",
   args: merge(
     listArgs,

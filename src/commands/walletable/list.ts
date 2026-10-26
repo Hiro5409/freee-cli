@@ -7,7 +7,7 @@ import { formatOutput } from "../../output/formatter.ts";
 import { getWalletables } from "../../types/freee/sdk.gen.ts";
 
 export const walletableListCommand = define({
-  name: "walletable-list",
+  name: "list",
   description: "List walletables: bank accounts, credit cards, and cash wallets",
   args: merge(
     companyArgs,

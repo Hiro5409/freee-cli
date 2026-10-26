@@ -26,7 +26,7 @@ function parsePartnerIds(value: string | undefined): string | undefined {
 }
 
 export const invoiceListCommand = define({
-  name: "invoice-list",
+  name: "list",
   description: "List invoices from the freee invoice API",
   args: merge(
     listArgs,

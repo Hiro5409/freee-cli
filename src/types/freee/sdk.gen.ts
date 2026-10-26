@@ -22,6 +22,9 @@ import type {
   ApiV1SectionsUpsertByCodeData,
   ApiV1SectionsUpsertByCodeErrors,
   ApiV1SectionsUpsertByCodeResponses,
+  ApplyUserMatchersData,
+  ApplyUserMatchersErrors,
+  ApplyUserMatchersResponses,
   CreateAccountGroupData,
   CreateAccountGroupErrors,
   CreateAccountGroupResponses,
@@ -40,6 +43,9 @@ import type {
   CreateDealRenewErrors,
   CreateDealRenewResponses,
   CreateDealResponses,
+  CreateExpenseApplicationAmountCalculationData,
+  CreateExpenseApplicationAmountCalculationErrors,
+  CreateExpenseApplicationAmountCalculationResponses,
   CreateExpenseApplicationCurrencyData,
   CreateExpenseApplicationCurrencyErrors,
   CreateExpenseApplicationCurrencyResponses,
@@ -89,8 +95,17 @@ import type {
   CreateWalletableErrors,
   CreateWalletableResponses,
   CreateWalletTxnData,
+  CreateWalletTxnDealData,
+  CreateWalletTxnDealErrors,
+  CreateWalletTxnDealResponses,
   CreateWalletTxnErrors,
+  CreateWalletTxnPrivateDealData,
+  CreateWalletTxnPrivateDealErrors,
+  CreateWalletTxnPrivateDealResponses,
   CreateWalletTxnResponses,
+  CreateWalletTxnTransferData,
+  CreateWalletTxnTransferErrors,
+  CreateWalletTxnTransferResponses,
   DeleteDealRenewData,
   DeleteDealRenewErrors,
   DeleteDealRenewResponses,
@@ -394,9 +409,18 @@ import type {
   GetWalletTxnsData,
   GetWalletTxnsErrors,
   GetWalletTxnsResponses,
+  IgnoreWalletTxnData,
+  IgnoreWalletTxnErrors,
+  IgnoreWalletTxnResponses,
   ListExpenseApplicationCurrenciesData,
   ListExpenseApplicationCurrenciesErrors,
   ListExpenseApplicationCurrenciesResponses,
+  ReconcileWalletTxnData,
+  ReconcileWalletTxnErrors,
+  ReconcileWalletTxnResponses,
+  ResetWalletTxnData,
+  ResetWalletTxnErrors,
+  ResetWalletTxnResponses,
   UpdateAccountItemData,
   UpdateAccountItemErrors,
   UpdateAccountItemResponses,
@@ -2926,6 +2950,164 @@ export const getWalletTxn = <ThrowOnError extends boolean = true>(
   });
 
 /**
+ * 口座明細で未決済取引の消込
+ *
+ * 指定した口座明細と既存の未決済取引を紐づけて消込する
+ *
+ * ### 注意点
+ * - deals に指定した取引の決済金額の合計と adjustment_deal の金額の合計を合わせた額は、明細金額と一致させてください。決済金額の合計が明細金額に満たない・超える場合は、差額を新規取引として登録するために adjustment_deal を指定してください。
+ * - adjustment_deal を指定した場合、作成された取引のIDがレスポンスの new_deal_id に入ります。指定しない場合は null になります。
+ * - 同一のパラメータで再リクエストした場合も冪等に同じレスポンスを返します。
+ * - 明細が既に別の取引で消込済みの場合、または取引が既に別の明細で決済済みの場合は409エラーが返ります。
+ */
+export const reconcileWalletTxn = <ThrowOnError extends boolean = true>(
+  options: Options<ReconcileWalletTxnData, ThrowOnError>,
+): RequestResult<ReconcileWalletTxnResponses, ReconcileWalletTxnErrors, ThrowOnError> =>
+  (options.client ?? client).post<
+    ReconcileWalletTxnResponses,
+    ReconcileWalletTxnErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/1/wallet_txns/{id}/reconcile",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * 口座明細からの取引登録
+ *
+ * 指定した口座明細から取引を作成し、作成した取引で明細を消込する
+ *
+ * ### 注意点
+ * - deal_lines の amount は符号付きの整数で指定します。明細の入出金区分（entry_side）と amount の符号から、借方・貸方が自動で決まります。
+ * - deal_lines の金額の合計は明細金額と一致させてください。
+ */
+export const createWalletTxnDeal = <ThrowOnError extends boolean = true>(
+  options: Options<CreateWalletTxnDealData, ThrowOnError>,
+): RequestResult<CreateWalletTxnDealResponses, CreateWalletTxnDealErrors, ThrowOnError> =>
+  (options.client ?? client).post<
+    CreateWalletTxnDealResponses,
+    CreateWalletTxnDealErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/1/wallet_txns/{id}/create_deal",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * 口座明細からの口座振替登録
+ *
+ * 指定した口座明細を口座振替として登録する
+ *
+ * ### 注意点
+ * - 振替元は transfer_from_line で1口座、振替先は transfer_to_lines で複数口座を指定できます。
+ * - 入金明細の場合は transfer_to_lines、出金明細の場合は transfer_from_line に、必ず対象の明細の口座を含めてください。
+ * - transfer_from_line の振替元口座から出金される金額は、transfer_to_lines の金額の合計と charge_lines の金額の合計（line_type が paid は加算、received は減算）を合わせた額と必ず一致させてください。
+ * - 明細の口座に対応する金額（出金明細の場合は上記の振替元の金額、入金明細の場合は transfer_to_lines のうち明細の口座の行の金額）は、明細金額と一致させてください。
+ * - transfer_to_lines に同一口座（walletable_type と walletable_id の組み合わせ）を重複して指定できません。
+ * - 税込経理の事業所では charge_lines の vat を指定できません。
+ */
+export const createWalletTxnTransfer = <ThrowOnError extends boolean = true>(
+  options: Options<CreateWalletTxnTransferData, ThrowOnError>,
+): RequestResult<CreateWalletTxnTransferResponses, CreateWalletTxnTransferErrors, ThrowOnError> =>
+  (options.client ?? client).post<
+    CreateWalletTxnTransferResponses,
+    CreateWalletTxnTransferErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/1/wallet_txns/{id}/create_transfer",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * 口座明細のプライベート取引としての登録
+ *
+ * 指定した口座明細に対応するプライベート取引を作成し、明細を消込する
+ *
+ * ### 注意点
+ * - プライベート取引は、個人事業所では事業主貸・事業主借、法人事業所では役員貸付金・役員借入金として登録されます。勘定科目や金額の指定は不要です。
+ */
+export const createWalletTxnPrivateDeal = <ThrowOnError extends boolean = true>(
+  options: Options<CreateWalletTxnPrivateDealData, ThrowOnError>,
+): RequestResult<
+  CreateWalletTxnPrivateDealResponses,
+  CreateWalletTxnPrivateDealErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    CreateWalletTxnPrivateDealResponses,
+    CreateWalletTxnPrivateDealErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/1/wallet_txns/{id}/create_private_deal",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * 口座明細の無視
+ *
+ * 指定した口座明細を「無視」の状態に変更する
+ *
+ * ### 注意点
+ * - 既に「無視」の明細を指定した場合も、冪等に成功として200を返します。
+ * - 「消込済み」の明細は無視できません。先に口座明細の未消込への変更API（POST /api/1/wallet_txns/{id}/reset）で「未消込」に戻してください。
+ */
+export const ignoreWalletTxn = <ThrowOnError extends boolean = true>(
+  options: Options<IgnoreWalletTxnData, ThrowOnError>,
+): RequestResult<IgnoreWalletTxnResponses, IgnoreWalletTxnErrors, ThrowOnError> =>
+  (options.client ?? client).post<IgnoreWalletTxnResponses, IgnoreWalletTxnErrors, ThrowOnError>({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/1/wallet_txns/{id}/ignore",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * 口座明細の未消込への変更
+ *
+ * 「無視」または「消込済み」の口座明細を「未消込」の状態に戻す
+ *
+ * ### 注意点
+ * - 「無視」の明細は無視を解除し、「消込済み」の明細は消込を解除します。
+ * - 既に「未消込」の明細を指定した場合も、冪等に成功として200を返します。
+ * - 明細に紐づく仕訳が承認済みの場合、または非同期処理中の場合は400エラーが返ります。
+ */
+export const resetWalletTxn = <ThrowOnError extends boolean = true>(
+  options: Options<ResetWalletTxnData, ThrowOnError>,
+): RequestResult<ResetWalletTxnResponses, ResetWalletTxnErrors, ThrowOnError> =>
+  (options.client ?? client).post<ResetWalletTxnResponses, ResetWalletTxnErrors, ThrowOnError>({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/1/wallet_txns/{id}/reset",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * 仕訳帳のダウンロード要求
  *
  *
@@ -4788,9 +4970,6 @@ export const getExpenseApplications = <ThrowOnError extends boolean = true>(
  *   </li>
  *   <li>申請時には、申請タイトル(title)に加え、項目行については金額(amount)、日付(transaction_date)、内容(description)が必須項目となります。申請時の業務効率化のため、API入力をお勧めします。</li>
  *   <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は作成できません。</li>
- *   <li>本APIは外貨には非対応です。外貨を利用する経費申請は作成できません。</li>
- *   <li>本APIはカスタム申請項目には非対応です。カスタム申請項目を使用した経費申請は作成できません。</li>
- *   <li>本APIは金額計算方法には非対応です。金額計算方法を設定した経費申請は作成できません。</li>
  *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
  * </ul>
  */
@@ -4848,8 +5027,6 @@ export const createExpenseApplication = <ThrowOnError extends boolean = true>(
  *     </ul>
  *   </li>
  *   <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は削除できません。</li>
- *   <li>本APIはカスタム申請項目には非対応です。カスタム申請項目を使用した経費申請は削除できません。</li>
- *   <li>本APIは金額計算方法には非対応です。金額計算方法を設定した経費申請は削除できません。</li>
  * </ul>
  */
 export const destroyExpenseApplication = <ThrowOnError extends boolean = true>(
@@ -4878,13 +5055,6 @@ export const destroyExpenseApplication = <ThrowOnError extends boolean = true>(
  * <p>指定した事業所の経費申請を取得する</p>
  *
  * <p>経費精算APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-expense-applications" target="_blank">freee会計経費精算APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIは外貨には非対応です。外貨を利用する経費申請は取得できません。</li>
- *   <li>本APIはカスタム申請項目には非対応です。カスタム申請項目を使用した経費申請は取得できません。</li>
- *   <li>本APIは金額計算方法には非対応です。金額計算方法を設定した経費申請は取得できません。</li>
- * </ul>
  */
 export const getExpenseApplication = <ThrowOnError extends boolean = true>(
   options: Options<GetExpenseApplicationData, ThrowOnError>,
@@ -4947,9 +5117,6 @@ export const getExpenseApplication = <ThrowOnError extends boolean = true>(
  *   </li>
  *   <li>申請時には、申請タイトル(title)に加え、項目行については金額(amount)、日付(transaction_date)、内容(description)が必須項目となります。申請時の業務効率化のため、API入力をお勧めします。</li>
  *   <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は更新できません。</li>
- *   <li>本APIは外貨には非対応です。外貨を利用する経費申請は更新できません。</li>
- *   <li>本APIはカスタム申請項目には非対応です。カスタム申請項目を使用した経費申請は更新できません。</li>
- *   <li>本APIは金額計算方法には非対応です。金額計算方法を設定した経費申請は更新できません。</li>
  *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
  * </ul>
  */
@@ -5016,8 +5183,6 @@ export const updateExpenseApplication = <ThrowOnError extends boolean = true>(
  *     次の承認ステップが部門選択型の場合は next_group_id を指定してください。
  *   </li>
  *   <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は承認操作できません。</li>
- *   <li>本APIはカスタム申請項目には非対応です。カスタム申請項目を使用した経費申請は承認操作できません。</li>
- *   <li>本APIは金額計算方法には非対応です。金額計算方法を設定した経費申請は承認操作できません。</li>
  *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
  * </ul>
  */
@@ -5286,6 +5451,35 @@ export const updateExpenseApplicationForm = <ThrowOnError extends boolean = true
   });
 
 /**
+ * 経費申請の金額の自動計算
+ *
+ *
+ * <h2 id="_1">概要</h2>
+ *
+ * <p>指定した経費科目の金額計算設定にカスタム申請項目の入力値を適用し、経費申請の明細行の金額を計算します。計算するだけで、経費申請も計算結果も保存されません。</p>
+ */
+export const createExpenseApplicationAmountCalculation = <ThrowOnError extends boolean = true>(
+  options: Options<CreateExpenseApplicationAmountCalculationData, ThrowOnError>,
+): RequestResult<
+  CreateExpenseApplicationAmountCalculationResponses,
+  CreateExpenseApplicationAmountCalculationErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    CreateExpenseApplicationAmountCalculationResponses,
+    CreateExpenseApplicationAmountCalculationErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/1/expense_applications/amount_calculations",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * 経費科目一覧の取得
  *
  *
@@ -5294,11 +5488,6 @@ export const updateExpenseApplicationForm = <ThrowOnError extends boolean = true
  * <p>指定した事業所の経費科目一覧を取得する</p>
  *
  * <p>経費科目は、経費申請の作成時に申請者が選択する項目で、勘定科目・税区分・品目などの組み合わせをあらかじめ設定したものです。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>カスタム申請項目を含むなど、Web版freee会計専用の設定を含む経費科目も一覧には含まれます。ただし、これらの経費科目は経費科目の取得・更新APIでは404エラーになります。</li>
- * </ul>
  */
 export const getExpenseApplicationLineTemplates = <ThrowOnError extends boolean = true>(
   options: Options<GetExpenseApplicationLineTemplatesData, ThrowOnError>,
@@ -5385,18 +5574,6 @@ export const destroyExpenseApplicationLineTemplate = <ThrowOnError extends boole
  * <h2 id="_1">概要</h2>
  *
  * <p>指定した事業所の経費科目を取得する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>
- *     以下のいずれかに該当する経費科目はWeb版freee会計専用のため、本APIでは404エラーになります（経費科目一覧の取得APIでは取得できます）。
- *     <ul>
- *       <li>カスタム申請項目を含む</li>
- *       <li>内容の入力設定が「必須」以外</li>
- *       <li>金額の設定が「なし」以外</li>
- *     </ul>
- *   </li>
- * </ul>
  */
 export const getExpenseApplicationLineTemplate = <ThrowOnError extends boolean = true>(
   options: Options<GetExpenseApplicationLineTemplateData, ThrowOnError>,
@@ -5432,14 +5609,6 @@ export const getExpenseApplicationLineTemplate = <ThrowOnError extends boolean =
  *     <ul>
  *       <li>設定を変更してもsource_line_template_idは変わりません。経費科目を長期的に識別する用途にはこちらを保存してください。</li>
  *       <li>本APIのidパラメータは変更前の経費科目IDでも受け付けますが、取得・更新・削除の前に一覧取得または経費科目の取得APIで最新のidを引き直すことを推奨します。</li>
- *     </ul>
- *   </li>
- *   <li>
- *     以下のいずれかに該当する経費科目はWeb版freee会計専用のため、本APIでは404エラーになります。
- *     <ul>
- *       <li>カスタム申請項目を含む</li>
- *       <li>内容の入力設定が「必須」以外</li>
- *       <li>金額の設定が「なし」以外</li>
  *     </ul>
  *   </li>
  * </ul>
@@ -5537,8 +5706,9 @@ export const getPaymentRequests = <ThrowOnError extends boolean = true>(
  *     </ul>
  *     申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。
  *   </li>
- *   <li>本APIは条件分岐を含む申請経路には非対応です。条件分岐を含む申請経路を使用した支払依頼は作成できません。</li>
+ *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
  *   <li>本APIでは支払依頼の項目行一覧(payment_request_lines)は、最大100行までになります。</li>
+ *   <li>parent_id と parent_type で、各種申請または購買申請を親申請として関連付けられます。</li>
  * </ul>
  */
 export const createPaymentRequest = <ThrowOnError extends boolean = true>(
@@ -5676,9 +5846,10 @@ export const getPaymentRequest = <ThrowOnError extends boolean = true>(
  *     </ul>
  *     申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。
  *   </li>
- *   <li>本APIは条件分岐を含む申請経路には非対応です。条件分岐を含む申請経路を使用した支払依頼は更新できません。</li>
+ *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
  *   <li>申請ステータスが申請中の場合には、申請タイトル(title)、申請日(application_date)、申請経路ID(approval_flow_route_id)、承認者のユーザーID(approver_id)は更新ができません。</li>
  *   <li>本APIでは支払依頼の項目行一覧(payment_request_lines)は、最大100行までになります。</li>
+ *   <li>parent_id と parent_type で、各種申請または購買申請を親申請として関連付けられます。parent_id に null を指定すると関連付けを解除し、キーを指定しない場合は親申請を更新しません。</li>
  * </ul>
  */
 export const updatePaymentRequest = <ThrowOnError extends boolean = true>(
@@ -5743,7 +5914,7 @@ export const updatePaymentRequest = <ThrowOnError extends boolean = true>(
  *     </ul>
  *     次の承認ステップが部門選択型の場合は next_group_id を指定してください。
  *   </li>
- *   <li>本APIは条件分岐を含む申請経路には非対応です。条件分岐を含む申請経路を使用した支払依頼は承認操作できません。</li>
+ *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
  * </ul>
  */
 export const updatePaymentRequestAction = <ThrowOnError extends boolean = true>(
@@ -6417,9 +6588,6 @@ export const createPurchaseRequestAction = <ThrowOnError extends boolean = true>
  *   <li>
  *     <p>承認ステップの詳細（steps）は本APIのレスポンスには含まれません。承認方法や分岐条件を確認する場合は、申請経路の取得（GET /api/1/approval_flow_routes/{id}）をご利用ください。</p>
  *   </li>
- *   <li>
- *     <p>支払依頼では、条件分岐を含む申請経路を指定した作成・更新・承認操作はできません。</p>
- *   </li>
  * </ul>
  */
 export const getApprovalFlowRoutes = <ThrowOnError extends boolean = true>(
@@ -6451,9 +6619,6 @@ export const getApprovalFlowRoutes = <ThrowOnError extends boolean = true>(
  * <ul>
  *   <li>
  *     <p>承認ステップごとの承認方法は steps[].resource_type で判別できます。役職で承認者を指定する承認ステップ（and_position / or_position）では steps[].approver_determination_type、steps[].group、steps[].position_types を、条件分岐の承認ステップ（switchable）では steps[].switching_rules をご参照ください。</p>
- *   </li>
- *   <li>
- *     <p>支払依頼では、条件分岐を含む申請経路を指定した作成・更新・承認操作はできません。</p>
  *   </li>
  * </ul>
  */
@@ -6798,3 +6963,32 @@ export const updateUserMatcher = <ThrowOnError extends boolean = true>(
       },
     },
   );
+
+/**
+ * 自動登録ルールの一括適用
+ *
+ * 概要
+ *
+ * 指定した未消込明細に、未適用の自動登録ルールを一括で適用する
+ *
+ * 注意点
+ * - 適用処理は非同期で実行されます。レスポンスを受け取った時点では適用は完了していません。
+ * - wallet_txn_ids に、事業所内に存在しない明細IDが含まれる場合は400エラーが返ります。
+ * - 指定された明細のうち、適用対象外の明細（未消込以外の明細など）は処理対象外としてスキップされます。
+ */
+export const applyUserMatchers = <ThrowOnError extends boolean = true>(
+  options: Options<ApplyUserMatchersData, ThrowOnError>,
+): RequestResult<ApplyUserMatchersResponses, ApplyUserMatchersErrors, ThrowOnError> =>
+  (options.client ?? client).post<
+    ApplyUserMatchersResponses,
+    ApplyUserMatchersErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/1/user_matchers/apply",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });

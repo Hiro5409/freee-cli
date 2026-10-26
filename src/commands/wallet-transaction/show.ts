@@ -7,7 +7,7 @@ import { formatResource } from "../../output/formatter.ts";
 import { getWalletTxn } from "../../types/freee/sdk.gen.ts";
 
 export const walletTransactionShowCommand = define({
-  name: "wallet-txn-show",
+  name: "show",
   description: "Show a wallet transaction",
   args: merge(
     companyArgs,
@@ -17,7 +17,7 @@ export const walletTransactionShowCommand = define({
       ),
     }),
   ),
-  examples: `$ freee wallet-txn-show --id 42 --format json`,
+  examples: `$ freee wallet-txn show --id 42 --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const { data } = await getWalletTxn({

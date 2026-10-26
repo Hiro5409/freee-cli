@@ -8,7 +8,7 @@ import { formatValue } from "../../output/formatter.ts";
 import { invoicesUncancel } from "../../types/freee-invoice/sdk.gen.ts";
 
 export const invoiceRestoreCommand = define({
-  name: "invoice-restore",
+  name: "restore",
   description: "Restore an invoice canceled through the freee invoice API",
   args: merge(
     companyArgs,
@@ -16,7 +16,7 @@ export const invoiceRestoreCommand = define({
       id: required(integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "Invoice ID" })),
     }),
   ),
-  examples: `$ freee invoice-restore --id 900 --format json`,
+  examples: `$ freee invoice restore --id 900 --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const id = ctx.values.id;

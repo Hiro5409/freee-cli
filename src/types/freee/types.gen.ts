@@ -744,6 +744,325 @@ export type WalletTxnParams = {
   balance?: number;
 };
 
+/**
+ * 消込対象の取引
+ */
+export type WalletTxnReconcileDeal = {
+  /**
+   * 取引ID
+   */
+  deal_id: number;
+  /**
+   * 決済金額（単位: 円）。正の整数で指定します。
+   */
+  amount: number;
+};
+
+/**
+ * 消込時に差額を新規取引として登録するための取引
+ */
+export type WalletTxnReconcileAdjustmentDeal = {
+  /**
+   * 取引発生日 (yyyy-mm-dd)。明細の取引日以前の日付を指定します。省略時は明細の取引日と同日になります。
+   */
+  issue_date?: string;
+  /**
+   * 管理番号
+   */
+  ref?: string;
+  /**
+   * 取引先ID
+   */
+  partner_id?: number;
+  /**
+   * 取引の内訳行
+   */
+  deal_lines: Array<{
+    /**
+     * 金額（税込。単位: 円）。0以外の符号付きの整数で指定します。明細の入出金区分（entry_side）と符号から借方・貸方が決まります。
+     */
+    amount: number;
+    /**
+     * 税額（単位: 円）。省略時は amount と tax_code から自動計算されます。
+     */
+    vat?: number;
+    /**
+     * メモタグIDのリスト
+     */
+    tag_ids?: Array<number>;
+    /**
+     * セグメント1タグID
+     */
+    segment_1_tag_id?: number;
+    /**
+     * セグメント2タグID
+     */
+    segment_2_tag_id?: number;
+    /**
+     * セグメント3タグID
+     */
+    segment_3_tag_id?: number;
+    /**
+     * 品目ID
+     */
+    item_id?: number;
+    /**
+     * 摘要
+     */
+    description?: string;
+    /**
+     * 税区分コード。省略時は勘定科目に紐づくデフォルトの税区分が適用されます。
+     */
+    tax_code?: number;
+    /**
+     * 税入力方法
+     * - `in` - 内税
+     * - `out` - 外税
+     */
+    tax_entry_method?: "in" | "out";
+    /**
+     * 部門ID
+     */
+    section_id?: number;
+    /**
+     * 勘定科目ID
+     */
+    account_item_id: number;
+    /**
+     * 取引先ID。「内訳行ごとの取引先個別指定」の設定が有効な事業所でのみ指定できます。設定が有効な場合、省略するとその内訳行には取引先を設定しません。
+     */
+    partner_id?: number;
+  }>;
+};
+
+/**
+ * 明細から登録する取引の内訳行
+ */
+export type WalletTxnDealLine = {
+  /**
+   * 金額（税込。単位: 円）。0以外の符号付きの整数で指定します。明細の入出金区分（entry_side）と符号から借方・貸方が決まります。
+   */
+  amount: number;
+  /**
+   * 税額（単位: 円）。省略時は amount と tax_code から自動計算されます。
+   */
+  vat?: number;
+  /**
+   * メモタグIDのリスト
+   */
+  tag_ids?: Array<number>;
+  /**
+   * セグメント1タグID
+   */
+  segment_1_tag_id?: number;
+  /**
+   * セグメント2タグID
+   */
+  segment_2_tag_id?: number;
+  /**
+   * セグメント3タグID
+   */
+  segment_3_tag_id?: number;
+  /**
+   * 品目ID
+   */
+  item_id?: number;
+  /**
+   * 摘要
+   */
+  description?: string;
+  /**
+   * 税区分コード。省略時は勘定科目に紐づくデフォルトの税区分が適用されます。
+   */
+  tax_code?: number;
+  /**
+   * 税入力方法
+   * - `in` - 内税
+   * - `out` - 外税
+   */
+  tax_entry_method?: "in" | "out";
+  /**
+   * 部門ID
+   */
+  section_id?: number;
+  /**
+   * 勘定科目ID
+   */
+  account_item_id: number;
+  /**
+   * 取引先ID。「内訳行ごとの取引先個別指定」の設定が有効な事業所でのみ指定できます。設定が有効な場合、省略するとその内訳行には取引先を設定しません。
+   */
+  partner_id?: number;
+};
+
+/**
+ * 口座振替の振替元の口座
+ */
+export type WalletTxnTransferFromLine = {
+  /**
+   * 口座区分
+   * - `bank_account` - 銀行口座
+   * - `credit_card` - クレジットカード
+   * - `wallet` - 現金・その他の決済口座
+   */
+  walletable_type: "bank_account" | "credit_card" | "wallet";
+  /**
+   * walletable_type で指定した振替元口座のID
+   */
+  walletable_id: number;
+  /**
+   * 口座振替の仕訳行に付与する品目・部門・取引先・メモタグ・セグメント
+   */
+  walletable_tags?: {
+    /**
+     * 振替の仕訳行に付与する品目のID
+     */
+    item_id?: number | null;
+    /**
+     * 振替の仕訳行に付与する部門のID
+     */
+    section_id?: number | null;
+    /**
+     * 振替の仕訳行に付与する取引先のID
+     */
+    partner_id?: number | null;
+    /**
+     * 振替の仕訳行に付与するメモタグのIDのリスト
+     */
+    tag_ids?: Array<number>;
+    /**
+     * 振替の仕訳行に付与するセグメント1のタグID
+     */
+    segment_1_tag_id?: number | null;
+    /**
+     * 振替の仕訳行に付与するセグメント2のタグID
+     */
+    segment_2_tag_id?: number | null;
+    /**
+     * 振替の仕訳行に付与するセグメント3のタグID
+     */
+    segment_3_tag_id?: number | null;
+  };
+};
+
+/**
+ * 口座振替の振替先の口座と振替金額
+ */
+export type WalletTxnTransferToLine = {
+  /**
+   * 口座区分
+   * - `bank_account` - 銀行口座
+   * - `credit_card` - クレジットカード
+   * - `wallet` - 現金・その他の決済口座
+   */
+  walletable_type: "bank_account" | "credit_card" | "wallet";
+  /**
+   * walletable_type で指定した振替先口座のID
+   */
+  walletable_id: number;
+  /**
+   * 振替先口座へ振り替える金額（単位: 円）。正の整数で指定します。
+   */
+  amount: number;
+  /**
+   * 振替先の仕訳行に記録する摘要
+   */
+  description?: string | null;
+  /**
+   * 口座振替の仕訳行に付与する品目・部門・取引先・メモタグ・セグメント
+   */
+  walletable_tags?: {
+    /**
+     * 振替の仕訳行に付与する品目のID
+     */
+    item_id?: number | null;
+    /**
+     * 振替の仕訳行に付与する部門のID
+     */
+    section_id?: number | null;
+    /**
+     * 振替の仕訳行に付与する取引先のID
+     */
+    partner_id?: number | null;
+    /**
+     * 振替の仕訳行に付与するメモタグのIDのリスト
+     */
+    tag_ids?: Array<number>;
+    /**
+     * 振替の仕訳行に付与するセグメント1のタグID
+     */
+    segment_1_tag_id?: number | null;
+    /**
+     * 振替の仕訳行に付与するセグメント2のタグID
+     */
+    segment_2_tag_id?: number | null;
+    /**
+     * 振替の仕訳行に付与するセグメント3のタグID
+     */
+    segment_3_tag_id?: number | null;
+  };
+};
+
+/**
+ * 口座振替と同時に支払または受取として計上する手数料等の仕訳行
+ */
+export type WalletTxnTransferChargeLine = {
+  /**
+   * 手数料等の仕訳行に使用する勘定科目のID
+   */
+  account_item_id: number;
+  /**
+   * 手数料等の金額（単位: 円）。正の整数で指定します。
+   */
+  amount: number;
+  /**
+   * 手数料等の収支区分
+   * - `paid` - 支払手数料等として計上する
+   * - `received` - 受取利息等として計上する
+   */
+  line_type: "paid" | "received";
+  /**
+   * 手数料等の仕訳行に適用する税区分コード
+   */
+  tax_code?: number | null;
+  /**
+   * 手数料等の消費税額（単位: 円）。0以上の整数で指定します。省略時は amount と tax_code から自動計算されます。税込経理の事業所では指定できません。
+   */
+  vat?: number | null;
+  /**
+   * 手数料等の仕訳行に記録する摘要
+   */
+  description?: string | null;
+  /**
+   * 手数料等の仕訳行に付与する品目のID
+   */
+  item_id?: number | null;
+  /**
+   * 手数料等の仕訳行に付与する部門のID
+   */
+  section_id?: number | null;
+  /**
+   * 手数料等の仕訳行に付与する取引先のID
+   */
+  partner_id?: number | null;
+  /**
+   * 手数料等の仕訳行に付与するメモタグのIDのリスト
+   */
+  tag_ids?: Array<number>;
+  /**
+   * 手数料等の仕訳行に付与するセグメント1のタグID
+   */
+  segment_1_tag_id?: number | null;
+  /**
+   * 手数料等の仕訳行に付与するセグメント2のタグID
+   */
+  segment_2_tag_id?: number | null;
+  /**
+   * 手数料等の仕訳行に付与するセグメント3のタグID
+   */
+  segment_3_tag_id?: number | null;
+};
+
 export type ExpenseApplicationCreateParams = {
   /**
    * 事業所ID
@@ -790,6 +1109,29 @@ export type ExpenseApplicationCreateParams = {
      */
     sub_receipt_ids?: Array<number>;
     /**
+     * 外貨を利用するか<br>
+     * trueを指定する場合は、expense_application_purchase_line_currencyも指定してください。事業所の外貨利用設定が無効な場合は400エラーになります。<br>
+     */
+    use_currency?: boolean;
+    /**
+     * 申請行の通貨情報<br>
+     * use_currencyにtrueを指定した場合に有効です。
+     */
+    expense_application_purchase_line_currency?: {
+      /**
+       * 通貨ID。事業所で利用可能な通貨を指定します。存在しない通貨IDを指定すると400エラーになります。
+       */
+      currency_id?: number;
+      /**
+       * 通貨コード（ISO 4217）。currency_idの通貨コードと一致しない場合は400エラーになります。
+       */
+      currency_code?: string;
+      /**
+       * 為替レート（小数点以下4桁まで）。5桁以上を指定すると400エラーになります。
+       */
+      exchange_rate?: number;
+    };
+    /**
      * 明細行一覧（配列）
      */
     expense_application_lines?: Array<{
@@ -798,7 +1140,9 @@ export type ExpenseApplicationCreateParams = {
        */
       description?: string;
       /**
-       * 金額
+       * 金額（円）<br>
+       * use_currency・exchange_rate・currency_amountをすべて指定した場合は省略できます。省略した場合は、外貨額と為替レートからサーバーが円換算した金額を設定します。指定した場合は、換算額と異なっていても指定した金額がそのまま保存されます（カード手数料などで換算額と実際の申請金額が異なる場合は、実際の金額を指定してください）。<br>
+       * 上記を指定しない場合は、金額を指定してください。
        */
       amount?: number;
       /**
@@ -807,6 +1151,59 @@ export type ExpenseApplicationCreateParams = {
        * 利用可能な経費科目は、経費科目一覧APIのsection_ids[]に部門IDを指定して取得してください。
        */
       expense_application_line_template_id?: number;
+      /**
+       * 明細行の外貨額<br>
+       * 申請行でuse_currencyにtrueを指定した場合に有効です。<br>
+       * 外貨額と為替レートから円換算した金額は、amountを省略した場合にamountへ設定されます。amountを指定した場合も、円換算した金額はレスポンスのsystem_calc_amountとして返ります。円換算時の端数は、事業所の経費精算設定の端数処理に従います。
+       */
+      expense_application_line_currency_amount?: {
+        /**
+         * 外貨額（小数点以下4桁まで）。5桁以上を指定すると400エラーになります。
+         */
+        currency_amount?: number;
+      };
+      /**
+       * カスタム申請項目の値一覧（配列）<br>
+       * 経費科目に設定されたカスタム申請項目に対する入力値を指定します。カスタム申請項目の一覧は経費科目APIから取得してください。<br>
+       * 金額の自動計算が設定された経費科目では、custom_valuesから計算した金額とamountが一致しない場合は400エラーになります（サーバー側の計算結果でamountを上書きすることはありません）。
+       */
+      custom_values?: Array<{
+        /**
+         * カスタム申請項目のキー。経費科目APIのカスタム申請項目が返すkeyを指定します。<br>
+         * 明細行の経費科目に存在しないキーを指定した場合は400エラーになります。
+         */
+        key: string;
+        /**
+         * カスタム申請項目の入力形式<br>
+         * 経費科目に登録されているカスタム申請項目の入力形式と一致しない場合は400エラーになります。
+         */
+        type:
+          | "single_line_string"
+          | "multi_line_string"
+          | "date"
+          | "date_range"
+          | "datetime"
+          | "pulldown"
+          | "radio_button"
+          | "checkbox"
+          | "number";
+        /**
+         * カスタム申請項目の値。typeによって指定できる形式が変わります。<br>
+         * <ul>
+         *   <li>single_line_string: 文字列 (255文字以内)</li>
+         *   <li>multi_line_string: 文字列 (10000文字以内)</li>
+         *   <li>date: 文字列 (yyyy-mm-dd)</li>
+         *   <li>date_range: start_date（開始日 yyyy-mm-dd）とend_date（終了日 yyyy-mm-dd）を持つオブジェクト</li>
+         *   <li>datetime: 文字列 (yyyy-mm-dd hh:mm)</li>
+         *   <li>pulldown: 文字列。カスタム申請項目の選択肢のいずれか</li>
+         *   <li>radio_button: 文字列。カスタム申請項目の選択肢のいずれか</li>
+         *   <li>checkbox: 文字列の配列。カスタム申請項目の選択肢のうち選択されたもの</li>
+         *   <li>number: 数値 (10桁以内、小数3桁まで)</li>
+         * </ul>
+         * nullまたは未指定の場合は未入力として扱います。入力設定が必須のカスタム申請項目を未入力で申請すると400エラーになります。
+         */
+        value?: unknown;
+      }>;
     }>;
   }>;
   /**
@@ -955,6 +1352,30 @@ export type ExpenseApplicationUpdateParams = {
      */
     sub_receipt_ids?: Array<number>;
     /**
+     * 外貨を利用するか<br>
+     * trueを指定する場合は、expense_application_purchase_line_currencyも指定してください。事業所の外貨利用設定が無効な場合は400エラーになります。<br>
+     * 更新時、use_currencyを省略した場合は既存の外貨情報が保持されます。falseを指定した場合のみ外貨情報が削除されます。<br>
+     */
+    use_currency?: boolean;
+    /**
+     * 申請行の通貨情報<br>
+     * use_currencyにtrueを指定した場合に有効です。
+     */
+    expense_application_purchase_line_currency?: {
+      /**
+       * 通貨ID。事業所で利用可能な通貨を指定します。存在しない通貨IDを指定すると400エラーになります。
+       */
+      currency_id?: number;
+      /**
+       * 通貨コード（ISO 4217）。currency_idの通貨コードと一致しない場合は400エラーになります。
+       */
+      currency_code?: string;
+      /**
+       * 為替レート（小数点以下4桁まで）。5桁以上を指定すると400エラーになります。
+       */
+      exchange_rate?: number;
+    };
+    /**
      * 明細行一覧（配列）
      */
     expense_application_lines?: Array<{
@@ -967,7 +1388,9 @@ export type ExpenseApplicationUpdateParams = {
        */
       description?: string;
       /**
-       * 金額
+       * 金額（円）<br>
+       * use_currency・exchange_rate・currency_amountをすべて指定した場合は省略できます。省略した場合は、外貨額と為替レートからサーバーが円換算した金額を設定します。指定した場合は、換算額と異なっていても指定した金額がそのまま保存されます（カード手数料などで換算額と実際の申請金額が異なる場合は、実際の金額を指定してください）。<br>
+       * 上記を指定しない場合は、金額を指定してください。
        */
       amount?: number;
       /**
@@ -976,6 +1399,60 @@ export type ExpenseApplicationUpdateParams = {
        * 利用可能な経費科目は、経費科目一覧APIのsection_ids[]に部門IDを指定して取得してください。
        */
       expense_application_line_template_id?: number;
+      /**
+       * 明細行の外貨額<br>
+       * 申請行でuse_currencyにtrueを指定した場合に有効です。<br>
+       * 外貨額と為替レートから円換算した金額は、amountを省略した場合にamountへ設定されます。amountを指定した場合も、円換算した金額はレスポンスのsystem_calc_amountとして返ります。円換算時の端数は、事業所の経費精算設定の端数処理に従います。
+       */
+      expense_application_line_currency_amount?: {
+        /**
+         * 外貨額（小数点以下4桁まで）。5桁以上を指定すると400エラーになります。
+         */
+        currency_amount?: number;
+      };
+      /**
+       * カスタム申請項目の値一覧（配列）<br>
+       * 経費科目に設定されたカスタム申請項目に対する入力値を指定します。カスタム申請項目の一覧は経費科目APIから取得してください。<br>
+       * 明細行のカスタム申請項目の値は、指定したcustom_valuesの内容で置き換えられます。custom_valuesに含まれない既存の値は削除されるため、更新後も残したい値は必ずcustom_valuesに含めてください。<br>
+       * 金額の自動計算が設定された経費科目では、custom_valuesから計算した金額とamountが一致しない場合は400エラーになります（サーバー側の計算結果でamountを上書きすることはありません）。
+       */
+      custom_values?: Array<{
+        /**
+         * カスタム申請項目のキー。経費科目APIのカスタム申請項目が返すkeyを指定します。<br>
+         * 明細行の経費科目に存在しないキーを指定した場合は400エラーになります。
+         */
+        key: string;
+        /**
+         * カスタム申請項目の入力形式<br>
+         * 経費科目に登録されているカスタム申請項目の入力形式と一致しない場合は400エラーになります。
+         */
+        type:
+          | "single_line_string"
+          | "multi_line_string"
+          | "date"
+          | "date_range"
+          | "datetime"
+          | "pulldown"
+          | "radio_button"
+          | "checkbox"
+          | "number";
+        /**
+         * カスタム申請項目の値。typeによって指定できる形式が変わります。<br>
+         * <ul>
+         *   <li>single_line_string: 文字列 (255文字以内)</li>
+         *   <li>multi_line_string: 文字列 (10000文字以内)</li>
+         *   <li>date: 文字列 (yyyy-mm-dd)</li>
+         *   <li>date_range: start_date（開始日 yyyy-mm-dd）とend_date（終了日 yyyy-mm-dd）を持つオブジェクト</li>
+         *   <li>datetime: 文字列 (yyyy-mm-dd hh:mm)</li>
+         *   <li>pulldown: 文字列。カスタム申請項目の選択肢のいずれか</li>
+         *   <li>radio_button: 文字列。カスタム申請項目の選択肢のいずれか</li>
+         *   <li>checkbox: 文字列の配列。カスタム申請項目の選択肢のうち選択されたもの</li>
+         *   <li>number: 数値 (10桁以内、小数3桁まで)</li>
+         * </ul>
+         * nullまたは未指定の場合は未入力として扱います。入力設定が必須のカスタム申請項目を未入力で申請すると400エラーになります。
+         */
+        value?: unknown;
+      }>;
     }>;
   }>;
   /**
@@ -1239,9 +1716,18 @@ export type PaymentRequestCreateParams = {
   /**
    * 親申請ID
    * 法人エンタープライズプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）で利用できます。
-   * 承認済みの既存各種申請IDのみ指定可能です（各種申請一覧API `/api/1/approval_requests` で取得できます）。
+   * 承認済みの既存各種申請IDまたは購買申請IDのみ指定可能です（各種申請一覧API `/api/1/approval_requests`、購買申請一覧API `/api/1/purchase_requests` で取得できます）。
+   * 親申請の種別を購買申請にする場合は parent_type に `PurchaseRequest` を指定してください。
    */
   parent_id?: number | null;
+  /**
+   * 親申請の種別（parent_id を指定した場合のみ有効）
+   * * `ApprovalRequest` - 各種申請（parent_type 未指定時のデフォルト）
+   * * `PurchaseRequest` - 購買申請
+   *
+   * 上記以外の値を指定するとバリデーションエラーになります。
+   */
+  parent_type?: "ApprovalRequest" | "PurchaseRequest";
   /**
    * 支払依頼のステータス
    * * `true` - 下書き (draft) で支払依頼を作成します
@@ -1474,6 +1960,24 @@ export type PaymentRequestUpdateParams = {
    *
    */
   approval_flow_group_id?: number | null;
+  /**
+   * 親申請ID
+   * 法人エンタープライズプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）で利用できます。
+   * 承認済みの既存各種申請IDまたは購買申請IDのみ指定可能です（各種申請一覧API `/api/1/approval_requests`、購買申請一覧API `/api/1/purchase_requests` で取得できます）。
+   * * 親申請の種別を購買申請にする場合は parent_type に `PurchaseRequest` を指定してください。
+   * * `null` を指定すると、現在設定されている親申請との関連付けを解除します。
+   * * キーを指定しない場合、親申請は更新されません。
+   * * 親申請の更新には、申請フォームの設定で申請者（申請中の場合は承認者）による親申請の変更が許可されている必要があります。
+   */
+  parent_id?: number | null;
+  /**
+   * 親申請の種別（parent_id を指定した場合のみ有効）
+   * * `ApprovalRequest` - 各種申請（parent_type 未指定時のデフォルト）
+   * * `PurchaseRequest` - 購買申請
+   *
+   * 上記以外の値を指定するとバリデーションエラーになります。
+   */
+  parent_type?: "ApprovalRequest" | "PurchaseRequest";
   /**
    * 支払依頼のステータス
    * * `true` - 下書き (draft) で支払依頼を更新します
@@ -7703,7 +8207,7 @@ export type DealCreateResponse = {
       /**
        * 備考
        */
-      description?: string;
+      description?: string | null;
       /**
        * 貸借（貸方: credit, 借方: debit）
        */
@@ -7801,7 +8305,7 @@ export type DealCreateResponse = {
       /**
        * メモ
        */
-      description?: string;
+      description?: string | null;
       /**
        * ファイルのMIMEタイプ（例：image/png, image/jpeg, application/pdf）
        */
@@ -7873,7 +8377,7 @@ export type DealCreateResponse = {
          * 表示名
          */
         display_name?: string | null;
-      };
+      } | null;
       /**
        * 電子帳簿保存法の検索要件に対応するメタデータ（発行元・発行日・金額）。電子帳簿保存法対応ファイルボックスの対象ファイルでメタデータが存在する場合のみレスポンスに含まれます。
        */
@@ -8027,7 +8531,7 @@ export type Deal = {
     /**
      * 備考
      */
-    description?: string;
+    description?: string | null;
     /**
      * 貸借（貸方: credit, 借方: debit）
      */
@@ -8276,7 +8780,7 @@ export type Deal = {
     /**
      * メモ
      */
-    description?: string;
+    description?: string | null;
     /**
      * ファイルのMIMEタイプ（例：image/png, image/jpeg, application/pdf）
      */
@@ -8348,7 +8852,7 @@ export type Deal = {
        * 表示名
        */
       display_name?: string | null;
-    };
+    } | null;
     /**
      * 電子帳簿保存法の検索要件に対応するメタデータ（発行元・発行日・金額）。電子帳簿保存法対応ファイルボックスの対象ファイルでメタデータが存在する場合のみレスポンスに含まれます。
      */
@@ -8690,6 +9194,143 @@ export type SelectablesIndexResponse = {
           name: string;
         };
       };
+      /**
+       * 勘定科目の詳細情報
+       */
+      account_item?: {
+        /**
+         * 勘定科目テンプレートID
+         */
+        a_chart_template_id: number | null;
+        /**
+         * 内部管理用のID。設定されていない場合は null になります。
+         */
+        cf_category_id: number | null;
+        /**
+         * 事業所ID
+         */
+        company_id: number;
+        /**
+         * 支出取引相手勘定科目の種別。設定されていない場合は null になります。
+         */
+        corresponding_type_expense: number | null;
+        /**
+         * 収入取引相手勘定科目の種別。設定されていない場合は null になります。
+         */
+        corresponding_type_income: number | null;
+        /**
+         * 作成日時（ISO 8601）
+         */
+        created_at: string;
+        /**
+         * 勘定科目の貸借（0: 未定義、1: 貸方、-1: 借方）
+         */
+        entry_side: number | null;
+        /**
+         * 勘定科目ID（親の id と同じ値）
+         */
+        id: number;
+        /**
+         * 勘定科目コード。事業所の設定によらず返ります。設定されていない場合は null になります。
+         */
+        master_code: string | null;
+        /**
+         * 勘定科目名（親の name と同じ値）
+         */
+        name: string;
+        /**
+         * 勘定科目の作成元（0: 未定義、1: 初期登録、2: 口座、3: 事業所独自）
+         */
+        origin_code: number;
+        /**
+         * 内部管理用の並び順
+         */
+        report_order: number | null;
+        /**
+         * 検索可能の設定（2: 検索可能。0, 1 は旧区分）
+         */
+        searchable: number;
+        /**
+         * 勘定科目を検索するためのショートカット（親の shortcut と同じ値）。設定されていない場合は null になります。
+         */
+        shortcut: string | null;
+        /**
+         * 勘定科目を検索するためのショートカット番号。設定されていない場合は null になります。
+         */
+        shortcut_num: string | null;
+        /**
+         * 勘定科目のステータス（0: 有効）
+         */
+        status: number | null;
+        /**
+         * システムによる編集制限の有無
+         */
+        sys_locked: boolean;
+        /**
+         * 内部管理用のコード
+         */
+        tax_business_code: number | null;
+        /**
+         * 内部管理用のコード
+         */
+        tax_calc_type_code: number | null;
+        /**
+         * 税区分コード
+         */
+        tax_code: number | null;
+        /**
+         * 内部管理用のコード
+         */
+        tax_truncate_code: number | null;
+        /**
+         * 内部管理用のコード
+         */
+        template_code: number | null;
+        /**
+         * 更新日時（ISO 8601）
+         */
+        updated_at: string;
+        /**
+         * 勘定科目に紐づく口座ID。口座に紐づかない場合は null になります。
+         */
+        walletable_id: number | null;
+        /**
+         * 勘定科目に紐づく口座の種別。口座に紐づかない場合は null になります。
+         */
+        walletable_type: string | null;
+        /**
+         * 決算書表示名（小カテゴリー）ID
+         */
+        group_id: number;
+        /**
+         * 決算書表示名（小カテゴリー）
+         */
+        group_name: string;
+        /**
+         * 決算書表示名の並び順
+         */
+        group_index: number;
+        /**
+         * 決算書表示名が属する勘定科目カテゴリーのID
+         */
+        account_category_id: number;
+        /**
+         * 決算書表示名内での勘定科目の並び順
+         */
+        account_item_index: number;
+        /**
+         * 勘定科目カテゴリーのレポート区分（0: 貸借対照表、1: 損益計算書、2: 製造原価報告書、3: 不動産所得）
+         */
+        a_report_code: number | null;
+        /**
+         * 勘定科目カテゴリーの表示順
+         */
+        a_order: number | null;
+        /**
+         * 勘定科目カテゴリーの貸借（0: 未定義、1: 貸方、-1: 借方）
+         */
+        category_entry_side: number | null;
+      };
     }>;
   }>;
   /**
@@ -8745,7 +9386,7 @@ export type Item = {
    */
   company_id: number;
   /**
-   * 品目名 (30文字以内)。事業所内で重複しません。
+   * 品目名 (255文字以内)。事業所内で重複しません。
    */
   name: string;
   /**
@@ -8933,7 +9574,7 @@ export type ManualJournal = {
     /**
      * 備考
      */
-    description: string;
+    description: string | null;
   }>;
   /**
    * 振替伝票に添付されているファイルボックス（証憑ファイル）IDの一覧。未添付の場合は空配列です。
@@ -9025,11 +9666,27 @@ export type CompanyIndexResponse = {
      *
      * * admin - 管理者
      * * simple_accounting - 一般（経理）
-     * * read_only - 取引登録のみ
-     * * self_only - 閲覧のみ
+     * * self_only - 取引登録のみ
+     * * read_only - 閲覧のみ
      * * workflow - 申請・承認
      */
-    role: "admin" | "simple_accounting" | "self_only" | "read_only" | "workflow";
+    role:
+      | "admin"
+      | "simple_accounting"
+      | "self_only"
+      | "read_only"
+      | "workflow"
+      | "product_linkage"
+      | "bookkeeping"
+      | "bookkeeping_report"
+      | "bookkeeping_simple"
+      | "bookkeeping_simple_report"
+      | "bookkeeping_prime"
+      | "bookkeeping_prime_report"
+      | "voucher_mgt"
+      | "voucher_mgt_report"
+      | "bank_accountant"
+      | "bank_accountant_report";
   }>;
 };
 
@@ -9096,11 +9753,27 @@ export type CompanyResponse = {
      *
      * * admin - 管理者
      * * simple_accounting - 一般（経理）
-     * * read_only - 取引登録のみ
-     * * self_only - 閲覧のみ
+     * * self_only - 取引登録のみ
+     * * read_only - 閲覧のみ
      * * workflow - 申請・承認
      */
-    role: "admin" | "simple_accounting" | "self_only" | "read_only" | "workflow";
+    role:
+      | "admin"
+      | "simple_accounting"
+      | "self_only"
+      | "read_only"
+      | "workflow"
+      | "product_linkage"
+      | "bookkeeping"
+      | "bookkeeping_report"
+      | "bookkeeping_simple"
+      | "bookkeeping_simple_report"
+      | "bookkeeping_prime"
+      | "bookkeeping_prime_report"
+      | "voucher_mgt"
+      | "voucher_mgt_report"
+      | "bank_accountant"
+      | "bank_accountant_report";
     /**
      * 電話番号１。未設定の場合は null
      */
@@ -9507,7 +10180,7 @@ export type CompanyResponse = {
        */
       id: number;
       /**
-       * 品目名 (30文字以内)
+       * 品目名 (255文字以内)
        */
       name: string;
       /**
@@ -9628,15 +10301,50 @@ export type CompanyResponse = {
   };
 };
 
-export type UnauthorizedError = {
-  message?: string;
-  messages?: string;
-};
+export type UnauthorizedError =
+  | {
+      message?: string;
+      messages?: string;
+      code?: string;
+    }
+  | {
+      status_code: number;
+      errors: Array<{
+        messages: Array<string>;
+        type: "status" | "validation" | "error";
+        codes?: Array<string>;
+      }>;
+    };
 
-export type ForbiddenError = {
-  message?: string;
-  messages?: string;
-};
+export type ForbiddenError =
+  | {
+      message?: string;
+      messages?: string;
+    }
+  | {
+      status_code: number;
+      errors: Array<{
+        messages: Array<string>;
+        type: "status" | "validation" | "error";
+        codes?: Array<string>;
+      }>;
+    }
+  | {
+      error: string;
+      message: string;
+    }
+  | {
+      message: string;
+      error_code: string;
+    }
+  | {
+      result: string;
+      message: string;
+      info: {
+        result: string;
+        message: string;
+      };
+    };
 
 export type BadRequestError = {
   status_code?: number;
@@ -9692,12 +10400,21 @@ export type InternalServerError = {
   }>;
 };
 
-export type ServiceUnavailableError = {
-  status_code: number;
-  errors: Array<{
-    messages: Array<string>;
-    type: "status" | "error";
-  }>;
+export type ServiceUnavailableError =
+  | {
+      status_code: number;
+      errors: Array<{
+        messages: Array<string>;
+        type: "status" | "error";
+      }>;
+    }
+  | {
+      message: string;
+      code?: string;
+    };
+
+export type MessagesError = {
+  messages: Array<string>;
 };
 
 /**
@@ -10631,7 +11348,17 @@ export type MeResponse = {
         | "self_only"
         | "read_only"
         | "workflow"
-        | "product_linkage";
+        | "product_linkage"
+        | "bookkeeping"
+        | "bookkeeping_report"
+        | "bookkeeping_simple"
+        | "bookkeeping_simple_report"
+        | "bookkeeping_prime"
+        | "bookkeeping_prime_report"
+        | "voucher_mgt"
+        | "voucher_mgt_report"
+        | "bank_accountant"
+        | "bank_accountant_report";
       /**
        * カスタム権限（true: 使用する、false: 使用しない）
        */
@@ -11049,6 +11776,27 @@ export type ExpenseApplicationsIndexResponse = {
        */
       sub_receipt_ids?: Array<number>;
       /**
+       * 外貨を利用しているか
+       */
+      use_currency?: boolean;
+      /**
+       * 申請行の通貨情報。外貨を利用していない場合はnullになります。
+       */
+      expense_application_purchase_line_currency?: {
+        /**
+         * 通貨ID
+         */
+        currency_id?: number;
+        /**
+         * 通貨コード（ISO 4217）
+         */
+        currency_code?: string;
+        /**
+         * 為替レート（小数文字列）。未設定の場合はnullになります。
+         */
+        exchange_rate?: string | null;
+      } | null;
+      /**
        * 明細行一覧（配列）
        */
       expense_application_lines?: Array<{
@@ -11068,6 +11816,19 @@ export type ExpenseApplicationsIndexResponse = {
          * 経費科目ID
          */
         expense_application_line_template_id?: number | null;
+        /**
+         * 明細行の外貨額。外貨を利用していない場合はnullになります。
+         */
+        expense_application_line_currency_amount?: {
+          /**
+           * 外貨額（小数文字列）。未設定の場合はnullになります。
+           */
+          currency_amount?: string | null;
+          /**
+           * 外貨額と為替レートからシステムが計算した円換算額（参考値）。amountとは別に保存され、amountを指定した場合でもamountとは連動しません。
+           */
+          system_calc_amount?: number;
+        } | null;
       }>;
     }>;
     /**
@@ -11175,6 +11936,27 @@ export type ExpenseApplicationResponse = {
        */
       sub_receipt_ids?: Array<number>;
       /**
+       * 外貨を利用しているか
+       */
+      use_currency?: boolean;
+      /**
+       * 申請行の通貨情報。外貨を利用していない場合はnullになります。
+       */
+      expense_application_purchase_line_currency?: {
+        /**
+         * 通貨ID
+         */
+        currency_id?: number;
+        /**
+         * 通貨コード（ISO 4217）
+         */
+        currency_code?: string;
+        /**
+         * 為替レート（小数文字列）。未設定の場合はnullになります。
+         */
+        exchange_rate?: string | null;
+      } | null;
+      /**
        * 明細行一覧（配列）
        */
       expense_application_lines?: Array<{
@@ -11194,6 +11976,93 @@ export type ExpenseApplicationResponse = {
          * 経費科目ID
          */
         expense_application_line_template_id?: number | null;
+        /**
+         * 明細行の外貨額。外貨を利用していない場合はnullになります。
+         */
+        expense_application_line_currency_amount?: {
+          /**
+           * 外貨額（小数文字列）。未設定の場合はnullになります。
+           */
+          currency_amount?: string | null;
+          /**
+           * 外貨額と為替レートからシステムが計算した円換算額（参考値）。amountとは別に保存され、amountを指定した場合でもamountとは連動しません。
+           */
+          system_calc_amount?: number;
+        } | null;
+        /**
+         * カスタム申請項目の入力値（配列）
+         * 経費科目に設定されたカスタム申請項目のうち、値が登録されているものを返します。
+         */
+        custom_values?: Array<{
+          /**
+           * カスタム申請項目のキー。経費科目API のカスタム申請項目が返すkeyと同じ値です。
+           * 経費科目の中で一意で、経費申請の作成時にも同じキーで指定します。
+           */
+          key: string;
+          /**
+           * カスタム申請項目の入力形式
+           * (single_line_string: 一行文字列, multi_line_string: 複数行文字列, date: 日付,
+           * date_range: 期間, datetime: 日時, pulldown: プルダウン, radio_button: ラジオボタン,
+           * checkbox: チェックボックス, number: 数値)
+           */
+          type:
+            | "single_line_string"
+            | "multi_line_string"
+            | "date"
+            | "date_range"
+            | "datetime"
+            | "pulldown"
+            | "radio_button"
+            | "checkbox"
+            | "number";
+          /**
+           * 入力値。形式はtypeによって決まります。
+           * single_line_string, multi_line_string, pulldown, radio_button: 文字列
+           * date: 日付の文字列 (yyyy-mm-dd)
+           * datetime: 日時の文字列 (yyyy-mm-dd hh:mm)
+           * date_range: start_date（開始日, yyyy-mm-dd）とend_date（終了日, yyyy-mm-dd）を持つオブジェクト
+           * checkbox: 選択された選択肢の文字列（配列）
+           * number: 数値
+           * 未入力の場合はnullになります。
+           */
+          value: unknown;
+        }>;
+        /**
+         * 金額計算方法による計算結果
+         * 経費科目に金額計算方法が設定されている明細行のみ値が入ります。設定されていない場合はnullになります。
+         */
+        amount_calculate_result?: {
+          /**
+           * 計算式によって算出された金額
+           */
+          calculated_amount: number;
+          /**
+           * 適用された金額計算ルール。
+           * 経費科目APIのamount_calculation_setting.rulesと同じ構造なので、
+           * どのルールが適用されたかを突き合わせられます。
+           */
+          applied_rule: {
+            condition: ExpenseApplicationLineTemplateAmountCalculationCondition;
+            /**
+             * 適用された金額計算式。カスタム申請項目の参照は{key}で表します。
+             * 経費科目APIのamount_calculation_setting.rules[].formulaと同じ公開文法です。
+             */
+            formula: string;
+          };
+          /**
+           * 金額計算の条件判定に用いた申請者の所属情報
+           */
+          evaluated_as: {
+            /**
+             * 申請者の所属部門ID。未設定の場合はnull
+             */
+            group_id: number | null;
+            /**
+             * 申請者の役職ID。未設定の場合はnull
+             */
+            position_id: number | null;
+          };
+        } | null;
       }>;
     }>;
     /**
@@ -11564,6 +12433,33 @@ export type ExpenseApplicationLineTemplateAmountCalculationSetting =
       default_formula: string | null;
     };
 
+/**
+ * ルールの適用条件。typeで条件の種類を表します。
+ * - applicant_position: 申請者の役職による条件。match と position_ids を持ちます
+ * - unsupported: 本APIで表現できない条件 (Web版freee会計の旧設定で作成された条件式)。レスポンス専用で、リクエストには指定できません。条件を変更する場合は applicant_position の条件で送り直してください
+ */
+export type ExpenseApplicationLineTemplateAmountCalculationCondition =
+  | {
+      /**
+       * 条件の種類 (applicant_position: 申請者の役職による条件)
+       */
+      type: "applicant_position";
+      /**
+       * 役職の比較方法 (any_of: いずれかに一致, none_of: いずれにも一致しない)
+       */
+      match: "any_of" | "none_of";
+      /**
+       * 条件に使用する役職IDの配列 (1件以上)。役職IDは人事労務の役職から取得します
+       */
+      position_ids: Array<number>;
+    }
+  | {
+      /**
+       * 条件の種類 (unsupported: 本APIで表現できない条件)
+       */
+      type: "unsupported";
+    };
+
 export type PaymentRequestResponse = {
   payment_request: {
     /**
@@ -11785,6 +12681,21 @@ export type PaymentRequestResponse = {
      * 差戻し等により申請が step の最初からやり直しになると round の値が増えます。
      */
     current_round: number;
+    /**
+     * 親申請ID。
+     * 各種申請または購買申請が使用可能なプランの事業所でのみレスポンスに含まれる（キー自体が存在しない場合がある）。
+     * 関連付けが解除されている場合や親申請が未設定の場合は null。
+     */
+    parent_id?: number | null;
+    /**
+     * 親申請の種別。parent_id とペアで返却される。
+     * * `ApprovalRequest` - 各種申請
+     * * `PurchaseRequest` - 購買申請
+     *
+     * 各種申請または購買申請が使用可能なプランの事業所でのみレスポンスに含まれる（キー自体が存在しない場合がある）。
+     * 関連付けが解除されている場合や親申請が未設定の場合は null。
+     */
+    parent_type?: "ApprovalRequest" | "PurchaseRequest";
     /**
      * 請求書番号。未設定の場合は空文字列になります。
      */
@@ -12712,6 +13623,238 @@ export type ExpenseApplicationFormParams = {
   allow_modify_on_approval: boolean;
 };
 
+/**
+ * 金額の自動計算リクエスト
+ */
+export type ExpenseApplicationAmountCalculationCreateParams = {
+  /**
+   * 事業所ID
+   */
+  company_id: number;
+  /**
+   * 金額計算設定を持つ経費科目のID
+   */
+  expense_application_line_template_id: number;
+  /**
+   * カスタム申請項目の入力値
+   */
+  custom_values: Array<
+    | {
+        /**
+         * カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、
+         * 経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が
+         * custom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが
+         * custom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、
+         * その値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。
+         */
+        key: string;
+        /**
+         * 入力値の種別
+         */
+        type: "single_line_string";
+        /**
+         * 入力値 (255文字以内)
+         */
+        value: string | null;
+      }
+    | {
+        /**
+         * カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、
+         * 経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が
+         * custom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが
+         * custom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、
+         * その値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。
+         */
+        key: string;
+        /**
+         * 入力値の種別
+         */
+        type: "multi_line_string";
+        /**
+         * 入力値 (10000文字以内)
+         */
+        value: string | null;
+      }
+    | {
+        /**
+         * カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、
+         * 経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が
+         * custom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが
+         * custom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、
+         * その値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。
+         */
+        key: string;
+        /**
+         * 入力値の種別
+         */
+        type: "date";
+        /**
+         * 入力値 (YYYY-MM-DD)
+         */
+        value: string | null;
+      }
+    | {
+        /**
+         * カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、
+         * 経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が
+         * custom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが
+         * custom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、
+         * その値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。
+         */
+        key: string;
+        /**
+         * 入力値の種別
+         */
+        type: "date_range";
+        /**
+         * 期間
+         */
+        value: {
+          /**
+           * 開始日 (YYYY-MM-DD)
+           */
+          start_date: string | null;
+          /**
+           * 終了日 (YYYY-MM-DD)
+           */
+          end_date: string | null;
+        } | null;
+      }
+    | {
+        /**
+         * カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、
+         * 経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が
+         * custom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが
+         * custom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、
+         * その値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。
+         */
+        key: string;
+        /**
+         * 入力値の種別
+         */
+        type: "datetime";
+        /**
+         * 入力値 (YYYY-MM-DD hh:mm)
+         */
+        value: string | null;
+      }
+    | {
+        /**
+         * カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、
+         * 経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が
+         * custom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが
+         * custom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、
+         * その値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。
+         */
+        key: string;
+        /**
+         * 入力値の種別
+         */
+        type: "number";
+        /**
+         * 入力値 (整数部 10 桁以内、小数 3 桁まで)
+         */
+        value: number | null;
+      }
+    | {
+        /**
+         * カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、
+         * 経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が
+         * custom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが
+         * custom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、
+         * その値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。
+         */
+        key: string;
+        /**
+         * 入力値の種別
+         */
+        type: "pulldown";
+        /**
+         * 入力値 (選択肢のいずれか)
+         */
+        value: string | null;
+      }
+    | {
+        /**
+         * カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、
+         * 経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が
+         * custom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが
+         * custom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、
+         * その値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。
+         */
+        key: string;
+        /**
+         * 入力値の種別
+         */
+        type: "radio_button";
+        /**
+         * 入力値 (選択肢のいずれか)
+         */
+        value: string | null;
+      }
+    | {
+        /**
+         * カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、
+         * 経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が
+         * custom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが
+         * custom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、
+         * その値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。
+         */
+        key: string;
+        /**
+         * 入力値の種別
+         */
+        type: "checkbox";
+        /**
+         * 入力値 (選択肢のうち選択したもの)
+         */
+        value: Array<string> | null;
+      }
+  >;
+  /**
+   * 計算対象の申請者。申請者はアクセストークンのユーザーに固定され、指定できるのは所属部門だけです。所属部門と役職が金額計算ルールの条件判定に使われます
+   */
+  applicant: {
+    /**
+     * 申請者 (アクセストークンのユーザー) の所属部門ID (部門に所属しない場合は null)。申請者が所属していない部門を指定した場合は 400 になります
+     */
+    group_id: number | null;
+  };
+};
+
+/**
+ * 金額の自動計算結果
+ */
+export type ExpenseApplicationAmountCalculationResponse = {
+  /**
+   * 計算式によって算出された金額
+   */
+  calculated_amount: number;
+  /**
+   * 適用された金額計算ルール。経費科目APIの amount_calculation_setting と同じ語彙です
+   */
+  applied_rule: {
+    condition: ExpenseApplicationLineTemplateAmountCalculationCondition;
+    /**
+     * 適用された金額計算式。カスタム申請項目の参照は {key} で表します。経費科目APIの amount_calculation_setting.rules[].formula と同じ公開文法です
+     */
+    formula: string;
+  };
+  /**
+   * 金額計算の条件判定に用いた申請者の所属情報
+   */
+  evaluated_as: {
+    /**
+     * 申請者の所属部門ID (リクエストで部門を指定しなかった場合は null)
+     */
+    group_id: number | null;
+    /**
+     * 申請者の役職ID (役職が設定されていない場合は null)
+     */
+    position_id: number | null;
+  };
+};
+
 export type ApprovalRequestsIndexResponse = {
   approval_requests: Array<{
     /**
@@ -13229,7 +14372,7 @@ export type PurchaseRequestsIndexResponse = {
        * 申請者のユーザー名
        */
       user_name?: string;
-    };
+    } | null;
   }>;
   /**
    * 検索結果の総件数
@@ -17215,7 +18358,7 @@ export type CreateSectionErrors = {
   /**
    * リクエストパラメータが不正です。部門名・部門コードの重複や文字数制限などを確認してください。
    */
-  400: BadRequestError;
+  400: BadRequestError | MessagesError;
   /**
    * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
    */
@@ -17227,7 +18370,7 @@ export type CreateSectionErrors = {
   /**
    * 指定した親部門が存在しないか、既に削除されています。部門一覧を再取得してIDを確認してください。
    */
-  404: BadRequestNotFoundError;
+  404: BadRequestNotFoundError | MessagesError;
   /**
    * サーバ内部エラー。時間を空けて再試行してください。
    */
@@ -17266,7 +18409,7 @@ export type DestroySectionErrors = {
   /**
    * 部門が取引明細や設定などで使用されているため削除できません。エラーメッセージで利用箇所を確認してください。
    */
-  400: BadRequestError;
+  400: BadRequestError | MessagesError;
   /**
    * アクセストークンが不正、期限切れ、または対象事業所を更新する権限がありません。
    */
@@ -17278,7 +18421,7 @@ export type DestroySectionErrors = {
   /**
    * 指定した部門が存在しないか、既に削除されています。部門一覧を再取得してIDを確認してください。
    */
-  404: BadRequestNotFoundError;
+  404: BadRequestNotFoundError | MessagesError;
   /**
    * サーバ内部エラー。時間を空けて再試行してください。
    */
@@ -17363,7 +18506,7 @@ export type UpdateSectionErrors = {
   /**
    * リクエストパラメータが不正です。部門名・部門コードの重複や文字数制限などを確認してください。
    */
-  400: BadRequestError;
+  400: BadRequestError | MessagesError;
   /**
    * アクセストークンが不正、期限切れ、または対象事業所を更新する権限がありません。
    */
@@ -17376,7 +18519,7 @@ export type UpdateSectionErrors = {
    * 指定した部門が存在しないか、既に削除されています。部門一覧を再取得してIDを確認してください。
    * parent_id で指定した親部門が存在しないか、既に削除されている場合もこのエラーになります。
    */
-  404: BadRequestNotFoundError;
+  404: BadRequestNotFoundError | MessagesError;
   /**
    * サーバ内部エラー。時間を空けて再試行してください。
    */
@@ -17440,7 +18583,7 @@ export type ApiV1SectionsUpsertByCodeErrors = {
    * リクエストパラメータが不正です。部門コードを使用する設定、部門名の重複、文字数制限などを確認してください。
    * parent_code で指定した親部門が存在しない場合もこのエラーになります。
    */
-  400: BadRequestError;
+  400: BadRequestError | MessagesError;
   /**
    * アクセストークンが不正、期限切れ、または対象事業所を更新する権限がありません。
    */
@@ -17737,6 +18880,10 @@ export type GetDealsData = {
      * +更新日で絞込：終了日(yyyy-mm-dd)
      */
     end_renew_date?: string;
+    /**
+     * 支払残額（due_amount、未決済残高）の下限値（円）で絞込。指定した金額以上の支払残額を持つ取引のみを返します。支払残額がマイナスの取引（赤伝）は本条件で除外されます。
+     */
+    min_due_amount?: number;
     /**
      * 取得レコードのオフセット (デフォルト: 0)
      */
@@ -18827,6 +19974,7 @@ export type GetUsersCapabilitiesResponses = {
     docs: UserCapabilityWithSelfOnly;
     doc_postings: UserCapabilityJustCreate;
     receipts: UserCapabilityWithSelfOnly;
+    receipt_folders: UserCapabilityJustReadWrite;
     receipt_stream_editor: UserCapabilityJustRead;
     spreadsheets: UserCapabilityJustCreateRead;
     expense_applications: UserCapabilityWithSelfOnly;
@@ -20063,6 +21211,384 @@ export type GetWalletTxnResponses = {
 };
 
 export type GetWalletTxnResponse = GetWalletTxnResponses[keyof GetWalletTxnResponses];
+
+export type ReconcileWalletTxnData = {
+  body: {
+    /**
+     * 事業所ID
+     */
+    company_id: number;
+    /**
+     * 紐づけ対象の取引のリスト
+     */
+    deals: Array<WalletTxnReconcileDeal>;
+    adjustment_deal?: WalletTxnReconcileAdjustmentDeal;
+  };
+  path: {
+    /**
+     * 明細ID
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/1/wallet_txns/{id}/reconcile";
+};
+
+export type ReconcileWalletTxnErrors = {
+  /**
+   * クライアントエラー
+   */
+  400: BadRequestError;
+  /**
+   * 未認証
+   */
+  401: UnauthorizedError;
+  /**
+   * 未認可
+   */
+  403: ForbiddenError;
+  /**
+   * リソースが存在しない
+   */
+  404: BadRequestNotFoundError;
+  /**
+   * リソース競合
+   */
+  409: ConflictError;
+  /**
+   * サーバーエラー
+   */
+  500: InternalServerError;
+};
+
+export type ReconcileWalletTxnError = ReconcileWalletTxnErrors[keyof ReconcileWalletTxnErrors];
+
+export type ReconcileWalletTxnResponses = {
+  /**
+   * 口座明細の消込レスポンス
+   */
+  200: {
+    /**
+     * 明細ID
+     */
+    wallet_txn_id: number;
+    /**
+     * リクエストで指定した既存取引のIDのリスト
+     */
+    deal_ids: Array<number>;
+    /**
+     * adjustment_deal から新規作成された取引のID。adjustment_deal を指定しなかった場合は null になります。
+     */
+    new_deal_id: number | null;
+  };
+};
+
+export type ReconcileWalletTxnResponse =
+  ReconcileWalletTxnResponses[keyof ReconcileWalletTxnResponses];
+
+export type CreateWalletTxnDealData = {
+  body: {
+    /**
+     * 事業所ID
+     */
+    company_id: number;
+    /**
+     * 取引発生日 (yyyy-mm-dd)。明細の取引日以前の日付を指定します。省略時は明細の取引日と同日になります。
+     */
+    issue_date?: string;
+    /**
+     * 管理番号
+     */
+    ref?: string;
+    /**
+     * 取引先ID
+     */
+    partner_id?: number;
+    /**
+     * 取引の内訳行
+     */
+    deal_lines: Array<WalletTxnDealLine>;
+  };
+  path: {
+    /**
+     * 明細ID
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/1/wallet_txns/{id}/create_deal";
+};
+
+export type CreateWalletTxnDealErrors = {
+  /**
+   * クライアントエラー
+   */
+  400: BadRequestError;
+  /**
+   * 未認証
+   */
+  401: UnauthorizedError;
+  /**
+   * 未認可
+   */
+  403: ForbiddenError;
+  /**
+   * リソースが存在しない
+   */
+  404: BadRequestNotFoundError;
+  /**
+   * サーバーエラー
+   */
+  500: InternalServerError;
+};
+
+export type CreateWalletTxnDealError = CreateWalletTxnDealErrors[keyof CreateWalletTxnDealErrors];
+
+export type CreateWalletTxnDealResponses = {
+  /**
+   * 口座明細からの取引登録レスポンス
+   */
+  200: {
+    /**
+     * 作成された取引のIDのリスト
+     */
+    deal_ids: Array<number>;
+  };
+};
+
+export type CreateWalletTxnDealResponse =
+  CreateWalletTxnDealResponses[keyof CreateWalletTxnDealResponses];
+
+export type CreateWalletTxnTransferData = {
+  body: {
+    /**
+     * 事業所ID
+     */
+    company_id: number;
+    transfer_from_line: WalletTxnTransferFromLine;
+    /**
+     * 振替先。同一口座の重複は指定できません。
+     */
+    transfer_to_lines: Array<WalletTxnTransferToLine>;
+    /**
+     * 手数料等の行。省略時は手数料等なしとして扱われます。
+     */
+    charge_lines?: Array<WalletTxnTransferChargeLine>;
+  };
+  path: {
+    /**
+     * 明細ID
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/1/wallet_txns/{id}/create_transfer";
+};
+
+export type CreateWalletTxnTransferErrors = {
+  /**
+   * クライアントエラー
+   */
+  400: BadRequestError;
+  /**
+   * 未認証
+   */
+  401: UnauthorizedError;
+  /**
+   * 未認可
+   */
+  403: ForbiddenError;
+  /**
+   * リソースが存在しない
+   */
+  404: BadRequestNotFoundError;
+  /**
+   * リソース競合
+   */
+  409: ConflictError;
+  /**
+   * サーバーエラー
+   */
+  500: InternalServerError;
+};
+
+export type CreateWalletTxnTransferError =
+  CreateWalletTxnTransferErrors[keyof CreateWalletTxnTransferErrors];
+
+export type CreateWalletTxnTransferResponses = {
+  /**
+   * 口座明細からの口座振替登録レスポンス
+   */
+  200: {
+    /**
+     * 口座振替として登録した明細のID
+     */
+    wallet_txn_id: number;
+    /**
+     * 作成された口座振替のIDのリスト
+     */
+    transfer_ids: Array<number>;
+  };
+};
+
+export type CreateWalletTxnTransferResponse =
+  CreateWalletTxnTransferResponses[keyof CreateWalletTxnTransferResponses];
+
+export type CreateWalletTxnPrivateDealData = {
+  body: {
+    /**
+     * 事業所ID
+     */
+    company_id: number;
+  };
+  path: {
+    /**
+     * 明細ID
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/1/wallet_txns/{id}/create_private_deal";
+};
+
+export type CreateWalletTxnPrivateDealErrors = {
+  /**
+   * クライアントエラー
+   */
+  400: BadRequestError;
+  /**
+   * 未認証
+   */
+  401: UnauthorizedError;
+  /**
+   * 未認可
+   */
+  403: ForbiddenError;
+  /**
+   * リソースが存在しない
+   */
+  404: BadRequestNotFoundError;
+  /**
+   * サーバーエラー
+   */
+  500: InternalServerError;
+};
+
+export type CreateWalletTxnPrivateDealError =
+  CreateWalletTxnPrivateDealErrors[keyof CreateWalletTxnPrivateDealErrors];
+
+export type CreateWalletTxnPrivateDealResponses = {
+  /**
+   * 口座明細のプライベート取引としての登録レスポンス
+   */
+  200: {
+    /**
+     * 作成された取引のID
+     */
+    deal_id: number;
+  };
+};
+
+export type CreateWalletTxnPrivateDealResponse =
+  CreateWalletTxnPrivateDealResponses[keyof CreateWalletTxnPrivateDealResponses];
+
+export type IgnoreWalletTxnData = {
+  body: {
+    /**
+     * 事業所ID
+     */
+    company_id: number;
+  };
+  path: {
+    /**
+     * 明細ID
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/1/wallet_txns/{id}/ignore";
+};
+
+export type IgnoreWalletTxnErrors = {
+  /**
+   * クライアントエラー
+   */
+  400: BadRequestError;
+  /**
+   * 未認証
+   */
+  401: UnauthorizedError;
+  /**
+   * 未認可
+   */
+  403: ForbiddenError;
+  /**
+   * リソースが存在しない
+   */
+  404: BadRequestNotFoundError;
+  /**
+   * サーバーエラー
+   */
+  500: InternalServerError;
+};
+
+export type IgnoreWalletTxnError = IgnoreWalletTxnErrors[keyof IgnoreWalletTxnErrors];
+
+export type IgnoreWalletTxnResponses = {
+  /**
+   * 口座明細の無視レスポンス
+   */
+  200: unknown;
+};
+
+export type ResetWalletTxnData = {
+  body: {
+    /**
+     * 事業所ID
+     */
+    company_id: number;
+  };
+  path: {
+    /**
+     * 明細ID
+     */
+    id: number;
+  };
+  query?: never;
+  url: "/api/1/wallet_txns/{id}/reset";
+};
+
+export type ResetWalletTxnErrors = {
+  /**
+   * クライアントエラー
+   */
+  400: BadRequestError;
+  /**
+   * 未認証
+   */
+  401: UnauthorizedError;
+  /**
+   * 未認可
+   */
+  403: ForbiddenError;
+  /**
+   * リソースが存在しない
+   */
+  404: BadRequestNotFoundError;
+  /**
+   * サーバーエラー
+   */
+  500: InternalServerError;
+};
+
+export type ResetWalletTxnError = ResetWalletTxnErrors[keyof ResetWalletTxnErrors];
+
+export type ResetWalletTxnResponses = {
+  /**
+   * 口座明細の未消込への変更レスポンス
+   */
+  200: unknown;
+};
 
 export type GetJournalsData = {
   body?: never;
@@ -22981,6 +24507,31 @@ export type UpdateExpenseApplicationFormResponses = {
 export type UpdateExpenseApplicationFormResponse =
   UpdateExpenseApplicationFormResponses[keyof UpdateExpenseApplicationFormResponses];
 
+export type CreateExpenseApplicationAmountCalculationData = {
+  body: ExpenseApplicationAmountCalculationCreateParams;
+  path?: never;
+  query?: never;
+  url: "/api/1/expense_applications/amount_calculations";
+};
+
+export type CreateExpenseApplicationAmountCalculationErrors = {
+  400: BadRequestError;
+  401: UnauthorizedError;
+  403: ForbiddenError;
+  404: BadRequestNotFoundError;
+  500: InternalServerError;
+};
+
+export type CreateExpenseApplicationAmountCalculationError =
+  CreateExpenseApplicationAmountCalculationErrors[keyof CreateExpenseApplicationAmountCalculationErrors];
+
+export type CreateExpenseApplicationAmountCalculationResponses = {
+  200: ExpenseApplicationAmountCalculationResponse;
+};
+
+export type CreateExpenseApplicationAmountCalculationResponse =
+  CreateExpenseApplicationAmountCalculationResponses[keyof CreateExpenseApplicationAmountCalculationResponses];
+
 export type GetExpenseApplicationLineTemplatesData = {
   body?: never;
   path?: never;
@@ -25813,3 +27364,47 @@ export type UpdateUserMatcherResponses = {
 
 export type UpdateUserMatcherResponse =
   UpdateUserMatcherResponses[keyof UpdateUserMatcherResponses];
+
+export type ApplyUserMatchersData = {
+  body: {
+    /**
+     * 事業所ID
+     */
+    company_id: number;
+    /**
+     * 自動登録ルールを適用する明細IDのリスト
+     */
+    wallet_txn_ids: Array<number>;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/1/user_matchers/apply";
+};
+
+export type ApplyUserMatchersErrors = {
+  /**
+   * クライアントエラー
+   */
+  400: BadRequestError;
+  /**
+   * 未認証
+   */
+  401: UnauthorizedError;
+  /**
+   * 未認可
+   */
+  403: ForbiddenError;
+  /**
+   * サーバーエラー
+   */
+  500: InternalServerError;
+};
+
+export type ApplyUserMatchersError = ApplyUserMatchersErrors[keyof ApplyUserMatchersErrors];
+
+export type ApplyUserMatchersResponses = {
+  /**
+   * 自動登録ルール一括適用レスポンス
+   */
+  200: unknown;
+};

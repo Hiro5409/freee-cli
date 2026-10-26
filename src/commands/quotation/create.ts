@@ -56,7 +56,7 @@ const LineSchema = v.pipe(
 );
 
 export const quotationCreateCommand = define({
-  name: "quotation-create",
+  name: "create",
   description: "Create a quotation via the freee invoice API",
   args: merge(
     companyArgs,
@@ -107,7 +107,7 @@ export const quotationCreateCommand = define({
       ),
     }),
   ),
-  examples: `$ freee quotation-create --partner-id 456 --quotation-date 2026-10-01 --expiration-date 2026-10-31 \\
+  examples: `$ freee quotation create --partner-id 456 --quotation-date 2026-10-01 --expiration-date 2026-10-31 \\
     --line '{"description":"開発費","quantity":1,"unit_price":"100000","tax_rate":10}' --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);

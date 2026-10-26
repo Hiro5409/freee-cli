@@ -390,7 +390,7 @@ describe("token refresh deduplication", () => {
     expect(results.every((r) => r.status === "rejected")).toBe(true);
     for (const result of results) {
       if (result.status === "fulfilled") throw new Error("expected refresh failure");
-      expect(String(result.reason)).toContain("freee login --profile default --replace");
+      expect(String(result.reason)).toContain("freee auth login --profile default --replace");
     }
     expect(callCount).toBe(1);
 

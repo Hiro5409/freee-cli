@@ -67,12 +67,299 @@ import { transferCreateCommand, transferUpdateCommand } from "./commands/transfe
 import { walletTransactionCreateCommand } from "./commands/wallet-transaction/create.ts";
 import { walletTransactionDeleteCommand } from "./commands/wallet-transaction/delete.ts";
 import { walletTransactionListCommand } from "./commands/wallet-transaction/list.ts";
+import {
+  walletTransactionApplyRulesCommand,
+  walletTransactionIgnoreCommand,
+  walletTransactionRegisterCommand,
+  walletTransactionRegisterPrivateCommand,
+  walletTransactionResetCommand,
+  walletTransactionSettleCommand,
+  walletTransactionTransferCommand,
+} from "./commands/wallet-transaction/process.ts";
 import { walletTransactionShowCommand } from "./commands/wallet-transaction/show.ts";
 import { walletableListCommand } from "./commands/walletable/list.ts";
 import { printError } from "./error-output.ts";
 import { globalArgs } from "./global-args.ts";
 import { writeOutput } from "./output/write.ts";
-import { freeeWebPlugin } from "./plugins/web-operations/plugin.ts";
+import {
+  invoiceRegisterDealCommand,
+  invoiceSetSendingStatusCommand,
+  walletableSyncCommand,
+} from "./plugins/web-operations/commands.ts";
+
+const commands = {
+  auth: define({
+    name: "auth",
+    description: "Manage API and browser authentication",
+    subCommands: {
+      login: loginCommand,
+      logout: logoutCommand,
+      status: statusCommand,
+    },
+    run: () => 'Run "freee auth --help" for usage information.',
+  }),
+  setup: setupCommand,
+  profile: define({
+    name: "profile",
+    description: "List connection profiles and choose a default",
+    subCommands: {
+      list: profileListCommand,
+      "set-default": profileSetDefaultCommand,
+    },
+    run: () => 'Run "freee profile --help" for usage information.',
+  }),
+  deal: define({
+    name: "deal",
+    description: "Manage accounting transactions and payments",
+    subCommands: {
+      list: dealListCommand,
+      show: dealShowCommand,
+      create: dealCreateCommand,
+      payment: define({
+        name: "payment",
+        description: "Manage deal payment",
+        subCommands: {
+          create: dealPaymentCreateCommand,
+          update: dealPaymentUpdateCommand,
+          delete: dealPaymentDeleteCommand,
+        },
+        run: () => 'Run "freee deal payment --help" for usage information.',
+      }),
+      update: dealUpdateCommand,
+      delete: dealDeleteCommand,
+    },
+    run: () => 'Run "freee deal --help" for usage information.',
+  }),
+  hr: define({
+    name: "hr",
+    description: "Read employee and payroll information",
+    subCommands: {
+      employee: define({
+        name: "employee",
+        description: "Manage hr employee",
+        subCommands: {
+          list: hrEmployeeListCommand,
+        },
+        run: () => 'Run "freee hr employee --help" for usage information.',
+      }),
+      payroll: define({
+        name: "payroll",
+        description: "Manage hr payroll",
+        subCommands: {
+          list: hrPayrollListCommand,
+        },
+        run: () => 'Run "freee hr payroll --help" for usage information.',
+      }),
+    },
+    run: () => 'Run "freee hr --help" for usage information.',
+  }),
+  "wallet-txn": define({
+    name: "wallet-txn",
+    description: "Inspect and process bank and card statement entries",
+    subCommands: {
+      list: walletTransactionListCommand,
+      show: walletTransactionShowCommand,
+      delete: walletTransactionDeleteCommand,
+      create: walletTransactionCreateCommand,
+      "apply-rules": walletTransactionApplyRulesCommand,
+      ignore: walletTransactionIgnoreCommand,
+      register: walletTransactionRegisterCommand,
+      reset: walletTransactionResetCommand,
+      "register-private": walletTransactionRegisterPrivateCommand,
+      settle: walletTransactionSettleCommand,
+      transfer: walletTransactionTransferCommand,
+    },
+    run: () => 'Run "freee wallet-txn --help" for usage information.',
+  }),
+  walletable: define({
+    name: "walletable",
+    description: "List and synchronize bank, card, and wallet accounts",
+    subCommands: {
+      list: walletableListCommand,
+      sync: walletableSyncCommand,
+    },
+    run: () => 'Run "freee walletable --help" for usage information.',
+  }),
+  transfer: define({
+    name: "transfer",
+    description: "Manage transfer",
+    subCommands: {
+      list: transferListCommand,
+      show: transferShowCommand,
+      create: transferCreateCommand,
+      update: transferUpdateCommand,
+      delete: transferDeleteCommand,
+    },
+    run: () => 'Run "freee transfer --help" for usage information.',
+  }),
+  "auto-rule": define({
+    name: "auto-rule",
+    description: "Manage automatic bookkeeping rules",
+    subCommands: {
+      list: autoRegistrationRuleListCommand,
+      show: autoRegistrationRuleShowCommand,
+      create: autoRegistrationRuleCreateCommand,
+      update: autoRegistrationRuleUpdateCommand,
+      enable: autoRegistrationRuleEnableCommand,
+      disable: autoRegistrationRuleDisableCommand,
+      delete: autoRegistrationRuleDeleteCommand,
+    },
+    run: () => 'Run "freee auto-rule --help" for usage information.',
+  }),
+  "account-item": define({
+    name: "account-item",
+    description: "Manage account-item",
+    subCommands: {
+      list: accountItemListCommand,
+    },
+    run: () => 'Run "freee account-item --help" for usage information.',
+  }),
+  "tax-code": define({
+    name: "tax-code",
+    description: "Manage tax-code",
+    subCommands: {
+      list: taxCodeListCommand,
+    },
+    run: () => 'Run "freee tax-code --help" for usage information.',
+  }),
+  section: define({
+    name: "section",
+    description: "Manage section",
+    subCommands: {
+      list: sectionListCommand,
+    },
+    run: () => 'Run "freee section --help" for usage information.',
+  }),
+  tag: define({
+    name: "tag",
+    description: "Manage tag",
+    subCommands: {
+      list: tagListCommand,
+    },
+    run: () => 'Run "freee tag --help" for usage information.',
+  }),
+  "segment-tag": define({
+    name: "segment-tag",
+    description: "Manage segment-tag",
+    subCommands: {
+      list: segmentTagListCommand,
+    },
+    run: () => 'Run "freee segment-tag --help" for usage information.',
+  }),
+  partner: define({
+    name: "partner",
+    description: "Manage partner",
+    subCommands: {
+      list: partnerListCommand,
+      show: partnerShowCommand,
+      create: partnerCreateCommand,
+    },
+    run: () => 'Run "freee partner --help" for usage information.',
+  }),
+  item: define({
+    name: "item",
+    description: "Manage item",
+    subCommands: {
+      list: itemListCommand,
+    },
+    run: () => 'Run "freee item --help" for usage information.',
+  }),
+  "file-box": define({
+    name: "file-box",
+    description: "Manage evidence files and their metadata",
+    subCommands: {
+      list: fileBoxListCommand,
+      show: fileBoxShowCommand,
+      download: fileBoxDownloadCommand,
+      upload: fileBoxUploadCommand,
+      update: fileBoxUpdateCommand,
+      delete: fileBoxDeleteCommand,
+    },
+    run: () => 'Run "freee file-box --help" for usage information.',
+  }),
+  invoice: define({
+    name: "invoice",
+    description: "Manage invoice",
+    subCommands: {
+      list: invoiceListCommand,
+      show: invoiceShowCommand,
+      create: invoiceCreateCommand,
+      update: invoiceUpdateCommand,
+      cancel: invoiceCancelCommand,
+      restore: invoiceRestoreCommand,
+      "register-deal": invoiceRegisterDealCommand,
+      "set-sending-status": invoiceSetSendingStatusCommand,
+    },
+    run: () => 'Run "freee invoice --help" for usage information.',
+  }),
+  "invoice-template": define({
+    name: "invoice-template",
+    description: "Manage invoice-template",
+    subCommands: {
+      list: invoiceTemplateListCommand,
+    },
+    run: () => 'Run "freee invoice-template --help" for usage information.',
+  }),
+  quotation: define({
+    name: "quotation",
+    description: "Manage quotation",
+    subCommands: {
+      list: quotationListCommand,
+      show: quotationShowCommand,
+      create: quotationCreateCommand,
+    },
+    run: () => 'Run "freee quotation --help" for usage information.',
+  }),
+  "quotation-template": define({
+    name: "quotation-template",
+    description: "Manage quotation-template",
+    subCommands: {
+      list: quotationTemplateListCommand,
+    },
+    run: () => 'Run "freee quotation-template --help" for usage information.',
+  }),
+  "balance-sheet": define({
+    name: "balance-sheet",
+    description: "Manage balance-sheet",
+    subCommands: {
+      show: balanceSheetCommand,
+    },
+    run: () => 'Run "freee balance-sheet --help" for usage information.',
+  }),
+  "profit-and-loss": define({
+    name: "profit-and-loss",
+    description: "Manage profit-and-loss",
+    subCommands: {
+      show: profitAndLossCommand,
+    },
+    run: () => 'Run "freee profit-and-loss --help" for usage information.',
+  }),
+  "general-ledger": define({
+    name: "general-ledger",
+    description: "Manage general-ledger",
+    subCommands: {
+      list: generalLedgerCommand,
+    },
+    run: () => 'Run "freee general-ledger --help" for usage information.',
+  }),
+  journal: define({
+    name: "journal",
+    description: "Manage journal",
+    subCommands: {
+      export: journalExportCommand,
+    },
+    run: () => 'Run "freee journal --help" for usage information.',
+  }),
+  company: define({
+    name: "company",
+    description: "List freee companies and select a profile company",
+    subCommands: {
+      list: companyListCommand,
+      switch: companySetDefaultCommand,
+    },
+    run: () => 'Run "freee company --help" for usage information.',
+  }),
+};
 
 const rootCommand = define({
   name: "freee",
@@ -82,7 +369,7 @@ const rootCommand = define({
 $ freee setup
 
 # Read data for automation
-$ freee deal-list --month 2026-08 --format json`,
+$ freee deal list --month 2026-08 --format json`,
   run: () => 'Run "freee --help" for usage information.',
 });
 
@@ -92,74 +379,7 @@ export async function main() {
   await cli(process.argv.slice(2), rootCommand, {
     name: "freee",
     version: pkg.default.version,
-    plugins: [freeeWebPlugin],
-    subCommands: {
-      login: loginCommand,
-      logout: logoutCommand,
-      status: statusCommand,
-      setup: setupCommand,
-      "profile-list": profileListCommand,
-      "profile-set-default": profileSetDefaultCommand,
-      "deal-list": dealListCommand,
-      "deal-show": dealShowCommand,
-      "deal-create": dealCreateCommand,
-      "deal-payment-create": dealPaymentCreateCommand,
-      "deal-payment-update": dealPaymentUpdateCommand,
-      "deal-payment-delete": dealPaymentDeleteCommand,
-      "deal-update": dealUpdateCommand,
-      "deal-delete": dealDeleteCommand,
-      "hr-employee-list": hrEmployeeListCommand,
-      "hr-payroll-list": hrPayrollListCommand,
-      "wallet-txn-list": walletTransactionListCommand,
-      "wallet-txn-show": walletTransactionShowCommand,
-      "wallet-txn-delete": walletTransactionDeleteCommand,
-      "walletable-list": walletableListCommand,
-      "transfer-list": transferListCommand,
-      "transfer-show": transferShowCommand,
-      "transfer-create": transferCreateCommand,
-      "transfer-update": transferUpdateCommand,
-      "transfer-delete": transferDeleteCommand,
-      "auto-rule-list": autoRegistrationRuleListCommand,
-      "auto-rule-show": autoRegistrationRuleShowCommand,
-      "auto-rule-create": autoRegistrationRuleCreateCommand,
-      "auto-rule-update": autoRegistrationRuleUpdateCommand,
-      "auto-rule-enable": autoRegistrationRuleEnableCommand,
-      "auto-rule-disable": autoRegistrationRuleDisableCommand,
-      "auto-rule-delete": autoRegistrationRuleDeleteCommand,
-      "wallet-txn-create": walletTransactionCreateCommand,
-      "account-item-list": accountItemListCommand,
-      "tax-code-list": taxCodeListCommand,
-      "section-list": sectionListCommand,
-      "tag-list": tagListCommand,
-      "segment-tag-list": segmentTagListCommand,
-      "partner-list": partnerListCommand,
-      "partner-show": partnerShowCommand,
-      "partner-create": partnerCreateCommand,
-      "item-list": itemListCommand,
-      "file-box-list": fileBoxListCommand,
-      "file-box-show": fileBoxShowCommand,
-      "file-box-download": fileBoxDownloadCommand,
-      "file-box-upload": fileBoxUploadCommand,
-      "file-box-update": fileBoxUpdateCommand,
-      "file-box-delete": fileBoxDeleteCommand,
-      "invoice-list": invoiceListCommand,
-      "invoice-show": invoiceShowCommand,
-      "invoice-create": invoiceCreateCommand,
-      "invoice-update": invoiceUpdateCommand,
-      "invoice-cancel": invoiceCancelCommand,
-      "invoice-restore": invoiceRestoreCommand,
-      "invoice-template-list": invoiceTemplateListCommand,
-      "quotation-list": quotationListCommand,
-      "quotation-show": quotationShowCommand,
-      "quotation-create": quotationCreateCommand,
-      "quotation-template-list": quotationTemplateListCommand,
-      bs: balanceSheetCommand,
-      pl: profitAndLossCommand,
-      "general-ledger": generalLedgerCommand,
-      "journal-export": journalExportCommand,
-      "company-list": companyListCommand,
-      "company-switch": companySetDefaultCommand,
-    },
+    subCommands: commands,
     strict: true,
     renderHeader: (ctx) => {
       if (!ctx.values.help) return Promise.resolve("");

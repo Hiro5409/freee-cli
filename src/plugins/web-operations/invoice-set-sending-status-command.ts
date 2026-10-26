@@ -1,10 +1,10 @@
 import { configureClient } from "../../api/client.ts";
 import { configDir } from "../../config/config.ts";
 import { CliError, OutcomeUnknownError } from "../../errors.ts";
+import { resolveFreeeScope, type FreeeScope } from "../../profiles.ts";
 import { invoicesShow } from "../../types/freee-invoice/sdk.gen.ts";
 import type { InvoiceShowResponseInvoice } from "../../types/freee-invoice/types.gen.ts";
 import { type FreeeWebOperations, type InvoiceSendingStatus, withFreeeWeb } from "./freee-web.ts";
-import { resolveWebCommandScope, type WebCommandScope } from "./web-command-scope.ts";
 
 type Values = {
   id: number;
@@ -13,7 +13,7 @@ type Values = {
 };
 
 type Dependencies = {
-  resolveScope: (requestedProfile: unknown) => WebCommandScope;
+  resolveScope: (requestedProfile: unknown) => FreeeScope;
   readInvoice: (input: {
     profile: string;
     companyId: number;
@@ -36,7 +36,7 @@ async function readInvoice(input: {
 }
 
 const defaultDependencies: Dependencies = {
-  resolveScope: resolveWebCommandScope,
+  resolveScope: resolveFreeeScope,
   readInvoice,
   withWeb: withFreeeWeb,
 };
@@ -45,7 +45,7 @@ function invalidInvoice(message: string): CliError {
   return new CliError(message, {
     code: "INVALID_INPUT",
     why: "Changing the sending status requires one active invoice in the selected company.",
-    hint: 'Use "freee invoice-show --id <id> --format json" and retry with its ID.',
+    hint: 'Use "freee invoice show --id <id> --format json" and retry with its ID.',
   });
 }
 

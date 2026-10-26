@@ -7,7 +7,7 @@ import { formatValue } from "../../output/formatter.ts";
 import { resolveConfiguredProfile } from "../../profiles.ts";
 
 export const companySetDefaultCommand = define({
-  name: "company-switch",
+  name: "switch",
   description: "Set a profile's default company",
   args: merge(
     globalArgs,

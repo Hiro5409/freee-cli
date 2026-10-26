@@ -13,7 +13,7 @@ const DEAL_STATUSES = ["unsettled", "settled"] as const;
 const ACCRUAL_FILTERS = ["without", "with"] as const;
 
 export const dealListCommand = define({
-  name: "deal-list",
+  name: "list",
   description: "List deals (transactions)",
   args: merge(
     listArgs,

@@ -1164,7 +1164,7 @@ export const getEmployeeWorkRecord = <ThrowOnError extends boolean = true>(
  *         "work_record_segments": [
  *           {
  *             "clock_in_at": "2017-05-25 09:10:00",
- *             "clock_out_at": "2017-05-25 18:20:00:00"
+ *             "clock_out_at": "2017-05-25 18:20:00"
  *           }
  *         ],
  *         "day_pattern": "normal_day",
@@ -1191,7 +1191,7 @@ export const getEmployeeWorkRecord = <ThrowOnError extends boolean = true>(
  *         "work_record_segments": [
  *           {
  *             "clock_in_at": "2017-05-25 09:10:00",
- *             "clock_out_at": "2017-05-25 18:20:00:00"
+ *             "clock_out_at": "2017-05-25 18:20:00"
  *           }
  *         ],
  *         "paid_holidays": [
@@ -1290,7 +1290,7 @@ export const getEmployeeWorkRecord = <ThrowOnError extends boolean = true>(
  *         "work_record_segments": [
  *           {
  *             "clock_in_at": "2017-05-25 09:10:00",
- *             "clock_out_at": "2017-05-25 18:20:00:00"
+ *             "clock_out_at": "2017-05-25 18:20:00"
  *           }
  *         ],
  *         "special_holiday_setting_id": 1,
@@ -2566,14 +2566,14 @@ export const getApprovalRequestsWorkTimes = <ThrowOnError extends boolean = true
  *           "target_date": "2017-05-25",
  *           "break_records": [
  *             {
- *               "clock_in_at": "2017-05-25 12:00:00",
- *               "clock_out_at": "2017-05-25 13:00:00"
+ *               "clock_in_at": "12:00:00",
+ *               "clock_out_at": "13:00:00"
  *             }
  *           ],
  *           "work_records": [
  *             {
- *               "clock_in_at": "2017-05-25 09:10:00",
- *               "clock_out_at": "2017-05-25 18:20:00"
+ *               "clock_in_at": "09:10:00",
+ *               "clock_out_at": "18:20:00"
  *             }
  *           ],
  *           "approval_flow_route_id": 1
@@ -2706,14 +2706,14 @@ export const getApprovalRequestsWorkTime = <ThrowOnError extends boolean = true>
  *           "target_date": "2017-05-25",
  *           "break_records": [
  *             {
- *               "clock_in_at": "2017-05-25 12:00:00",
- *               "clock_out_at": "2017-05-25 13:00:00"
+ *               "clock_in_at": "12:00:00",
+ *               "clock_out_at": "13:00:00"
  *             }
  *           ],
  *           "work_records": [
  *             {
- *               "clock_in_at": "2017-05-25 09:10:00",
- *               "clock_out_at": "2017-05-25 18:20:00"
+ *               "clock_in_at": "09:10:00",
+ *               "clock_out_at": "18:20:00"
  *             }
  *           ],
  *           "approval_flow_route_id": 1

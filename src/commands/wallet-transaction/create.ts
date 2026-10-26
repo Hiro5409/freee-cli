@@ -12,7 +12,7 @@ const ENTRY_SIDES = ["income", "expense"] as const;
 const WALLET_TYPES = ["bank_account", "credit_card", "wallet"] as const;
 
 export const walletTransactionCreateCommand = define({
-  name: "wallet-txn-create",
+  name: "create",
   description:
     "Create a wallet transaction and let freee evaluate active auto-registration rules against it",
   args: merge(
@@ -44,7 +44,7 @@ export const walletTransactionCreateCommand = define({
     }),
   ),
   examples: `# 口座明細を作成し、有効な自動登録ルールをfreee側に評価させる
-$ freee wallet-txn-create --date 2026-08-01 --entry-side expense --amount 5000 \\
+$ freee wallet-txn create --date 2026-08-01 --entry-side expense --amount 5000 \\
     --walletable-id 55 --walletable-type credit_card --description AMAZON.CO.JP --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);

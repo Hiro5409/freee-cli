@@ -9,7 +9,7 @@ import { formatValue } from "../../output/formatter.ts";
 import { createDeal } from "../../types/freee/sdk.gen.ts";
 
 export const dealCreateCommand = define({
-  name: "deal-create",
+  name: "create",
   description: "Create a new deal (transaction)",
   args: merge(
     companyArgs,
@@ -33,7 +33,7 @@ export const dealCreateCommand = define({
       description: string({ description: "Remarks/description" }),
     }),
   ),
-  examples: `$ freee deal-create --company-id 123 --date 2026-08-01 --type expense \\
+  examples: `$ freee deal create --company-id 123 --date 2026-08-01 --type expense \\
     --account-item-id 101 --tax-code 21 --amount 5000 --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);

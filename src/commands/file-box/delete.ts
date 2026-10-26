@@ -8,7 +8,7 @@ import { formatDryRun, formatValue } from "../../output/formatter.ts";
 import { destroyReceipt } from "../../types/freee/sdk.gen.ts";
 
 export const fileBoxDeleteCommand = define({
-  name: "file-box-delete",
+  name: "delete",
   description: "Delete a document from the File Box",
   args: merge(
     dryRunArgs,
@@ -18,7 +18,7 @@ export const fileBoxDeleteCommand = define({
       ),
     }),
   ),
-  examples: `$ freee file-box-delete --id 55 --dry-run --format json`,
+  examples: `$ freee file-box delete --id 55 --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const id = ctx.values.id;

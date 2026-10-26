@@ -9,7 +9,7 @@ import { formatOutput } from "../../output/formatter.ts";
 import { getEmployees } from "../../types/freee-hr/sdk.gen.ts";
 
 export const hrEmployeeListCommand = define({
-  name: "hr-employee-list",
+  name: "list",
   description: "List employees from the freee HR API for a payroll month",
   args: merge(listArgs, args({ month: required(monthArg("--month", "Payroll month (YYYY-MM)")) })),
   run: async (ctx) => {

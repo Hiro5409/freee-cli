@@ -21,7 +21,7 @@ const WALLET_TYPES = ["bank_account", "credit_card", "wallet"] as const;
 const ENTRY_SIDES = ["income", "expense"] as const;
 
 export const walletTransactionListCommand = define({
-  name: "wallet-txn-list",
+  name: "list",
   description: "List wallet transactions for a company",
   args: merge(
     listArgs,

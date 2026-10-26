@@ -7,7 +7,7 @@ import { formatResource } from "../../output/formatter.ts";
 import { getUserMatcher } from "../../types/freee/sdk.gen.ts";
 
 export const autoRegistrationRuleShowCommand = define({
-  name: "auto-rule-show",
+  name: "show",
   description: "Show an auto-registration rule",
   args: merge(
     companyArgs,

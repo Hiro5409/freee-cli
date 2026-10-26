@@ -8,7 +8,7 @@ import { formatOutput } from "../../output/formatter.ts";
 import { getPartners } from "../../types/freee/sdk.gen.ts";
 
 export const partnerListCommand = define({
-  name: "partner-list",
+  name: "list",
   description: "List partners (transaction counterparts)",
   args: merge(listArgs, args({ keyword: string({ description: "Search keyword" }) })),
   run: async (ctx) => {

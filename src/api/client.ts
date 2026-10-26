@@ -100,7 +100,7 @@ async function refreshTokenWithLock(configDir: string, profile: string): Promise
     const currentTokenSet = credentials[profile];
 
     if (!currentTokenSet) {
-      throw new AuthError(`No credentials for profile "${profile}". Run "freee login" first.`);
+      throw new AuthError(`No credentials for profile "${profile}". Run "freee auth login" first.`);
     }
 
     if (getTokenStatus(currentTokenSet).isValid) {
@@ -113,7 +113,7 @@ async function refreshTokenWithLock(configDir: string, profile: string): Promise
     } catch (error) {
       if (error instanceof AuthError) {
         throw new AuthError(
-          `${error.message}\nRun "freee login --profile ${profile} --replace" to re-authenticate.`,
+          `${error.message}\nRun "freee auth login --profile ${profile} --replace" to re-authenticate.`,
         );
       }
       throw error;
@@ -128,7 +128,7 @@ async function ensureValidToken(configDir: string, profile: string): Promise<Tok
   const tokenSet = creds[profile];
 
   if (!tokenSet) {
-    throw new AuthError(`No credentials for profile "${profile}". Run "freee login" first.`);
+    throw new AuthError(`No credentials for profile "${profile}". Run "freee auth login" first.`);
   }
 
   if (getTokenStatus(tokenSet).isValid) {

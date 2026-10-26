@@ -100,7 +100,7 @@ function dealRequestFromCurrent(
 }
 
 export const dealUpdateCommand = define({
-  name: "deal-update",
+  name: "update",
   description: "Update a deal; omit replacement fields to preserve their current values",
   args: merge(
     dryRunArgs,
@@ -117,7 +117,7 @@ export const dealUpdateCommand = define({
       }),
     }),
   ),
-  examples: `$ freee deal-update --id 123 \\
+  examples: `$ freee deal update --id 123 \\
     --detail '{"id":10,"account_item_id":101,"tax_code":21,"amount":5000}' \\
     --dry-run --format json`,
   run: async (ctx) => {

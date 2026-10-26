@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, spyOn, test } from "bun:test";
 
 import { errorExitCode, printError } from "./error-output.ts";
-import { AuthError, CliError, errorHints } from "./errors.ts";
+import { AuthError, CliError, ConfigError, errorHints } from "./errors.ts";
 
 const consoleError = spyOn(console, "error").mockImplementation(() => undefined);
 
@@ -27,7 +27,7 @@ describe("error output", () => {
   test("renders authentication errors as structured JSON", () => {
     const error = new AuthError("The access token is invalid");
 
-    expect(printError(error, "json", ["deal-list"])).toBe(2);
+    expect(printError(error, "json", ["deal", "list"])).toBe(2);
     expect(errorExitCode(error)).toBe(2);
     expect(JSON.parse(String(consoleError.mock.calls[0]?.[0]))).toEqual({
       code: "AUTHENTICATION",
@@ -39,11 +39,22 @@ describe("error output", () => {
   });
 
   test("gives every JSON error a stable code", () => {
-    printError(new AggregateError([new Error("bad args")]), "json", ["deal-list"]);
+    expect(
+      printError(new ConfigError("config missing", { hint: "Run setup." }), "json", ["setup"]),
+    ).toBe(3);
+    expect(JSON.parse(String(consoleError.mock.calls[0]?.[0]))).toMatchObject({
+      code: "CONFIGURATION",
+      error: "config missing",
+      exitCode: 3,
+      hint: "Run setup.",
+    });
+
+    consoleError.mockClear();
+    printError(new AggregateError([new Error("bad args")]), "json", ["deal", "list"]);
     expect(JSON.parse(String(consoleError.mock.calls[0]?.[0])).code).toBe("INVALID_INPUT");
 
     consoleError.mockClear();
-    printError(new Error("unexpected"), "json", ["deal-list"]);
+    printError(new Error("unexpected"), "json", ["deal", "list"]);
     expect(JSON.parse(String(consoleError.mock.calls[0]?.[0])).code).toBe("UNEXPECTED");
   });
 
@@ -54,7 +65,7 @@ describe("error output", () => {
       hint: "retry\rnow",
     });
 
-    printError(error, "table", ["deal-list"]);
+    printError(error, "table", ["deal", "list"]);
     const output = consoleError.mock.calls.map(([message]) => String(message)).join("\n");
     expect(output).not.toContain("\u001b]8");
     expect(output).not.toContain("\r");

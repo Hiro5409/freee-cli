@@ -15,7 +15,7 @@ export const globalArgs = args({
     "table",
   ),
   profile: string({
-    description: "OAuth profile name (overrides FREEE_PROFILE and the configured default)",
+    description: "Connection profile (overrides FREEE_PROFILE and the configured default)",
   }),
   color: withDefault(boolean({ description: "Enable colored output", negatable: true }), true),
 });

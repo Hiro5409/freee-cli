@@ -20,7 +20,7 @@ export function initCommand(ctx: { values: Record<string, unknown> }): {
     companyId = config.profiles[profile]?.companyId;
   }
   if (!companyId) {
-    throw new CliError('No company ID. Use --company-id or run "freee company-switch" first.', {
+    throw new CliError('No company ID. Use --company-id or run "freee company switch" first.', {
       code: "INVALID_INPUT",
       why: "This command needs a target freee company.",
       hint: errorHints.company,

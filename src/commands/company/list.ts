@@ -8,8 +8,8 @@ import { resolveConfiguredProfile } from "../../profiles.ts";
 import { getCompanies } from "../../types/freee/sdk.gen.ts";
 
 export const companyListCommand = define({
-  name: "company-list",
-  description: "List companies (workspaces)",
+  name: "list",
+  description: "List accessible freee companies",
   args: globalArgs,
   run: async (ctx) => {
     const dir = configDir();

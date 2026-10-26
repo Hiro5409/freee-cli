@@ -6,7 +6,7 @@ import { globalArgs } from "../../global-args.ts";
 import { setDefaultProfile } from "../../profiles.ts";
 
 export const profileSetDefaultCommand = define({
-  name: "profile-set-default",
+  name: "set-default",
   description: "Set the profile used when no override is provided",
   args: merge(
     globalArgs,

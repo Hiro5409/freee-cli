@@ -50,48 +50,48 @@ freee <command> --help
 ### Authentication
 
 ```bash
-freee login --profile personal
-freee profile-list
-freee company-list
-freee company-switch --id 1234567 --name "My Company"
+freee auth login --profile personal
+freee profile list
+freee company list
+freee company switch --id 1234567 --name "My Company"
 ```
 
 ### Accounting
 
 ```bash
-freee deal-list --month 2026-08
-freee deal-create --date 2026-08-15 --type expense \
+freee deal list --month 2026-08
+freee deal create --date 2026-08-15 --type expense \
   --account-item-id 123 --tax-code 136 --amount 5000
-freee wallet-txn-list --month 2026-08 --status unreconciled
-freee wallet-txn-show --id 42
-freee transfer-list --month 2026-08
-freee transfer-create --date 2026-08-01 \
+freee wallet-txn list --month 2026-08 --status unreconciled
+freee wallet-txn show --id 42
+freee transfer list --month 2026-08
+freee transfer create --date 2026-08-01 \
   --from-walletable-id 10 --from-walletable-type bank_account \
   --to '{"type":"credit_card","id":20,"amount":5000}'
-freee file-box-list --start-date 2026-08-01 --end-date 2026-08-31 --category without-deal
-freee file-box-upload --file receipt.jpg
-freee section-list
-freee tag-list
-freee segment-tag-list --segment 1
-freee bs --fiscal-year 2025
-freee pl --fiscal-year 2025
-freee general-ledger --start-date 2025-01-01 --end-date 2025-12-31 \
+freee file-box list --start-date 2026-08-01 --end-date 2026-08-31 --category without-deal
+freee file-box upload --file receipt.jpg
+freee section list
+freee tag list
+freee segment-tag list --segment 1
+freee balance-sheet show --fiscal-year 2025
+freee profit-and-loss show --fiscal-year 2025
+freee general-ledger list --start-date 2025-01-01 --end-date 2025-12-31 \
   --account-item-name Sales --format json
-freee journal-export --download-type generic_v2 --encoding utf-8 \
+freee journal export --download-type generic_v2 --encoding utf-8 \
   --start-date 2025-01-01 --end-date 2025-12-31 --output journal-2025.csv
 ```
 
 ### Auto-registration rules
 
 ```bash
-freee auto-rule-list --active active
-freee auto-rule-create --act auto-standard --description AMAZON --condition partial \
+freee auto-rule list --active active
+freee auto-rule create --act auto-standard --description AMAZON --condition partial \
   --entry-side expense --priority 5 --tax-name 課対仕入10% \
   --account-item-name 消耗品費 --qualified-invoice-setting qualified --dry-run
-freee auto-rule-update --id 42 --account-item-name 通信費 --dry-run
-freee auto-rule-update --id 42 --clear walletable --dry-run --format json
-freee auto-rule-disable --id 42 --dry-run
-freee wallet-txn-create --date 2026-08-01 --entry-side expense --amount 5000 \
+freee auto-rule update --id 42 --account-item-name 通信費 --dry-run
+freee auto-rule update --id 42 --clear walletable --dry-run --format json
+freee auto-rule disable --id 42 --dry-run
+freee wallet-txn create --date 2026-08-01 --entry-side expense --amount 5000 \
   --walletable-id 55 --walletable-type credit_card --description AMAZON.CO.JP
 ```
 
@@ -102,10 +102,10 @@ command keep their current values.
 ### Invoices
 
 ```bash
-freee invoice-list --sending-status unsent
-freee invoice-create --partner-id 123 --billing-date 2026-08-01 \
+freee invoice list --sending-status unsent
+freee invoice create --partner-id 123 --billing-date 2026-08-01 \
   --line '{"description":"Consulting","quantity":1,"unit_price":"100000","tax_rate":10,"account_item_id":123,"tax_code":129}'
-freee invoice-update --id 456 --subject "August invoice" --dry-run
+freee invoice update --id 456 --subject "August invoice" --dry-run
 ```
 
 ### Quotations
@@ -113,10 +113,10 @@ freee invoice-update --id 456 --subject "August invoice" --dry-run
 Quotations use the freee invoice API and their own document templates.
 
 ```bash
-freee quotation-list --month 2026-10 --format json
-freee quotation-show --id 456 --format json
-freee quotation-template-list --format json
-freee quotation-create --partner-id 123 --quotation-date 2026-10-01 \
+freee quotation list --month 2026-10 --format json
+freee quotation show --id 456 --format json
+freee quotation-template list --format json
+freee quotation create --partner-id 123 --quotation-date 2026-10-01 \
   --expiration-date 2026-10-31 --subject "Development estimate" \
   --line '{"description":"Development","quantity":1,"unit_price":"100000","tax_rate":10}' --format json
 ```
@@ -129,53 +129,54 @@ does not auto-number quotations. Creating a quotation saves the document without
 ### Human resources
 
 ```bash
-freee hr-employee-list --month 2026-08
-freee hr-payroll-list --month 2026-08
+freee hr employee list --month 2026-08
+freee hr payroll list --month 2026-08
 ```
 
-### Experimental freee Web operations
+### Processing account statements
 
-`freee setup` can enable Web-only operations for an OAuth profile. They require [Agent Browser](https://github.com/vercel-labs/agent-browser) and a separate Agent Browser Auth Profile. freee-cli stores only the Auth Profile name; Agent Browser owns the login and saved session.
-
-Before the first Web operation, set `AGENT_BROWSER_ENCRYPTION_KEY` to 64 hexadecimal characters or store the key in `~/.agent-browser/.encryption-key`.
+Statement processing uses the official Accounting API with API authentication. `register`, `settle`, and `transfer` accept the [official API request body](https://developer.freee.co.jp/reference/accounting) as `--body` JSON. The selected profile or `--company-id` supplies `company_id`, overriding that field in the body.
 
 ```bash
-freee walletable-list
-freee wallet-txn-list --status unreconciled
-freee web wallet-txn apply-rules --dry-run --format json
-freee web wallet-txn apply-rules
-freee web wallet-txn ignore --id 42
-freee web wallet-txn register --id 42 --account-item-name "通信費" --tax-name "課対仕入10%" --dry-run --format json
-freee web wallet-txn register --id 42 --account-item-name "通信費" --tax-name "課対仕入10%"
-freee web wallet-txn settle --id 42 --deal-id 91 --amount 10000 --dry-run --format json
-freee web wallet-txn settle --id 42 --deal-id 91 --amount 10000
-freee web wallet-txn transfer --id 42 --counterparty-walletable-name "事業主借" --dry-run --format json
-freee web wallet-txn transfer --id 42 --counterparty-walletable-name "事業主借"
-freee wallet-txn-list --status ignored
-freee web wallet-txn restore --id 42
-freee web invoice set-sending-status --id 456 --status sent
-freee web invoice set-sending-status --id 456 --status unsent
-freee invoice-list --deal-status unregistered --cancel-status uncanceled
-freee web invoice register-deal --id 456
-freee web walletable sync --id 42
-freee web walletable sync --all
+freee wallet-txn ignore --id 42
+freee wallet-txn reset --id 42
+freee wallet-txn register --id 42 --body '{"deal_lines":[{"account_item_id":101,"amount":10000,"description":"Cloud service"}]}'
+freee wallet-txn register-private --id 42
+freee wallet-txn settle --id 42 --body '{"deals":[{"deal_id":91,"amount":10000}]}'
+freee wallet-txn transfer --id 42 --body '{"transfer_from_line":{"walletable_id":1,"walletable_type":"bank_account"},"transfer_to_lines":[{"walletable_id":7,"walletable_type":"wallet","amount":10000}]}'
+freee wallet-txn apply-rules --id 42 --id 43 --format json
 ```
 
-These commands are temporary bridges for capabilities missing from freee's official APIs. See the [Web operations module](src/plugins/web-operations/README.md) for why each command exists and the condition for replacing it with a stable command.
+The CLI sends one request and returns the API result, without preflight reads, previews, dry-runs, or follow-up reads. freee validates accounting constraints and applies its defaults. `register` accepts all deal fields, `settle` supports multiple payments and an `adjustment_deal`, and `transfer` supports multiple destinations and `charge_lines`. `reset` returns a statement to unprocessed. `register-private` uses freee's company-specific private accounting treatment.
 
-Use `freee walletable-list` to obtain the walletable ID from the official API. The `freee web walletable sync` command starts synchronization and waits for completion for up to one hour. Table output reports state changes to stderr; JSON output suppresses that progress so stdout remains machine-readable.
+Rule application requires 1–1,000 statement IDs and runs asynchronously. freee skips ineligible statements, including processed ones; the CLI does not filter or reject them based on their state. A `queued` result confirms acceptance, not completion or a match; read the selected statements to inspect the outcome. Writes are never retried automatically. An `OUTCOME_UNKNOWN` error requires inspecting the affected statement before retrying.
 
-With `--all`, freee selects the eligible walletables that participate. The result includes only walletables whose synchronization started and completed; use `--id` when a candidate was not selected.
+### Browser-backed operations
 
-These commands use observed, unsupported freee Web interfaces. They fail when an observed response no longer matches the expected shape and are excluded from the stability expectations of commands generated from official OpenAPI schemas.
+Invoice registration, invoice sending-status changes, and account synchronization use [Agent Browser](https://github.com/vercel-labs/agent-browser). Run `freee auth login --web --profile <name>` to open a dedicated browser and select the configured company. The CLI waits up to five minutes and saves only a verified, encrypted session. `freee auth status --profile <name> --format json` reports API and browser access separately.
 
-Bun applications can use the experimental freee Web operations directly:
+```bash
+freee invoice register-deal --id 456
+freee invoice set-sending-status --id 456 --status sent
+freee walletable sync --id 42
+freee walletable sync --all
+```
+
+Account synchronization waits up to one hour. Table output reports progress on stderr; JSON output keeps stdout machine-readable. With `--all`, freee selects eligible wallets and the result identifies those whose synchronization started and completed.
+
+These operations depend on observed Web interfaces. See the [Web operations module](src/plugins/web-operations/README.md) for their scope. Authentication state belongs to freee-cli and remains outside the repository.
+
+Bun applications can resolve a connection profile and use the remaining Web operations directly:
 
 ```ts
 import { withFreeeWeb } from "freee-cli/experimental/web";
-```
+import { resolveFreeeScope } from "freee-cli/profiles";
 
-The caller owns operation sequencing and supplies the company ID and Auth Profile. Preview methods do not write. Methods that register, settle, transfer, ignore, restore, change an invoice's sending status, register an invoice, or apply auto-rules write immediately and have no generic dry-run. If an `OutcomeUnknownError` is returned, inspect the affected resource in freee before retrying because the write may already have completed.
+const scope = resolveFreeeScope("business");
+await withFreeeWeb(scope, async (web) => {
+  console.log(await web.walletableSummary());
+});
+```
 
 ## Calling from Agents
 

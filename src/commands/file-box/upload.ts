@@ -36,7 +36,7 @@ function validateDocument(path: string): Bun.BunFile {
 }
 
 export const fileBoxUploadCommand = define({
-  name: "file-box-upload",
+  name: "upload",
   description: "Upload a document into the File Box",
   args: merge(
     companyArgs,
@@ -45,7 +45,7 @@ export const fileBoxUploadCommand = define({
       description: string({ description: "Document description" }),
     }),
   ),
-  examples: `$ freee file-box-upload --file receipt.jpg --format json`,
+  examples: `$ freee file-box upload --file receipt.jpg --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const document = validateDocument(ctx.values.file);

@@ -7,7 +7,7 @@ import { formatOutput } from "../../output/formatter.ts";
 import { getTags } from "../../types/freee/sdk.gen.ts";
 
 export const tagListCommand = define({
-  name: "tag-list",
+  name: "list",
   description: "List accounting memo tags",
   args: listArgs,
   run: async (ctx) => {

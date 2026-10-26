@@ -14,7 +14,7 @@ const DOCUMENT_TYPES = ["receipt", "invoice", "other"] as const;
 const QUALIFIED_INVOICE_STATUSES = ["qualified", "not_qualified", "unselected"] as const;
 
 export const fileBoxUpdateCommand = define({
-  name: "file-box-update",
+  name: "update",
   description: "Update metadata for a document in the File Box",
   args: merge(
     dryRunArgs,
@@ -41,7 +41,7 @@ export const fileBoxUpdateCommand = define({
       }),
     }),
   ),
-  examples: `$ freee file-box-update --id 55 --description "Books" --document-type receipt \\
+  examples: `$ freee file-box update --id 55 --description "Books" --document-type receipt \\
     --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);

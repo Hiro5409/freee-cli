@@ -7,7 +7,7 @@ import { formatOutput } from "../../output/formatter.ts";
 import { getAccountItems } from "../../types/freee/sdk.gen.ts";
 
 export const accountItemListCommand = define({
-  name: "account-item-list",
+  name: "list",
   description: "List account items (chart of accounts)",
   args: merge(
     companyArgs,

@@ -1,6 +1,6 @@
 {
   "name": "freee-cli",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "description": "Agent-friendly command line interface for the freee API.",
   "keywords": [
     "accounting",
@@ -35,6 +35,7 @@
   ],
   "type": "module",
   "exports": {
+    "./profiles": "./src/profiles.ts",
     "./experimental/web": "./src/plugins/web-operations/freee-web.ts"
   },
   "scripts": {

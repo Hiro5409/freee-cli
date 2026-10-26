@@ -2,9 +2,9 @@ import * as clack from "@clack/prompts";
 import { define } from "gunshi";
 
 import { openBrowser as openBrowserUrl } from "../browser.ts";
-import { configDir, loadConfig, saveConfig } from "../config/config.ts";
+import { configDir } from "../config/config.ts";
 import { loadOAuthCredentials, saveOAuthCredentials } from "../config/oauth.ts";
-import { CliError, ConfigError } from "../errors.ts";
+import { CliError } from "../errors.ts";
 
 const DEVELOPER_APP_URL = "https://app.secure.freee.co.jp/developers";
 
@@ -103,13 +103,6 @@ function required(value: string | undefined): string | undefined {
 function positiveInteger(value: string | undefined): string | undefined {
   if (value === undefined) return "Enter a positive integer.";
   return /^[1-9]\d*$/.test(value) ? undefined : "Enter a positive integer.";
-}
-
-function authProfileName(value: string | undefined): string | undefined {
-  if (value === undefined || !/^[A-Za-z0-9_-]+$/.test(value)) {
-    return "Use only letters, numbers, underscores, and hyphens.";
-  }
-  return undefined;
 }
 
 async function runSetupFlow(options: SetupWizardOptions): Promise<void> {
@@ -222,11 +215,11 @@ async function runSetupFlow(options: SetupWizardOptions): Promise<void> {
   );
 
   if (alreadyAuthenticated) {
-    await runCli(["profile-set-default", "--name", profile]);
+    await runCli(["profile", "set-default", "--name", profile]);
   } else {
-    await runCli(["login", "--profile", profile, "--set-default"]);
+    await runCli(["auth", "login", "--profile", profile, "--set-default"]);
   }
-  await runCli(["company-list", "--profile", profile]);
+  await runCli(["company", "list", "--profile", profile]);
 
   const companyId = stringAnswer(
     await prompts.text({
@@ -235,43 +228,25 @@ async function runSetupFlow(options: SetupWizardOptions): Promise<void> {
     }),
     prompts,
   );
-  await runCli(["company-switch", "--profile", profile, "--id", companyId]);
+  await runCli(["company", "switch", "--profile", profile, "--id", companyId]);
 
   prompts.note(
     "These commands use freee's unsupported Web interface through an encrypted Agent Browser session and may require maintenance when freee changes.",
-    "4/4 · Experimental Web operations",
+    "4/4 · Browser authentication",
   );
-  const config = loadConfig(dir);
-  const configuredProfile = config.profiles[profile];
-  const enableWeb = booleanAnswer(
+  const loginWeb = booleanAnswer(
     await prompts.confirm({
-      message: `Enable experimental freee Web operations for profile "${profile}"?`,
-      initialValue: configuredProfile?.experimental?.web !== undefined,
+      message: `Log in to freee Web for profile "${profile}" now?`,
+      initialValue: false,
     }),
     prompts,
   );
-  if (enableWeb) {
-    if (!configuredProfile) {
-      throw new ConfigError(`Profile "${profile}" has no configured freee company.`);
-    }
-    const authProfile = stringAnswer(
-      await prompts.text({
-        message: "Agent Browser Auth Profile",
-        initialValue: configuredProfile.experimental?.web.authProfile ?? "freee-web",
-        validate: authProfileName,
-      }),
-      prompts,
-    );
-    configuredProfile.experimental = { web: { authProfile } };
-    saveConfig(dir, config);
+  if (loginWeb) await runCli(["auth", "login", "--web", "--profile", profile]);
+  else
     prompts.note(
-      `Save the freee Web login separately:\nagent-browser auth save ${authProfile} --url https://secure.freee.co.jp/ --username <email> --password-stdin`,
-      "Agent Browser authentication",
+      `Run "freee auth login --web --profile ${profile}" before using Web operations.`,
+      "Web login",
     );
-  } else if (configuredProfile?.experimental) {
-    delete configuredProfile.experimental;
-    saveConfig(dir, config);
-  }
 
   prompts.outro("Setup complete.");
 }
@@ -287,7 +262,7 @@ export async function runSetupWizard(options: SetupWizardOptions = {}): Promise<
 
 export const setupCommand = define({
   name: "setup",
-  description: "Interactive setup; coding agents should ask the user to run it",
+  description: "Interactive setup for OAuth credentials and the selected freee company",
   examples: "$ freee setup",
   run: () => runSetupWizard(),
 });

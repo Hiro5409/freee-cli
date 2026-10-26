@@ -5050,7 +5050,7 @@ export type ApiV1EmployeeYearendAdjustmentDependentUpdateRequestSerializer = {
     | "handicapped"
     | "over_38_man";
   /**
-   * 住民税のみの控除対象かどうか
+   * 住民税のみの控除対象かどうか 2025年以前の年末調整でのみ更新可能。2026年以降の年末調整では入力された所得額から住民税の控除対象かどうかが自動判定されるため、指定しても無視されます。
    */
   is_resident_tax_only_deduction?: boolean;
   /**
@@ -5176,7 +5176,7 @@ export type ApiV1EmployeeYearendAdjustmentDependentSerializer = {
     | "handicapped"
     | "over_38_man";
   /**
-   * 住民税のみの控除対象かどうか
+   * 住民税のみの控除対象かどうか 2025年以前の年末調整でのみ返却されます。2026年以降の年末調整では入力された所得額から住民税の控除対象かどうかが自動判定されるため、レスポンスに含まれません。
    */
   is_resident_tax_only_deduction?: boolean;
   /**
@@ -5331,7 +5331,7 @@ export type ApiV1EmployeeYearendAdjustmentInsuranceUpdateRequestSerializer = {
    */
   kind_of_purpose?: string | null;
   /**
-   * 保険期間又は年金支払期間<br>
+   * 保険期間又は年金支払期間（終身、0年〜100年、0ヶ月〜11ヶ月のいずれか）<br>
    * 保険の種類にて、生命保険・介護医療保険・個人年金保険または地震保険・旧長期損害保険を選択している時のみ、入力した値が反映されます。<br>
    * 上記以外の保険では入力した値は反映されません。
    */
@@ -5438,6 +5438,18 @@ export type ApiV1EmployeeYearendAdjustmentInsuranceUpdateRequestSerializer = {
     | "98年"
     | "99年"
     | "100年"
+    | "0ヶ月"
+    | "1ヶ月"
+    | "2ヶ月"
+    | "3ヶ月"
+    | "4ヶ月"
+    | "5ヶ月"
+    | "6ヶ月"
+    | "7ヶ月"
+    | "8ヶ月"
+    | "9ヶ月"
+    | "10ヶ月"
+    | "11ヶ月"
     | "";
   /**
    * 保険等の契約者 姓<br>
@@ -5584,7 +5596,7 @@ export type ApiV1EmployeeYearendAdjustmentInsuranceSerializer = {
    */
   kind_of_purpose?: string | null;
   /**
-   * 保険期間又は年金支払期間<br>
+   * 保険期間又は年金支払期間（終身、0年〜100年、0ヶ月〜11ヶ月のいずれか）<br>
    * 保険の種類にて、生命保険・介護医療保険・個人年金保険または地震保険・旧長期損害保険を選択している時のみ、入力した値が反映されます。<br>
    * 上記以外の保険では入力した値は反映されません。
    */
@@ -5691,6 +5703,18 @@ export type ApiV1EmployeeYearendAdjustmentInsuranceSerializer = {
     | "98年"
     | "99年"
     | "100年"
+    | "0ヶ月"
+    | "1ヶ月"
+    | "2ヶ月"
+    | "3ヶ月"
+    | "4ヶ月"
+    | "5ヶ月"
+    | "6ヶ月"
+    | "7ヶ月"
+    | "8ヶ月"
+    | "9ヶ月"
+    | "10ヶ月"
+    | "11ヶ月"
     | "";
   /**
    * 保険等の契約者 姓<br>
@@ -5780,7 +5804,7 @@ export type ApiV1EmployeeYearendAdjustmentHousingLoanUpdateRequestSerializer = {
    */
   remaining_balance_at_yearend: number;
   /**
-   * 住宅借入金等特別控除区分 general: 住: 一般の住宅借入金等, qualified: 認: 認定住宅の新築等, extension: 増: 特定増改築等, earthquake: 震: 震災特例法による特別控除
+   * 住宅借入金等特別控除区分 general: 住: 一般の住宅借入金等, qualified: 認: 認定住宅の新築等, extension: 増: 特定増改築等, earthquake: 震: 震災特例法による特別控除 extensionは2025年以前の年末調整でのみ登録可能。2026年以降の年末調整では特定増改築等住宅借入金等特別控除の廃止により指定するとエラーになります。
    */
   category: "general" | "qualified" | "extension" | "earthquake";
   /**
@@ -5819,7 +5843,7 @@ export type ApiV1EmployeeYearendAdjustmentHousingLoanSerializer = {
    */
   remaining_balance_at_yearend?: number;
   /**
-   * 住宅借入金等特別控除区分 general: 住: 一般の住宅借入金等, qualified: 認: 認定住宅の新築等, extension: 増: 特定増改築等, earthquake: 震: 震災特例法による特別控除
+   * 住宅借入金等特別控除区分 general: 住: 一般の住宅借入金等, qualified: 認: 認定住宅の新築等, extension: 増: 特定増改築等, earthquake: 震: 震災特例法による特別控除 extensionは2025年以前の年末調整でのみ返却されます。2026年以降の年末調整では特定増改築等住宅借入金等特別控除の廃止により登録できません。
    */
   category?: "general" | "qualified" | "extension" | "earthquake";
   /**
@@ -6269,7 +6293,7 @@ export type ApiV1AllowanceCreateRequestSerializer = {
    */
   name: string;
   /**
-   * 説明
+   * 説明。最大255文字
    */
   description?: string | null;
   /**

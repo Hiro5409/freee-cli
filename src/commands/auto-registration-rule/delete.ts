@@ -8,7 +8,7 @@ import { formatDryRun } from "../../output/formatter.ts";
 import { destroyUserMatcher } from "../../types/freee/sdk.gen.ts";
 
 export const autoRegistrationRuleDeleteCommand = define({
-  name: "auto-rule-delete",
+  name: "delete",
   description: "Delete an auto-registration rule; use --dry-run to preview",
   args: merge(
     dryRunArgs,
@@ -18,7 +18,7 @@ export const autoRegistrationRuleDeleteCommand = define({
       ),
     }),
   ),
-  examples: `$ freee auto-rule-delete --id 42 --dry-run --format json`,
+  examples: `$ freee auto-rule delete --id 42 --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const id = ctx.values.id;

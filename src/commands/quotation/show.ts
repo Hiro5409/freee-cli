@@ -7,13 +7,13 @@ import { formatResource } from "../../output/formatter.ts";
 import { quotationsShow } from "../../types/freee-invoice/sdk.gen.ts";
 
 export const quotationShowCommand = define({
-  name: "quotation-show",
+  name: "show",
   description: "Show a quotation from the freee invoice API",
   args: merge(
     companyArgs,
     args({ id: required(integer({ min: 1, max: 2147483647, description: "Quotation ID" })) }),
   ),
-  examples: "$ freee quotation-show --id 456 --format json",
+  examples: "$ freee quotation show --id 456 --format json",
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const { data } = await quotationsShow({

@@ -1,4 +1,5 @@
 import { CliError, errorHints } from "../../errors.ts";
+import { resolveFreeeScope, type FreeeScope } from "../../profiles.ts";
 import { type FreeeWebOperations, withFreeeWeb } from "./freee-web.ts";
 import {
   createWalletableSync,
@@ -7,7 +8,6 @@ import {
   type WalletableSyncScope,
   type WalletableSyncWeb,
 } from "./walletable-sync.ts";
-import { resolveWebCommandScope, type WebCommandScope } from "./web-command-scope.ts";
 
 type Values = {
   all?: boolean;
@@ -17,7 +17,7 @@ type Values = {
 };
 
 type Dependencies = {
-  resolveScope: (requestedProfile: unknown) => WebCommandScope;
+  resolveScope: (requestedProfile: unknown) => FreeeScope;
   withWeb: typeof withFreeeWeb;
   sync: (
     web: WalletableSyncWeb,
@@ -28,7 +28,7 @@ type Dependencies = {
 };
 
 const defaultDependencies: Dependencies = {
-  resolveScope: resolveWebCommandScope,
+  resolveScope: resolveFreeeScope,
   withWeb: withFreeeWeb,
   sync: (web, scope, onProgress) => createWalletableSync({ web, onProgress })(scope),
   writeProgress: (message) => process.stderr.write(`${message}\n`),

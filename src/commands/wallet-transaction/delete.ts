@@ -8,7 +8,7 @@ import { formatDryRun } from "../../output/formatter.ts";
 import { destroyWalletTxn } from "../../types/freee/sdk.gen.ts";
 
 export const walletTransactionDeleteCommand = define({
-  name: "wallet-txn-delete",
+  name: "delete",
   description: "Delete a wallet transaction",
   args: merge(
     dryRunArgs,
@@ -18,7 +18,7 @@ export const walletTransactionDeleteCommand = define({
       ),
     }),
   ),
-  examples: `$ freee wallet-txn-delete --id 42 --dry-run --format json`,
+  examples: `$ freee wallet-txn delete --id 42 --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const id = ctx.values.id;

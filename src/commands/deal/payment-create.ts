@@ -9,7 +9,7 @@ import { formatValue } from "../../output/formatter.ts";
 import { createDealPayment } from "../../types/freee/sdk.gen.ts";
 
 export const dealPaymentCreateCommand = define({
-  name: "deal-payment-create",
+  name: "create",
   description: "Add a payment to an existing deal",
   args: merge(
     companyArgs,
@@ -18,7 +18,7 @@ export const dealPaymentCreateCommand = define({
     }),
     dealPaymentArgs,
   ),
-  examples: `$ freee deal-payment-create --id 42 --date 2026-08-15 --amount 5000 \\
+  examples: `$ freee deal payment create --id 42 --date 2026-08-15 --amount 5000 \\
     --walletable-type bank_account --walletable-id 9 --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);

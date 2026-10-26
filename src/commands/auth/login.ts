@@ -18,18 +18,25 @@ import { loadCredentials, updateCredentials } from "../../config/credentials.ts"
 import { loadOAuthCredentials } from "../../config/oauth.ts";
 import { ConfigError } from "../../errors.ts";
 import { globalArgs } from "../../global-args.ts";
+import { formatValue } from "../../output/formatter.ts";
+import { loginFreeeWeb } from "../../plugins/web-operations/freee-web.ts";
 import {
   assertProfileWritable,
+  resolveFreeeScope,
   defaultProfileAfterLogin,
   resolveConfiguredLoginProfile,
 } from "../../profiles.ts";
 
 export const loginCommand = define({
   name: "login",
-  description: "Interactive OAuth login; coding agents should ask the user to run it",
+  description: "Log in through OAuth, or use --web to renew the browser login",
   args: merge(
     globalArgs,
     args({
+      web: withDefault(
+        boolean({ description: "Log in to the configured company's browser session" }),
+        false,
+      ),
       replace: withDefault(
         boolean({ description: "Replace credentials already stored under this profile name" }),
         false,
@@ -40,9 +47,24 @@ export const loginCommand = define({
       ),
     }),
   ),
-  examples: `$ freee login --profile work
-$ freee login --profile work --replace`,
+  examples: `$ freee auth login --profile work
+$ freee auth login --profile work --replace`,
   run: async (ctx) => {
+    if (ctx.values.web) {
+      if (ctx.values.replace || ctx.values["set-default"]) {
+        throw new ConfigError("--web cannot be combined with --replace or --set-default.");
+      }
+      const scope = resolveFreeeScope(ctx.values.profile);
+      console.error(
+        `Log in and select freee company ${scope.companyId} in the browser. Waiting up to 5 minutes.`,
+      );
+      const result = await loginFreeeWeb(scope);
+      return formatValue(
+        { ...result, method: "web" },
+        ctx.values.format,
+        `Browser login ready: profile=${scope.profile} company=${scope.companyId}`,
+      );
+    }
     const dir = configDir();
     const storedProfiles = Object.keys(loadCredentials(dir));
     const profile = resolveConfiguredLoginProfile(ctx.values.profile, dir);
@@ -91,7 +113,11 @@ $ freee login --profile work --replace`,
     );
     saveConfig(dir, config);
 
-    return colors.green(`Authenticated successfully as profile "${profile}".`);
+    return formatValue(
+      { profile, method: "api", status: "ready" },
+      ctx.values.format,
+      colors.green(`Authenticated successfully as profile "${profile}".`),
+    );
   },
 });
 

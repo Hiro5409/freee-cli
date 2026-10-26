@@ -35,7 +35,7 @@ function resolvePartner(values: {
 }
 
 export const invoiceCreateCommand = define({
-  name: "invoice-create",
+  name: "create",
   description: "Create an invoice via the freee invoice API",
   args: merge(
     companyArgs,
@@ -43,11 +43,11 @@ export const invoiceCreateCommand = define({
     args({ "billing-date": required(invoiceArgs["billing-date"]) }),
   ),
   examples: `# 外税・10%の1明細で作成
-$ freee invoice-create --partner-id 456 --billing-date 2026-08-01 \\
+$ freee invoice create --partner-id 456 --billing-date 2026-08-01 \\
     --line '{"description":"コンサルティング","quantity":1,"unit_price":"100000","tax_rate":10}' --format json
 
 # 自動採番が無効な事業所
-$ freee invoice-create --partner-id 456 --billing-date 2026-08-01 --invoice-number INV-2026-001 \\
+$ freee invoice create --partner-id 456 --billing-date 2026-08-01 --invoice-number INV-2026-001 \\
     --line '{"description":"作業費","quantity":1,"unit_price":"50000","tax_rate":10}' --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);

@@ -10,7 +10,7 @@ import { getSegmentTags } from "../../types/freee/sdk.gen.ts";
 const SEGMENTS = ["1", "2", "3"] as const;
 
 export const segmentTagListCommand = define({
-  name: "segment-tag-list",
+  name: "list",
   description: "List tags for accounting segment 1, 2, or 3 when available on the company plan",
   args: merge(
     listArgs,

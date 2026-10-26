@@ -6,7 +6,7 @@ import { formatOutput } from "../../output/formatter.ts";
 import { invoicesTemplatesIndex } from "../../types/freee-invoice/sdk.gen.ts";
 
 export const invoiceTemplateListCommand = define({
-  name: "invoice-template-list",
+  name: "list",
   description: "List available invoice templates",
   args: companyArgs,
   run: async (ctx) => {

@@ -1,10 +1,11 @@
-import { createHash, randomUUID } from "node:crypto";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { linkSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import * as v from "valibot";
 
+import { CliError } from "../../errors.ts";
 import { runSubprocess, type RunSubprocess, type SubprocessResult } from "./subprocess.ts";
 
 const EncryptionKeySchema = v.pipe(v.string(), v.regex(/^[A-Fa-f0-9]{64}$/));
@@ -25,9 +26,9 @@ const SessionLockOwnerSchema = v.object({
 export type AgentBrowserSession = {
   namespace: string;
   sessionId: string;
-  dispose(): Promise<void>;
+  dispose(options?: { persist?: boolean }): Promise<void>;
   evaluate(script: string): Promise<string>;
-  run(command: readonly string[]): Promise<unknown>;
+  run(command: readonly string[], options?: { timeoutMs?: number }): Promise<unknown>;
 };
 
 type SessionLock = { release(): void };
@@ -125,7 +126,11 @@ function acquireSessionLock(namespace: string, sessionId: string): SessionLock {
   };
 }
 
-function encryptionKey(environment: Record<string, string | undefined>): string {
+function encryptionKey(
+  environment: Record<string, string | undefined>,
+  initialize: boolean,
+  profile: string,
+): string {
   const configured = v.safeParse(EncryptionKeySchema, environment.AGENT_BROWSER_ENCRYPTION_KEY);
   if (configured.success) return configured.output;
 
@@ -142,9 +147,23 @@ function encryptionKey(environment: Record<string, string | undefined>): string 
     }
   }
 
-  throw new Error(
-    "AGENT_BROWSER_ENCRYPTION_KEY must be 64 hexadecimal characters or ~/.agent-browser/.encryption-key must contain one before browser sessions can be persisted.",
-  );
+  if (initialize && home) {
+    const directory = join(home, ".agent-browser");
+    mkdirSync(directory, { recursive: true, mode: 0o700 });
+    const path = join(directory, ".encryption-key");
+    try {
+      writeFileSync(path, randomBytes(32).toString("hex"), { flag: "wx", mode: 0o600 });
+    } catch (error) {
+      if (!(error instanceof Error && "code" in error && error.code === "EEXIST")) throw error;
+    }
+    return v.parse(EncryptionKeySchema, readFileSync(path, "utf8").trim());
+  }
+
+  throw new CliError("freee browser authentication is not initialized.", {
+    code: "AUTHENTICATION",
+    exitCode: 2,
+    hint: `freee auth login --web --profile ${profile}`,
+  });
 }
 
 function errorText(value: unknown): string {
@@ -213,23 +232,63 @@ async function assertEncryptedRestoreState(
   }
 }
 
+function restoredSessionId(input: {
+  sessionPrefix: string;
+  companyId: number;
+  profile: string;
+}): string {
+  const profileKey = createHash("sha256").update(input.profile).digest("hex").slice(0, 16);
+  return `${input.sessionPrefix}-${input.companyId}-${profileKey}`;
+}
+
+export async function clearAgentBrowserSession(input: {
+  namespace: string;
+  sessionPrefix: string;
+  companyId: number;
+  profile: string;
+}): Promise<void> {
+  const sessionId = restoredSessionId(input);
+  const lock = acquireSessionLock(input.namespace, sessionId);
+  try {
+    const result = await runSubprocess([
+      "agent-browser",
+      "--namespace",
+      input.namespace,
+      "state",
+      "clear",
+      sessionId,
+      "--json",
+    ]);
+    if (result.timedOut) throw new Error("Agent Browser state cleanup timed out.");
+    parseAgentBrowserOutput(result);
+  } finally {
+    lock.release();
+  }
+}
+
 export async function createAgentBrowserSession(input: {
   namespace: string;
   sessionPrefix: string;
   companyId: number;
-  authProfile: string;
+  profile: string;
+  headed?: boolean;
+  initializeEncryptionKey?: boolean;
   environment?: Record<string, string | undefined>;
   run?: RunSubprocess;
 }): Promise<AgentBrowserSession> {
   const sourceEnvironment = input.environment ?? process.env;
   const environment = {
     ...sourceEnvironment,
-    AGENT_BROWSER_ENCRYPTION_KEY: encryptionKey(sourceEnvironment),
+    AGENT_BROWSER_ENCRYPTION_KEY: encryptionKey(
+      sourceEnvironment,
+      input.initializeEncryptionKey ?? false,
+      input.profile,
+    ),
   };
   for (const [name, value] of [
     ["namespace", input.namespace],
     ["session prefix", input.sessionPrefix],
-    ["auth profile", input.authProfile],
+    ["CLI profile", input.profile],
   ] as const) {
     if (!/^[A-Za-z0-9_-]+$/.test(value)) {
       throw new Error(`The Agent Browser ${name} is invalid.`);
@@ -238,8 +297,7 @@ export async function createAgentBrowserSession(input: {
 
   const run = input.run ?? runSubprocess;
   const command = ["agent-browser", "--namespace", input.namespace] as const;
-  const profileKey = createHash("sha256").update(input.authProfile).digest("hex").slice(0, 16);
-  const sessionId = `${input.sessionPrefix}-${input.companyId}-${profileKey}`;
+  const sessionId = restoredSessionId(input);
   const lock = acquireSessionLock(input.namespace, sessionId);
   try {
     await assertEncryptedRestoreState(command, sessionId, run, environment);
@@ -253,10 +311,23 @@ export async function createAgentBrowserSession(input: {
   async function executeUnchecked(
     agentCommand: readonly string[],
     stdin?: string,
+    persist = false,
+    timeoutMs?: number,
   ): Promise<unknown> {
     const result = await run(
-      [...command, "--session", sessionId, "--restore", "--json", ...agentCommand],
-      { environment, stdin },
+      [
+        ...command,
+        "--session",
+        sessionId,
+        "--restore",
+        "--restore-save",
+        persist ? "always" : "never",
+        "--headed",
+        input.headed ? "true" : "false",
+        "--json",
+        ...agentCommand,
+      ],
+      { environment, stdin, timeoutMs },
     );
     if (result.timedOut) throw new Error("Agent Browser timed out.");
     return parseAgentBrowserOutput(result);
@@ -276,11 +347,11 @@ export async function createAgentBrowserSession(input: {
   return {
     namespace: input.namespace,
     sessionId,
-    async dispose() {
+    async dispose(options = {}) {
       if (state === "disposed") return;
       if (disposeOperation) return disposeOperation;
       state = "disposing";
-      disposeOperation = executeUnchecked(["close"])
+      disposeOperation = executeUnchecked(["close"], undefined, options.persist)
         .then(() => undefined)
         .finally(() => {
           state = "disposed";
@@ -293,6 +364,9 @@ export async function createAgentBrowserSession(input: {
       const data = v.parse(AgentBrowserEvalDataSchema, await execute(["eval", "--stdin"], script));
       return data.result;
     },
-    run: (agentCommand) => execute(agentCommand),
+    run: async (agentCommand, options) => {
+      assertOpen();
+      return executeUnchecked(agentCommand, undefined, false, options?.timeoutMs);
+    },
   };
 }

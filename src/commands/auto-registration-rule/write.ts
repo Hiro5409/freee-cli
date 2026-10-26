@@ -275,7 +275,7 @@ function validateBody(body: UpdateBody): void {
 }
 
 export const autoRegistrationRuleCreateCommand = define({
-  name: "auto-rule-create",
+  name: "create",
   description: "Create an auto-registration rule",
   args: merge(
     dryRunArgs,
@@ -288,7 +288,7 @@ export const autoRegistrationRuleCreateCommand = define({
       priority: required(ruleArgs.priority),
     }),
   ),
-  examples: `$ freee auto-rule-create --act manual-transfer --description 振込 --condition exact \\
+  examples: `$ freee auto-rule create --act manual-transfer --description 振込 --condition exact \\
     --entry-side expense --priority 5 --transfer-walletable 普通預金 --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
@@ -318,7 +318,7 @@ export const autoRegistrationRuleCreateCommand = define({
 });
 
 export const autoRegistrationRuleUpdateCommand = define({
-  name: "auto-rule-update",
+  name: "update",
   description: "Update selected fields of an auto-registration rule",
   args: merge(
     dryRunArgs,
@@ -334,9 +334,9 @@ export const autoRegistrationRuleUpdateCommand = define({
       ),
     }),
   ),
-  examples: `$ freee auto-rule-update --id 42 --account-item-name 通信費 \\
+  examples: `$ freee auto-rule update --id 42 --account-item-name 通信費 \\
     --deal-description 開発用サービス --dry-run --format json
-$ freee auto-rule-update --id 42 --clear walletable --dry-run --format json`,
+$ freee auto-rule update --id 42 --clear walletable --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const id = ctx.values.id;

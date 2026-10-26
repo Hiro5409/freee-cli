@@ -8,7 +8,7 @@ import { formatOutput } from "../output/formatter.ts";
 import { getTrialBs } from "../types/freee/sdk.gen.ts";
 
 export const balanceSheetCommand = define({
-  name: "bs",
+  name: "show",
   description: "Show a balance sheet",
   args: merge(
     companyArgs,

@@ -9,7 +9,7 @@ import { formatOutput } from "../../output/formatter.ts";
 import { getTransfers } from "../../types/freee/sdk.gen.ts";
 
 export const transferListCommand = define({
-  name: "transfer-list",
+  name: "list",
   description: "List account transfers",
   args: merge(listArgs, args({ month: monthArg("--month", "Filter by month (YYYY-MM)") })),
   run: async (ctx) => {

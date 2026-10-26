@@ -1,14 +1,9 @@
 import { afterEach, beforeEach, describe, expect, spyOn, test } from "bun:test";
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { createContext, runInContext } from "node:vm";
 
 import { OutcomeUnknownError } from "../../errors.ts";
-import {
-  type FreeeWebRegistration,
-  type FreeeWebScope,
-  type FreeeWebWalletTransaction,
-  withFreeeWeb,
-} from "./freee-web.ts";
+import { type FreeeWebScope, loginFreeeWeb, freeeWebStatus, withFreeeWeb } from "./freee-web.ts";
 
 const companyId = 1_234_567;
 let webScope: FreeeWebScope;
@@ -20,14 +15,9 @@ const previousEncryptionKey = Bun.env.AGENT_BROWSER_ENCRYPTION_KEY;
 const previousHome = Bun.env.HOME;
 const previousUserProfile = Bun.env.USERPROFILE;
 
-function expectedSessionId(prefix: string, scopedCompanyId: number, authProfile: string): string {
-  const profileKey = createHash("sha256").update(authProfile).digest("hex").slice(0, 16);
-  return `${prefix}-${scopedCompanyId}-${profileKey}`;
-}
-
-// Session locks live in a machine-wide directory, so each test owns its Auth Profile.
+// Session locks live in a machine-wide directory, so each test owns its CLI profile.
 beforeEach(() => {
-  webScope = { companyId, authProfile: `test-${randomUUID()}` };
+  webScope = { companyId, profile: `test-${randomUUID()}` };
 });
 
 afterEach(() => {
@@ -173,19 +163,6 @@ function observedInvoiceSave(status: number) {
     command.includes("--filter") ? invoiceSaveRequest(77, status) : null;
 }
 
-function previewResponse() {
-  return {
-    models: [
-      {
-        txn_date: "2026-08-24",
-        rows: 1,
-        debits: [{ account_item_name: "消耗品費", tax_name: "課対仕入10%", amount: 1_000 }],
-        credits: [{ account_item_name: "銀行", tax_name: null, amount: 1_000 }],
-      },
-    ],
-  };
-}
-
 function requestMatching(requests: PageRequest[], method: string, path: string, occurrence = 0) {
   const matches = requests.filter((request) => request.method === method && request.path === path);
   const request = matches[occurrence];
@@ -193,99 +170,122 @@ function requestMatching(requests: PageRequest[], method: string, path: string, 
   return request;
 }
 
-const walletTransaction: FreeeWebWalletTransaction = {
-  id: 42,
-  companyId,
-  date: "2026-08-24",
-  description: "secret description",
-  entrySide: "expense",
-  receivedAmount: 0,
-  spentAmount: 1_000,
-  status: 1,
-  statusName: "未処理",
-  recoveryLocked: false,
-  updatedAt: "2026-08-24T00:00:00+09:00",
-  walletableId: 7,
-  walletableName: "銀行",
-  dealIds: [],
-  transferIds: [],
-  suggestionContext: {
-    suggestion: { source: "rule" },
-    suggestEvent: "matched",
-    suggestLogV3: { id: 9 },
-  },
-};
-
-const registration: FreeeWebRegistration = {
-  walletTransaction,
-  lines: [
-    {
-      accountItemName: "消耗品費",
-      taxName: "課対仕入10%",
-      amount: 1_000,
-      description: "secret description",
-    },
-  ],
-};
-
 describe("Agent Browserのfreeeセッション", () => {
+  test("ログイン待ちの期限切れは再実行手順を示し認証を保存しない", async () => {
+    Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
+    const { commands, spawn } = mockAgentBrowser(freeePage(), (command) => {
+      if (command.includes("wait")) throw new Error("Wait timed out after 300000ms");
+      return null;
+    });
+    try {
+      await expect(loginFreeeWeb(webScope)).rejects.toMatchObject({
+        code: "AUTHENTICATION",
+        hint: `freee auth login --web --profile ${webScope.profile}`,
+      });
+      expect(commands.at(-1)).toContain("never");
+    } finally {
+      spawn.mockRestore();
+    }
+  });
+  test.each([
+    ["ready", "https://secure.freee.co.jp", companyId],
+    ["login_required", loginOrigin, 0],
+    ["company_mismatch", "https://secure.freee.co.jp", 999],
+  ] as const)(
+    "状態確認は %s を判定し、正常な認証だけ保存する",
+    async (status, origin, actualCompanyId) => {
+      Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
+      const page = freeePage();
+      page.meta["company-id"] = String(actualCompanyId);
+      const { commands, spawn } = mockAgentBrowser(page, (command) => {
+        if (command.includes("open")) page.origin = origin;
+        return null;
+      });
+      try {
+        await expect(freeeWebStatus(webScope)).resolves.toMatchObject({
+          status,
+          actualCompanyId: actualCompanyId || null,
+        });
+        expect(page.requests).toHaveLength(0);
+        expect(commands.at(-1)).toContain(status === "ready" ? "always" : "never");
+      } finally {
+        spawn.mockRestore();
+      }
+    },
+  );
+  test("ログイン操作でブラウザを表示し本人操作後に対象事業所を確認して保存する", async () => {
+    Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
+    const page = freeePage();
+    let loggedIn = false;
+    const { commands, spawn } = mockAgentBrowser(page, (command) => {
+      if (command.includes("open") && !loggedIn) page.origin = loginOrigin;
+      if (command.includes("wait")) {
+        loggedIn = true;
+        page.origin = "https://secure.freee.co.jp";
+      }
+      return null;
+    });
+    try {
+      await expect(loginFreeeWeb(webScope)).resolves.toMatchObject({ status: "ready", companyId });
+      const open = commands.find((command) => command.includes("open"));
+      expect(open?.[open.indexOf("--headed") + 1]).toBe("true");
+      expect(commands.at(-1)).toContain("always");
+      expect(commands.some((command) => command.includes("auth"))).toBe(false);
+    } finally {
+      spawn.mockRestore();
+    }
+  });
+  test("期限切れなら保存パスワードで再ログインせず処理前に停止する", async () => {
+    Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
+    const page = freeePage();
+    let executed = false;
+    const { commands, spawn } = mockAgentBrowser(page, (command) => {
+      if (command.includes("open")) page.origin = loginOrigin;
+      return null;
+    });
+    try {
+      await expect(
+        withFreeeWeb(webScope, async () => {
+          executed = true;
+        }),
+      ).rejects.toThrow("freee auth login --web --profile");
+      expect(executed).toBe(false);
+      expect(commands.some((command) => command.includes("auth"))).toBe(false);
+    } finally {
+      spawn.mockRestore();
+    }
+  });
   test("暗号鍵がなければweb stateを復元しない", async () => {
     delete Bun.env.AGENT_BROWSER_ENCRYPTION_KEY;
     delete Bun.env.HOME;
     delete Bun.env.USERPROFILE;
-    await expect(withFreeeWeb(webScope, async () => undefined)).rejects.toThrow(
-      "AGENT_BROWSER_ENCRYPTION_KEY",
-    );
+    await expect(withFreeeWeb(webScope, async () => undefined)).rejects.toThrow("not initialized");
   });
 
-  test("Auth Profileをsession IDへ含め、事業所不一致時は同じsessionの復旧手順を示す", async () => {
+  test("事業所が違えば操作せず同じCLIプロファイルのログインを案内する", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
     const page = freeePage();
     page.meta["company-id"] = "999";
     const { commands, spawn } = mockAgentBrowser(page);
     try {
-      const result = expect(withFreeeWeb(webScope, async () => undefined)).rejects;
-      await result.toThrow(
-        `agent-browser --namespace freee-web --session ${expectedSessionId("fb", companyId, webScope.authProfile)} --restore --headed open "https://secure.freee.co.jp/"`,
-      );
-      await result.toThrow("別名のAuth Profile");
-      await result.toThrow(`現在のAuth Profileは${webScope.authProfile}`);
+      await expect(
+        withFreeeWeb(webScope, async () => {
+          throw new Error("must not execute");
+        }),
+      ).rejects.toThrow(`freee auth login --web --profile ${webScope.profile}`);
+      expect(
+        commands
+          .filter((command) => command.includes("close"))
+          .every((command) => command.includes("never")),
+      ).toBe(true);
     } finally {
       spawn.mockRestore();
     }
-    expect(commands.flat()).toContain(expectedSessionId("fb", companyId, webScope.authProfile));
   });
 
-  test("Web内部APIのmethod、path、header、payloadをページのfetch境界で固定する", async () => {
+  test("口座同期は対象事業所の内部APIへ送信する", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const registrationResult = { wallet_txn: { id: 42, status: 2 } };
     const page = freeePage([
-      {
-        body: {
-          id: 42,
-          company_id: companyId,
-          description: walletTransaction.description,
-          entry_side_str: "expense",
-          get_received_amount: 0,
-          get_spent_amount: 1_000,
-          status: 1,
-          status_str: "未処理",
-          txn_date: "2026-08-24",
-          updated_at: "2026-08-24T00:00:00+09:00",
-          walletable_id: 7,
-          walletable_name: "銀行",
-        },
-      },
-      { body: previewResponse() },
-      { body: registrationResult },
-      { body: previewResponse() },
-      { body: registrationResult },
-      { body: previewResponse() },
-      { body: registrationResult },
-      { status: 204, body: "" },
-      { status: 204, body: "" },
-      { body: { info: { matchCount: 2, tooManyUnreconciledWalletTxns: false } } },
-      { body: { wallet_txn_ids: [42, 43] } },
       {
         body: {
           walletables: [
@@ -314,182 +314,33 @@ describe("Agent Browserのfreeeセッション", () => {
       { body: {} },
     ]);
     const { commands, spawn } = mockAgentBrowser(page);
-
     try {
       await withFreeeWeb(webScope, async (web) => {
-        await web.walletTransaction(42);
-        await web.previewWalletTransactionRegistration(registration);
-        await web.registerWalletTransaction(registration);
-        await web.previewWalletTransactionSettlement({
-          walletTransaction,
-          dealId: 91,
-          amount: 1_000,
-        });
-        await web.settleWalletTransaction({ walletTransaction, dealId: 91, amount: 1_000 });
-        await web.previewWalletTransactionTransfer({
-          walletTransaction,
-          counterpartyWalletableName: "事業主借",
-          description: "資金移動",
-        });
-        await web.registerWalletTransactionTransfer({
-          walletTransaction,
-          counterpartyWalletableName: "事業主借",
-          description: "資金移動",
-        });
-        await web.ignoreWalletTransaction(walletTransaction);
-        await web.restoreIgnoredWalletTransaction(walletTransaction);
-        await web.autoRegistrationRuleMatchCount();
-        await web.applyAutoRegistrationRules();
-        await expect(web.walletableSummary()).resolves.toEqual({
-          walletables: [
-            {
-              id: 7,
-              name: "銀行",
-              type: "bank_account",
-              status: "synced",
-              lastSyncedAt: "2026-08-24T01:00:00.000Z",
-              connectedServiceId: 70,
-              isSyncFrequencyLimited: false,
-              syncFailedReason: null,
-            },
-          ],
-          hasSyncing: false,
-          canSyncAll: true,
-          readyToSyncAll: true,
+        expect((await web.walletableSummary()).walletables[0]).toMatchObject({
+          id: 7,
+          name: "銀行",
+          type: "bank_account",
         });
         await web.startWalletableSync("bank_account", 7);
-        await expect(web.walletableSyncState("bank_account", 7)).resolves.toEqual({
+        await expect(web.walletableSyncState("bank_account", 7)).resolves.toMatchObject({
           status: "synced",
           lastSyncedAt: "2026-08-24T01:10:00.000Z",
-          syncFailedReason: null,
         });
         await web.startBulkWalletableSync();
       });
     } finally {
       spawn.mockRestore();
     }
-
-    const requests = page.requests;
-    expect(requests.map(({ method, path }) => ({ method, path }))).toEqual([
-      { method: "GET", path: "/api/p/wallet_txns/42" },
-      { method: "POST", path: "/api/p/wallet_txns/42/previews/standard" },
-      { method: "PUT", path: "/api/p/wallet_txns/42/reconcile" },
-      { method: "POST", path: "/api/p/wallet_txns/42/previews/scrub" },
-      { method: "PUT", path: "/api/p/wallet_txns/42/reconcile" },
-      { method: "POST", path: "/api/p/wallet_txns/42/previews/transfer" },
-      { method: "PUT", path: "/api/p/wallet_txns/42/reconcile" },
-      { method: "PUT", path: "/api/p/wallet_txns/42/ignore" },
-      { method: "PUT", path: "/api/p/wallet_txns/42/recover" },
-      { method: "GET", path: "/wallet_txns/match_count" },
-      { method: "POST", path: "/wallet_txns/bulk_match" },
+    expect(page.requests.map(({ method, path }) => ({ method, path }))).toEqual([
       { method: "GET", path: "/api/p/v2/walletables/summary" },
       { method: "PUT", path: "/api/p/v2/walletables/bank_account/7/sync" },
       { method: "GET", path: "/api/p/v2/walletables/bank_account/7/sync_status" },
       { method: "PUT", path: "/api/p/v2/walletables/sync_all" },
     ]);
-    const registrationReconcile = {
-      wallet_txn_id: 42,
-      new_deal: {
-        payment_walletable: "銀行",
-        deal: {
-          issue_date: "2026-08-24",
-          partner_name: "",
-          line_items: [
-            {
-              account_item_name: "消耗品費",
-              tax_name: "課対仕入10%",
-              item_name: null,
-              section_name: null,
-              default_tags: [],
-              tax_entry_method: 1,
-              unit_price: 1_000,
-              description: "secret description",
-              division_tag_1_id: null,
-              division_tag_2_id: null,
-              division_tag_3_id: null,
-            },
-          ],
-        },
-      },
-      existing_deals: [],
-    };
     expect(
-      requestMatching(requests, "POST", "/api/p/wallet_txns/42/previews/standard").body,
-    ).toEqual({
-      from: "new_version",
-      reconcile: registrationReconcile,
-    });
-    expect(requestMatching(requests, "PUT", "/api/p/wallet_txns/42/reconcile", 0).body).toEqual({
-      reconciled_from: "stream_detail",
-      reconciled_time: 0,
-      reconcile: registrationReconcile,
-      skip_saving_matcher: true,
-      suggestion: { source: "rule" },
-      suggest_event: "matched",
-      suggest_log_v3: { id: 9 },
-      from: "new_version",
-    });
-    expect(requestMatching(requests, "POST", "/api/p/wallet_txns/42/previews/scrub").body).toEqual({
-      from: "new_version",
-      reconcile: { wallet_txn_id: 42, existing_deals: [{ deal_id: 91, amount: 1_000 }] },
-    });
-    expect(requestMatching(requests, "PUT", "/api/p/wallet_txns/42/reconcile", 1).body).toEqual({
-      reconcile: { wallet_txn_id: 42, existing_deals: [{ deal_id: 91, amount: 1_000 }] },
-      suggestion: { source: "rule" },
-      suggest_event: "matched",
-      suggest_log_v3: { id: 9 },
-      skip_saving_matcher: true,
-      reconciled_time: 0,
-      reconciled_from: "stream_detail",
-      from: "new_version",
-    });
-    const transfer = {
-      date: "2026-08-24",
-      transfer_lines: [
-        {
-          amount: 1_000,
-          walletable_from: "銀行",
-          walletable_to: "事業主借",
-          description: "資金移動",
-        },
-      ],
-    };
-    expect(
-      requestMatching(requests, "POST", "/api/p/wallet_txns/42/previews/transfer").body,
-    ).toEqual({ ...transfer, from: "new_version" });
-    expect(requestMatching(requests, "PUT", "/api/p/wallet_txns/42/reconcile", 2).body).toEqual({
-      ...transfer,
-      suggestion: { source: "rule" },
-      suggest_event: "matched",
-      suggest_log_v3: { id: 9 },
-      skip_saving_matcher: true,
-      reconciled_time: 0,
-      reconciled_from: "stream_detail",
-      from: "new_version",
-    });
-    expect(requestMatching(requests, "PUT", "/api/p/wallet_txns/42/ignore").body).toEqual({
-      reconciled_time: 0,
-      reconciled_from: "wallet_txns_index",
-      suggest_log_v3: { id: 9 },
-    });
-    expect(requestMatching(requests, "PUT", "/api/p/wallet_txns/42/recover").body).toBeUndefined();
-    expect(requestMatching(requests, "POST", "/wallet_txns/bulk_match").body).toBeUndefined();
-    for (const request of requests) {
-      if (request.method === "GET") {
-        expect(request.headers).toEqual({ accept: "application/json" });
-      } else {
-        expect(request.headers).toEqual({
-          accept: "application/json",
-          "x-csrf-token": csrfToken,
-          "content-type":
-            request.body === undefined
-              ? "application/x-www-form-urlencoded; charset=UTF-8"
-              : "application/json",
-        });
-      }
-    }
+      requestMatching(page.requests, "PUT", "/api/p/v2/walletables/bank_account/7/sync").headers,
+    ).toMatchObject({ "x-csrf-token": csrfToken, accept: "application/json" });
     expect(commands.at(-1)?.at(-1)).toBe("close");
-    expect(commands.flat().join(" ")).not.toContain("secret description");
   });
 
   test.each([
@@ -521,7 +372,7 @@ describe("Agent Browserのfreeeセッション", () => {
     try {
       const error = await withFreeeWeb(webScope, (web) => {
         change(page);
-        return web.ignoreWalletTransaction(walletTransaction);
+        return web.startWalletableSync("bank_account", 7);
       }).catch((cause: unknown) => cause);
       expect(error).toBeInstanceOf(Error);
       expect(error).not.toBeInstanceOf(OutcomeUnknownError);
@@ -530,49 +381,6 @@ describe("Agent Browserのfreeeセッション", () => {
       spawn.mockRestore();
     }
     expect(page.requests).toEqual([]);
-  });
-
-  test("仕訳preview末尾の空modelを除外する", async () => {
-    Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const validModel = previewResponse().models[0];
-    const { spawn } = mockAgentBrowser(
-      freeePage([
-        {
-          body: {
-            models: [
-              validModel,
-              {
-                txn_date: null,
-                rows: 0,
-                debits: [],
-                credits: [],
-              },
-            ],
-          },
-        },
-      ]),
-    );
-
-    try {
-      await expect(
-        withFreeeWeb(webScope, (web) =>
-          web.previewWalletTransactionSettlement({
-            walletTransaction,
-            dealId: 91,
-            amount: 1_000,
-          }),
-        ),
-      ).resolves.toEqual([
-        {
-          date: "2026-08-24",
-          rows: 1,
-          debits: [{ accountItemName: "消耗品費", taxName: "課対仕入10%", amount: 1_000 }],
-          credits: [{ accountItemName: "銀行", taxName: null, amount: 1_000 }],
-        },
-      ]);
-    } finally {
-      spawn.mockRestore();
-    }
   });
 
   test("walletable summaryの観測schemaが崩れたら失敗する", async () => {
@@ -587,58 +395,6 @@ describe("Agent Browserのfreeeセッション", () => {
     }
   });
 
-  test("呼び出し側から渡された取引の事業所がscopeと異なる場合は送信しない", async () => {
-    Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const otherCompanyTransaction = { ...walletTransaction, companyId: companyId + 1 };
-    const otherCompanyRegistration = {
-      ...registration,
-      walletTransaction: otherCompanyTransaction,
-    };
-    const page = freeePage();
-    const { spawn } = mockAgentBrowser(page);
-    try {
-      await withFreeeWeb(webScope, async (web) => {
-        const operations = [
-          () => web.previewWalletTransactionRegistration(otherCompanyRegistration),
-          () => web.registerWalletTransaction(otherCompanyRegistration),
-          () =>
-            web.previewWalletTransactionSettlement({
-              walletTransaction: otherCompanyTransaction,
-              dealId: 91,
-              amount: 1_000,
-            }),
-          () =>
-            web.settleWalletTransaction({
-              walletTransaction: otherCompanyTransaction,
-              dealId: 91,
-              amount: 1_000,
-            }),
-          () =>
-            web.previewWalletTransactionTransfer({
-              walletTransaction: otherCompanyTransaction,
-              counterpartyWalletableName: "事業主借",
-              description: "資金移動",
-            }),
-          () =>
-            web.registerWalletTransactionTransfer({
-              walletTransaction: otherCompanyTransaction,
-              counterpartyWalletableName: "事業主借",
-              description: "資金移動",
-            }),
-          () => web.ignoreWalletTransaction(otherCompanyTransaction),
-          () => web.restoreIgnoredWalletTransaction(otherCompanyTransaction),
-        ];
-        for (const operation of operations) {
-          await expect(operation()).rejects.toThrow(`事業所${companyId}`);
-        }
-      });
-    } finally {
-      spawn.mockRestore();
-    }
-
-    expect(page.requests).toEqual([]);
-  });
-
   test("請求書の送付ステータスを専用Web endpointで送付済みにする", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
     const page = freeePage([appState(companyId), appState(companyId), { body: {} }]);
@@ -651,7 +407,7 @@ describe("Agent Browserのfreeeセッション", () => {
       spawn.mockRestore();
     }
 
-    expect(page.origin).toBe(invoiceOrigin);
+    expect(page.origin).toBe("https://secure.freee.co.jp");
     expect(page.requests.at(-1)).toEqual({
       method: "PUT",
       path: "/api/p/reports/invoices/77/deliver_status",
@@ -830,31 +586,16 @@ describe("Agent Browserのfreeeセッション", () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
     const page = freeePage([
       appState(companyId),
-      {
-        body: {
-          id: 42,
-          company_id: companyId,
-          description: walletTransaction.description,
-          entry_side_str: "expense",
-          get_received_amount: 0,
-          get_spent_amount: 1_000,
-          status: 1,
-          status_str: "未処理",
-          txn_date: "2026-08-24",
-          updated_at: "2026-08-24T00:00:00+09:00",
-          walletable_id: 7,
-          walletable_name: "銀行",
-        },
-      },
+      { body: { walletable_status: "synced", last_synced_at: null, sync_failed_reason: null } },
     ]);
     const { commands, spawn } = mockAgentBrowser(page, observedInvoiceSave(200));
     try {
       await expect(
         withFreeeWeb(webScope, async (web) => {
           await web.registerInvoiceDeal(77);
-          return web.walletTransaction(42);
+          return web.walletableSyncState("bank_account", 7);
         }),
-      ).resolves.toMatchObject({ id: 42, companyId });
+      ).resolves.toMatchObject({ status: "synced" });
     } finally {
       spawn.mockRestore();
     }
@@ -862,23 +603,7 @@ describe("Agent Browserのfreeeセッション", () => {
       commands.filter(
         (command) => command.includes("open") && command.includes("https://secure.freee.co.jp/"),
       ),
-    ).toHaveLength(2);
-    expect(commands.at(-1)?.at(-1)).toBe("close");
-  });
-
-  test("書き込み応答schemaが崩れたら結果不明とする", async () => {
-    Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { commands, spawn } = mockAgentBrowser(
-      freeePage([{ body: { wallet_txn: { id: 42, status: 1 } } }]),
-    );
-    try {
-      const result = withFreeeWeb(webScope, (web) => web.registerWalletTransaction(registration));
-      await expect(result).rejects.toBeInstanceOf(OutcomeUnknownError);
-      await expect(result).rejects.toMatchObject({ code: "OUTCOME_UNKNOWN" });
-    } finally {
-      spawn.mockRestore();
-    }
-    expect(commands.at(-1)?.at(-1)).toBe("close");
+    ).toHaveLength(3);
   });
 
   test("書き込みの5xxは結果不明、4xxは確定失敗とする", async () => {
@@ -891,10 +616,10 @@ describe("Agent Browserのfreeeセッション", () => {
     );
     try {
       await withFreeeWeb(webScope, async (web) => {
-        await expect(web.ignoreWalletTransaction(walletTransaction)).rejects.toBeInstanceOf(
+        await expect(web.startWalletableSync("bank_account", 7)).rejects.toBeInstanceOf(
           OutcomeUnknownError,
         );
-        await expect(web.ignoreWalletTransaction(walletTransaction)).rejects.toThrow("HTTP 400");
+        await expect(web.startWalletableSync("bank_account", 7)).rejects.toThrow("HTTP 400");
       });
     } finally {
       spawn.mockRestore();
@@ -910,32 +635,27 @@ describe("Agent Browserのfreeeセッション", () => {
     ]);
     const { spawn } = mockAgentBrowser(page);
     try {
-      const result = withFreeeWeb(webScope, (web) =>
-        web.ignoreWalletTransaction(walletTransaction),
-      );
+      const result = withFreeeWeb(webScope, (web) => web.startWalletableSync("bank_account", 7));
       await expect(result).rejects.toBeInstanceOf(OutcomeUnknownError);
       await expect(result).rejects.toMatchObject({ code: "OUTCOME_UNKNOWN" });
     } finally {
       spawn.mockRestore();
     }
     expect(page.requests.map(({ method, path }) => ({ method, path }))).toEqual([
-      { method: "PUT", path: "/api/p/wallet_txns/42/ignore" },
+      { method: "PUT", path: "/api/p/v2/walletables/bank_account/7/sync" },
     ]);
   });
 
   test("書き込み成功後のsession cleanup失敗で成功を上書きしない", async () => {
     Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { spawn } = mockAgentBrowser(
-      freeePage([{ body: { wallet_txn: { id: 42, status: 2 } } }]),
-      (command) => {
-        if (command.at(-1) === "close") throw new Error("close failed");
-        return null;
-      },
-    );
+    const { spawn } = mockAgentBrowser(freeePage([{ body: {} }]), (command) => {
+      if (command.at(-1) === "close") throw new Error("close failed");
+      return null;
+    });
     try {
       await expect(
-        withFreeeWeb(webScope, (web) => web.registerWalletTransaction(registration)),
-      ).resolves.toEqual({ walletTransactionId: 42 });
+        withFreeeWeb(webScope, (web) => web.startWalletableSync("bank_account", 7)),
+      ).resolves.toBeUndefined();
     } finally {
       spawn.mockRestore();
     }

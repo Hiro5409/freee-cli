@@ -8,7 +8,7 @@ import { formatDryRun } from "../../output/formatter.ts";
 import { destroyTransfer } from "../../types/freee/sdk.gen.ts";
 
 export const transferDeleteCommand = define({
-  name: "transfer-delete",
+  name: "delete",
   description: "Delete an account transfer",
   args: merge(
     dryRunArgs,
@@ -16,7 +16,7 @@ export const transferDeleteCommand = define({
       id: required(integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "Transfer ID" })),
     }),
   ),
-  examples: `$ freee transfer-delete --id 42 --dry-run --format json`,
+  examples: `$ freee transfer delete --id 42 --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const id = ctx.values.id;

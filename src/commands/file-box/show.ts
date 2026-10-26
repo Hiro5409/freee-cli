@@ -7,7 +7,7 @@ import { formatResource } from "../../output/formatter.ts";
 import { getReceipt } from "../../types/freee/sdk.gen.ts";
 
 export const fileBoxShowCommand = define({
-  name: "file-box-show",
+  name: "show",
   description: "Show a document in the File Box",
   args: merge(
     companyArgs,
@@ -17,7 +17,7 @@ export const fileBoxShowCommand = define({
       ),
     }),
   ),
-  examples: "$ freee file-box-show --id 456 --format json",
+  examples: "$ freee file-box show --id 456 --format json",
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const { data } = await getReceipt({

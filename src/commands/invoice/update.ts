@@ -146,7 +146,7 @@ function invoiceRequestFromCurrent(
 }
 
 export const invoiceUpdateCommand = define({
-  name: "invoice-update",
+  name: "update",
   description:
     "Update an invoice via the freee invoice API (fetch-merge-PUT; unspecified fields are resent unchanged)",
   args: merge(
@@ -156,7 +156,7 @@ export const invoiceUpdateCommand = define({
       id: requiredArg(integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "Invoice ID" })),
     }),
   ),
-  examples: `$ freee invoice-update --id 456 --subject "August invoice" --dry-run --format json`,
+  examples: `$ freee invoice update --id 456 --subject "August invoice" --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const id = ctx.values.id;

@@ -8,7 +8,7 @@ import { formatOutput } from "../output/formatter.ts";
 import { getTrialPl } from "../types/freee/sdk.gen.ts";
 
 export const profitAndLossCommand = define({
-  name: "pl",
+  name: "show",
   description: "Show a profit and loss statement",
   args: merge(
     companyArgs,

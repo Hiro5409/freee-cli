@@ -9,7 +9,7 @@ import { formatOutput } from "../../output/formatter.ts";
 import { quotationsIndex } from "../../types/freee-invoice/sdk.gen.ts";
 
 export const quotationListCommand = define({
-  name: "quotation-list",
+  name: "list",
   description: "List quotations from the freee invoice API",
   args: merge(
     listArgs,
@@ -25,7 +25,7 @@ export const quotationListCommand = define({
       }),
     }),
   ),
-  examples: "$ freee quotation-list --month 2026-10 --format json",
+  examples: "$ freee quotation list --month 2026-10 --format json",
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const month = ctx.values.month ? monthToDateRange(ctx.values.month) : undefined;

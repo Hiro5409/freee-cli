@@ -7,7 +7,7 @@ import { formatResource } from "../../output/formatter.ts";
 import { getTransfer } from "../../types/freee/sdk.gen.ts";
 
 export const transferShowCommand = define({
-  name: "transfer-show",
+  name: "show",
   description: "Show an account transfer",
   args: merge(
     companyArgs,
@@ -15,7 +15,7 @@ export const transferShowCommand = define({
       id: required(integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "Transfer ID" })),
     }),
   ),
-  examples: `$ freee transfer-show --id 42 --format json`,
+  examples: `$ freee transfer show --id 42 --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const { data } = await getTransfer({

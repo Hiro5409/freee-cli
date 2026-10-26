@@ -51,48 +51,48 @@ freee <command> --help
 ### 認証
 
 ```bash
-freee login --profile personal
-freee profile-list
-freee company-list
-freee company-switch --id 1234567 --name "My Company"
+freee auth login --profile personal
+freee profile list
+freee company list
+freee company switch --id 1234567 --name "My Company"
 ```
 
 ### 会計
 
 ```bash
-freee deal-list --month 2026-08
-freee deal-create --date 2026-08-15 --type expense \
+freee deal list --month 2026-08
+freee deal create --date 2026-08-15 --type expense \
   --account-item-id 123 --tax-code 136 --amount 5000
-freee wallet-txn-list --month 2026-08 --status unreconciled
-freee wallet-txn-show --id 42
-freee transfer-list --month 2026-08
-freee transfer-create --date 2026-08-01 \
+freee wallet-txn list --month 2026-08 --status unreconciled
+freee wallet-txn show --id 42
+freee transfer list --month 2026-08
+freee transfer create --date 2026-08-01 \
   --from-walletable-id 10 --from-walletable-type bank_account \
   --to '{"type":"credit_card","id":20,"amount":5000}'
-freee file-box-list --start-date 2026-08-01 --end-date 2026-08-31 --category without-deal
-freee file-box-upload --file receipt.jpg
-freee section-list
-freee tag-list
-freee segment-tag-list --segment 1
-freee bs --fiscal-year 2025
-freee pl --fiscal-year 2025
-freee general-ledger --start-date 2025-01-01 --end-date 2025-12-31 \
+freee file-box list --start-date 2026-08-01 --end-date 2026-08-31 --category without-deal
+freee file-box upload --file receipt.jpg
+freee section list
+freee tag list
+freee segment-tag list --segment 1
+freee balance-sheet show --fiscal-year 2025
+freee profit-and-loss show --fiscal-year 2025
+freee general-ledger list --start-date 2025-01-01 --end-date 2025-12-31 \
   --account-item-name 売上高 --format json
-freee journal-export --download-type generic_v2 --encoding utf-8 \
+freee journal export --download-type generic_v2 --encoding utf-8 \
   --start-date 2025-01-01 --end-date 2025-12-31 --output journal-2025.csv
 ```
 
 ### 自動登録ルール
 
 ```bash
-freee auto-rule-list --active active
-freee auto-rule-create --act auto-standard --description AMAZON --condition partial \
+freee auto-rule list --active active
+freee auto-rule create --act auto-standard --description AMAZON --condition partial \
   --entry-side expense --priority 5 --tax-name 課対仕入10% \
   --account-item-name 消耗品費 --qualified-invoice-setting qualified --dry-run
-freee auto-rule-update --id 42 --account-item-name 通信費 --dry-run
-freee auto-rule-update --id 42 --clear walletable --dry-run --format json
-freee auto-rule-disable --id 42 --dry-run
-freee wallet-txn-create --date 2026-08-01 --entry-side expense --amount 5000 \
+freee auto-rule update --id 42 --account-item-name 通信費 --dry-run
+freee auto-rule update --id 42 --clear walletable --dry-run --format json
+freee auto-rule disable --id 42 --dry-run
+freee wallet-txn create --date 2026-08-01 --entry-side expense --amount 5000 \
   --walletable-id 55 --walletable-type credit_card --description AMAZON.CO.JP
 ```
 
@@ -103,10 +103,10 @@ freee wallet-txn-create --date 2026-08-01 --entry-side expense --amount 5000 \
 ### 請求書
 
 ```bash
-freee invoice-list --sending-status unsent
-freee invoice-create --partner-id 123 --billing-date 2026-08-01 \
+freee invoice list --sending-status unsent
+freee invoice create --partner-id 123 --billing-date 2026-08-01 \
   --line '{"description":"コンサルティング","quantity":1,"unit_price":"100000","tax_rate":10,"account_item_id":123,"tax_code":129}'
-freee invoice-update --id 456 --subject "8月分ご請求" --dry-run
+freee invoice update --id 456 --subject "8月分ご請求" --dry-run
 ```
 
 ### 見積書
@@ -114,10 +114,10 @@ freee invoice-update --id 456 --subject "8月分ご請求" --dry-run
 見積書はfreee請求書APIと見積書専用の帳票テンプレートを使用します。
 
 ```bash
-freee quotation-list --month 2026-10 --format json
-freee quotation-show --id 456 --format json
-freee quotation-template-list --format json
-freee quotation-create --partner-id 123 --quotation-date 2026-10-01 \
+freee quotation list --month 2026-10 --format json
+freee quotation show --id 456 --format json
+freee quotation-template list --format json
+freee quotation create --partner-id 123 --quotation-date 2026-10-01 \
   --expiration-date 2026-10-31 --subject "開発費見積" \
   --line '{"description":"開発費","quantity":1,"unit_price":"100000","tax_rate":10}' --format json
 ```
@@ -130,54 +130,50 @@ freee quotation-create --partner-id 123 --quotation-date 2026-10-01 \
 ### 人事労務
 
 ```bash
-freee hr-employee-list --month 2026-08
-freee hr-payroll-list --month 2026-08
+freee hr employee list --month 2026-08
+freee hr payroll list --month 2026-08
 ```
 
-### 試験的なfreee Web操作
+### 口座明細の処理
 
-`freee setup`では、OAuthプロファイルごとにWeb限定操作を有効化できます。[Agent Browser](https://github.com/vercel-labs/agent-browser)と専用のAuth Profileが必要です。freee-cliが保持するのはAuth Profile名だけで、ログイン情報と保存セッションはAgent Browserが管理します。
-
-初めてWeb操作を実行する前に、`AGENT_BROWSER_ENCRYPTION_KEY`へ64文字の16進数を設定するか、`~/.agent-browser/.encryption-key`へ保存してください。
+口座明細の無視・解除・取引登録・消込・振替・自動登録ルール適用は公式会計APIを使います。勘定科目・税区分・振替相手口座はIDで指定します。
 
 ```bash
-freee walletable-list
-freee wallet-txn-list --status unreconciled
-freee web wallet-txn apply-rules --dry-run --format json
-freee web wallet-txn apply-rules
-freee web wallet-txn ignore --id 42
-freee web wallet-txn register --id 42 --account-item-name "通信費" --tax-name "課対仕入10%" --dry-run --format json
-freee web wallet-txn register --id 42 --account-item-name "通信費" --tax-name "課対仕入10%"
-freee web wallet-txn settle --id 42 --deal-id 91 --amount 10000 --dry-run --format json
-freee web wallet-txn settle --id 42 --deal-id 91 --amount 10000
-freee web wallet-txn transfer --id 42 --counterparty-walletable-name "事業主借" --dry-run --format json
-freee web wallet-txn transfer --id 42 --counterparty-walletable-name "事業主借"
-freee wallet-txn-list --status ignored
-freee web wallet-txn restore --id 42
-freee web invoice set-sending-status --id 456 --status sent
-freee web invoice set-sending-status --id 456 --status unsent
-freee invoice-list --deal-status unregistered --cancel-status uncanceled
-freee web invoice register-deal --id 456
-freee web walletable sync --id 42
-freee web walletable sync --all
+freee wallet-txn ignore --id 42
+freee wallet-txn reset --id 42
+freee wallet-txn register --id 42 --body '{"deal_lines":[{"account_item_id":101,"amount":10000,"description":"クラウド利用料"}]}'
+freee wallet-txn register-private --id 42
+freee wallet-txn settle --id 42 --body '{"deals":[{"deal_id":91,"amount":10000}]}'
+freee wallet-txn transfer --id 42 --body '{"transfer_from_line":{"walletable_id":1,"walletable_type":"bank_account"},"transfer_to_lines":[{"walletable_id":7,"walletable_type":"wallet","amount":10000}]}'
+freee wallet-txn apply-rules --id 42 --id 43 --format json
 ```
 
-各コマンドは、freeeの公式APIに足りない操作を補う一時的な互換層です。
-必要な理由と安定コマンドへ置き換える条件は、[Web操作モジュールの文書](src/plugins/web-operations/README.md)にまとめています。
+`register`・`settle`・`transfer`は[公式APIのリクエスト本文](https://developer.freee.co.jp/reference/accounting)を`--body`のJSONで受け取ります。`company_id`はプロファイルまたは`--company-id`の値で上書きします。登録の全項目、複数取引の決済と差額取引、複数口座への振替と手数料を指定できます。CLIは1回のAPIリクエストの結果を返し、事前取得・プレビュー・dry-run・処理後の再取得は行いません。会計上の検証と省略時の既定値はfreeeが扱います。`reset`は明細を未処理へ戻します。`register-private`の科目は、個人・法人に応じてfreeeが決めます。
 
-口座IDは、公式APIを使う`freee walletable-list`で取得します。`freee web walletable sync`は同期を開始し、最大1時間まで完了を待ちます。表形式では状態の変化をstderrへ表示し、JSON形式ではstdoutを機械可読に保つため進捗を表示しません。
+自動登録ルール適用は、1〜1,000件の明細IDの指定が必須の非同期処理です。処理済みなど適用対象外の明細はfreeeがスキップし、CLIは状態による事前除外や拒否を行いません。`queued`は受付済みを意味し、適用完了や条件一致を意味しません。対象明細を再取得して結果を確認します。書き込みの自動再送は行いません。`OUTCOME_UNKNOWN`では、再実行する前に対象明細を確認します。
 
-`--all`では、対象となる口座をfreeeが選びます。結果に含まれるのは、同期が開始して完了した口座だけです。選ばれなかった候補は、必要に応じて`--id`で個別に同期できます。
+### ブラウザ経由の操作
 
-これらのコマンドは、公開仕様ではないfreee Webの観測結果に基づきます。観測したレスポンスが想定した形と一致しなくなった場合は失敗し、公式OpenAPIから生成したコマンドと同じ安定性は保証しません。
+請求書の取引登録・送付ステータス変更・口座同期は[Agent Browser](https://github.com/vercel-labs/agent-browser)を使います。`freee auth login --web --profile <name>`で専用ブラウザを開き、ログインと対象事業所の選択を行います。最大5分待ち、確認できた状態だけを暗号化して保存します。`freee auth status --format json`でAPIとWebの認証状態を個別に確認できます。
 
-Bunアプリケーションから、試験的なfreee Web操作を直接利用できます。
+```bash
+freee invoice register-deal --id 456
+freee invoice set-sending-status --id 456 --status sent
+freee walletable sync --id 42
+freee walletable sync --all
+```
+
+口座同期は最大1時間待ちます。表形式ではstderrへ進捗を表示します。`--all`の対象はfreeeが選び、結果には同期を開始して完了した口座を含めます。
+
+ブラウザ操作の対応範囲は[Web操作モジュール](src/plugins/web-operations/README.md)を参照してください。認証状態はCLIがリポジトリ外で管理します。
 
 ```ts
 import { withFreeeWeb } from "freee-cli/experimental/web";
-```
+import { resolveFreeeScope } from "freee-cli/profiles";
 
-操作の順序は呼び出し側が決め、事業所IDとAuth Profileを明示的に渡します。previewメソッドは書き込みません。登録、消込、口座振替、無視、無視の取消、請求書送付ステータス変更、請求書登録、自動登録ルール適用の各メソッドは即時に書き込み、共通のdry-runはありません。`OutcomeUnknownError`が返った場合は、書き込みが完了済みの可能性があるため、再実行前にfreee上の対象リソースを確認してください。
+const scope = resolveFreeeScope("business");
+await withFreeeWeb(scope, async (web) => console.log(await web.walletableSummary()));
+```
 
 ## エージェントから使う
 

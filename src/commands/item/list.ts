@@ -7,7 +7,7 @@ import { formatOutput } from "../../output/formatter.ts";
 import { getItems } from "../../types/freee/sdk.gen.ts";
 
 export const itemListCommand = define({
-  name: "item-list",
+  name: "list",
   description: "List items (products/services)",
   args: listArgs,
   run: async (ctx) => {

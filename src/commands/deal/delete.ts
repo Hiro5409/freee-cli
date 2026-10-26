@@ -8,7 +8,7 @@ import { formatDryRun, formatValue } from "../../output/formatter.ts";
 import { destroyDeal } from "../../types/freee/sdk.gen.ts";
 
 export const dealDeleteCommand = define({
-  name: "deal-delete",
+  name: "delete",
   description: "Delete a deal (transaction)",
   args: merge(
     dryRunArgs,
@@ -16,7 +16,7 @@ export const dealDeleteCommand = define({
       id: required(integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "Deal ID" })),
     }),
   ),
-  examples: `$ freee deal-delete --id 42 --dry-run --format json`,
+  examples: `$ freee deal delete --id 42 --dry-run --format json`,
   run: async (ctx) => {
     const { companyId, format } = initCommand(ctx);
     const id = ctx.values.id;

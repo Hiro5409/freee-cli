@@ -11,8 +11,8 @@ function uniqueNamespace(): string {
   return `freee-web-test-${randomUUID()}`;
 }
 
-function expectedSessionId(prefix: string, companyId: number, authProfile: string): string {
-  const profileKey = createHash("sha256").update(authProfile).digest("hex").slice(0, 16);
+function expectedSessionId(prefix: string, companyId: number, profile: string): string {
+  const profileKey = createHash("sha256").update(profile).digest("hex").slice(0, 16);
   return `${prefix}-${companyId}-${profileKey}`;
 }
 
@@ -35,7 +35,25 @@ function failure(message: string): SubprocessResult {
 }
 
 describe("Agent Browser session", () => {
-  test("derives restored state from company and Auth Profile without caller cwd", async () => {
+  test("persists only when the caller confirms the session is valid", async () => {
+    const calls: string[][] = [];
+    const browser = await createAgentBrowserSession({
+      namespace: uniqueNamespace(),
+      sessionPrefix: "fb",
+      companyId: 123,
+      profile: "business",
+      environment: encryptedEnvironment,
+      run: async (command) => {
+        calls.push([...command]);
+        return command.includes("state") ? success({ files: [] }) : success(null);
+      },
+    });
+    await browser.run(["open", "https://secure.freee.co.jp/"]);
+    await browser.dispose({ persist: true });
+    expect(calls[1]).toContain("never");
+    expect(calls[2]).toContain("always");
+  });
+  test("derives restored state from company and CLI profile without caller cwd", async () => {
     const calls: Array<{
       command: readonly string[];
       environment?: Record<string, string | undefined>;
@@ -53,7 +71,7 @@ describe("Agent Browser session", () => {
       namespace,
       sessionPrefix: "fb",
       companyId: 123,
-      authProfile: "business-freee",
+      profile: "business-freee",
       environment: encryptedEnvironment,
       run,
     });
@@ -87,7 +105,7 @@ describe("Agent Browser session", () => {
       namespace: uniqueNamespace(),
       sessionPrefix: "lock",
       companyId: 987_654,
-      authProfile: "business-freee",
+      profile: "business-freee",
       environment: encryptedEnvironment,
       run,
     } as const;
@@ -111,7 +129,7 @@ describe("Agent Browser session", () => {
       namespace: uniqueNamespace(),
       sessionPrefix: "closed",
       companyId: 123,
-      authProfile: "business-freee",
+      profile: "business-freee",
       environment: encryptedEnvironment,
       run,
     });
@@ -138,7 +156,7 @@ describe("Agent Browser session", () => {
       namespace: uniqueNamespace(),
       sessionPrefix: "retry",
       companyId: 987_655,
-      authProfile: "business-freee",
+      profile: "business-freee",
       environment: encryptedEnvironment,
       run,
     } as const;
@@ -151,20 +169,20 @@ describe("Agent Browser session", () => {
     await second.dispose();
   });
 
-  test("keeps the restored session ID short for a long Auth Profile name", async () => {
-    const authProfile = "a".repeat(80);
+  test("keeps the restored session ID short for a long CLI profile name", async () => {
+    const profile = "a".repeat(80);
     const run: RunSubprocess = async (command) =>
       command.includes("state") ? success({ files: [] }) : success(null);
     const browser = await createAgentBrowserSession({
       namespace: uniqueNamespace(),
       sessionPrefix: "fb",
       companyId: 1_234_567,
-      authProfile,
+      profile,
       environment: encryptedEnvironment,
       run,
     });
 
-    expect(browser.sessionId).toBe(expectedSessionId("fb", 1_234_567, authProfile));
+    expect(browser.sessionId).toBe(expectedSessionId("fb", 1_234_567, profile));
     expect(new TextEncoder().encode(browser.sessionId)).toHaveLength(27);
     await browser.dispose();
   });
@@ -193,7 +211,7 @@ describe("Agent Browser session", () => {
         namespace: uniqueNamespace(),
         sessionPrefix: "fb",
         companyId: 123,
-        authProfile: "business-freee",
+        profile: "business-freee",
         environment: encryptedEnvironment,
         run,
       }),
@@ -211,7 +229,7 @@ describe("Agent Browser session", () => {
         namespace: uniqueNamespace(),
         sessionPrefix: "fb",
         companyId: 123,
-        authProfile: "business-freee",
+        profile: "business-freee",
         environment: encryptedEnvironment,
         run,
       }),
