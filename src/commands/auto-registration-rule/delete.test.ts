@@ -4,10 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { HttpResponse } from "msw";
-import { setupServer } from "msw/node";
+import { HttpResponse } from "msw/http";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import { handleDestroyUserMatcher } from "../../types/freee/msw.gen.ts";
 import { autoRegistrationRuleDeleteCommand } from "./delete.ts";
@@ -16,7 +16,7 @@ const testDir = join(tmpdir(), `freee-cli-auto-registration-rule-delete-test-${D
 
 const onDestroyUserMatcher = mock();
 
-const server = setupServer(
+const network = createNetwork(
   handleDestroyUserMatcher(({ request, params }) => {
     onDestroyUserMatcher({
       id: params.id,
@@ -26,15 +26,8 @@ const server = setupServer(
   }),
 );
 
-beforeAll(() =>
-  server.listen({
-    onUnhandledRequest(request, print) {
-      if (new URL(request.url).hostname === "accounts.secure.freee.co.jp") return;
-      print.error();
-    },
-  }),
-);
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 
 beforeEach(() => {
   onDestroyUserMatcher.mockClear();
@@ -44,7 +37,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   delete process.env.FREEE_CLI_CONFIG_DIR;
   rmSync(testDir, { recursive: true, force: true });
 });

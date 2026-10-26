@@ -4,9 +4,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { setupServer } from "msw/node";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import { handleGetDeals } from "../../types/freee/msw.gen.ts";
 import { dealListCommand } from "./list.ts";
@@ -14,7 +14,7 @@ import { createMockDeal } from "./test-fixtures.ts";
 
 const testDir = join(tmpdir(), `freee-cli-deal-list-test-${Date.now()}`);
 
-const server = setupServer(
+const network = createNetwork(
   handleGetDeals({
     body: {
       deals: [
@@ -26,15 +26,8 @@ const server = setupServer(
   }),
 );
 
-beforeAll(() =>
-  server.listen({
-    onUnhandledRequest(request, print) {
-      if (new URL(request.url).hostname === "accounts.secure.freee.co.jp") return;
-      print.error();
-    },
-  }),
-);
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 
 beforeEach(() => {
   mkdirSync(testDir, { recursive: true });
@@ -43,7 +36,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   delete process.env.FREEE_CLI_CONFIG_DIR;
   rmSync(testDir, { recursive: true, force: true });
 });
@@ -61,7 +54,7 @@ describe("deal list command", () => {
   });
 
   test("passes month filter as query params", async () => {
-    server.use(
+    network.use(
       handleGetDeals(async ({ request }) => {
         const url = new URL(request.url);
         expect(url.searchParams.get("start_issue_date")).toBe("2026-03-01");
@@ -81,7 +74,7 @@ describe("deal list command", () => {
   });
 
   test("passes accounting filters through to freee", async () => {
-    server.use(
+    network.use(
       handleGetDeals(async ({ request }) => {
         const params = new URL(request.url).searchParams;
         expect(params.get("type")).toBe("expense");
@@ -116,7 +109,7 @@ describe("deal list command", () => {
   });
 
   test("limits both the API request and JSON result", async () => {
-    server.use(
+    network.use(
       handleGetDeals(async ({ request }) => {
         expect(new URL(request.url).searchParams.get("limit")).toBe("1");
         return new Response(

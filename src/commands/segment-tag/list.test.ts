@@ -4,17 +4,17 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { HttpResponse } from "msw";
-import { setupServer } from "msw/node";
+import { HttpResponse } from "msw/http";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import { handleGetSegmentTags } from "../../types/freee/msw.gen.ts";
 import { segmentTagListCommand } from "./list.ts";
 
 const testDir = join(tmpdir(), `freee-cli-segment-tag-list-test-${Date.now()}`);
 let segmentUrl = "";
-const server = setupServer(
+const network = createNetwork(
   handleGetSegmentTags(({ request }) => {
     segmentUrl = request.url;
     return HttpResponse.json({
@@ -25,8 +25,8 @@ const server = setupServer(
   }),
 );
 
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 beforeEach(() => {
   segmentUrl = "";
   mkdirSync(testDir, { recursive: true });
@@ -34,7 +34,7 @@ beforeEach(() => {
   process.env.FREEE_CLI_CONFIG_DIR = testDir;
 });
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   delete process.env.FREEE_CLI_CONFIG_DIR;
   rmSync(testDir, { recursive: true, force: true });
 });

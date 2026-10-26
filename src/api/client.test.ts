@@ -3,9 +3,9 @@ import { mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { HttpResponse, http } from "msw";
-import { setupServer } from "msw/node";
+import { HttpResponse, http } from "msw/http";
 
+import { createNetwork } from "../../test/network.ts";
 import { loadCredentials, saveCredentials, updateCredentials } from "../config/credentials.ts";
 import { errorHints } from "../errors.ts";
 import { handleGetDeals } from "../types/freee/msw.gen.ts";
@@ -21,14 +21,14 @@ const MOCK_TOKEN = {
   expiresAt: Date.now() + 3600000,
 };
 
-const server = setupServer(
+const network = createNetwork(
   handleGetDeals({
     body: { deals: [], meta: { total_count: 0 } },
   }),
 );
 
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 
 beforeEach(() => {
   mkdirSync(testDir, { recursive: true });
@@ -36,7 +36,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   client.setConfig({
     baseUrl: "https://api.freee.co.jp",
     fetch: undefined,
@@ -53,7 +53,7 @@ afterEach(() => {
 
 describe("API client", () => {
   test("configured client adds Authorization header via SDK function", async () => {
-    server.use(
+    network.use(
       handleGetDeals(async ({ request }) => {
         const auth = request.headers.get("Authorization");
         expect(auth).toBe("Bearer test-access-token");
@@ -68,7 +68,7 @@ describe("API client", () => {
   });
 
   test("configured client authorizes the freee invoice API, which has its own base URL", async () => {
-    server.use(
+    network.use(
       http.get("https://api.freee.co.jp/iv/invoices", ({ request }) => {
         expect(request.headers.get("Authorization")).toBe("Bearer test-access-token");
         return HttpResponse.json({ invoices: [] });
@@ -82,7 +82,7 @@ describe("API client", () => {
   });
 
   test("configured client authorizes the freee HR API, which has its own base URL", async () => {
-    server.use(
+    network.use(
       http.get("https://api.freee.co.jp/hr/api/v1/users/me", ({ request }) => {
         expect(request.headers.get("Authorization")).toBe("Bearer test-access-token");
         return HttpResponse.json({ companies: [] });
@@ -95,7 +95,7 @@ describe("API client", () => {
   });
 
   test("raw client.post sends Authorization without explicit security option", async () => {
-    server.use(
+    network.use(
       http.post("*/api/1/deals", async ({ request }) => {
         const auth = request.headers.get("Authorization");
         expect(auth).toBe("Bearer test-access-token");
@@ -113,7 +113,7 @@ describe("API client", () => {
   });
 
   test("configured client throws on 4xx (throwOnError enabled by configureClient)", async () => {
-    server.use(
+    network.use(
       http.get("*/api/1/error", () => HttpResponse.json({ message: "Not Found" }, { status: 404 })),
     );
     configureClient(testDir, "default");
@@ -125,7 +125,7 @@ describe("API client", () => {
   });
 
   test("configured invoice client preserves HTTP error details and product-specific guidance", async () => {
-    server.use(
+    network.use(
       http.get("https://api.freee.co.jp/iv/error", () =>
         HttpResponse.json(
           {
@@ -148,7 +148,7 @@ describe("API client", () => {
 
   test("configured client retries read-only transient responses", async () => {
     let callCount = 0;
-    server.use(
+    network.use(
       http.get("*/api/1/deals", () => {
         callCount++;
         if (callCount < 3) {
@@ -172,7 +172,7 @@ describe("API client", () => {
     "configured client never retries %s writes",
     async (method) => {
       let callCount = 0;
-      server.use(
+      network.use(
         http[method]("*/api/1/deals", () => {
           callCount++;
           return HttpResponse.json(
@@ -196,7 +196,7 @@ describe("API client", () => {
     "a %s write response does not prove the write was rejected",
     async (status) => {
       let accepted = 0;
-      server.use(
+      network.use(
         http.post("*/api/1/deals", () => {
           accepted++;
           return HttpResponse.json({ message: "Request failed" }, { status });
@@ -216,7 +216,7 @@ describe("API client", () => {
   );
 
   test("an unreadable successful write response requires checking the resource", async () => {
-    server.use(
+    network.use(
       http.post(
         "*/api/1/deals",
         () =>
@@ -235,7 +235,7 @@ describe("API client", () => {
   test("missing credentials reject a write before dispatch with authentication guidance", async () => {
     saveCredentials(testDir, {});
     let writes = 0;
-    server.use(
+    network.use(
       http.post("*/api/1/deals", () => {
         writes++;
         return HttpResponse.json({ deal: { id: 1 } });
@@ -252,7 +252,7 @@ describe("API client", () => {
 
   test("a lost write response requires checking the resource before retrying", async () => {
     let accepted = 0;
-    server.use(
+    network.use(
       http.post("*/api/1/deals", () => {
         accepted++;
         return HttpResponse.error();
@@ -299,7 +299,7 @@ describe("token refresh deduplication", () => {
 
     let refreshCount = 0;
     const requestAuthorizations: Array<string | null> = [];
-    server.use(
+    network.use(
       http.post("*/public_api/token", () => {
         refreshCount++;
         return HttpResponse.json({
@@ -332,7 +332,7 @@ describe("token refresh deduplication", () => {
     saveCredentials(testDir, { default: expiredToken });
 
     let refreshCount = 0;
-    server.use(
+    network.use(
       http.post("*/public_api/token", () => {
         refreshCount++;
         return HttpResponse.json({
@@ -367,7 +367,7 @@ describe("token refresh deduplication", () => {
     saveCredentials(testDir, { default: expiredToken });
 
     let callCount = 0;
-    server.use(
+    network.use(
       http.post("*/public_api/token", () => {
         callCount++;
         if (callCount === 1) {

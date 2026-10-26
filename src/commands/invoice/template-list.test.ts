@@ -4,31 +4,31 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { setupServer } from "msw/node";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import { handleInvoicesTemplatesIndex } from "../../types/freee-invoice/msw.gen.ts";
 import { invoiceTemplateListCommand } from "./template-list.ts";
 import { INVOICE_API_BASE_URL } from "./test-fixtures.ts";
 
 const testDir = join(tmpdir(), `freee-cli-invoice-template-list-test-${Date.now()}`);
-const server = setupServer(
+const network = createNetwork(
   handleInvoicesTemplatesIndex(
     { body: { templates: [{ id: 3, name: "Standard" }] } },
     { baseUrl: INVOICE_API_BASE_URL },
   ),
 );
 
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 beforeEach(() => {
   mkdirSync(testDir, { recursive: true });
   saveCredentials(testDir, { default: MOCK_TOKEN });
   process.env.FREEE_CLI_CONFIG_DIR = testDir;
 });
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   delete process.env.FREEE_CLI_CONFIG_DIR;
   rmSync(testDir, { recursive: true, force: true });
 });

@@ -4,25 +4,25 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { HttpResponse } from "msw";
-import { setupServer } from "msw/node";
+import { HttpResponse } from "msw/http";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import { handleDestroyDeal } from "../../types/freee/msw.gen.ts";
 import { dealDeleteCommand } from "./delete.ts";
 
 const testDir = join(tmpdir(), `freee-cli-deal-delete-test-${Date.now()}`);
 const onDelete = mock();
-const server = setupServer(
+const network = createNetwork(
   handleDestroyDeal(({ request, params }) => {
     onDelete({ id: params.id, companyId: new URL(request.url).searchParams.get("company_id") });
     return new HttpResponse(null, { status: 204 });
   }),
 );
 
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 beforeEach(() => {
   mkdirSync(testDir, { recursive: true });
   saveCredentials(testDir, { default: MOCK_TOKEN });

@@ -4,16 +4,16 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { setupServer } from "msw/node";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import { handleGetEmployees } from "../../types/freee-hr/msw.gen.ts";
 import { hrEmployeeListCommand } from "./employee-list.ts";
 
 const testDir = join(tmpdir(), `freee-cli-hr-employee-list-test-${Date.now()}`);
 
-const server = setupServer(
+const network = createNetwork(
   handleGetEmployees({
     body: {
       employees: [
@@ -33,8 +33,8 @@ const server = setupServer(
   }),
 );
 
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 
 beforeEach(() => {
   mkdirSync(testDir, { recursive: true });
@@ -43,14 +43,14 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   delete process.env.FREEE_CLI_CONFIG_DIR;
   rmSync(testDir, { recursive: true, force: true });
 });
 
 describe("HR employee list command", () => {
   test("lists employees for the requested payroll month as JSON", async () => {
-    server.use(
+    network.use(
       handleGetEmployees(async ({ request }) => {
         const url = new URL(request.url);
         expect(url.searchParams.get("company_id")).toBe("123");
@@ -86,7 +86,7 @@ describe("HR employee list command", () => {
 
   test("rejects an invalid payroll month before calling the API", async () => {
     let called = false;
-    server.use(
+    network.use(
       handleGetEmployees(() => {
         called = true;
         return Response.json({ employees: [], total_count: 0 });

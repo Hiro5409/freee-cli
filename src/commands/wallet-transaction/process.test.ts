@@ -4,19 +4,19 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { http, HttpResponse } from "msw";
-import { setupServer } from "msw/node";
+import { http, HttpResponse } from "msw/http";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import { walletTransactionIgnoreCommand } from "./process.ts";
 
 const directory = mkdtempSync(join(tmpdir(), "freee-wallet-process-"));
 const previousDirectory = process.env.FREEE_CLI_CONFIG_DIR;
-const server = setupServer();
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
+const network = createNetwork();
+beforeAll(() => network.enable());
 afterAll(() => {
-  server.close();
+  network.disable();
   rmSync(directory, { recursive: true, force: true });
 });
 beforeEach(() => {
@@ -24,7 +24,7 @@ beforeEach(() => {
   process.env.FREEE_CLI_CONFIG_DIR = directory;
 });
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   if (previousDirectory === undefined) delete process.env.FREEE_CLI_CONFIG_DIR;
   else process.env.FREEE_CLI_CONFIG_DIR = previousDirectory;
 });
@@ -32,7 +32,7 @@ const base = ["--company-id", "123", "--id", "7", "--format", "json"];
 
 test("ignore posts directly to the official API", async () => {
   let writes = 0;
-  server.use(
+  network.use(
     http.post("https://api.freee.co.jp/api/1/wallet_txns/7/ignore", async ({ request }) => {
       expect(request.headers.get("Authorization")).toBe("Bearer test-token");
       expect(await request.json()).toEqual({ company_id: 123 });
@@ -47,7 +47,7 @@ test("ignore posts directly to the official API", async () => {
 
 test("reset returns a reconciled statement to unprocessed through the official API", async () => {
   const { walletTransactionResetCommand } = await import("./process.ts");
-  server.use(
+  network.use(
     http.post("https://api.freee.co.jp/api/1/wallet_txns/7/reset", async ({ request }) => {
       expect(await request.json()).toEqual({ company_id: 123 });
       return new HttpResponse(null, { status: 200 });
@@ -68,7 +68,7 @@ test.each(["json", "default"])(
       { account_item_id: 101, amount: 4000, section_id: 20, tag_ids: [30], description: "Office" },
       { account_item_id: 102, tax_code: 2, amount: 1000, description: "Private" },
     ];
-    server.use(
+    network.use(
       http.post("https://api.freee.co.jp/api/1/wallet_txns/7/create_deal", async ({ request }) => {
         expect(await request.json()).toEqual({
           company_id: 123,
@@ -101,7 +101,7 @@ test.each(["json", "default"])(
 
 test("private registration uses freee's company-specific private accounting treatment", async () => {
   const { walletTransactionRegisterPrivateCommand } = await import("./process.ts");
-  server.use(
+  network.use(
     http.post(
       "https://api.freee.co.jp/api/1/wallet_txns/7/create_private_deal",
       async ({ request }) => {
@@ -128,7 +128,7 @@ test.each(["json", "default"])(
       ],
       adjustment_deal: { deal_lines: [{ account_item_id: 101, amount: 500 }] },
     };
-    server.use(
+    network.use(
       http.post("https://api.freee.co.jp/api/1/wallet_txns/7/reconcile", async ({ request }) => {
         expect(await request.json()).toEqual({ company_id: 123, ...body });
         return HttpResponse.json({ wallet_txn_id: 7, deal_ids: [91, 92], new_deal_id: 93 });
@@ -161,7 +161,7 @@ test.each(["json", "default"])(
       ],
       charge_lines: [{ account_item_id: 101, amount: 200, line_type: "paid" }],
     };
-    server.use(
+    network.use(
       http.post(
         "https://api.freee.co.jp/api/1/wallet_txns/7/create_transfer",
         async ({ request }) => {
@@ -182,7 +182,7 @@ test.each(["json", "default"])(
 
 test("rule application submits IDs without reading their state and reports asynchronous acceptance", async () => {
   const { walletTransactionApplyRulesCommand } = await import("./process.ts");
-  server.use(
+  network.use(
     http.post("https://api.freee.co.jp/api/1/user_matchers/apply", async ({ request }) => {
       expect(await request.json()).toEqual({ company_id: 123, wallet_txn_ids: [7] });
       return new HttpResponse(null, { status: 200 });
@@ -194,7 +194,7 @@ test("rule application submits IDs without reading their state and reports async
 
 test("write transport failures remain unknown outcomes without an automatic retry", async () => {
   let writes = 0;
-  server.use(
+  network.use(
     http.post("https://api.freee.co.jp/api/1/wallet_txns/7/ignore", () => {
       writes++;
       return HttpResponse.error();
