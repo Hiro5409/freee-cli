@@ -4,10 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { HttpResponse } from "msw";
-import { setupServer } from "msw/node";
+import { HttpResponse } from "msw/http";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import {
   handleCreateUserMatcher,
@@ -21,7 +21,7 @@ const testDir = join(tmpdir(), `freee-cli-auto-registration-rule-write-test-${Da
 const onCreate = mock();
 const onUpdate = mock();
 
-const server = setupServer(
+const network = createNetwork(
   handleCreateUserMatcher(async ({ request }) => {
     const body = await request.json();
     onCreate(body);
@@ -37,15 +37,8 @@ const server = setupServer(
   }),
 );
 
-beforeAll(() =>
-  server.listen({
-    onUnhandledRequest(request, print) {
-      if (new URL(request.url).hostname === "accounts.secure.freee.co.jp") return;
-      print.error();
-    },
-  }),
-);
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 beforeEach(() => {
   onCreate.mockClear();
   onUpdate.mockClear();
@@ -54,7 +47,7 @@ beforeEach(() => {
   process.env.FREEE_CLI_CONFIG_DIR = testDir;
 });
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   delete process.env.FREEE_CLI_CONFIG_DIR;
   rmSync(testDir, { recursive: true, force: true });
 });
@@ -223,7 +216,7 @@ describe("auto-registration rule update command", () => {
   });
 
   test("requires a partner when invoice qualification depends on it", async () => {
-    server.use(
+    network.use(
       handleGetUserMatcher(() =>
         HttpResponse.json(
           createMockUserMatcher({
@@ -262,7 +255,7 @@ describe("auto-registration rule update command", () => {
   });
 
   test("allows clearing the partner when the final action ignores invoice qualification", async () => {
-    server.use(
+    network.use(
       handleGetUserMatcher(() =>
         HttpResponse.json(
           createMockUserMatcher({
@@ -303,7 +296,7 @@ describe("auto-registration rule update command", () => {
   });
 
   test("requires an explicit invoice setting when changing to a standard rule", async () => {
-    server.use(
+    network.use(
       handleGetUserMatcher(() =>
         HttpResponse.json(
           createMockUserMatcher({
@@ -337,7 +330,7 @@ describe("auto-registration rule update command", () => {
   });
 
   test("sets invoice, wallet-source tax, and segment fields", async () => {
-    server.use(
+    network.use(
       handleGetUserMatcher(() =>
         HttpResponse.json(
           createMockUserMatcher({

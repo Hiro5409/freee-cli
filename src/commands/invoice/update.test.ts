@@ -4,10 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { HttpResponse } from "msw";
-import { setupServer } from "msw/node";
+import { HttpResponse } from "msw/http";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import { handleInvoicesShow, handleInvoicesUpdate } from "../../types/freee-invoice/msw.gen.ts";
 import type { InvoiceShowResponseInvoice } from "../../types/freee-invoice/types.gen.ts";
@@ -19,7 +19,7 @@ const testDir = join(tmpdir(), `freee-cli-invoice-update-test-${Date.now()}`);
 const onUpdate = mock();
 
 function stub(invoice: Partial<InvoiceShowResponseInvoice>) {
-  server.use(
+  network.use(
     handleInvoicesShow(
       { body: { invoice: createMockInvoice({ id: 900, ...invoice }) } },
       { baseUrl: INVOICE_API_BASE_URL },
@@ -27,7 +27,7 @@ function stub(invoice: Partial<InvoiceShowResponseInvoice>) {
   );
 }
 
-const server = setupServer(
+const network = createNetwork(
   handleInvoicesShow(
     { body: { invoice: createMockInvoice({ id: 900 }) } },
     { baseUrl: INVOICE_API_BASE_URL },
@@ -41,15 +41,8 @@ const server = setupServer(
   ),
 );
 
-beforeAll(() =>
-  server.listen({
-    onUnhandledRequest(request, print) {
-      if (new URL(request.url).hostname === "accounts.secure.freee.co.jp") return;
-      print.error();
-    },
-  }),
-);
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 
 beforeEach(() => {
   onUpdate.mockClear();
@@ -59,7 +52,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   delete process.env.FREEE_CLI_CONFIG_DIR;
   rmSync(testDir, { recursive: true, force: true });
 });

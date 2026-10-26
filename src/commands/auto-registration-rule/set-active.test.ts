@@ -4,10 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { HttpResponse } from "msw";
-import { setupServer } from "msw/node";
+import { HttpResponse } from "msw/http";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import { handleGetUserMatcher, handleUpdateUserMatcher } from "../../types/freee/msw.gen.ts";
 import {
@@ -22,7 +22,7 @@ const onGetUserMatcher = mock();
 const onUpdateUserMatcher = mock();
 let currentActive = true;
 
-const server = setupServer(
+const network = createNetwork(
   handleGetUserMatcher(() => {
     onGetUserMatcher();
     return HttpResponse.json(createMockUserMatcher({ id: 42, active: currentActive }));
@@ -34,15 +34,8 @@ const server = setupServer(
   }),
 );
 
-beforeAll(() =>
-  server.listen({
-    onUnhandledRequest(request, print) {
-      if (new URL(request.url).hostname === "accounts.secure.freee.co.jp") return;
-      print.error();
-    },
-  }),
-);
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 
 beforeEach(() => {
   onGetUserMatcher.mockClear();
@@ -54,7 +47,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   delete process.env.FREEE_CLI_CONFIG_DIR;
   rmSync(testDir, { recursive: true, force: true });
 });
@@ -143,7 +136,7 @@ describe("auto-registration rule enable command", () => {
   // omitting and sending null are equivalent. The meaningful failure is inventing a real
   // value for a booking field the rule does not carry, or dropping a field it does carry.
   test("does not invent values for booking fields a transfer rule lacks", async () => {
-    server.use(
+    network.use(
       handleGetUserMatcher(() => {
         onGetUserMatcher();
         return HttpResponse.json(

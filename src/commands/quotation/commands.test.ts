@@ -4,10 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { HttpResponse } from "msw";
-import { setupServer } from "msw/node";
+import { HttpResponse } from "msw/http";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import {
   handleQuotationsCreate,
@@ -21,18 +21,18 @@ import { quotationShowCommand } from "./show.ts";
 import { quotationTemplateListCommand } from "./template-list.ts";
 
 const baseUrl = "https://api.freee.co.jp/iv";
-const server = setupServer();
+const network = createNetwork();
 let testDir: string;
 
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 beforeEach(() => {
   testDir = mkdtempSync(join(tmpdir(), "freee-cli-quotation-"));
   saveCredentials(testDir, { default: MOCK_TOKEN });
   process.env.FREEE_CLI_CONFIG_DIR = testDir;
 });
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   delete process.env.FREEE_CLI_CONFIG_DIR;
   rmSync(testDir, { recursive: true, force: true });
 });
@@ -40,7 +40,7 @@ afterEach(() => {
 test("quotation template list uses quotation templates from the selected company", async () => {
   let requestedUrl = "";
   const templates = [{ id: 77, name: "見積" }];
-  server.use(
+  network.use(
     handleQuotationsTemplatesIndex(
       ({ request }) => {
         requestedUrl = request.url;
@@ -65,7 +65,7 @@ test("quotation create sends quotation dates, commercial terms and ordered lines
     quotation_number: "EST-42",
     report_url: "https://invoice.secure.freee.co.jp/reports/quotations/42",
   };
-  server.use(
+  network.use(
     handleQuotationsCreate(
       async ({ request }) => {
         body = await request.json();
@@ -131,7 +131,7 @@ test("quotation create sends quotation dates, commercial terms and ordered lines
 
 test("quotation create rejects unsupported or incomplete lines before sending a request", async () => {
   let writes = 0;
-  server.use(
+  network.use(
     handleQuotationsCreate(
       () => {
         writes += 1;
@@ -163,7 +163,7 @@ test("quotation create rejects unsupported or incomplete lines before sending a 
 
 test("quotation create requires one nonempty partner identifier and valid dates before writing", async () => {
   let writes = 0;
-  server.use(
+  network.use(
     handleQuotationsCreate(
       () => {
         writes += 1;
@@ -224,7 +224,7 @@ test("quotation create requires one nonempty partner identifier and valid dates 
 
 test("quotation create accepts a partner code and reduced-tax decimal lines with explicit rounding", async () => {
   let body: unknown;
-  server.use(
+  network.use(
     handleQuotationsCreate(
       async ({ request }) => {
         body = await request.json();
@@ -292,7 +292,7 @@ test("quotation show keeps nullable legacy lines and returns the report URL", as
     report_url: "https://invoice.secure.freee.co.jp/reports/quotations/42",
   };
   let requestedUrl = "";
-  server.use(
+  network.use(
     handleQuotationsShow(
       ({ request }) => {
         requestedUrl = request.url;
@@ -311,7 +311,7 @@ test("quotation show keeps nullable legacy lines and returns the report URL", as
 });
 test("quotation list filters by quotation month and returns records from the invoice API", async () => {
   let requestedUrl = "";
-  server.use(
+  network.use(
     handleQuotationsIndex(
       ({ request }) => {
         requestedUrl = request.url;

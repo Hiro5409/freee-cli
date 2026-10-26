@@ -4,10 +4,10 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 import { cli } from "gunshi";
-import { HttpResponse } from "msw";
-import { setupServer } from "msw/node";
+import { HttpResponse } from "msw/http";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import {
   handleDownloadJournal,
@@ -21,7 +21,7 @@ const csv = "No.,取引日\n1,2025/01/02\n";
 
 let requestUrl = "";
 let journalRequestCount = 0;
-const server = setupServer(
+const network = createNetwork(
   handleGetJournals(({ request }) => {
     requestUrl = request.url;
     journalRequestCount += 1;
@@ -53,8 +53,8 @@ const server = setupServer(
   handleDownloadJournal(() => HttpResponse.arrayBuffer(new TextEncoder().encode(csv).buffer)),
 );
 
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 beforeEach(() => {
   mkdirSync(testDir, { recursive: true });
   saveCredentials(testDir, { default: MOCK_TOKEN });
@@ -63,7 +63,7 @@ beforeEach(() => {
   journalRequestCount = 0;
 });
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   delete process.env.FREEE_CLI_CONFIG_DIR;
   rmSync(testDir, { recursive: true, force: true });
 });
@@ -152,7 +152,7 @@ describe("journal export command", () => {
   });
 
   test("does not create an output when report generation fails", async () => {
-    server.use(
+    network.use(
       handleGetJournalStatus(({ params }) =>
         HttpResponse.json({
           journals: {

@@ -4,9 +4,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { setupServer } from "msw/node";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import {
   handleGetSalariesEmployeePayrollStatement,
@@ -33,7 +33,7 @@ const statement = {
   deductions: [{ name: "社会保険料", amount: "12000.0" }],
 };
 
-const server = setupServer(
+const network = createNetwork(
   handleGetSalariesEmployeePayrollStatements({
     body: { employee_payroll_statements: [statement], total_count: 1 },
   }),
@@ -42,8 +42,8 @@ const server = setupServer(
   }),
 );
 
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 
 beforeEach(() => {
   mkdirSync(testDir, { recursive: true });
@@ -52,14 +52,14 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   delete process.env.FREEE_CLI_CONFIG_DIR;
   rmSync(testDir, { recursive: true, force: true });
 });
 
 describe("HR payroll list command", () => {
   test("lists payroll statements for the requested payment month", async () => {
-    server.use(
+    network.use(
       handleGetSalariesEmployeePayrollStatements(async ({ request }) => {
         const url = new URL(request.url);
         expect(url.searchParams.get("company_id")).toBe("123");
@@ -82,7 +82,7 @@ describe("HR payroll list command", () => {
 
   test("uses the employee detail endpoint when employee ID is specified", async () => {
     let listCalled = false;
-    server.use(
+    network.use(
       handleGetSalariesEmployeePayrollStatements(() => {
         listCalled = true;
         return Response.json({ employee_payroll_statements: [], total_count: 0 });
@@ -119,7 +119,7 @@ describe("HR payroll list command", () => {
 
   test("rejects an invalid employee ID before calling the API", async () => {
     let called = false;
-    server.use(
+    network.use(
       handleGetSalariesEmployeePayrollStatement(() => {
         called = true;
         return Response.json({ employee_payroll_statement: statement });
@@ -137,7 +137,7 @@ describe("HR payroll list command", () => {
 
   test("validates --limit when employee ID selects the detail endpoint", async () => {
     let called = false;
-    server.use(
+    network.use(
       handleGetSalariesEmployeePayrollStatement(() => {
         called = true;
         return Response.json({ employee_payroll_statement: statement });

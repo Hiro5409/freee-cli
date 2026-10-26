@@ -4,27 +4,20 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { HttpResponse } from "msw";
-import { setupServer } from "msw/node";
+import { HttpResponse } from "msw/http";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import { handleGetReceipt } from "../../types/freee/msw.gen.ts";
 import { fileBoxShowCommand } from "./show.ts";
 
 const testDir = join(tmpdir(), `freee-cli-file-box-show-test-${Date.now()}`);
 
-const server = setupServer();
+const network = createNetwork();
 
-beforeAll(() =>
-  server.listen({
-    onUnhandledRequest(request, print) {
-      if (new URL(request.url).hostname === "accounts.secure.freee.co.jp") return;
-      print.error();
-    },
-  }),
-);
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 
 beforeEach(() => {
   mkdirSync(testDir, { recursive: true });
@@ -33,7 +26,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   delete process.env.FREEE_CLI_CONFIG_DIR;
   rmSync(testDir, { recursive: true, force: true });
 });
@@ -41,7 +34,7 @@ afterEach(() => {
 describe("File Box show command", () => {
   test("会計APIのファイルボックス証憑をID指定で取得し、JSONで出力する", async () => {
     let requestedUrl = "";
-    server.use(
+    network.use(
       handleGetReceipt(({ request, params }) => {
         requestedUrl = request.url;
         return HttpResponse.json({

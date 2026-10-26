@@ -4,10 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { HttpResponse } from "msw";
-import { setupServer } from "msw/node";
+import { HttpResponse } from "msw/http";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import { handleInvoicesIndex } from "../../types/freee-invoice/msw.gen.ts";
 import { invoiceListCommand } from "./list.ts";
@@ -15,7 +15,7 @@ import { createMockInvoiceSummary, INVOICE_API_BASE_URL } from "./test-fixtures.
 
 const testDir = join(tmpdir(), `freee-cli-invoice-list-test-${Date.now()}`);
 
-const server = setupServer(
+const network = createNetwork(
   handleInvoicesIndex(
     {
       body: {
@@ -29,15 +29,8 @@ const server = setupServer(
   ),
 );
 
-beforeAll(() =>
-  server.listen({
-    onUnhandledRequest(request, print) {
-      if (new URL(request.url).hostname === "accounts.secure.freee.co.jp") return;
-      print.error();
-    },
-  }),
-);
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 
 beforeEach(() => {
   mkdirSync(testDir, { recursive: true });
@@ -46,7 +39,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   delete process.env.FREEE_CLI_CONFIG_DIR;
   rmSync(testDir, { recursive: true, force: true });
 });
@@ -54,7 +47,7 @@ afterEach(() => {
 describe("invoice list command", () => {
   test("現行の請求書API (/iv/invoices) から一覧を取得する", async () => {
     let requestedUrl = "";
-    server.use(
+    network.use(
       handleInvoicesIndex(
         ({ request }) => {
           requestedUrl = request.url;
@@ -75,7 +68,7 @@ describe("invoice list command", () => {
 
   test("未送付・取引未登録のフィルタをクエリに渡す", async () => {
     let requestedUrl = "";
-    server.use(
+    network.use(
       handleInvoicesIndex(
         ({ request }) => {
           requestedUrl = request.url;
@@ -106,7 +99,7 @@ describe("invoice list command", () => {
 
   test("--month は請求日の範囲に変換する", async () => {
     let requestedUrl = "";
-    server.use(
+    network.use(
       handleInvoicesIndex(
         ({ request }) => {
           requestedUrl = request.url;

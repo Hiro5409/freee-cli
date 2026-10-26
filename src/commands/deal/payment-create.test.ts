@@ -4,10 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { HttpResponse } from "msw";
-import { setupServer } from "msw/node";
+import { HttpResponse } from "msw/http";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import { handleCreateDealPayment } from "../../types/freee/msw.gen.ts";
 import { dealPaymentCreateCommand } from "./payment-create.ts";
@@ -16,7 +16,7 @@ import { createMockDeal, createMockDealPayment } from "./test-fixtures.ts";
 const testDir = join(tmpdir(), `freee-cli-deal-payment-create-test-${Date.now()}`);
 const onCreatePayment = mock();
 
-const server = setupServer(
+const network = createNetwork(
   handleCreateDealPayment(async ({ params, request }) => {
     const body = await request.json();
     onCreatePayment({ id: params.id, body });
@@ -30,8 +30,8 @@ const server = setupServer(
   }),
 );
 
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 
 beforeEach(() => {
   onCreatePayment.mockClear();
@@ -41,7 +41,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   delete process.env.FREEE_CLI_CONFIG_DIR;
   rmSync(testDir, { recursive: true, force: true });
 });

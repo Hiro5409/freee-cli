@@ -4,10 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { HttpResponse } from "msw";
-import { setupServer } from "msw/node";
+import { HttpResponse } from "msw/http";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import { handleGetDeal } from "../../types/freee/msw.gen.ts";
 import { createMockDeal } from "./test-fixtures.ts";
@@ -45,17 +45,17 @@ const currentDeal = createMockDeal({
   receipts: [],
 });
 
-const server = setupServer(handleGetDeal(() => HttpResponse.json({ deal: currentDeal })));
+const network = createNetwork(handleGetDeal(() => HttpResponse.json({ deal: currentDeal })));
 
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 beforeEach(() => {
   mkdirSync(testDir, { recursive: true });
   saveCredentials(testDir, { default: MOCK_TOKEN });
   process.env.FREEE_CLI_CONFIG_DIR = testDir;
 });
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   delete process.env.FREEE_CLI_CONFIG_DIR;
   rmSync(testDir, { recursive: true, force: true });
 });

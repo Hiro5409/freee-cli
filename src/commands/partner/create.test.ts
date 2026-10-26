@@ -4,10 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { HttpResponse } from "msw";
-import { setupServer } from "msw/node";
+import { HttpResponse } from "msw/http";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
+import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
 import { handleCreatePartner } from "../../types/freee/msw.gen.ts";
 import { partnerCreateCommand } from "./create.ts";
@@ -15,7 +15,7 @@ import { partnerCreateCommand } from "./create.ts";
 const testDir = join(tmpdir(), `freee-cli-partner-create-test-${Date.now()}`);
 const onCreatePartner = mock();
 
-const server = setupServer(
+const network = createNetwork(
   handleCreatePartner(async ({ request }) => {
     const body = await request.json();
     onCreatePartner(body);
@@ -35,15 +35,8 @@ const server = setupServer(
   }),
 );
 
-beforeAll(() =>
-  server.listen({
-    onUnhandledRequest(request, print) {
-      if (new URL(request.url).hostname === "accounts.secure.freee.co.jp") return;
-      print.error();
-    },
-  }),
-);
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 
 beforeEach(() => {
   onCreatePartner.mockClear();
@@ -53,7 +46,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   delete process.env.FREEE_CLI_CONFIG_DIR;
   rmSync(testDir, { recursive: true, force: true });
 });

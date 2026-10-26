@@ -4,19 +4,19 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { http, HttpResponse } from "msw";
-import { setupServer } from "msw/node";
+import { http, HttpResponse } from "msw/http";
 
 import { invoiceListCommand } from "../src/commands/invoice/list.ts";
 import { quotationListCommand } from "../src/commands/quotation/list.ts";
 import { saveCredentials } from "../src/config/credentials.ts";
 import { MOCK_TOKEN } from "./credentials.ts";
+import { createNetwork } from "./network.ts";
 
-const server = setupServer();
+const network = createNetwork();
 let testDir: string;
 let previousConfigDir: string | undefined;
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
-afterAll(() => server.close());
+beforeAll(() => network.enable());
+afterAll(() => network.disable());
 beforeEach(() => {
   testDir = mkdtempSync(join(tmpdir(), "freee-invoice-pagination-"));
   saveCredentials(testDir, { default: MOCK_TOKEN });
@@ -24,7 +24,7 @@ beforeEach(() => {
   process.env.FREEE_CLI_CONFIG_DIR = testDir;
 });
 afterEach(() => {
-  server.resetHandlers();
+  network.resetHandlers();
   if (previousConfigDir === undefined) delete process.env.FREEE_CLI_CONFIG_DIR;
   else process.env.FREEE_CLI_CONFIG_DIR = previousConfigDir;
   rmSync(testDir, { recursive: true, force: true });
@@ -37,7 +37,7 @@ test.each([
   "%s listing explains the API window without making an invalid request",
   async (resource, command) => {
     let invalidRequests = 0;
-    server.use(
+    network.use(
       http.get(`https://api.freee.co.jp/iv/${resource}`, ({ request }) => {
         const query = new URL(request.url).searchParams;
         const offset = Number(query.get("offset"));
