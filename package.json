@@ -64,7 +64,7 @@
     "@mswjs/interceptors": "0.45.10",
     "@types/bun": "1.4.4",
     "@typescript-eslint/types": "8.72.1",
-    "knip": "6.44.0",
+    "knip": "6.44.1",
     "msw": "3.0.3",
     "publint": "0.3.25",
     "typescript": "7.0.2",
