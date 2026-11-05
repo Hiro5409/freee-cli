@@ -3,7 +3,7 @@ bun = "1.4.4"
 gh = "2.103.3"
 gitleaks = "8.30.1"
 lefthook = "2.2.2"
-node = "24.22.2"
+node = "26.13.0"
 
 [env]
 _.path = ["{{config_root}}/node_modules/.bin"]
