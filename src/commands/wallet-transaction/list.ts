@@ -6,7 +6,6 @@ import { monthArg } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { listArgs } from "../../global-args.ts";
 import { initCommand, monthToDateRange } from "../../helpers.ts";
-import { formatOutput } from "../../output/formatter.ts";
 import { getWalletTxns } from "../../types/freee/sdk.gen.ts";
 
 const STATUSES = ["unreconciled", "reconciled", "ignored", "in-progress", "excluded"] as const;
@@ -44,7 +43,7 @@ export const walletTransactionListCommand = define({
     }),
   ),
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const monthFilter = ctx.values.month ? monthToDateRange(ctx.values.month) : undefined;
     const status = ctx.values.status;
     const limit = ctx.values.limit;
@@ -80,6 +79,6 @@ export const walletTransactionListCommand = define({
     const filtered = status ? txns.filter((txn) => txn.status === STATUS_CODES[status]) : txns;
     const limited = limit === undefined ? filtered : filtered.slice(0, limit);
 
-    return formatOutput(limited, format);
+    return JSON.stringify(limited);
   },
 });

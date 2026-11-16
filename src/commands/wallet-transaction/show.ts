@@ -3,7 +3,6 @@ import { args, integer, merge, required } from "gunshi/combinators";
 
 import { companyArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatResource } from "../../output/formatter.ts";
 import { getWalletTxn } from "../../types/freee/sdk.gen.ts";
 
 export const walletTransactionShowCommand = define({
@@ -17,13 +16,13 @@ export const walletTransactionShowCommand = define({
       ),
     }),
   ),
-  examples: `$ freee wallet-txn show --id 42 --format json`,
+  examples: `$ freee wallet-txn show --id 42`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const { data } = await getWalletTxn({
       path: { id: ctx.values.id },
       query: { company_id: companyId },
     });
-    return formatResource(data.wallet_txn, format);
+    return JSON.stringify(data.wallet_txn);
   },
 });

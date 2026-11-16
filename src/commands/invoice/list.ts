@@ -6,7 +6,6 @@ import { PositiveIntegerTextSchema, monthArg, parseCliInput } from "../../cli-in
 import { CliError } from "../../errors.ts";
 import { listArgs } from "../../global-args.ts";
 import { initCommand, monthToDateRange } from "../../helpers.ts";
-import { formatOutput } from "../../output/formatter.ts";
 import { invoicesIndex } from "../../types/freee-invoice/sdk.gen.ts";
 
 const SENDING_STATUSES = ["sent", "unsent"] as const;
@@ -46,7 +45,7 @@ export const invoiceListCommand = define({
     }),
   ),
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const month = ctx.values.month ? monthToDateRange(ctx.values.month) : undefined;
 
     const query = {
@@ -65,6 +64,6 @@ export const invoiceListCommand = define({
       return data.invoices;
     }, ctx.values.limit);
 
-    return formatOutput(invoices, format);
+    return JSON.stringify(invoices);
   },
 });

@@ -3,7 +3,6 @@ import { args, merge, choice } from "gunshi/combinators";
 
 import { companyArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatOutput } from "../../output/formatter.ts";
 import { getWalletables } from "../../types/freee/sdk.gen.ts";
 
 export const walletableListCommand = define({
@@ -18,13 +17,13 @@ export const walletableListCommand = define({
     }),
   ),
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const { data } = await getWalletables({
       query: {
         company_id: companyId,
         type: ctx.values.type,
       },
     });
-    return formatOutput(data.walletables, format);
+    return JSON.stringify(data.walletables);
   },
 });

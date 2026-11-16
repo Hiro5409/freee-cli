@@ -3,12 +3,10 @@ import { resolve } from "node:path";
 
 import { define } from "gunshi";
 import { args, integer, merge, required, string } from "gunshi/combinators";
-import colors from "yoctocolors";
 
 import { CliError } from "../../errors.ts";
 import { companyArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatValue } from "../../output/formatter.ts";
 import { downloadReceipt } from "../../types/freee/sdk.gen.ts";
 
 export const fileBoxDownloadCommand = define({
@@ -23,9 +21,9 @@ export const fileBoxDownloadCommand = define({
       output: required(string({ description: "Output file path" })),
     }),
   ),
-  examples: `$ freee file-box download --id 55 --output receipt.pdf --format json`,
+  examples: `$ freee file-box download --id 55 --output receipt.pdf`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const id = ctx.values.id;
     const path = resolve(ctx.values.output);
     if (existsSync(path)) {
@@ -56,10 +54,6 @@ export const fileBoxDownloadCommand = define({
       mimeType: result.response.headers.get("Content-Type") ?? "application/octet-stream",
       bytes: bytes.byteLength,
     };
-    return formatValue(
-      output,
-      format,
-      colors.green(`File Box document ${id} downloaded to ${path}.`),
-    );
+    return JSON.stringify(output);
   },
 });

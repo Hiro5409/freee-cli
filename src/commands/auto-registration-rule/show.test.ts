@@ -46,7 +46,7 @@ afterEach(() => {
 describe("auto-registration rule show command", () => {
   test("fetches the rule by ID and outputs it as JSON", async () => {
     const result = await cli(
-      ["--company-id", "123", "--format", "json", "--id", "42"],
+      ["--company-id", "123", "--id", "42"],
       autoRegistrationRuleShowCommand,
     );
 

@@ -1,10 +1,9 @@
 import { define } from "gunshi";
 import { args, integer, merge, required } from "gunshi/combinators";
-import colors from "yoctocolors";
 
 import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatDryRun, formatValue } from "../../output/formatter.ts";
+import { dryRunOutput } from "../../output/dry-run.ts";
 import { destroyDealPayment } from "../../types/freee/sdk.gen.ts";
 
 export const dealPaymentDeleteCommand = define({
@@ -19,27 +18,19 @@ export const dealPaymentDeleteCommand = define({
       ),
     }),
   ),
-  examples: `$ freee deal payment delete --id 42 --payment-id 7 --dry-run --format json`,
+  examples: `$ freee deal payment delete --id 42 --payment-id 7 --dry-run`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const id = ctx.values.id;
     const paymentId = ctx.values["payment-id"];
     const path = `/api/1/deals/${id}/payments/${paymentId}`;
     const query = { company_id: companyId };
 
     if (ctx.values["dry-run"]) {
-      return formatDryRun(
-        format,
-        { method: "DELETE", path, query },
-        `${colors.yellow("Dry run —")} would delete payment ${paymentId} from deal ${id}.`,
-      );
+      return dryRunOutput({ method: "DELETE", path, query });
     }
 
     await destroyDealPayment({ path: { id, payment_id: paymentId }, query });
-    return formatValue(
-      { dealId: id, paymentId, deleted: true },
-      format,
-      colors.green(`Payment ${paymentId} deleted from deal ${id}.`),
-    );
+    return JSON.stringify({ dealId: id, paymentId, deleted: true });
   },
 });

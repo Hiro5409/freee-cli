@@ -51,10 +51,7 @@ afterEach(() => {
 
 describe("transfer list command", () => {
   test("lists transfers for a month", async () => {
-    const result = await cli(
-      ["--company-id", "123", "--month", "2026-08", "--format", "json"],
-      transferListCommand,
-    );
+    const result = await cli(["--company-id", "123", "--month", "2026-08"], transferListCommand);
     const params = new URL(listUrl).searchParams;
     expect(params.get("start_date")).toBe("2026-08-01");
     expect(params.get("end_date")).toBe("2026-08-31");

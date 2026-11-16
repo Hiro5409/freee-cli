@@ -38,7 +38,7 @@ afterEach(() => {
 describe("transfer delete command", () => {
   test("previews deletion without writing", async () => {
     const result = await cli(
-      ["--company-id", "123", "--id", "42", "--dry-run", "--format", "json"],
+      ["--company-id", "123", "--id", "42", "--dry-run"],
       transferDeleteCommand,
     );
     expect(onDelete).not.toHaveBeenCalled();

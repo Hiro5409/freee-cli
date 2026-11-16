@@ -90,11 +90,4 @@ describe("deal payment create command", () => {
     }
     expect(onCreatePayment).not.toHaveBeenCalled();
   });
-
-  test("--format json returns the updated deal response", async () => {
-    const result = await cli([...baseArgs, "--format", "json"], dealPaymentCreateCommand);
-
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(JSON.parse(result).payments[0]).toMatchObject({ id: 7, amount: 5000 });
-  });
 });

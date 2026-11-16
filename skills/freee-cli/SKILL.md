@@ -9,9 +9,9 @@ metadata:
 
 # freee-cli
 
-Discover supported commands with `freee --help` and unfamiliar arguments with the selected command's `--help`. Upstream API schemas and generated clients cover more than the CLI exposes. Use `--format json` for machine-readable results.
+Discover supported commands with `freee --help` and unfamiliar arguments with the selected command's `--help`. Upstream API schemas and generated clients cover more than the CLI exposes. Results are compact JSON on stdout, and errors are one line of JSON on stderr.
 
-Before a write batch, resolve one profile and company and verify referenced IDs and side-effect-bearing values with reads. Keep that target fixed through execution and verification. For browser-backed operations, verify the profile's configured company with `freee profile list --format json`; browser-backed commands have no company override. File Box uploads use only files explicitly selected by the user.
+Before a write batch, resolve one profile and company and verify referenced IDs and side-effect-bearing values with reads. Keep that target fixed through execution and verification. For browser-backed operations, verify the profile's configured company with `freee profile list`; browser-backed commands have no company override. File Box uploads use only files explicitly selected by the user.
 
 Execute reversible operations directly after approval. Use a preview only when it can resolve an open question about the target, scope, or accounting treatment. A preview does not prove write permission or replace approval.
 

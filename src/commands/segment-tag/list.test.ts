@@ -41,10 +41,7 @@ afterEach(() => {
 
 describe("segment tag list command", () => {
   test("lists one segment's tags", async () => {
-    const result = await cli(
-      ["--company-id", "123", "--segment", "2", "--format", "json"],
-      segmentTagListCommand,
-    );
+    const result = await cli(["--company-id", "123", "--segment", "2"], segmentTagListCommand);
     expect(new URL(segmentUrl).pathname).toBe("/api/1/segments/2/tags");
     expect(JSON.parse(String(result))[0]).toMatchObject({ id: 3, name: "Product A" });
   });

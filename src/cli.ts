@@ -79,6 +79,7 @@ import {
 import { walletTransactionShowCommand } from "./commands/wallet-transaction/show.ts";
 import { walletableListCommand } from "./commands/walletable/list.ts";
 import { printError } from "./error-output.ts";
+import { CliError } from "./errors.ts";
 import { globalArgs } from "./global-args.ts";
 import { writeOutput } from "./output/write.ts";
 import {
@@ -86,6 +87,13 @@ import {
   invoiceSetSendingStatusCommand,
   walletableSyncCommand,
 } from "./plugins/web-operations/commands.ts";
+
+function requireSubcommand(): never {
+  throw new CliError("A subcommand is required.", {
+    code: "INVALID_INPUT",
+    why: "This command only groups subcommands.",
+  });
+}
 
 const commands = {
   auth: define({
@@ -96,7 +104,7 @@ const commands = {
       logout: logoutCommand,
       status: statusCommand,
     },
-    run: () => 'Run "freee auth --help" for usage information.',
+    run: requireSubcommand,
   }),
   setup: setupCommand,
   profile: define({
@@ -106,7 +114,7 @@ const commands = {
       list: profileListCommand,
       "set-default": profileSetDefaultCommand,
     },
-    run: () => 'Run "freee profile --help" for usage information.',
+    run: requireSubcommand,
   }),
   deal: define({
     name: "deal",
@@ -123,12 +131,12 @@ const commands = {
           update: dealPaymentUpdateCommand,
           delete: dealPaymentDeleteCommand,
         },
-        run: () => 'Run "freee deal payment --help" for usage information.',
+        run: requireSubcommand,
       }),
       update: dealUpdateCommand,
       delete: dealDeleteCommand,
     },
-    run: () => 'Run "freee deal --help" for usage information.',
+    run: requireSubcommand,
   }),
   hr: define({
     name: "hr",
@@ -140,7 +148,7 @@ const commands = {
         subCommands: {
           list: hrEmployeeListCommand,
         },
-        run: () => 'Run "freee hr employee --help" for usage information.',
+        run: requireSubcommand,
       }),
       payroll: define({
         name: "payroll",
@@ -148,10 +156,10 @@ const commands = {
         subCommands: {
           list: hrPayrollListCommand,
         },
-        run: () => 'Run "freee hr payroll --help" for usage information.',
+        run: requireSubcommand,
       }),
     },
-    run: () => 'Run "freee hr --help" for usage information.',
+    run: requireSubcommand,
   }),
   "wallet-txn": define({
     name: "wallet-txn",
@@ -169,7 +177,7 @@ const commands = {
       settle: walletTransactionSettleCommand,
       transfer: walletTransactionTransferCommand,
     },
-    run: () => 'Run "freee wallet-txn --help" for usage information.',
+    run: requireSubcommand,
   }),
   walletable: define({
     name: "walletable",
@@ -178,7 +186,7 @@ const commands = {
       list: walletableListCommand,
       sync: walletableSyncCommand,
     },
-    run: () => 'Run "freee walletable --help" for usage information.',
+    run: requireSubcommand,
   }),
   transfer: define({
     name: "transfer",
@@ -190,7 +198,7 @@ const commands = {
       update: transferUpdateCommand,
       delete: transferDeleteCommand,
     },
-    run: () => 'Run "freee transfer --help" for usage information.',
+    run: requireSubcommand,
   }),
   "auto-rule": define({
     name: "auto-rule",
@@ -204,7 +212,7 @@ const commands = {
       disable: autoRegistrationRuleDisableCommand,
       delete: autoRegistrationRuleDeleteCommand,
     },
-    run: () => 'Run "freee auto-rule --help" for usage information.',
+    run: requireSubcommand,
   }),
   "account-item": define({
     name: "account-item",
@@ -212,7 +220,7 @@ const commands = {
     subCommands: {
       list: accountItemListCommand,
     },
-    run: () => 'Run "freee account-item --help" for usage information.',
+    run: requireSubcommand,
   }),
   "tax-code": define({
     name: "tax-code",
@@ -220,7 +228,7 @@ const commands = {
     subCommands: {
       list: taxCodeListCommand,
     },
-    run: () => 'Run "freee tax-code --help" for usage information.',
+    run: requireSubcommand,
   }),
   section: define({
     name: "section",
@@ -228,7 +236,7 @@ const commands = {
     subCommands: {
       list: sectionListCommand,
     },
-    run: () => 'Run "freee section --help" for usage information.',
+    run: requireSubcommand,
   }),
   tag: define({
     name: "tag",
@@ -236,7 +244,7 @@ const commands = {
     subCommands: {
       list: tagListCommand,
     },
-    run: () => 'Run "freee tag --help" for usage information.',
+    run: requireSubcommand,
   }),
   "segment-tag": define({
     name: "segment-tag",
@@ -244,7 +252,7 @@ const commands = {
     subCommands: {
       list: segmentTagListCommand,
     },
-    run: () => 'Run "freee segment-tag --help" for usage information.',
+    run: requireSubcommand,
   }),
   partner: define({
     name: "partner",
@@ -254,7 +262,7 @@ const commands = {
       show: partnerShowCommand,
       create: partnerCreateCommand,
     },
-    run: () => 'Run "freee partner --help" for usage information.',
+    run: requireSubcommand,
   }),
   item: define({
     name: "item",
@@ -262,7 +270,7 @@ const commands = {
     subCommands: {
       list: itemListCommand,
     },
-    run: () => 'Run "freee item --help" for usage information.',
+    run: requireSubcommand,
   }),
   "file-box": define({
     name: "file-box",
@@ -275,7 +283,7 @@ const commands = {
       update: fileBoxUpdateCommand,
       delete: fileBoxDeleteCommand,
     },
-    run: () => 'Run "freee file-box --help" for usage information.',
+    run: requireSubcommand,
   }),
   invoice: define({
     name: "invoice",
@@ -290,7 +298,7 @@ const commands = {
       "register-deal": invoiceRegisterDealCommand,
       "set-sending-status": invoiceSetSendingStatusCommand,
     },
-    run: () => 'Run "freee invoice --help" for usage information.',
+    run: requireSubcommand,
   }),
   "invoice-template": define({
     name: "invoice-template",
@@ -298,7 +306,7 @@ const commands = {
     subCommands: {
       list: invoiceTemplateListCommand,
     },
-    run: () => 'Run "freee invoice-template --help" for usage information.',
+    run: requireSubcommand,
   }),
   quotation: define({
     name: "quotation",
@@ -308,7 +316,7 @@ const commands = {
       show: quotationShowCommand,
       create: quotationCreateCommand,
     },
-    run: () => 'Run "freee quotation --help" for usage information.',
+    run: requireSubcommand,
   }),
   "quotation-template": define({
     name: "quotation-template",
@@ -316,7 +324,7 @@ const commands = {
     subCommands: {
       list: quotationTemplateListCommand,
     },
-    run: () => 'Run "freee quotation-template --help" for usage information.',
+    run: requireSubcommand,
   }),
   "balance-sheet": define({
     name: "balance-sheet",
@@ -324,7 +332,7 @@ const commands = {
     subCommands: {
       show: balanceSheetCommand,
     },
-    run: () => 'Run "freee balance-sheet --help" for usage information.',
+    run: requireSubcommand,
   }),
   "profit-and-loss": define({
     name: "profit-and-loss",
@@ -332,7 +340,7 @@ const commands = {
     subCommands: {
       show: profitAndLossCommand,
     },
-    run: () => 'Run "freee profit-and-loss --help" for usage information.',
+    run: requireSubcommand,
   }),
   "general-ledger": define({
     name: "general-ledger",
@@ -340,7 +348,7 @@ const commands = {
     subCommands: {
       list: generalLedgerCommand,
     },
-    run: () => 'Run "freee general-ledger --help" for usage information.',
+    run: requireSubcommand,
   }),
   journal: define({
     name: "journal",
@@ -348,7 +356,7 @@ const commands = {
     subCommands: {
       export: journalExportCommand,
     },
-    run: () => 'Run "freee journal --help" for usage information.',
+    run: requireSubcommand,
   }),
   company: define({
     name: "company",
@@ -357,7 +365,7 @@ const commands = {
       list: companyListCommand,
       switch: companySetDefaultCommand,
     },
-    run: () => 'Run "freee company --help" for usage information.',
+    run: requireSubcommand,
   }),
 };
 
@@ -369,8 +377,8 @@ const rootCommand = define({
 $ freee setup
 
 # Read data for automation
-$ freee deal list --month 2026-08 --format json`,
-  run: () => 'Run "freee --help" for usage information.',
+$ freee deal list --month 2026-08`,
+  run: requireSubcommand,
 });
 
 export async function main() {
@@ -386,14 +394,13 @@ export async function main() {
       return renderHeader(ctx);
     },
     renderValidationErrors: null,
-    // gunshi renders --help/--version itself and hands the same text back here;
-    // everything else is command output that only gets printed if we print it.
+    // gunshi has already printed --help and --version output.
     onAfterCommand: (ctx, result) => {
-      if (ctx.values.help || ctx.values.version) return;
+      if (ctx.values.help === true || ctx.values.version === true) return;
       if (result) return writeOutput(result);
     },
     onErrorCommand: (ctx, error) => {
-      printError(error, String(ctx.values.format ?? "table"), ctx.commandPath);
+      printError(error, ctx.commandPath);
     },
   });
 }

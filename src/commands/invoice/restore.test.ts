@@ -37,10 +37,7 @@ afterEach(() => {
 
 describe("invoice restore command", () => {
   test("restores an invoice", async () => {
-    const result = await cli(
-      ["--company-id", "123", "--id", "900", "--format", "json"],
-      invoiceRestoreCommand,
-    );
+    const result = await cli(["--company-id", "123", "--id", "900"], invoiceRestoreCommand);
     if (typeof result !== "string") throw new Error("expected string result");
     expect(JSON.parse(result)).toEqual({ id: 900, cancel_status: "uncanceled" });
   });

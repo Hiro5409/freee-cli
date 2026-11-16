@@ -51,10 +51,7 @@ describe("File Box show command", () => {
       }),
     );
 
-    const result = await cli(
-      ["--company-id", "123", "--id", "55", "--format", "json"],
-      fileBoxShowCommand,
-    );
+    const result = await cli(["--company-id", "123", "--id", "55"], fileBoxShowCommand);
 
     const url = new URL(requestedUrl);
     expect(url.pathname).toBe("/api/1/receipts/55");

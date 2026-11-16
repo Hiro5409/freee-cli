@@ -50,24 +50,18 @@ describe("auto-registration rule delete command", () => {
 
     expect(onDestroyUserMatcher).toHaveBeenCalledTimes(1);
     expect(onDestroyUserMatcher).toHaveBeenCalledWith({ id: "42", companyId: "123" });
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(result).toContain("id=42");
-  });
-
-  test("--format json reports the deleted ID", async () => {
-    const result = await cli([...baseArgs, "--format", "json"], autoRegistrationRuleDeleteCommand);
-
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(JSON.parse(result)).toEqual({ id: 42, deleted: true });
+    expect(JSON.parse(String(result))).toEqual({ id: 42, deleted: true });
   });
 
   test("dry-run prints the exact endpoint and does not call the API", async () => {
     const result = await cli([...baseArgs, "--dry-run"], autoRegistrationRuleDeleteCommand);
 
     expect(onDestroyUserMatcher).not.toHaveBeenCalled();
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(result).toContain("Dry run");
-    expect(result).toContain("DELETE /api/1/user_matchers/42");
+    expect(JSON.parse(String(result)).request).toEqual({
+      method: "DELETE",
+      path: "/api/1/user_matchers/42",
+      query: { company_id: 123 },
+    });
   });
 
   test("rejects a non-positive --id before calling the API", async () => {

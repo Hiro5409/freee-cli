@@ -5,7 +5,6 @@ import { fetchAll } from "../../api/paginate.ts";
 import { isoDateArg } from "../../cli-input.ts";
 import { listArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatOutput } from "../../output/formatter.ts";
 import { getReceipts } from "../../types/freee/sdk.gen.ts";
 
 const CATEGORIES = ["all", "without-deal", "expense-application", "with-deal", "ignored"] as const;
@@ -34,7 +33,7 @@ export const fileBoxListCommand = define({
     }),
   ),
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const documents = await fetchAll(async (offset, limit) => {
       const { data } = await getReceipts({
         query: {
@@ -49,6 +48,6 @@ export const fileBoxListCommand = define({
       return data.receipts;
     }, ctx.values.limit);
 
-    return formatOutput(documents, format);
+    return JSON.stringify(documents);
   },
 });

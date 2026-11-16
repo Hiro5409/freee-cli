@@ -1,19 +1,31 @@
 import { define } from "gunshi";
-import { args, merge, required } from "gunshi/combinators";
+import { args, boolean, merge, required, withDefault } from "gunshi/combinators";
 
 import { fetchAll } from "../../api/paginate.ts";
 import { monthArg } from "../../cli-input.ts";
 import { listArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatOutput } from "../../output/formatter.ts";
 import { getEmployees } from "../../types/freee-hr/sdk.gen.ts";
 
 export const hrEmployeeListCommand = define({
   name: "list",
-  description: "List employees from the freee HR API for a payroll month",
-  args: merge(listArgs, args({ month: required(monthArg("--month", "Payroll month (YYYY-MM)")) })),
+  description:
+    "List employees from the freee HR API for a payroll month, without sensitive personal data by default",
+  args: merge(
+    listArgs,
+    args({
+      month: required(monthArg("--month", "Payroll month (YYYY-MM)")),
+      "all-fields": withDefault(
+        boolean({
+          description:
+            "Return full API records, including sensitive personal data such as basic pension numbers",
+        }),
+        false,
+      ),
+    }),
+  ),
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const { year, month } = ctx.values.month;
 
     const employees = await fetchAll(async (offset, limit) => {
@@ -23,8 +35,8 @@ export const hrEmployeeListCommand = define({
       return data.employees ?? [];
     }, ctx.values.limit);
 
-    const output =
-      format === "json"
+    return JSON.stringify(
+      ctx.values["all-fields"]
         ? employees
         : employees.map((employee) => ({
             id: employee.id,
@@ -33,9 +45,8 @@ export const hrEmployeeListCommand = define({
             entry_date: employee.entry_date,
             retire_date: employee.retire_date,
             payroll_calculation: employee.payroll_calculation,
-            payment_schedule: employee.company_reference_date_rule_name,
-          }));
-
-    return formatOutput(output, format);
+            company_reference_date_rule_name: employee.company_reference_date_rule_name,
+          })),
+    );
   },
 });

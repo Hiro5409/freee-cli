@@ -1,12 +1,11 @@
 import { define } from "gunshi";
 import { args, choice, integer, merge, multiple, required, string } from "gunshi/combinators";
-import colors from "yoctocolors";
 
 import { isoDateArg } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { companyArgs, dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatDryRun } from "../../output/formatter.ts";
+import { dryRunOutput } from "../../output/dry-run.ts";
 import { createTransfer, getTransfer, updateTransfer } from "../../types/freee/sdk.gen.ts";
 import type { Transfer, TransferParams } from "../../types/freee/types.gen.ts";
 import { parseTransferDestinations } from "./parse-destinations.ts";
@@ -107,10 +106,9 @@ export const transferCreateCommand = define({
   ),
   examples: `$ freee transfer create --date 2026-08-01 \\
     --from-walletable-id 10 --from-walletable-type bank_account \\
-    --to '{"type":"credit_card","id":20,"amount":5000,"description":"Card payment"}' \\
-    --format json`,
+    --to '{"type":"credit_card","id":20,"amount":5000,"description":"Card payment"}'`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const body = {
       company_id: companyId,
       date: ctx.values.date,
@@ -120,8 +118,7 @@ export const transferCreateCommand = define({
     } satisfies TransferParams;
 
     const { data } = await createTransfer({ body });
-    if (format === "json") return JSON.stringify(data.transfer, null, 2);
-    return colors.green(`Transfer created: id=${data.transfer.id}`);
+    return JSON.stringify(data.transfer);
   },
 });
 
@@ -135,9 +132,9 @@ export const transferUpdateCommand = define({
       id: required(integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "Transfer ID" })),
     }),
   ),
-  examples: `$ freee transfer update --id 42 --date 2026-08-02 --dry-run --format json`,
+  examples: `$ freee transfer update --id 42 --date 2026-08-02 --dry-run`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const id = ctx.values.id;
     const overrides = optionalOverrides(ctx.values);
     if (Object.keys(overrides).length === 0) {
@@ -157,14 +154,9 @@ export const transferUpdateCommand = define({
     };
 
     if (ctx.values["dry-run"]) {
-      return formatDryRun(
-        format,
-        { method: "PUT", path: `/api/1/transfers/${id}`, body },
-        `${colors.yellow("Dry run —")} would PUT /api/1/transfers/${id}: ${JSON.stringify(body, null, 2)}`,
-      );
+      return dryRunOutput({ method: "PUT", path: `/api/1/transfers/${id}`, body });
     }
     const { data: updated } = await updateTransfer({ path: { id }, body });
-    if (format === "json") return JSON.stringify(updated.transfer, null, 2);
-    return colors.green(`Transfer updated: id=${updated.transfer.id}`);
+    return JSON.stringify(updated.transfer);
   },
 });

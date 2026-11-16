@@ -3,25 +3,9 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-async function runCli(
-  args: string[],
-): Promise<{ stdout: string; stderr: string; exitCode: number }> {
-  const proc = Bun.spawn(["bun", "src/main.ts", ...args], {
-    stdout: "pipe",
-    stderr: "pipe",
-  });
-  const [stdout, stderr] = await Promise.all([
-    new Response(proc.stdout).text(),
-    new Response(proc.stderr).text(),
-  ]);
-  const exitCode = await proc.exited;
-  return { stdout, stderr, exitCode };
-}
+type Result = { stdout: string; stderr: string; exitCode: number };
 
-async function runCliWithEnv(
-  args: string[],
-  env: Record<string, string>,
-): Promise<{ stdout: string; stderr: string; exitCode: number }> {
+async function runCli(args: string[], env: Record<string, string> = {}): Promise<Result> {
   const proc = Bun.spawn(["bun", "src/main.ts", ...args], {
     stdout: "pipe",
     stderr: "pipe",
@@ -35,14 +19,10 @@ async function runCliWithEnv(
   return { stdout, stderr, exitCode };
 }
 
-async function runCliWithEmptyConfig(
-  args: string[],
-): Promise<{ stdout: string; stderr: string; exitCode: number }> {
+async function runCliWithEmptyConfig(args: string[]): Promise<Result> {
   const dir = mkdtempSync(join(tmpdir(), "freee-cli-test-"));
   try {
-    return await runCliWithEnv(args, {
-      FREEE_CLI_CONFIG_DIR: dir,
-    });
+    return await runCli(args, { FREEE_CLI_CONFIG_DIR: dir });
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -61,6 +41,7 @@ describe("CLI integration", () => {
       expect(result.stdout).toContain("--profile");
     }
   });
+
   test("freee --help shows usage with subcommands", async () => {
     const { stdout } = await runCli(["--help"]);
     expect(stdout.split("USAGE:").length - 1).toBe(1);
@@ -69,13 +50,24 @@ describe("CLI integration", () => {
     expect(stdout).toContain("setup");
     expect(stdout).toContain("quotation");
     expect(stdout).toContain("freee setup");
-    expect(stdout).toContain("--no-color");
   });
 
   test("freee --version shows version", async () => {
     const { stdout } = await runCli(["--version"]);
     expect(stdout.trim().split("\n")).toHaveLength(1);
     expect(stdout.trim()).toMatch(/^\d+\.\d+\.\d+$/);
+  });
+
+  test("a command group without a subcommand reports a JSON error", async () => {
+    for (const args of [[], ["deal"], ["deal", "payment"]]) {
+      const { stdout, stderr, exitCode } = await runCliWithEmptyConfig(args);
+      expect(exitCode).toBe(1);
+      expect(stdout).toBe("");
+      const payload = JSON.parse(stderr);
+      expect(payload.code).toBe("INVALID_INPUT");
+      expect(payload.error).toBe("A subcommand is required.");
+      expect(payload.hint).toContain(["freee", ...args, "--help"].join(" "));
+    }
   });
 
   test("freee auth login --help shows login usage", async () => {
@@ -85,13 +77,8 @@ describe("CLI integration", () => {
     expect(stdout).toContain("freee auth login --profile");
   });
 
-  test("freee auth status --format json emits JSON error to stderr when credentials are missing", async () => {
-    const { stdout, stderr, exitCode } = await runCliWithEmptyConfig([
-      "auth",
-      "status",
-      "--format",
-      "json",
-    ]);
+  test("a read without credentials emits a JSON error to stderr", async () => {
+    const { stdout, stderr, exitCode } = await runCliWithEmptyConfig(["auth", "status"]);
 
     expect(exitCode).toBe(2);
     expect(stdout).toBe("");
@@ -104,19 +91,7 @@ describe("CLI integration", () => {
     expect(payload.hint).toContain("retry with --profile <name>");
   });
 
-  test("freee auth status keeps human error output by default", async () => {
-    const { stdout, stderr, exitCode } = await runCliWithEmptyConfig(["auth", "status"]);
-
-    expect(exitCode).toBe(2);
-    expect(stdout).toBe("");
-    expect(stderr).toContain("No credentials found");
-    expect(stderr).toContain("Authentication credentials are missing or invalid.");
-    expect(stderr).toContain('Run "freee auth login --profile <name>"');
-    expect(() => JSON.parse(stderr)).toThrow();
-    expect(stderr).not.toContain("\u001B[");
-  });
-
-  test("a command that returns its output prints it to stdout", async () => {
+  test("a dry run prints its preview to stdout as one line of JSON", async () => {
     const { stdout, exitCode } = await runCliWithEmptyConfig([
       "deal",
       "delete",
@@ -128,7 +103,9 @@ describe("CLI integration", () => {
     ]);
 
     expect(exitCode).toBe(0);
-    expect(stdout).toContain("Dry run");
+    expect(stdout).toBe(
+      '{"dryRun":true,"request":{"method":"DELETE","path":"/api/1/deals/42","query":{"company_id":123}}}\n',
+    );
   });
 
   test("unknown commands report one error without an internal stack trace", async () => {
@@ -141,12 +118,7 @@ describe("CLI integration", () => {
   });
 
   test("missing required arguments report one error without an internal stack trace", async () => {
-    const { stdout, stderr, exitCode } = await runCliWithEmptyConfig([
-      "deal",
-      "show",
-      "--format",
-      "json",
-    ]);
+    const { stdout, stderr, exitCode } = await runCliWithEmptyConfig(["deal", "show"]);
 
     expect(exitCode).toBe(1);
     expect(stdout).toBe("");
@@ -177,28 +149,12 @@ describe("CLI integration", () => {
       "--amount",
       "10000",
       "--dryrun",
-      "--format",
-      "json",
     ]);
 
     expect(exitCode).toBe(1);
     expect(stdout).toBe("");
     const payload = JSON.parse(stderr);
     expect(payload.error).toContain("Unknown option: --dryrun");
-    expect(stderr).not.toContain("No credentials found");
-  });
-
-  test("unsupported output formats fail validation", async () => {
-    const { stdout, stderr, exitCode } = await runCliWithEmptyConfig([
-      "company",
-      "list",
-      "--format",
-      "yaml",
-    ]);
-
-    expect(exitCode).toBe(1);
-    expect(stdout).toBe("");
-    expect(stderr).toMatch(/json|table/);
     expect(stderr).not.toContain("No credentials found");
   });
 
@@ -213,8 +169,6 @@ describe("CLI integration", () => {
       "--billing-date",
       "2026/08/01",
       "--dry-run",
-      "--format",
-      "json",
     ]);
 
     expect(exitCode).toBe(1);

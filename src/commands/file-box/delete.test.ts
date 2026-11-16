@@ -30,10 +30,7 @@ afterEach(() => {
 
 describe("File Box delete command", () => {
   test("deletes a document", async () => {
-    const result = await cli(
-      ["--company-id", "123", "--id", "55", "--format", "json"],
-      fileBoxDeleteCommand,
-    );
+    const result = await cli(["--company-id", "123", "--id", "55"], fileBoxDeleteCommand);
     if (typeof result !== "string") throw new Error("expected string result");
     expect(JSON.parse(result)).toEqual({ id: 55, deleted: true });
   });

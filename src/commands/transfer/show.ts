@@ -3,7 +3,6 @@ import { args, integer, merge, required } from "gunshi/combinators";
 
 import { companyArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatResource } from "../../output/formatter.ts";
 import { getTransfer } from "../../types/freee/sdk.gen.ts";
 
 export const transferShowCommand = define({
@@ -15,13 +14,13 @@ export const transferShowCommand = define({
       id: required(integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "Transfer ID" })),
     }),
   ),
-  examples: `$ freee transfer show --id 42 --format json`,
+  examples: `$ freee transfer show --id 42`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const { data } = await getTransfer({
       path: { id: ctx.values.id },
       query: { company_id: companyId },
     });
-    return formatResource(data.transfer, format);
+    return JSON.stringify(data.transfer);
   },
 });

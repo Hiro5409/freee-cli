@@ -3,13 +3,11 @@ import { resolve } from "node:path";
 
 import { define } from "gunshi";
 import { args, choice, merge, multiple, required, string } from "gunshi/combinators";
-import colors from "yoctocolors";
 
 import { isoDateArg } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { companyArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatValue } from "../../output/formatter.ts";
 import { downloadJournal, getJournals, getJournalStatus } from "../../types/freee/sdk.gen.ts";
 import type { GetJournalsData } from "../../types/freee/types.gen.ts";
 
@@ -81,9 +79,9 @@ export const journalExportCommand = define({
   ),
   examples: `$ freee journal export --download-type generic_v2 --encoding utf-8 \\
     --start-date 2025-01-01 --end-date 2025-12-31 \\
-    --output journal-2025.csv --format json`,
+    --output journal-2025.csv`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const path = resolve(ctx.values.output);
     if (existsSync(path)) {
       throw new CliError(`Output path already exists: ${path}`, {
@@ -138,10 +136,6 @@ export const journalExportCommand = define({
       upToDate: request.journals.up_to_date,
       upToDateReasons: request.journals.up_to_date_reasons,
     };
-    return formatValue(
-      output,
-      format,
-      colors.green(`Journal report ${reportId} exported to ${path}.`),
-    );
+    return JSON.stringify(output);
   },
 });

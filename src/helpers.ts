@@ -4,10 +4,7 @@ import { configDir, loadConfig } from "./config/config.ts";
 import { CliError, errorHints } from "./errors.ts";
 import { resolveConfiguredProfile, resolveConfiguredProfileName } from "./profiles.ts";
 
-export function initCommand(ctx: { values: Record<string, unknown> }): {
-  companyId: number;
-  format: string;
-} {
+export function initCommand(ctx: { values: Record<string, unknown> }): { companyId: number } {
   const dir = configDir();
   const profile = ctx.values["dry-run"]
     ? resolveConfiguredProfileName(ctx.values.profile, dir)
@@ -27,11 +24,7 @@ export function initCommand(ctx: { values: Record<string, unknown> }): {
     });
   }
 
-  const format = String(ctx.values.format ?? "table");
-  return {
-    companyId: parseCliInput(PositiveIntegerSchema, companyId, { label: "--company-id" }),
-    format,
-  };
+  return { companyId: parseCliInput(PositiveIntegerSchema, companyId, { label: "--company-id" }) };
 }
 
 export function monthToDateRange({ year, month: monthNumber }: { year: number; month: number }): {

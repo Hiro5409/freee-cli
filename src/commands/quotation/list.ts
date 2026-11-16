@@ -5,7 +5,6 @@ import { fetchAllInvoiceRecords } from "../../api/invoice-paginate.ts";
 import { monthArg } from "../../cli-input.ts";
 import { listArgs } from "../../global-args.ts";
 import { initCommand, monthToDateRange } from "../../helpers.ts";
-import { formatOutput } from "../../output/formatter.ts";
 import { quotationsIndex } from "../../types/freee-invoice/sdk.gen.ts";
 
 export const quotationListCommand = define({
@@ -25,9 +24,9 @@ export const quotationListCommand = define({
       }),
     }),
   ),
-  examples: "$ freee quotation list --month 2026-10 --format json",
+  examples: "$ freee quotation list --month 2026-10",
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const month = ctx.values.month ? monthToDateRange(ctx.values.month) : undefined;
     const quotations = await fetchAllInvoiceRecords(async (offset, limit) => {
       const { data } = await quotationsIndex({
@@ -45,6 +44,6 @@ export const quotationListCommand = define({
       });
       return data.quotations;
     }, ctx.values.limit);
-    return formatOutput(quotations, format);
+    return JSON.stringify(quotations);
   },
 });

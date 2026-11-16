@@ -139,8 +139,6 @@ describe("auto-registration rule create command", () => {
       "地域",
       "--division-tag-3-name",
       "販路",
-      "--format",
-      "json",
     ];
     const preview = await cli([...args, "--dry-run"], autoRegistrationRuleCreateCommand);
 
@@ -177,8 +175,6 @@ describe("auto-registration rule update command", () => {
         "--clear",
         "division-tag-1-name",
         "--dry-run",
-        "--format",
-        "json",
       ],
       autoRegistrationRuleUpdateCommand,
     );
@@ -282,8 +278,6 @@ describe("auto-registration rule update command", () => {
         "--clear",
         "qualified-invoice-setting",
         "--dry-run",
-        "--format",
-        "json",
       ],
       autoRegistrationRuleUpdateCommand,
     );
@@ -406,7 +400,7 @@ describe("auto-registration rule update command", () => {
   });
 
   test("previews the same full-state body that it updates", async () => {
-    const args = ["--company-id", "123", "--id", "42", "--priority", "10", "--format", "json"];
+    const args = ["--company-id", "123", "--id", "42", "--priority", "10"];
     const result = await cli([...args, "--dry-run"], autoRegistrationRuleUpdateCommand);
 
     expect(onUpdate).not.toHaveBeenCalled();

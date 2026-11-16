@@ -93,23 +93,17 @@ describe("auto-registration rule disable command", () => {
     });
   });
 
-  test("reports the new state", async () => {
-    const result = await cli(baseArgs, autoRegistrationRuleDisableCommand);
-
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(result).toContain("id=42");
-    expect(result).toContain("disabled");
-  });
-
   test("dry-run fetches the rule but does not PUT, printing the payload", async () => {
     const result = await cli([...baseArgs, "--dry-run"], autoRegistrationRuleDisableCommand);
 
     expect(onGetUserMatcher).toHaveBeenCalledTimes(1);
     expect(onUpdateUserMatcher).not.toHaveBeenCalled();
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(result).toContain("Dry run");
-    expect(result).toContain("/api/1/user_matchers/42");
-    expect(result).toContain('"active": false');
+    expect(JSON.parse(String(result)).request).toEqual({
+      method: "PUT",
+      path: "/api/1/user_matchers/42",
+      query: { company_id: 123 },
+      body: { ...preservedFields, active: false },
+    });
   });
 
   test("rejects a non-positive --id before calling the API", async () => {
@@ -179,15 +173,5 @@ describe("auto-registration rule enable command", () => {
     for (const field of bookingFields) {
       expect(body[field] ?? null).toBeNull();
     }
-  });
-
-  test("--format json returns the updated rule", async () => {
-    currentActive = false;
-    const result = await cli([...baseArgs, "--format", "json"], autoRegistrationRuleEnableCommand);
-
-    if (typeof result !== "string") throw new Error("expected string result");
-    const rule = JSON.parse(result);
-    expect(rule.id).toBe(42);
-    expect(rule.active).toBe(true);
   });
 });

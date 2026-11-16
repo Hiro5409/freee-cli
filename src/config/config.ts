@@ -14,11 +14,8 @@ const ProfileSchema = v.strictObject({
   name: v.string(),
 });
 
-const ConfigSchema = v.strictObject({
+const ConfigSchema = v.object({
   activeProfile: v.optional(v.string(), "default"),
-  defaults: v.optional(v.strictObject({ format: v.optional(v.string(), "table") }), {
-    format: "table",
-  }),
   profiles: v.optional(v.record(v.string(), ProfileSchema), {}),
 });
 

@@ -36,7 +36,7 @@ afterEach(() => {
 
 describe("tag list command", () => {
   test("lists memo tags", async () => {
-    const result = await cli(["--company-id", "123", "--format", "json"], tagListCommand);
+    const result = await cli(["--company-id", "123"], tagListCommand);
     expect(JSON.parse(String(result))[0]).toMatchObject({ id: 2, name: "Reviewed" });
   });
 });

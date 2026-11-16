@@ -33,7 +33,7 @@ afterEach(() => {
 describe("deal payment delete command", () => {
   test("deletes a payment", async () => {
     const result = await cli(
-      ["--company-id", "123", "--id", "42", "--payment-id", "7", "--format", "json"],
+      ["--company-id", "123", "--id", "42", "--payment-id", "7"],
       dealPaymentDeleteCommand,
     );
     if (typeof result !== "string") throw new Error("expected string result");
@@ -42,7 +42,7 @@ describe("deal payment delete command", () => {
 
   test("provides a dry-run request", async () => {
     const result = await cli(
-      ["--company-id", "123", "--id", "42", "--payment-id", "7", "--dry-run", "--format", "json"],
+      ["--company-id", "123", "--id", "42", "--payment-id", "7", "--dry-run"],
       dealPaymentDeleteCommand,
     );
     if (typeof result !== "string") throw new Error("expected string result");

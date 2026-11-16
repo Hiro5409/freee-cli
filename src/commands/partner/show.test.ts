@@ -49,10 +49,7 @@ afterEach(() => {
 
 describe("partner show command", () => {
   test("fetches the partner by ID and outputs it as JSON", async () => {
-    const result = await cli(
-      ["--company-id", "123", "--id", "42", "--format", "json"],
-      partnerShowCommand,
-    );
+    const result = await cli(["--company-id", "123", "--id", "42"], partnerShowCommand);
 
     expect(onGetPartner).toHaveBeenCalledWith({ id: "42", companyId: "123" });
     if (typeof result !== "string") throw new Error("expected string result");

@@ -1,6 +1,5 @@
 import { define } from "gunshi";
 import { args, merge, required } from "gunshi/combinators";
-import colors from "yoctocolors";
 
 import { CliError, errorHints } from "../../errors.ts";
 import { companyArgs } from "../../global-args.ts";
@@ -44,13 +43,13 @@ export const invoiceCreateCommand = define({
   ),
   examples: `# 外税・10%の1明細で作成
 $ freee invoice create --partner-id 456 --billing-date 2026-08-01 \\
-    --line '{"description":"コンサルティング","quantity":1,"unit_price":"100000","tax_rate":10}' --format json
+    --line '{"description":"コンサルティング","quantity":1,"unit_price":"100000","tax_rate":10}'
 
 # 自動採番が無効な事業所
 $ freee invoice create --partner-id 456 --billing-date 2026-08-01 --invoice-number INV-2026-001 \\
-    --line '{"description":"作業費","quantity":1,"unit_price":"50000","tax_rate":10}' --format json`,
+    --line '{"description":"作業費","quantity":1,"unit_price":"50000","tax_rate":10}'`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
 
     const body: InvoiceRequest = {
       company_id: companyId,
@@ -74,12 +73,6 @@ $ freee invoice create --partner-id 456 --billing-date 2026-08-01 --invoice-numb
 
     const { data } = await invoicesCreate({ body });
 
-    if (format === "json") return JSON.stringify(data.invoice, null, 2);
-    return [
-      colors.green(`Invoice created: id=${data.invoice.id}`),
-      `  number: ${data.invoice.invoice_number}`,
-      `  sending: ${data.invoice.sending_status} / deal: ${data.invoice.deal_status}`,
-      `  ${data.invoice.report_url}`,
-    ].join("\n");
+    return JSON.stringify(data.invoice);
   },
 });

@@ -70,7 +70,7 @@ describe("wallet transaction list command", () => {
     ["excluded", [6]],
   ] as const)("filters %s transactions locally", async (status, expectedIds) => {
     const result = await cli(
-      ["--company-id", "123", "--status", status, "--format", "json"],
+      ["--company-id", "123", "--status", status],
       walletTransactionListCommand,
     );
 
@@ -79,7 +79,7 @@ describe("wallet transaction list command", () => {
 
   test("applies limit after local status filtering", async () => {
     const result = await cli(
-      ["--company-id", "123", "--status", "unreconciled", "--limit", "1", "--format", "json"],
+      ["--company-id", "123", "--status", "unreconciled", "--limit", "1"],
       walletTransactionListCommand,
     );
 
@@ -98,8 +98,6 @@ describe("wallet transaction list command", () => {
         "credit_card",
         "--entry-side",
         "expense",
-        "--format",
-        "json",
       ],
       walletTransactionListCommand,
     );

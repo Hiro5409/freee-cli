@@ -43,7 +43,7 @@ afterEach(() => {
 
 describe("deal list command", () => {
   test("outputs deals as JSON", async () => {
-    const result = await cli(["--company-id", "123", "--format", "json"], dealListCommand);
+    const result = await cli(["--company-id", "123"], dealListCommand);
 
     if (typeof result !== "string") throw new Error("expected string result");
     const output = JSON.parse(result);
@@ -65,10 +65,7 @@ describe("deal list command", () => {
       }),
     );
 
-    const result = await cli(
-      ["--company-id", "123", "--format", "json", "--month", "2026-03"],
-      dealListCommand,
-    );
+    const result = await cli(["--company-id", "123", "--month", "2026-03"], dealListCommand);
     if (typeof result !== "string") throw new Error("expected string result");
     expect(JSON.parse(result)).toEqual([]);
   });
@@ -90,8 +87,6 @@ describe("deal list command", () => {
       [
         "--company-id",
         "123",
-        "--format",
-        "json",
         "--type",
         "expense",
         "--status",
@@ -122,10 +117,7 @@ describe("deal list command", () => {
       }),
     );
 
-    const result = await cli(
-      ["--company-id", "123", "--format", "json", "--limit", "1"],
-      dealListCommand,
-    );
+    const result = await cli(["--company-id", "123", "--limit", "1"], dealListCommand);
     if (typeof result !== "string") throw new Error("expected string result");
     expect(JSON.parse(result)).toHaveLength(1);
   });

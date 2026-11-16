@@ -44,10 +44,7 @@ afterEach(() => {
 
 describe("transfer show command", () => {
   test("shows one transfer", async () => {
-    const result = await cli(
-      ["--company-id", "123", "--id", "42", "--format", "json"],
-      transferShowCommand,
-    );
+    const result = await cli(["--company-id", "123", "--id", "42"], transferShowCommand);
     expect(JSON.parse(String(result))).toMatchObject({ id: 42 });
   });
 });

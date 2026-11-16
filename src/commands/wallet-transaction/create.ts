@@ -1,6 +1,5 @@
 import { define } from "gunshi";
 import { args, choice, integer, merge, required, string } from "gunshi/combinators";
-import colors from "yoctocolors";
 
 import { isoDateArg } from "../../cli-input.ts";
 import { companyArgs } from "../../global-args.ts";
@@ -45,9 +44,9 @@ export const walletTransactionCreateCommand = define({
   ),
   examples: `# 口座明細を作成し、有効な自動登録ルールをfreee側に評価させる
 $ freee wallet-txn create --date 2026-08-01 --entry-side expense --amount 5000 \\
-    --walletable-id 55 --walletable-type credit_card --description AMAZON.CO.JP --format json`,
+    --walletable-id 55 --walletable-type credit_card --description AMAZON.CO.JP`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
 
     const body: WalletTxnParams = {
       company_id: companyId,
@@ -61,15 +60,6 @@ $ freee wallet-txn create --date 2026-08-01 --entry-side expense --amount 5000 \
     };
 
     const { data } = await createWalletTxn({ body });
-    const txn = data.wallet_txn;
-
-    if (format === "json") return JSON.stringify(txn, null, 2);
-    return [
-      colors.green(`Wallet transaction created: id=${txn.id}`),
-      `  ${txn.date} ${txn.entry_side} ${txn.amount} (${txn.walletable_type}:${txn.walletable_id})`,
-      txn.rule_matched
-        ? colors.green("  rule matched: yes — an active auto-registration rule registered the deal")
-        : colors.yellow("  rule matched: no — no active auto-registration rule registered a deal"),
-    ].join("\n");
+    return JSON.stringify(data.wallet_txn);
   },
 });

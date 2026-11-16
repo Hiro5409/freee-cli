@@ -115,11 +115,4 @@ describe("deal create command", () => {
     }
     expect(onCreateDeal).not.toHaveBeenCalled();
   });
-
-  test("--format json returns the created deal response", async () => {
-    const result = await cli([...baseArgs, "--format", "json"], dealCreateCommand);
-
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(JSON.parse(result).id).toBe(42);
-  });
 });

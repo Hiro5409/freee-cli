@@ -44,7 +44,7 @@ function invalidInvoice(message: string): CliError {
   return new CliError(message, {
     code: "INVALID_INPUT",
     why: "Deal registration requires one active, unregistered invoice.",
-    hint: 'Use "freee invoice list --deal-status unregistered --cancel-status uncanceled --format json" and retry with its ID.',
+    hint: 'Use "freee invoice list --deal-status unregistered --cancel-status uncanceled" and retry with its ID.',
   });
 }
 

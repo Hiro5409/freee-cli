@@ -15,7 +15,6 @@ import { walletTransactionCreateCommand } from "./create.ts";
 const testDir = join(tmpdir(), `freee-cli-wallet-transaction-create-test-${Date.now()}`);
 
 const onCreateWalletTxn = mock();
-let ruleMatched = true;
 
 const network = createNetwork(
   handleCreateWalletTxn(async ({ request }) => {
@@ -36,7 +35,7 @@ const network = createNetwork(
           description: "AMAZON.CO.JP",
           status: 1,
           ...(typeof body === "object" ? body : {}),
-          rule_matched: ruleMatched,
+          rule_matched: true,
         },
       },
       { status: 201 },
@@ -49,7 +48,6 @@ afterAll(() => network.disable());
 
 beforeEach(() => {
   onCreateWalletTxn.mockClear();
-  ruleMatched = true;
   mkdirSync(testDir, { recursive: true });
   saveCredentials(testDir, { default: MOCK_TOKEN });
   process.env.FREEE_CLI_CONFIG_DIR = testDir;
@@ -79,33 +77,6 @@ const baseArgs = [
 ];
 
 describe("wallet transaction create command", () => {
-  test("reports the txn ID and that a rule matched", async () => {
-    ruleMatched = true;
-    const result = await cli(baseArgs, walletTransactionCreateCommand);
-
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(result).toContain("id=777");
-    expect(result).toContain("rule matched: yes");
-  });
-
-  test("reports when no rule matched", async () => {
-    ruleMatched = false;
-    const result = await cli(baseArgs, walletTransactionCreateCommand);
-
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(result).toContain("id=777");
-    expect(result).toContain("rule matched: no");
-  });
-
-  test("--format json returns the wallet_txn including rule_matched", async () => {
-    const result = await cli([...baseArgs, "--format", "json"], walletTransactionCreateCommand);
-
-    if (typeof result !== "string") throw new Error("expected string result");
-    const txn = JSON.parse(result);
-    expect(txn.id).toBe(777);
-    expect(txn.rule_matched).toBe(true);
-  });
-
   test("includes balance when provided", async () => {
     await cli([...baseArgs, "--balance", "40000"], walletTransactionCreateCommand);
 

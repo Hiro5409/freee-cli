@@ -31,7 +31,7 @@ describe("company set-default command", () => {
   });
 
   test("stores and returns a numeric company ID", async () => {
-    const result = await cli(["--id", "007", "--format", "json"], companySetDefaultCommand);
+    const result = await cli(["--id", "007"], companySetDefaultCommand);
 
     if (typeof result !== "string") throw new Error("expected string result");
     expect(JSON.parse(result)).toEqual({ profile: "default", companyId: 7, name: "7" });

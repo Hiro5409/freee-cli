@@ -22,7 +22,7 @@ freee-cli exists because we believe a CLI is the better interface for coding age
 A CLI gives agents the same interface used by developers, scripts, and CI.
 Commands can be discovered with `--help`, composed with files and pipes, and run directly when debugging.
 
-freee-cli therefore exposes small freee operations rather than application-specific workflows, with JSON output, structured errors, and focused `--dry-run` previews where they reveal more than the supplied arguments.
+freee-cli therefore exposes small freee operations rather than application-specific workflows: every result is compact JSON on stdout, every error is one line of JSON on stderr, and `--dry-run` previews exist where they reveal more than the supplied arguments. `auth login` also writes its browser prompts to stderr as JSON lines.
 
 ## Generated from official schemas
 
@@ -76,7 +76,7 @@ freee segment-tag list --segment 1
 freee balance-sheet show --fiscal-year 2025
 freee profit-and-loss show --fiscal-year 2025
 freee general-ledger list --start-date 2025-01-01 --end-date 2025-12-31 \
-  --account-item-name Sales --format json
+  --account-item-name Sales
 freee journal export --download-type generic_v2 --encoding utf-8 \
   --start-date 2025-01-01 --end-date 2025-12-31 --output journal-2025.csv
 ```
@@ -89,7 +89,7 @@ freee auto-rule create --act auto-standard --description AMAZON --condition part
   --entry-side expense --priority 5 --tax-name 課対仕入10% \
   --account-item-name 消耗品費 --qualified-invoice-setting qualified --dry-run
 freee auto-rule update --id 42 --account-item-name 通信費 --dry-run
-freee auto-rule update --id 42 --clear walletable --dry-run --format json
+freee auto-rule update --id 42 --clear walletable --dry-run
 freee auto-rule disable --id 42 --dry-run
 freee wallet-txn create --date 2026-08-01 --entry-side expense --amount 5000 \
   --walletable-id 55 --walletable-type credit_card --description AMAZON.CO.JP
@@ -113,12 +113,12 @@ freee invoice update --id 456 --subject "August invoice" --dry-run
 Quotations use the freee invoice API and their own document templates.
 
 ```bash
-freee quotation list --month 2026-10 --format json
-freee quotation show --id 456 --format json
-freee quotation-template list --format json
+freee quotation list --month 2026-10
+freee quotation show --id 456
+freee quotation-template list
 freee quotation create --partner-id 123 --quotation-date 2026-10-01 \
   --expiration-date 2026-10-31 --subject "Development estimate" \
-  --line '{"description":"Development","quantity":1,"unit_price":"100000","tax_rate":10}' --format json
+  --line '{"description":"Development","quantity":1,"unit_price":"100000","tax_rate":10}'
 ```
 
 Use either `--partner-id` or `--partner-code`. Repeat `--line` for multiple lines;
@@ -133,6 +133,8 @@ freee hr employee list --month 2026-08
 freee hr payroll list --month 2026-08
 ```
 
+Both return a summary without sensitive personal data. `--all-fields` returns the full API records, including basic pension numbers and deduction details.
+
 ### Processing account statements
 
 Statement processing uses the official Accounting API with API authentication. `register`, `settle`, and `transfer` accept the [official API request body](https://developer.freee.co.jp/reference/accounting) as `--body` JSON. The selected profile or `--company-id` supplies `company_id`, overriding that field in the body.
@@ -144,7 +146,7 @@ freee wallet-txn register --id 42 --body '{"deal_lines":[{"account_item_id":101,
 freee wallet-txn register-private --id 42
 freee wallet-txn settle --id 42 --body '{"deals":[{"deal_id":91,"amount":10000}]}'
 freee wallet-txn transfer --id 42 --body '{"transfer_from_line":{"walletable_id":1,"walletable_type":"bank_account"},"transfer_to_lines":[{"walletable_id":7,"walletable_type":"wallet","amount":10000}]}'
-freee wallet-txn apply-rules --id 42 --id 43 --format json
+freee wallet-txn apply-rules --id 42 --id 43
 ```
 
 The CLI sends one request and returns the API result, without preflight reads, previews, dry-runs, or follow-up reads. freee validates accounting constraints and applies its defaults. `register` accepts all deal fields, `settle` supports multiple payments and an `adjustment_deal`, and `transfer` supports multiple destinations and `charge_lines`. `reset` returns a statement to unprocessed. `register-private` uses freee's company-specific private accounting treatment.
@@ -153,7 +155,7 @@ Rule application requires 1–1,000 statement IDs and runs asynchronously. freee
 
 ### Browser-backed operations
 
-Invoice registration, invoice sending-status changes, and account synchronization use [Agent Browser](https://github.com/vercel-labs/agent-browser). Run `freee auth login --web --profile <name>` to open a dedicated browser and select the configured company. The CLI waits up to five minutes and saves only a verified, encrypted session. `freee auth status --profile <name> --format json` reports API and browser access separately.
+Invoice registration, invoice sending-status changes, and account synchronization use [Agent Browser](https://github.com/vercel-labs/agent-browser). Run `freee auth login --web --profile <name>` to open a dedicated browser and select the configured company. The CLI waits up to five minutes and saves only a verified, encrypted session. `freee auth status --profile <name>` reports API and browser access separately.
 
 ```bash
 freee invoice register-deal --id 456
@@ -162,7 +164,7 @@ freee walletable sync --id 42
 freee walletable sync --all
 ```
 
-Account synchronization waits up to one hour. Table output reports progress on stderr; JSON output keeps stdout machine-readable. With `--all`, freee selects eligible wallets and the result identifies those whose synchronization started and completed.
+Account synchronization waits up to one hour. With `--all`, freee selects eligible wallets and the result identifies those whose synchronization started and completed.
 
 These operations depend on observed Web interfaces. See the [Web operations module](src/plugins/web-operations/README.md) for their scope. Authentication state belongs to freee-cli and remains outside the repository.
 

@@ -33,7 +33,6 @@ describe("config", () => {
     const { loadConfig } = await import("./config.ts");
     const config = loadConfig(testDir);
     expect(config.activeProfile).toBe("default");
-    expect(config.defaults.format).toBe("table");
   });
 
   test("loadConfig reads existing config.json", async () => {
@@ -42,7 +41,6 @@ describe("config", () => {
       join(testDir, "config.json"),
       JSON.stringify({
         activeProfile: "work",
-        defaults: { format: "json" },
         profiles: {
           work: {
             companyId: 123,
@@ -53,7 +51,6 @@ describe("config", () => {
     );
     const config = loadConfig(testDir);
     expect(config.activeProfile).toBe("work");
-    expect(config.defaults.format).toBe("json");
     expect(config.profiles.work?.companyId).toBe(123);
   });
 
@@ -62,7 +59,6 @@ describe("config", () => {
     const dir = join(testDir, "nested", "dir");
     saveConfig(dir, {
       activeProfile: "default",
-      defaults: { format: "table" },
       profiles: {},
     });
     expect(existsSync(join(dir, "config.json"))).toBe(true);
@@ -88,11 +84,13 @@ describe("config", () => {
     }
   });
 
-  test("loadConfig rejects unknown configuration keys", async () => {
+  test("loadConfig ignores top-level keys it does not use", async () => {
     const { loadConfig } = await import("./config.ts");
-    const { ConfigError } = await import("../errors.ts");
-    writeFileSync(join(testDir, "config.json"), JSON.stringify({ activeProfiles: "work" }));
-    expect(() => loadConfig(testDir)).toThrow(ConfigError);
+    writeFileSync(
+      join(testDir, "config.json"),
+      JSON.stringify({ activeProfile: "work", defaults: { format: "table" }, profiles: {} }),
+    );
+    expect(loadConfig(testDir)).toEqual({ activeProfile: "work", profiles: {} });
   });
 });
 

@@ -2,7 +2,6 @@ import { randomBytes } from "node:crypto";
 
 import { define } from "gunshi";
 import { args, boolean, merge, withDefault } from "gunshi/combinators";
-import colors from "yoctocolors";
 
 import {
   buildAuthorizationUrl,
@@ -18,7 +17,6 @@ import { loadCredentials, updateCredentials } from "../../config/credentials.ts"
 import { loadOAuthCredentials } from "../../config/oauth.ts";
 import { ConfigError } from "../../errors.ts";
 import { globalArgs } from "../../global-args.ts";
-import { formatValue } from "../../output/formatter.ts";
 import { loginFreeeWeb } from "../../plugins/web-operations/freee-web.ts";
 import {
   assertProfileWritable,
@@ -56,14 +54,11 @@ $ freee auth login --profile work --replace`,
       }
       const scope = resolveFreeeScope(ctx.values.profile);
       console.error(
-        `Log in and select freee company ${scope.companyId} in the browser. Waiting up to 5 minutes.`,
+        JSON.stringify({
+          notice: `Log in and select freee company ${scope.companyId} in the browser. Waiting up to 5 minutes.`,
+        }),
       );
-      const result = await loginFreeeWeb(scope);
-      return formatValue(
-        { ...result, method: "web" },
-        ctx.values.format,
-        `Browser login ready: profile=${scope.profile} company=${scope.companyId}`,
-      );
+      return JSON.stringify({ ...(await loginFreeeWeb(scope)), method: "web" });
     }
     const dir = configDir();
     const storedProfiles = Object.keys(loadCredentials(dir));
@@ -84,12 +79,13 @@ $ freee auth login --profile work --replace`,
 
     const authUrl = buildAuthorizationUrl({ clientId, codeChallenge, state });
 
-    console.error(colors.dim("Opening browser for authentication..."));
-    console.error(`If the browser doesn't open, visit:\n${authUrl}\n`);
-
-    if (!openBrowser(authUrl)) {
-      console.error(colors.yellow("Could not open a browser. Open the URL above manually."));
-    }
+    console.error(
+      JSON.stringify({
+        notice: "Authorize freee-cli in the browser.",
+        authorizationUrl: authUrl,
+        browserOpened: openBrowser(authUrl),
+      }),
+    );
 
     const { code } = await waitForCallback(state);
 
@@ -113,11 +109,7 @@ $ freee auth login --profile work --replace`,
     );
     saveConfig(dir, config);
 
-    return formatValue(
-      { profile, method: "api", status: "ready" },
-      ctx.values.format,
-      colors.green(`Authenticated successfully as profile "${profile}".`),
-    );
+    return JSON.stringify({ profile, method: "api", status: "ready" });
   },
 });
 

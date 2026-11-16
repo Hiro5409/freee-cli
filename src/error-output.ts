@@ -1,7 +1,4 @@
-import { stripVTControlCharacters } from "node:util";
-
 import { ArgsValidationErrorKeys, isArgsValidationError } from "gunshi";
-import colors from "yoctocolors";
 
 import { CliError, type CliErrorCode } from "./errors.ts";
 
@@ -17,15 +14,6 @@ function markErrorPrinted(error: unknown): void {
   }
 }
 
-export function formatFromArgv(argv: string[]): string {
-  for (let i = 0; i < argv.length; i += 1) {
-    const arg = argv[i];
-    if (arg === "--format" || arg === "-f") return argv[i + 1] ?? "";
-    if (arg?.startsWith("--format=")) return arg.slice("--format=".length);
-  }
-  return "";
-}
-
 export function errorExitCode(error: unknown): number {
   return error instanceof CliError ? error.exitCode : 1;
 }
@@ -34,15 +22,6 @@ function errorCode(error: unknown): CliErrorCode {
   if (error instanceof CliError) return error.code;
   if (error instanceof AggregateError) return "INVALID_INPUT";
   return "UNEXPECTED";
-}
-
-function terminalSafeText(value: string): string {
-  let safe = "";
-  for (const character of stripVTControlCharacters(value)) {
-    const code = character.charCodeAt(0);
-    safe += code >= 0x20 && (code < 0x7f || code > 0x9f) ? character : " ";
-  }
-  return safe;
 }
 
 function gunshiValidationMessage(error: unknown): string | undefined {
@@ -110,19 +89,8 @@ function errorPayload(error: unknown, commandPath: readonly string[]): Record<st
   return payload;
 }
 
-export function printError(
-  error: unknown,
-  format: string,
-  commandPath: readonly string[] = [],
-): number {
-  const { why, hint } = errorGuidance(error, commandPath);
-  if (format === "json") {
-    console.error(JSON.stringify(errorPayload(error, commandPath), null, 2));
-  } else {
-    console.error(colors.red(terminalSafeText(errorMessage(error))));
-    if (why) console.error(colors.dim(`Why: ${terminalSafeText(why)}`));
-    if (hint) console.error(colors.dim(`Hint: ${terminalSafeText(hint)}`));
-  }
+export function printError(error: unknown, commandPath: readonly string[] = []): number {
+  console.error(JSON.stringify(errorPayload(error, commandPath)));
   markErrorPrinted(error);
   return errorExitCode(error);
 }

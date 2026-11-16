@@ -54,7 +54,7 @@ afterEach(() => {
 describe("partner create command", () => {
   test("creates a partner and returns the API response as JSON", async () => {
     const result = await cli(
-      ["--company-id", "123", "--name", "Acme", "--code", "P-001", "--format", "json"],
+      ["--company-id", "123", "--name", "Acme", "--code", "P-001"],
       partnerCreateCommand,
     );
 

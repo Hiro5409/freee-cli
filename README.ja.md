@@ -23,7 +23,7 @@ CLIなら、coding agent、開発者、スクリプト、CIが同じインター
 コマンドを`--help`で調べ、ファイルやパイプと組み合わせ、不具合の調査では直接実行できます。
 
 そのため、freee-cliは用途固有のワークフローではなく、小さなfreee操作を提供します。
-JSON出力、構造化エラーに加え、指定済みの引数以上の差分を確認できる操作だけに`--dry-run`を提供します。
+結果はすべてstdoutへコンパクトなJSONで、エラーはすべてstderrへ1行のJSONで出力します。`--dry-run`は、指定済みの引数以上の差分を確認できる操作だけに提供します。
 
 ## 公式OpenAPIスキーマへの追従
 
@@ -77,7 +77,7 @@ freee segment-tag list --segment 1
 freee balance-sheet show --fiscal-year 2025
 freee profit-and-loss show --fiscal-year 2025
 freee general-ledger list --start-date 2025-01-01 --end-date 2025-12-31 \
-  --account-item-name 売上高 --format json
+  --account-item-name 売上高
 freee journal export --download-type generic_v2 --encoding utf-8 \
   --start-date 2025-01-01 --end-date 2025-12-31 --output journal-2025.csv
 ```
@@ -90,7 +90,7 @@ freee auto-rule create --act auto-standard --description AMAZON --condition part
   --entry-side expense --priority 5 --tax-name 課対仕入10% \
   --account-item-name 消耗品費 --qualified-invoice-setting qualified --dry-run
 freee auto-rule update --id 42 --account-item-name 通信費 --dry-run
-freee auto-rule update --id 42 --clear walletable --dry-run --format json
+freee auto-rule update --id 42 --clear walletable --dry-run
 freee auto-rule disable --id 42 --dry-run
 freee wallet-txn create --date 2026-08-01 --entry-side expense --amount 5000 \
   --walletable-id 55 --walletable-type credit_card --description AMAZON.CO.JP
@@ -114,12 +114,12 @@ freee invoice update --id 456 --subject "8月分ご請求" --dry-run
 見積書はfreee請求書APIと見積書専用の帳票テンプレートを使用します。
 
 ```bash
-freee quotation list --month 2026-10 --format json
-freee quotation show --id 456 --format json
-freee quotation-template list --format json
+freee quotation list --month 2026-10
+freee quotation show --id 456
+freee quotation-template list
 freee quotation create --partner-id 123 --quotation-date 2026-10-01 \
   --expiration-date 2026-10-31 --subject "開発費見積" \
-  --line '{"description":"開発費","quantity":1,"unit_price":"100000","tax_rate":10}' --format json
+  --line '{"description":"開発費","quantity":1,"unit_price":"100000","tax_rate":10}'
 ```
 
 取引先は`--partner-id`または`--partner-code`のどちらかで指定します。
@@ -145,7 +145,7 @@ freee wallet-txn register --id 42 --body '{"deal_lines":[{"account_item_id":101,
 freee wallet-txn register-private --id 42
 freee wallet-txn settle --id 42 --body '{"deals":[{"deal_id":91,"amount":10000}]}'
 freee wallet-txn transfer --id 42 --body '{"transfer_from_line":{"walletable_id":1,"walletable_type":"bank_account"},"transfer_to_lines":[{"walletable_id":7,"walletable_type":"wallet","amount":10000}]}'
-freee wallet-txn apply-rules --id 42 --id 43 --format json
+freee wallet-txn apply-rules --id 42 --id 43
 ```
 
 `register`・`settle`・`transfer`は[公式APIのリクエスト本文](https://developer.freee.co.jp/reference/accounting)を`--body`のJSONで受け取ります。`company_id`はプロファイルまたは`--company-id`の値で上書きします。登録の全項目、複数取引の決済と差額取引、複数口座への振替と手数料を指定できます。CLIは1回のAPIリクエストの結果を返し、事前取得・プレビュー・dry-run・処理後の再取得は行いません。会計上の検証と省略時の既定値はfreeeが扱います。`reset`は明細を未処理へ戻します。`register-private`の科目は、個人・法人に応じてfreeeが決めます。
@@ -154,7 +154,7 @@ freee wallet-txn apply-rules --id 42 --id 43 --format json
 
 ### ブラウザ経由の操作
 
-請求書の取引登録・送付ステータス変更・口座同期は[Agent Browser](https://github.com/vercel-labs/agent-browser)を使います。`freee auth login --web --profile <name>`で専用ブラウザを開き、ログインと対象事業所の選択を行います。最大5分待ち、確認できた状態だけを暗号化して保存します。`freee auth status --format json`でAPIとWebの認証状態を個別に確認できます。
+請求書の取引登録・送付ステータス変更・口座同期は[Agent Browser](https://github.com/vercel-labs/agent-browser)を使います。`freee auth login --web --profile <name>`で専用ブラウザを開き、ログインと対象事業所の選択を行います。最大5分待ち、確認できた状態だけを暗号化して保存します。`freee auth status`でAPIとWebの認証状態を個別に確認できます。
 
 ```bash
 freee invoice register-deal --id 456
@@ -163,7 +163,7 @@ freee walletable sync --id 42
 freee walletable sync --all
 ```
 
-口座同期は最大1時間待ちます。表形式ではstderrへ進捗を表示します。`--all`の対象はfreeeが選び、結果には同期を開始して完了した口座を含めます。
+口座同期は最大1時間待ちます。`--all`の対象はfreeeが選び、結果には同期を開始して完了した口座を含めます。
 
 ブラウザ操作の対応範囲は[Web操作モジュール](src/plugins/web-operations/README.md)を参照してください。認証状態はCLIがリポジトリ外で管理します。
 

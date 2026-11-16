@@ -35,10 +35,7 @@ afterEach(() => {
 
 describe("invoice template list command", () => {
   test("lists invoice templates", async () => {
-    const result = await cli(
-      ["--company-id", "123", "--format", "json"],
-      invoiceTemplateListCommand,
-    );
+    const result = await cli(["--company-id", "123"], invoiceTemplateListCommand);
     if (typeof result !== "string") throw new Error("expected string result");
     expect(JSON.parse(result)).toEqual([{ id: 3, name: "Standard" }]);
   });

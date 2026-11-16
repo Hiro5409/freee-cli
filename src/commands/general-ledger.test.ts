@@ -53,8 +53,6 @@ test("general ledger passes date and accounting filters", async () => {
       "Cash",
       "--partner-name",
       "ACME",
-      "--format",
-      "json",
     ],
     generalLedgerCommand,
   );

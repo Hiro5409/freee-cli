@@ -73,8 +73,6 @@ describe("deal update command", () => {
         "--detail",
         '{"id":11,"account_item_id":102,"tax_code":2,"amount":2000,"description":"second"}',
         "--dry-run",
-        "--format",
-        "json",
       ],
       dealUpdateCommand,
     );
@@ -100,17 +98,7 @@ describe("deal update command", () => {
 
   test("preserves every current detail when --detail is omitted", async () => {
     const result = await cli(
-      [
-        "--company-id",
-        "123",
-        "--id",
-        "42",
-        "--receipt-ids",
-        "80,81",
-        "--dry-run",
-        "--format",
-        "json",
-      ],
+      ["--company-id", "123", "--id", "42", "--receipt-ids", "80,81", "--dry-run"],
       dealUpdateCommand,
     );
 

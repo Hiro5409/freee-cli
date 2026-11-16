@@ -203,8 +203,11 @@ describe("invoice update command", () => {
     );
 
     expect(onUpdate).not.toHaveBeenCalled();
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(result).toContain("Dry run");
+    expect(JSON.parse(String(result)).request).toMatchObject({
+      method: "PUT",
+      path: "/invoices/900",
+      body: { subject: "9月分" },
+    });
   });
 
   test("請求書IDが正の整数でなければ取得しにいかない", async () => {

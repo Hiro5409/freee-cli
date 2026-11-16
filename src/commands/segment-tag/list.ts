@@ -4,7 +4,6 @@ import { args, choice, merge, required } from "gunshi/combinators";
 import { fetchAll } from "../../api/paginate.ts";
 import { listArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatOutput } from "../../output/formatter.ts";
 import { getSegmentTags } from "../../types/freee/sdk.gen.ts";
 
 const SEGMENTS = ["1", "2", "3"] as const;
@@ -23,7 +22,7 @@ export const segmentTagListCommand = define({
     }),
   ),
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const segmentId = Number(ctx.values.segment);
     const tags = await fetchAll(async (offset, limit) => {
       const { data } = await getSegmentTags({
@@ -32,6 +31,6 @@ export const segmentTagListCommand = define({
       });
       return data.segment_tags;
     }, ctx.values.limit);
-    return formatOutput(tags, format);
+    return JSON.stringify(tags);
   },
 });

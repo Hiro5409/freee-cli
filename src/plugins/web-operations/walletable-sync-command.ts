@@ -3,7 +3,6 @@ import { resolveFreeeScope, type FreeeScope } from "../../profiles.ts";
 import { type FreeeWebOperations, withFreeeWeb } from "./freee-web.ts";
 import {
   createWalletableSync,
-  type WalletableSyncProgress,
   type WalletableSyncResult,
   type WalletableSyncScope,
   type WalletableSyncWeb,
@@ -11,7 +10,6 @@ import {
 
 type Values = {
   all?: boolean;
-  format?: unknown;
   id?: number;
   profile?: unknown;
 };
@@ -19,25 +17,14 @@ type Values = {
 type Dependencies = {
   resolveScope: (requestedProfile: unknown) => FreeeScope;
   withWeb: typeof withFreeeWeb;
-  sync: (
-    web: WalletableSyncWeb,
-    scope: WalletableSyncScope,
-    onProgress: (progress: WalletableSyncProgress) => void,
-  ) => Promise<WalletableSyncResult>;
-  writeProgress: (message: string) => void;
+  sync: (web: WalletableSyncWeb, scope: WalletableSyncScope) => Promise<WalletableSyncResult>;
 };
 
 const defaultDependencies: Dependencies = {
   resolveScope: resolveFreeeScope,
   withWeb: withFreeeWeb,
-  sync: (web, scope, onProgress) => createWalletableSync({ web, onProgress })(scope),
-  writeProgress: (message) => process.stderr.write(`${message}\n`),
+  sync: (web, scope) => createWalletableSync({ web })(scope),
 };
-
-function formatProgress(progress: WalletableSyncProgress): string {
-  if (progress.kind === "bulk") return "freee Web bulk sync: started";
-  return `${progress.walletableName}: ${progress.status}`;
-}
 
 function syncScope(values: Values): WalletableSyncScope {
   if (values.all === true) {
@@ -61,12 +48,8 @@ export async function runWalletableSyncCommand(
   const deps = { ...defaultDependencies, ...dependencies };
   const requestedSync = syncScope(values);
   const commandScope = deps.resolveScope(values.profile);
-  const onProgress =
-    values.format === "json"
-      ? () => undefined
-      : (progress: WalletableSyncProgress) => deps.writeProgress(formatProgress(progress));
   return deps.withWeb(commandScope, async (web: FreeeWebOperations) => {
-    const result: WalletableSyncResult = await deps.sync(web, requestedSync, onProgress);
+    const result: WalletableSyncResult = await deps.sync(web, requestedSync);
     return {
       profile: commandScope.profile,
       companyId: commandScope.companyId,

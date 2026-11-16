@@ -1,11 +1,10 @@
 import { define } from "gunshi";
 import { args, integer, merge, required as requiredArg } from "gunshi/combinators";
-import colors from "yoctocolors";
 
 import { CliError, errorHints } from "../../errors.ts";
 import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatDryRun } from "../../output/formatter.ts";
+import { dryRunOutput } from "../../output/dry-run.ts";
 import { invoicesShow, invoicesUpdate } from "../../types/freee-invoice/sdk.gen.ts";
 import type {
   InvoiceRequest,
@@ -156,9 +155,9 @@ export const invoiceUpdateCommand = define({
       id: requiredArg(integer({ min: 1, max: Number.MAX_SAFE_INTEGER, description: "Invoice ID" })),
     }),
   ),
-  examples: `$ freee invoice update --id 456 --subject "August invoice" --dry-run --format json`,
+  examples: `$ freee invoice update --id 456 --subject "August invoice" --dry-run`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const id = ctx.values.id;
     const partnerOverride = resolvePartnerOverride(ctx.values);
 
@@ -186,20 +185,11 @@ export const invoiceUpdateCommand = define({
     const body = invoiceRequestFromCurrent(data.invoice, companyId, overrides, partnerOverride);
 
     if (ctx.values["dry-run"]) {
-      return formatDryRun(
-        format,
-        { method: "PUT", path: `/invoices/${id}`, body },
-        `${colors.yellow("Dry run —")} would PUT /invoices/${id}: ${JSON.stringify(body, null, 2)}`,
-      );
+      return dryRunOutput({ method: "PUT", path: `/invoices/${id}`, body });
     }
 
     const { data: updated } = await invoicesUpdate({ path: { id }, body });
 
-    if (format === "json") return JSON.stringify(updated.invoice, null, 2);
-    return [
-      colors.green(`Invoice updated: id=${updated.invoice.id}`),
-      `  number: ${updated.invoice.invoice_number}`,
-      `  ${updated.invoice.report_url}`,
-    ].join("\n");
+    return JSON.stringify(updated.invoice);
   },
 });

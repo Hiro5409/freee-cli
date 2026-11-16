@@ -46,10 +46,7 @@ describe("File Box upload command", () => {
     const file = join(testDir, "receipt.pdf");
     writeFileSync(file, "receipt");
 
-    const result = await cli(
-      ["--company-id", "123", "--file", file, "--format", "json"],
-      fileBoxUploadCommand,
-    );
+    const result = await cli(["--company-id", "123", "--file", file], fileBoxUploadCommand);
 
     expect(JSON.parse(String(result)).id).toBe(55);
   });

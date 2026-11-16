@@ -36,7 +36,7 @@ afterEach(() => {
 
 describe("section list command", () => {
   test("lists sections", async () => {
-    const result = await cli(["--company-id", "123", "--format", "json"], sectionListCommand);
+    const result = await cli(["--company-id", "123"], sectionListCommand);
     expect(JSON.parse(String(result))).toEqual([
       { id: 1, name: "Development", available: true, company_id: 123 },
     ]);

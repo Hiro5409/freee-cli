@@ -65,23 +65,28 @@ describe("HR employee list command", () => {
       }),
     );
 
-    const result = await cli(
-      ["--company-id", "123", "--format", "json", "--month", "2026-08"],
-      hrEmployeeListCommand,
-    );
+    const result = await cli(["--company-id", "123", "--month", "2026-08"], hrEmployeeListCommand);
 
     if (typeof result !== "string") throw new Error("expected string result");
     expect(JSON.parse(result)).toEqual([{ id: 42, display_name: "山田 太郎" }]);
   });
 
-  test("table output omits sensitive employee fields", async () => {
-    const result = await cli(["--company-id", "123", "--month", "2026-08"], hrEmployeeListCommand);
+  test("omits sensitive employee fields unless --all-fields is passed", async () => {
+    const args = ["--company-id", "123", "--month", "2026-08"];
 
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(result).toContain("山田 太郎");
-    expect(result).toContain("payment_schedule");
-    expect(result).not.toContain("base_pension_num");
-    expect(result).not.toContain("1234567890");
+    expect(JSON.parse(String(await cli(args, hrEmployeeListCommand)))).toEqual([
+      {
+        id: 42,
+        num: "A-001",
+        display_name: "山田 太郎",
+        entry_date: "2026-04-01",
+        payroll_calculation: true,
+        company_reference_date_rule_name: "月末締め翌月25日払い",
+      },
+    ]);
+
+    const full = JSON.parse(String(await cli([...args, "--all-fields"], hrEmployeeListCommand)));
+    expect(full[0].base_pension_num).toBe("1234567890");
   });
 
   test("rejects an invalid payroll month before calling the API", async () => {

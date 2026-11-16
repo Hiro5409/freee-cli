@@ -91,8 +91,6 @@ describe("journal export command", () => {
         "deal_id",
         "--output",
         outputPath,
-        "--format",
-        "json",
       ],
       journalExportCommand,
     );

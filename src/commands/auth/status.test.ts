@@ -29,7 +29,7 @@ afterEach(() => {
 test("authentication status separates API access from an unconfigured browser company", async () => {
   process.env.FREEE_CLI_CONFIG_DIR = directory;
   saveCredentials(directory, { business: MOCK_TOKEN });
-  const result = await cli(["--profile", "business", "--format", "json"], statusCommand);
+  const result = await cli(["--profile", "business"], statusCommand);
   expect(JSON.parse(String(result))).toMatchObject({
     profile: "business",
     companyId: null,
@@ -43,7 +43,6 @@ test("authentication status reports API company mismatch independently of missin
   saveCredentials(directory, { business: MOCK_TOKEN });
   saveConfig(directory, {
     activeProfile: "business",
-    defaults: { format: "json" },
     profiles: { business: { companyId: 99, name: "Other" } },
   });
   const previousHome = process.env.HOME;
@@ -51,7 +50,7 @@ test("authentication status reports API company mismatch independently of missin
   process.env.HOME = directory;
   delete process.env.AGENT_BROWSER_ENCRYPTION_KEY;
   try {
-    const result = await cli(["--profile", "business", "--format", "json"], statusCommand);
+    const result = await cli(["--profile", "business"], statusCommand);
     expect(JSON.parse(String(result))).toMatchObject({
       companyId: 99,
       api: { status: "company_mismatch" },

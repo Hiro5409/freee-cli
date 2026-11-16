@@ -4,7 +4,6 @@ import { args, choice, merge, string } from "gunshi/combinators";
 import { fetchAll } from "../../api/paginate.ts";
 import { listArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatOutput } from "../../output/formatter.ts";
 import { getUserMatchers } from "../../types/freee/sdk.gen.ts";
 
 const ACTIVE_FILTERS = ["active", "inactive", "all"] as const;
@@ -25,7 +24,7 @@ export const autoRegistrationRuleListCommand = define({
     }),
   ),
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
 
     const rules = await fetchAll(async (offset, limit) => {
       const { data } = await getUserMatchers({
@@ -42,6 +41,6 @@ export const autoRegistrationRuleListCommand = define({
       return data.data;
     }, ctx.values.limit);
 
-    return formatOutput(rules, format);
+    return JSON.stringify(rules);
   },
 });

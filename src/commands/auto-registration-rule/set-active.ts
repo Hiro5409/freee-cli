@@ -1,10 +1,9 @@
 import { define } from "gunshi";
 import { args, integer, merge, required } from "gunshi/combinators";
-import colors from "yoctocolors";
 
 import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatDryRun } from "../../output/formatter.ts";
+import { dryRunOutput } from "../../output/dry-run.ts";
 import { getUserMatcher, updateUserMatcher } from "../../types/freee/sdk.gen.ts";
 import { currentRuleBody } from "./rule-body.ts";
 
@@ -25,9 +24,9 @@ function defineSetActiveCommand(active: boolean) {
         ),
       }),
     ),
-    examples: `$ freee auto-rule-${verb} --id 42 --dry-run --format json`,
+    examples: `$ freee auto-rule-${verb} --id 42 --dry-run`,
     run: async (ctx) => {
-      const { companyId, format } = initCommand(ctx);
+      const { companyId } = initCommand(ctx);
       const id = ctx.values.id;
 
       const { data: current } = await getUserMatcher({
@@ -37,16 +36,12 @@ function defineSetActiveCommand(active: boolean) {
       const body = { ...currentRuleBody(current), active };
 
       if (ctx.values["dry-run"]) {
-        return formatDryRun(
-          format,
-          {
-            method: "PUT",
-            path: `/api/1/user_matchers/${id}`,
-            query: { company_id: companyId },
-            body,
-          },
-          `${colors.yellow("Dry run —")} would PUT /api/1/user_matchers/${id}: ${JSON.stringify(body, null, 2)}`,
-        );
+        return dryRunOutput({
+          method: "PUT",
+          path: `/api/1/user_matchers/${id}`,
+          query: { company_id: companyId },
+          body,
+        });
       }
 
       const { data } = await updateUserMatcher({
@@ -55,8 +50,7 @@ function defineSetActiveCommand(active: boolean) {
         body,
       });
 
-      if (format === "json") return JSON.stringify(data, null, 2);
-      return colors.green(`Auto-registration rule ${verb}d: id=${data.id} active=${data.active}`);
+      return JSON.stringify(data);
     },
   });
 }

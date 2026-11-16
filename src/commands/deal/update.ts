@@ -1,7 +1,6 @@
 import { define } from "gunshi";
 import { args, integer, merge, multiple, required, string } from "gunshi/combinators";
 import * as v from "valibot";
-import colors from "yoctocolors";
 
 import {
   PositiveIntegerSchema,
@@ -10,7 +9,7 @@ import {
 } from "../../cli-input.ts";
 import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatDryRun, formatValue } from "../../output/formatter.ts";
+import { dryRunOutput } from "../../output/dry-run.ts";
 import { getDeal, updateDeal } from "../../types/freee/sdk.gen.ts";
 import type { Deal, DealUpdateParams } from "../../types/freee/types.gen.ts";
 
@@ -119,9 +118,9 @@ export const dealUpdateCommand = define({
   ),
   examples: `$ freee deal update --id 123 \\
     --detail '{"id":10,"account_item_id":101,"tax_code":21,"amount":5000}' \\
-    --dry-run --format json`,
+    --dry-run`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const id = ctx.values.id;
     const details = ctx.values.detail?.length ? parseDealDetails(ctx.values.detail) : undefined;
     const receiptIds = parseReceiptIds(ctx.values["receipt-ids"]);
@@ -135,19 +134,11 @@ export const dealUpdateCommand = define({
     const body = dealRequestFromCurrent(current, companyId, details, receiptIds);
 
     if (ctx.values["dry-run"]) {
-      return formatDryRun(
-        format,
-        { method: "PUT", path: `/api/1/deals/${id}`, body },
-        `${colors.yellow("Dry run —")} would PUT /api/1/deals/${id}: ${JSON.stringify(body, null, 2)}`,
-      );
+      return dryRunOutput({ method: "PUT", path: `/api/1/deals/${id}`, body });
     }
 
     const { data: updatedData } = await updateDeal({ path: { id }, body });
     const updated = updatedData.deal;
-    return formatValue(
-      updated,
-      format,
-      `${colors.green("Deal updated:")} ${JSON.stringify(updated, null, 2)}`,
-    );
+    return JSON.stringify(updated);
   },
 });

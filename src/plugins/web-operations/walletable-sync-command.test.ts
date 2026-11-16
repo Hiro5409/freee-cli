@@ -3,7 +3,7 @@ import { describe, expect, test } from "bun:test";
 import { CliError } from "../../errors.ts";
 import type { FreeeWebOperations } from "./freee-web.ts";
 import { runWalletableSyncCommand } from "./walletable-sync-command.ts";
-import type { WalletableSyncProgress, WalletableSyncWeb } from "./walletable-sync.ts";
+import type { WalletableSyncWeb } from "./walletable-sync.ts";
 
 const scope = {
   profile: "business",
@@ -63,54 +63,6 @@ describe("walletable sync command", () => {
         },
       ],
     });
-  });
-
-  test("writes progress separately from the final result", async () => {
-    const messages: string[] = [];
-    const deps = {
-      ...dependencies(),
-      writeProgress: (message: string) => messages.push(message),
-      sync: async (
-        _web: WalletableSyncWeb,
-        _scope: { kind: "all" } | { kind: "one"; walletableId: number },
-        onProgress: (event: WalletableSyncProgress) => void,
-      ) => {
-        onProgress({ kind: "bulk", status: "started" });
-        onProgress({
-          kind: "walletable",
-          walletableId: 20,
-          walletableName: "Card",
-          walletableType: "credit_card",
-          status: "syncing",
-        });
-        return { walletables: [] };
-      },
-    };
-
-    await expect(
-      runWalletableSyncCommand({ profile: "business", all: true }, deps),
-    ).resolves.toMatchObject({ walletables: [] });
-    expect(messages).toEqual(["freee Web bulk sync: started", "Card: syncing"]);
-  });
-
-  test("keeps JSON mode free of human-readable progress", async () => {
-    const messages: string[] = [];
-    const deps = {
-      ...dependencies(),
-      writeProgress: (message: string) => messages.push(message),
-      sync: async (
-        _web: WalletableSyncWeb,
-        _scope: { kind: "all" } | { kind: "one"; walletableId: number },
-        onProgress: (event: WalletableSyncProgress) => void,
-      ) => {
-        onProgress({ kind: "bulk", status: "started" });
-        return { walletables: [] };
-      },
-    };
-
-    await runWalletableSyncCommand({ profile: "business", all: true, format: "json" }, deps);
-
-    expect(messages).toEqual([]);
   });
 
   test("requires exactly one synchronization scope", async () => {

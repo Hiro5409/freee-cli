@@ -1,6 +1,5 @@
 import { define } from "gunshi";
 import { args, merge, required, string } from "gunshi/combinators";
-import colors from "yoctocolors";
 
 import { globalArgs } from "../../global-args.ts";
 import { setDefaultProfile } from "../../profiles.ts";
@@ -14,6 +13,6 @@ export const profileSetDefaultCommand = define({
   ),
   run: (ctx) => {
     setDefaultProfile(ctx.values.name);
-    return colors.green(`Profile "${ctx.values.name}" is now the default.`);
+    return JSON.stringify({ profile: ctx.values.name, default: true });
   },
 });

@@ -44,10 +44,7 @@ afterEach(() => {
 
 describe("wallet transaction show command", () => {
   test("shows one wallet transaction", async () => {
-    const result = await cli(
-      ["--company-id", "123", "--id", "7", "--format", "json"],
-      walletTransactionShowCommand,
-    );
+    const result = await cli(["--company-id", "123", "--id", "7"], walletTransactionShowCommand);
     expect(JSON.parse(String(result))).toMatchObject({ id: 7, status: 1 });
   });
 });

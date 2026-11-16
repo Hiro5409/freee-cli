@@ -2,11 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import { OutcomeUnknownError } from "../../errors.ts";
 import type { FreeeWebWalletableSummary, FreeeWebWalletableSyncState } from "./freee-web.ts";
-import {
-  createWalletableSync,
-  type WalletableSyncProgress,
-  type WalletableSyncWeb,
-} from "./walletable-sync.ts";
+import { createWalletableSync, type WalletableSyncWeb } from "./walletable-sync.ts";
 
 function walletable(input: {
   id: number;
@@ -91,7 +87,6 @@ function immediatePolling() {
 
 describe("walletable sync", () => {
   test("resolves the walletable type and confirms one sync completed", async () => {
-    const progress: WalletableSyncProgress[] = [];
     const { web, requests } = scriptedWeb([
       summary([walletable({ id: 20, name: "Card", type: "credit_card" })]),
       {},
@@ -111,11 +106,7 @@ describe("walletable sync", () => {
         syncFailedReason: null,
       },
     ]);
-    const sync = createWalletableSync({
-      web,
-      polling: immediatePolling(),
-      onProgress: (event) => progress.push(event),
-    });
+    const sync = createWalletableSync({ web, polling: immediatePolling() });
 
     await expect(sync({ kind: "one", walletableId: 20 })).resolves.toEqual({
       walletables: [
@@ -135,33 +126,9 @@ describe("walletable sync", () => {
       { operation: "state", type: "credit_card", id: 20 },
       { operation: "state", type: "credit_card", id: 20 },
     ]);
-    expect(progress).toEqual([
-      {
-        kind: "walletable",
-        walletableId: 20,
-        walletableName: "Card",
-        walletableType: "credit_card",
-        status: "started",
-      },
-      {
-        kind: "walletable",
-        walletableId: 20,
-        walletableName: "Card",
-        walletableType: "credit_card",
-        status: "syncing",
-      },
-      {
-        kind: "walletable",
-        walletableId: 20,
-        walletableName: "Card",
-        walletableType: "credit_card",
-        status: "synced",
-      },
-    ]);
   });
 
   test("confirms all connected and unrestricted walletables completed", async () => {
-    const progress: WalletableSyncProgress[] = [];
     const bank = walletable({ id: 10, name: "Bank", type: "bank_account" });
     const card = walletable({ id: 20, name: "Card", type: "credit_card" });
     const disconnected = walletable({
@@ -188,11 +155,7 @@ describe("walletable sync", () => {
         skipped,
       ]),
     ]);
-    const sync = createWalletableSync({
-      web,
-      polling: immediatePolling(),
-      onProgress: (event) => progress.push(event),
-    });
+    const sync = createWalletableSync({ web, polling: immediatePolling() });
 
     const result = await sync({ kind: "all" });
 
@@ -202,23 +165,6 @@ describe("walletable sync", () => {
       { operation: "summary" },
       { operation: "start-bulk" },
       { operation: "summary" },
-    ]);
-    expect(progress).toEqual([
-      { kind: "bulk", status: "started" },
-      {
-        kind: "walletable",
-        walletableId: 10,
-        walletableName: "Bank",
-        walletableType: "bank_account",
-        status: "synced",
-      },
-      {
-        kind: "walletable",
-        walletableId: 20,
-        walletableName: "Card",
-        walletableType: "credit_card",
-        status: "synced",
-      },
     ]);
   });
 
