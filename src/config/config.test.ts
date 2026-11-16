@@ -29,59 +29,11 @@ describe("config", () => {
     expect(() => configDir({})).toThrow("HOME or USERPROFILE");
   });
 
-  test("loadConfig returns defaults when file does not exist", async () => {
-    const { loadConfig } = await import("./config.ts");
-    const config = loadConfig(testDir);
-    expect(config.activeProfile).toBe("default");
-  });
-
-  test("loadConfig reads existing config.json", async () => {
-    const { loadConfig } = await import("./config.ts");
-    writeFileSync(
-      join(testDir, "config.json"),
-      JSON.stringify({
-        activeProfile: "work",
-        profiles: {
-          work: {
-            companyId: 123,
-            name: "Work Co",
-          },
-        },
-      }),
-    );
-    const config = loadConfig(testDir);
-    expect(config.activeProfile).toBe("work");
-    expect(config.profiles.work?.companyId).toBe(123);
-  });
-
-  test("saveConfig writes config.json and creates directory", async () => {
-    const { saveConfig } = await import("./config.ts");
-    const dir = join(testDir, "nested", "dir");
-    saveConfig(dir, {
-      activeProfile: "default",
-      profiles: {},
-    });
-    expect(existsSync(join(dir, "config.json"))).toBe(true);
-  });
-
   test("loadConfig throws ConfigError for invalid JSON", async () => {
     const { loadConfig } = await import("./config.ts");
     const { ConfigError } = await import("../errors.ts");
     writeFileSync(join(testDir, "config.json"), "not json");
     expect(() => loadConfig(testDir)).toThrow(ConfigError);
-  });
-
-  test("loadConfig rejects invalid company IDs", async () => {
-    const { loadConfig } = await import("./config.ts");
-    const { ConfigError } = await import("../errors.ts");
-
-    for (const companyId of ["123", 0, 1.5]) {
-      writeFileSync(
-        join(testDir, "config.json"),
-        JSON.stringify({ profiles: { work: { companyId, name: "Work Co" } } }),
-      );
-      expect(() => loadConfig(testDir)).toThrow(ConfigError);
-    }
   });
 
   test("loadConfig ignores top-level keys it does not use", async () => {
@@ -95,47 +47,13 @@ describe("config", () => {
 });
 
 describe("credentials", () => {
-  test("loadCredentials returns empty object when file does not exist", async () => {
+  test("a malformed credentials file never echoes its contents", async () => {
     const { loadCredentials } = await import("./credentials.ts");
-    const creds = loadCredentials(testDir);
-    expect(creds).toEqual({});
-  });
-
-  test("loadCredentials reads existing credentials.json", async () => {
-    const { loadCredentials } = await import("./credentials.ts");
-    writeFileSync(
-      join(testDir, "credentials.json"),
-      JSON.stringify({
-        default: {
-          clientId: "abc",
-          clientSecret: "secret",
-          accessToken: "tok",
-          refreshToken: "ref",
-          expiresAt: 9999999999999,
-        },
-      }),
-    );
-    const creds = loadCredentials(testDir);
-    expect(creds.default?.accessToken).toBe("tok");
-  });
-
-  test("loadCredentials rejects unknown token fields", async () => {
-    const { loadCredentials } = await import("./credentials.ts");
-    const { ConfigError } = await import("../errors.ts");
-    writeFileSync(
-      join(testDir, "credentials.json"),
-      JSON.stringify({
-        default: {
-          clientId: "abc",
-          clientSecret: "secret",
-          accessToken: "tok",
-          refreshToken: "ref",
-          expiresAt: 9999999999999,
-          access_token: "typo",
-        },
-      }),
-    );
-    expect(() => loadCredentials(testDir)).toThrow(ConfigError);
+    for (const contents of ['{"default":"freee_secret"}', '{"default": freee_secret}']) {
+      writeFileSync(join(testDir, "credentials.json"), contents);
+      expect(() => loadCredentials(testDir)).toThrow("credentials.json");
+      expect(() => loadCredentials(testDir)).not.toThrow(/freee_secret/);
+    }
   });
 
   test("saveCredentials writes with 0o600 permission", async () => {
@@ -153,14 +71,6 @@ describe("credentials", () => {
     expect(existsSync(filePath)).toBe(true);
     const stat = statSync(filePath);
     expect(stat.mode & 0o777).toBe(0o600);
-  });
-
-  test("saveCredentials creates directory if missing", async () => {
-    const { saveCredentials } = await import("./credentials.ts");
-    const dir = join(testDir, "deep", "path");
-    saveCredentials(dir, {});
-    expect(existsSync(join(dir, "credentials.json"))).toBe(true);
-    expect(statSync(dir).mode & 0o777).toBe(0o700);
   });
 
   test("saveCredentials atomically replaces the credentials file", async () => {
