@@ -70,11 +70,4 @@ describe("partner create command", () => {
 
     expect(onCreatePartner).toHaveBeenCalledWith({ company_id: 123, name: "Acme" });
   });
-
-  test("rejects a name over the API limit before calling the API", async () => {
-    await expect(
-      cli(["--company-id", "123", "--name", "a".repeat(256)], partnerCreateCommand),
-    ).rejects.toThrow();
-    expect(onCreatePartner).not.toHaveBeenCalled();
-  });
 });

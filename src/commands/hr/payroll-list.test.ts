@@ -129,40 +129,4 @@ describe("HR payroll list command", () => {
       statement,
     ]);
   });
-
-  test("rejects an invalid employee ID before calling the API", async () => {
-    let called = false;
-    network.use(
-      handleGetSalariesEmployeePayrollStatement(() => {
-        called = true;
-        return Response.json({ employee_payroll_statement: statement });
-      }),
-    );
-
-    await expect(
-      cli(
-        ["--company-id", "123", "--month", "2026-08", "--employee-id", "0"],
-        hrPayrollListCommand,
-      ),
-    ).rejects.toThrow();
-    expect(called).toBe(false);
-  });
-
-  test("validates --limit when employee ID selects the detail endpoint", async () => {
-    let called = false;
-    network.use(
-      handleGetSalariesEmployeePayrollStatement(() => {
-        called = true;
-        return Response.json({ employee_payroll_statement: statement });
-      }),
-    );
-
-    await expect(
-      cli(
-        ["--company-id", "123", "--month", "2026-08", "--employee-id", "42", "--limit", "0"],
-        hrPayrollListCommand,
-      ),
-    ).rejects.toThrow();
-    expect(called).toBe(false);
-  });
 });

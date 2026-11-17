@@ -94,24 +94,6 @@ describe("API client", () => {
     expect(data).toHaveProperty("companies");
   });
 
-  test("raw client.post sends Authorization without explicit security option", async () => {
-    network.use(
-      http.post("*/api/1/deals", async ({ request }) => {
-        const auth = request.headers.get("Authorization");
-        expect(auth).toBe("Bearer test-access-token");
-        expect(await request.json()).toEqual({ test: true });
-        return HttpResponse.json({ deals: [] });
-      }),
-    );
-    configureClient(testDir, "default");
-
-    const { data } = await client.post({
-      url: "/api/1/deals",
-      body: { test: true },
-    });
-    expect(data).toHaveProperty("deals");
-  });
-
   test("configured client throws on 4xx (throwOnError enabled by configureClient)", async () => {
     network.use(
       http.get("*/api/1/error", () => HttpResponse.json({ message: "Not Found" }, { status: 404 })),

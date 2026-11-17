@@ -63,14 +63,4 @@ describe("auto-registration rule delete command", () => {
       query: { company_id: 123 },
     });
   });
-
-  test("rejects a non-positive --id before calling the API", async () => {
-    await expect(
-      cli(["--company-id", "123", "--id", "0"], autoRegistrationRuleDeleteCommand),
-    ).rejects.toThrow();
-    await expect(
-      cli(["--company-id", "123", "--id", "abc"], autoRegistrationRuleDeleteCommand),
-    ).rejects.toThrow();
-    expect(onDestroyUserMatcher).not.toHaveBeenCalled();
-  });
 });

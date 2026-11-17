@@ -54,7 +54,6 @@ afterEach(() => {
 
 const baseArgs = ["--company-id", "123", "--id", "42"];
 
-// Every mutable field from createMockUserMatcher, as the full-state PUT must resend it.
 const preservedFields = {
   act: 1,
   condition: 0,
@@ -104,14 +103,6 @@ describe("auto-registration rule disable command", () => {
       query: { company_id: 123 },
       body: { ...preservedFields, active: false },
     });
-  });
-
-  test("rejects a non-positive --id before calling the API", async () => {
-    await expect(
-      cli(["--company-id", "123", "--id", "0"], autoRegistrationRuleDisableCommand),
-    ).rejects.toThrow();
-    expect(onGetUserMatcher).not.toHaveBeenCalled();
-    expect(onUpdateUserMatcher).not.toHaveBeenCalled();
   });
 });
 

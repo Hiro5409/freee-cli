@@ -2,7 +2,6 @@ import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   fmt: {
-    // TypeScript + 日本語文字列で 80 だと折り返しが頻発するため拡張
     printWidth: 100,
     sortImports: true,
   },

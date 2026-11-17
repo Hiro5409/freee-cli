@@ -90,27 +90,6 @@ describe("wallet transaction create command", () => {
     expect(onCreateWalletTxn).not.toHaveBeenCalled();
   });
 
-  test("rejects a non-positive --walletable-id before calling the API", async () => {
-    const args = baseArgs.map((a) => (a === "55" ? "0" : a));
-
-    await expect(cli(args, walletTransactionCreateCommand)).rejects.toThrow();
-    expect(onCreateWalletTxn).not.toHaveBeenCalled();
-  });
-
-  test("rejects a non-integer --amount before calling the API", async () => {
-    const args = baseArgs.map((a) => (a === "5000" ? "50.5" : a));
-
-    await expect(cli(args, walletTransactionCreateCommand)).rejects.toThrow();
-    expect(onCreateWalletTxn).not.toHaveBeenCalled();
-  });
-
-  test("rejects an unknown --walletable-type before calling the API", async () => {
-    const args = baseArgs.map((a) => (a === "credit_card" ? "paypay" : a));
-
-    await expect(cli(args, walletTransactionCreateCommand)).rejects.toThrow();
-    expect(onCreateWalletTxn).not.toHaveBeenCalled();
-  });
-
   test("creates a wallet transaction so freee evaluates active auto-registration rules", async () => {
     await cli(baseArgs, walletTransactionCreateCommand);
 

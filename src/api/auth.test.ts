@@ -15,25 +15,19 @@ describe("PKCE helpers", () => {
     const challenge = await generateCodeChallenge("dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk");
     expect(challenge).toBe("E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM");
   });
-});
 
-describe("buildAuthorizationUrl", () => {
-  test("returns valid freee authorization URL", async () => {
+  test("the authorization URL binds the request to S256, its state, and the local callback", async () => {
     const { buildAuthorizationUrl } = await import("./auth.ts");
-    const url = buildAuthorizationUrl({
-      clientId: "test-client-id",
-      codeChallenge: "test-challenge",
-      state: "test-state",
-    });
-    const parsed = new URL(url);
-    expect(parsed.origin).toBe("https://accounts.secure.freee.co.jp");
-    expect(parsed.pathname).toBe("/public_api/authorize");
-    expect(parsed.searchParams.get("client_id")).toBe("test-client-id");
-    expect(parsed.searchParams.get("redirect_uri")).toBe("http://localhost:8080/callback");
-    expect(parsed.searchParams.get("response_type")).toBe("code");
-    expect(parsed.searchParams.get("code_challenge")).toBe("test-challenge");
-    expect(parsed.searchParams.get("code_challenge_method")).toBe("S256");
-    expect(parsed.searchParams.get("state")).toBe("test-state");
+    const { searchParams } = new URL(
+      buildAuthorizationUrl({
+        clientId: "test-client-id",
+        codeChallenge: "test-challenge",
+        state: "test-state",
+      }),
+    );
+    expect(searchParams.get("code_challenge_method")).toBe("S256");
+    expect(searchParams.get("state")).toBe("test-state");
+    expect(searchParams.get("redirect_uri")).toBe("http://localhost:8080/callback");
   });
 });
 

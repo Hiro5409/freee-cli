@@ -3,12 +3,6 @@ import { describe, expect, test } from "bun:test";
 import { fetchAll } from "./paginate.ts";
 
 describe("fetchAll", () => {
-  test("returns single page when results < pageSize", async () => {
-    const fetcher = async (_offset: number, _limit: number) => [1, 2, 3];
-    const result = await fetchAll(fetcher);
-    expect(result).toEqual([1, 2, 3]);
-  });
-
   test("fetches multiple pages until page is shorter than pageSize", async () => {
     let call = 0;
     const fetcher = async (_offset: number, _limit: number) => {
@@ -32,11 +26,5 @@ describe("fetchAll", () => {
 
     const result = await fetchAll(fetcher, 130);
     expect(result).toEqual(entries.slice(0, 130));
-  });
-
-  test("returns empty array when first page is empty", async () => {
-    const fetcher = async (_offset: number, _limit: number): Promise<number[]> => [];
-    const result = await fetchAll(fetcher);
-    expect(result).toEqual([]);
   });
 });

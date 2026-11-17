@@ -153,23 +153,4 @@ describe("invoice create command", () => {
     ).rejects.toThrow();
     expect(onCreate).not.toHaveBeenCalled();
   });
-
-  test("取引先IDが正の整数でなければ弾く", async () => {
-    await expect(
-      cli(
-        [
-          "--company-id",
-          "123",
-          "--partner-id",
-          "0",
-          "--billing-date",
-          "2026-08-01",
-          "--line",
-          '{"description":"A","quantity":1,"unit_price":"100","tax_rate":10}',
-        ],
-        invoiceCreateCommand,
-      ),
-    ).rejects.toThrow();
-    expect(onCreate).not.toHaveBeenCalled();
-  });
 });

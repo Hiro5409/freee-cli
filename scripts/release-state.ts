@@ -91,7 +91,6 @@ if (import.meta.main) {
     filename: basename(tarball),
     bytes: readFileSync(tarball),
     token,
-    // npm scans a new version before serving it, usually for about five minutes.
     npmWait: process.argv.includes("--wait")
       ? { timeoutMs: 30 * 60_000, intervalMs: 15_000 }
       : undefined,

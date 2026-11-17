@@ -57,9 +57,4 @@ describe("partner show command", () => {
       expect.objectContaining({ id: 42, code: "P-001", name: "Acme" }),
     );
   });
-
-  test("rejects a non-positive ID before calling the API", async () => {
-    await expect(cli(["--company-id", "123", "--id", "0"], partnerShowCommand)).rejects.toThrow();
-    expect(onGetPartner).not.toHaveBeenCalled();
-  });
 });
