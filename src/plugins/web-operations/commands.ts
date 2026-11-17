@@ -1,9 +1,7 @@
 import { define } from "gunshi";
 import { args, boolean, choice, integer, merge, required, withDefault } from "gunshi/combinators";
-import colors from "yoctocolors";
 
 import { globalArgs } from "../../global-args.ts";
-import { formatOutput, formatValue } from "../../output/formatter.ts";
 import { runInvoiceRegisterDealCommand } from "./invoice-register-deal-command.ts";
 import { runInvoiceSetSendingStatusCommand } from "./invoice-set-sending-status-command.ts";
 import { runWalletableSyncCommand } from "./walletable-sync-command.ts";
@@ -24,15 +22,8 @@ export const invoiceRegisterDealCommand = define({
       ),
     }),
   ),
-  examples: `$ freee invoice register-deal --id 42 --format json`,
-  run: async (context) => {
-    const result = await runInvoiceRegisterDealCommand(context.values);
-    return formatValue(
-      result,
-      context.values.format,
-      colors.green(`Invoice Deal registered: invoice=${result.target.id} deal=${result.dealId}`),
-    );
-  },
+  examples: `$ freee invoice register-deal --id 42`,
+  run: async (context) => JSON.stringify(await runInvoiceRegisterDealCommand(context.values)),
 });
 
 export const invoiceSetSendingStatusCommand = define({
@@ -55,24 +46,14 @@ export const invoiceSetSendingStatusCommand = define({
       ),
     }),
   ),
-  examples: `$ freee invoice set-sending-status --id 42 --status sent --format json`,
-  run: async (context) => {
-    const result = await runInvoiceSetSendingStatusCommand(context.values);
-    const human = result.changed
-      ? colors.green(
-          `Invoice sending status changed: id=${result.target.id} ${result.before} -> ${result.after}`,
-        )
-      : colors.green(
-          `Invoice sending status unchanged: id=${result.target.id} status=${result.after}`,
-        );
-    return formatValue(result, context.values.format, human);
-  },
+  examples: `$ freee invoice set-sending-status --id 42 --status sent`,
+  run: async (context) => JSON.stringify(await runInvoiceSetSendingStatusCommand(context.values)),
 });
 
 export const walletableSyncCommand = define({
   name: "sync",
   description:
-    "Synchronize one walletable or start freee Web's bulk synchronization; may wait up to one hour and, in table format, reports progress lines on stderr",
+    "Synchronize one walletable or start freee Web's bulk synchronization; may wait up to one hour",
   args: merge(
     globalArgs,
     args({
@@ -89,13 +70,6 @@ export const walletableSyncCommand = define({
       }),
     }),
   ),
-  examples: `$ freee walletable sync --id 42 --format json`,
-  run: async (context) => {
-    const result = await runWalletableSyncCommand(context.values);
-    if (context.values.format === "json") return JSON.stringify(result, null, 2);
-    return formatOutput(
-      result.walletables.map((walletable) => ({ ...walletable })),
-      "table",
-    );
-  },
+  examples: `$ freee walletable sync --id 42`,
+  run: async (context) => JSON.stringify(await runWalletableSyncCommand(context.values)),
 });

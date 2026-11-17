@@ -1,10 +1,9 @@
 import { define } from "gunshi";
 import { args, integer, merge, required } from "gunshi/combinators";
-import colors from "yoctocolors";
 
 import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatDryRun } from "../../output/formatter.ts";
+import { dryRunOutput } from "../../output/dry-run.ts";
 import { destroyUserMatcher } from "../../types/freee/sdk.gen.ts";
 
 export const autoRegistrationRuleDeleteCommand = define({
@@ -18,26 +17,21 @@ export const autoRegistrationRuleDeleteCommand = define({
       ),
     }),
   ),
-  examples: `$ freee auto-rule delete --id 42 --dry-run --format json`,
+  examples: `$ freee auto-rule delete --id 42 --dry-run`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const id = ctx.values.id;
 
     if (ctx.values["dry-run"]) {
-      return formatDryRun(
-        format,
-        {
-          method: "DELETE",
-          path: `/api/1/user_matchers/${id}`,
-          query: { company_id: companyId },
-        },
-        `${colors.yellow("Dry run —")} would DELETE /api/1/user_matchers/${id} (company_id=${companyId})`,
-      );
+      return dryRunOutput({
+        method: "DELETE",
+        path: `/api/1/user_matchers/${id}`,
+        query: { company_id: companyId },
+      });
     }
 
     await destroyUserMatcher({ path: { id }, query: { company_id: companyId } });
 
-    if (format === "json") return JSON.stringify({ id, deleted: true }, null, 2);
-    return colors.green(`Auto-registration rule deleted: id=${id}`);
+    return JSON.stringify({ id, deleted: true });
   },
 });

@@ -21,7 +21,6 @@ test("The selected connection profile resolves to its configured company", () =>
   saveCredentials(directory, { business: MOCK_TOKEN, other: MOCK_TOKEN });
   saveConfig(directory, {
     activeProfile: "other",
-    defaults: { format: "table" },
     profiles: {
       business: { companyId: 42, name: "Business" },
       other: { companyId: 99, name: "Other" },

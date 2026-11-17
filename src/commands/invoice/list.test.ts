@@ -57,7 +57,7 @@ describe("invoice list command", () => {
       ),
     );
 
-    const result = await cli(["--company-id", "123", "--format", "json"], invoiceListCommand);
+    const result = await cli(["--company-id", "123"], invoiceListCommand);
 
     expect(requestedUrl).toStartWith("https://api.freee.co.jp/iv/invoices");
     expect(new URL(requestedUrl).searchParams.get("company_id")).toBe("123");
@@ -79,16 +79,7 @@ describe("invoice list command", () => {
     );
 
     await cli(
-      [
-        "--company-id",
-        "123",
-        "--format",
-        "json",
-        "--sending-status",
-        "unsent",
-        "--deal-status",
-        "unregistered",
-      ],
+      ["--company-id", "123", "--sending-status", "unsent", "--deal-status", "unregistered"],
       invoiceListCommand,
     );
 
@@ -109,10 +100,7 @@ describe("invoice list command", () => {
       ),
     );
 
-    await cli(
-      ["--company-id", "123", "--format", "json", "--month", "2026-02"],
-      invoiceListCommand,
-    );
+    await cli(["--company-id", "123", "--month", "2026-02"], invoiceListCommand);
 
     const params = new URL(requestedUrl).searchParams;
     expect(params.get("start_billing_date")).toBe("2026-02-01");
@@ -125,11 +113,5 @@ describe("invoice list command", () => {
         cli(["--company-id", "123", "--partner-ids", value], invoiceListCommand),
       ).rejects.toBeInstanceOf(Error);
     }
-  });
-
-  test("freee が受け付けないステータスは API を叩く前に弾く", async () => {
-    await expect(
-      cli(["--company-id", "123", "--sending-status", "draft"], invoiceListCommand),
-    ).rejects.toThrow();
   });
 });

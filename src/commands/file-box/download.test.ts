@@ -37,7 +37,7 @@ describe("File Box download command", () => {
   test("downloads binary document data to an explicit new path", async () => {
     const output = join(testDir, "receipt.pdf");
     const result = await cli(
-      ["--company-id", "123", "--id", "55", "--output", output, "--format", "json"],
+      ["--company-id", "123", "--id", "55", "--output", output],
       fileBoxDownloadCommand,
     );
     expect(readFileSync(output, "utf8")).toBe("receipt-bytes");

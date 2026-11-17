@@ -6,7 +6,6 @@ import { isoDateArg, parseCliInput } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { companyArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatResource } from "../../output/formatter.ts";
 import { quotationsCreate } from "../../types/freee-invoice/sdk.gen.ts";
 import type { QuotationRequest } from "../../types/freee-invoice/types.gen.ts";
 
@@ -108,9 +107,9 @@ export const quotationCreateCommand = define({
     }),
   ),
   examples: `$ freee quotation create --partner-id 456 --quotation-date 2026-10-01 --expiration-date 2026-10-31 \\
-    --line '{"description":"開発費","quantity":1,"unit_price":"100000","tax_rate":10}' --format json`,
+    --line '{"description":"開発費","quantity":1,"unit_price":"100000","tax_rate":10}'`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const partnerId = ctx.values["partner-id"];
     const partnerCode = ctx.values["partner-code"];
     if ((partnerId === undefined) === (partnerCode === undefined) || partnerCode?.trim() === "") {
@@ -146,6 +145,6 @@ export const quotationCreateCommand = define({
       ),
     };
     const { data } = await quotationsCreate({ body });
-    return formatResource(data.quotation, format);
+    return JSON.stringify(data.quotation);
   },
 });

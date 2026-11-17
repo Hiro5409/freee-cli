@@ -14,17 +14,7 @@ import { createMockDeal } from "./test-fixtures.ts";
 
 const testDir = join(tmpdir(), `freee-cli-deal-list-test-${Date.now()}`);
 
-const network = createNetwork(
-  handleGetDeals({
-    body: {
-      deals: [
-        createMockDeal({ id: 1, type: "income", amount: 50000, partner_id: 10, status: "settled" }),
-        createMockDeal({ id: 2, type: "expense", amount: 3000, status: "unsettled" }),
-      ],
-      meta: { total_count: 2 },
-    },
-  }),
-);
+const network = createNetwork();
 
 beforeAll(() => network.enable());
 afterAll(() => network.disable());
@@ -42,17 +32,6 @@ afterEach(() => {
 });
 
 describe("deal list command", () => {
-  test("outputs deals as JSON", async () => {
-    const result = await cli(["--company-id", "123", "--format", "json"], dealListCommand);
-
-    if (typeof result !== "string") throw new Error("expected string result");
-    const output = JSON.parse(result);
-    expect(output).toHaveLength(2);
-    expect(output[0].id).toBe(1);
-    expect(output[0].amount).toBe(50000);
-    expect(output[1].type).toBe("expense");
-  });
-
   test("passes month filter as query params", async () => {
     network.use(
       handleGetDeals(async ({ request }) => {
@@ -65,10 +44,7 @@ describe("deal list command", () => {
       }),
     );
 
-    const result = await cli(
-      ["--company-id", "123", "--format", "json", "--month", "2026-03"],
-      dealListCommand,
-    );
+    const result = await cli(["--company-id", "123", "--month", "2026-03"], dealListCommand);
     if (typeof result !== "string") throw new Error("expected string result");
     expect(JSON.parse(result)).toEqual([]);
   });
@@ -90,8 +66,6 @@ describe("deal list command", () => {
       [
         "--company-id",
         "123",
-        "--format",
-        "json",
         "--type",
         "expense",
         "--status",
@@ -122,10 +96,7 @@ describe("deal list command", () => {
       }),
     );
 
-    const result = await cli(
-      ["--company-id", "123", "--format", "json", "--limit", "1"],
-      dealListCommand,
-    );
+    const result = await cli(["--company-id", "123", "--limit", "1"], dealListCommand);
     if (typeof result !== "string") throw new Error("expected string result");
     expect(JSON.parse(result)).toHaveLength(1);
   });

@@ -1,11 +1,9 @@
 import { define } from "gunshi";
 import { args, choice, integer, merge, required, string } from "gunshi/combinators";
-import colors from "yoctocolors";
 
 import { isoDateArg } from "../../cli-input.ts";
 import { companyArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatValue } from "../../output/formatter.ts";
 import { createDeal } from "../../types/freee/sdk.gen.ts";
 
 export const dealCreateCommand = define({
@@ -34,9 +32,9 @@ export const dealCreateCommand = define({
     }),
   ),
   examples: `$ freee deal create --company-id 123 --date 2026-08-01 --type expense \\
-    --account-item-id 101 --tax-code 21 --amount 5000 --format json`,
+    --account-item-id 101 --tax-code 21 --amount 5000`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const body = {
       company_id: companyId,
       issue_date: ctx.values.date,
@@ -53,10 +51,6 @@ export const dealCreateCommand = define({
     };
 
     const { data } = await createDeal({ body });
-    return formatValue(
-      data.deal,
-      format,
-      `${colors.green("Deal created:")} ${JSON.stringify(data.deal, null, 2)}`,
-    );
+    return JSON.stringify(data.deal);
   },
 });

@@ -4,18 +4,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { cli } from "gunshi";
-import { HttpResponse } from "msw/http";
 
 import { MOCK_TOKEN } from "../../../test/credentials.ts";
 import { createNetwork } from "../../../test/network.ts";
 import { saveCredentials } from "../../config/credentials.ts";
-import { handleDestroyDealPayment } from "../../types/freee/msw.gen.ts";
 import { dealPaymentDeleteCommand } from "./payment-delete.ts";
 
 const testDir = join(tmpdir(), `freee-cli-deal-payment-delete-test-${Date.now()}`);
-const network = createNetwork(
-  handleDestroyDealPayment(() => new HttpResponse(null, { status: 204 })),
-);
+const network = createNetwork();
 
 beforeAll(() => network.enable());
 afterAll(() => network.disable());
@@ -31,18 +27,9 @@ afterEach(() => {
 });
 
 describe("deal payment delete command", () => {
-  test("deletes a payment", async () => {
-    const result = await cli(
-      ["--company-id", "123", "--id", "42", "--payment-id", "7", "--format", "json"],
-      dealPaymentDeleteCommand,
-    );
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(JSON.parse(result)).toEqual({ dealId: 42, paymentId: 7, deleted: true });
-  });
-
   test("provides a dry-run request", async () => {
     const result = await cli(
-      ["--company-id", "123", "--id", "42", "--payment-id", "7", "--dry-run", "--format", "json"],
+      ["--company-id", "123", "--id", "42", "--payment-id", "7", "--dry-run"],
       dealPaymentDeleteCommand,
     );
     if (typeof result !== "string") throw new Error("expected string result");

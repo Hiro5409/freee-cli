@@ -109,7 +109,7 @@ function configuredSelection(
 
 export function resolveConfiguredProfile(
   requested: unknown,
-  dir = configDir(),
+  dir: string,
   environment = process.env.FREEE_PROFILE,
 ): string {
   return resolveProfile(configuredSelection(requested, dir, environment));
@@ -117,7 +117,7 @@ export function resolveConfiguredProfile(
 
 export function resolveConfiguredLoginProfile(
   requested: unknown,
-  dir = configDir(),
+  dir: string,
   environment = process.env.FREEE_PROFILE,
 ): string {
   return resolveLoginProfile(configuredSelection(requested, dir, environment));
@@ -125,7 +125,7 @@ export function resolveConfiguredLoginProfile(
 
 export function resolveConfiguredProfileName(
   requested: unknown,
-  dir = configDir(),
+  dir: string,
   environment = process.env.FREEE_PROFILE,
 ): string {
   return resolveProfileName(configuredSelection(requested, dir, environment));

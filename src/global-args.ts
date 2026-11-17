@@ -1,23 +1,9 @@
-import {
-  args,
-  boolean,
-  choice,
-  integer,
-  merge,
-  short,
-  string,
-  withDefault,
-} from "gunshi/combinators";
+import { args, boolean, integer, merge, string, withDefault } from "gunshi/combinators";
 
 export const globalArgs = args({
-  format: withDefault(
-    short(choice(["json", "table"] as const, { description: "Output format: json | table" }), "f"),
-    "table",
-  ),
   profile: string({
     description: "Connection profile (overrides FREEE_PROFILE and the configured default)",
   }),
-  color: withDefault(boolean({ description: "Enable colored output", negatable: true }), true),
 });
 
 export const companyArgs = merge(

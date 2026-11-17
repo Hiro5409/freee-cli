@@ -47,10 +47,7 @@ describe("invoice show command", () => {
       ),
     );
 
-    const result = await cli(
-      ["--company-id", "123", "--format", "json", "--id", "900"],
-      invoiceShowCommand,
-    );
+    const result = await cli(["--company-id", "123", "--id", "900"], invoiceShowCommand);
 
     const url = new URL(requestedUrl);
     expect(url.pathname).toBe("/iv/invoices/900");

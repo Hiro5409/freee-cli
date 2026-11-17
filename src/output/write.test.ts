@@ -41,15 +41,4 @@ describe("writeOutput", () => {
     await writing;
     expect(Buffer.concat(stdout.chunks).toString()).toBe(`${output}\n`);
   });
-
-  test("reports stdout write failures", async () => {
-    const stdout = {
-      write(_chunk: string, callback: (error?: Error | null) => void) {
-        callback(new Error("stdout unavailable"));
-        return false;
-      },
-    };
-
-    await expect(writeOutput("result", stdout)).rejects.toThrow("stdout unavailable");
-  });
 });

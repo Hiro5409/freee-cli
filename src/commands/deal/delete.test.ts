@@ -36,20 +36,14 @@ afterEach(() => {
 
 describe("deal delete command", () => {
   test("deletes the requested deal and returns a stable result", async () => {
-    const result = await cli(
-      ["--company-id", "123", "--id", "42", "--format", "json"],
-      dealDeleteCommand,
-    );
+    const result = await cli(["--company-id", "123", "--id", "42"], dealDeleteCommand);
     expect(onDelete).toHaveBeenCalledWith({ id: "42", companyId: "123" });
     if (typeof result !== "string") throw new Error("expected string result");
     expect(JSON.parse(result)).toEqual({ id: 42, deleted: true });
   });
 
   test("dry-run does not delete", async () => {
-    const result = await cli(
-      ["--company-id", "123", "--id", "42", "--dry-run", "--format", "json"],
-      dealDeleteCommand,
-    );
+    const result = await cli(["--company-id", "123", "--id", "42", "--dry-run"], dealDeleteCommand);
     expect(onDelete).not.toHaveBeenCalled();
     if (typeof result !== "string") throw new Error("expected string result");
     expect(JSON.parse(result).request).toEqual({

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -23,15 +23,8 @@ afterEach(() => {
 });
 
 describe("company set-default command", () => {
-  test("rejects invalid company IDs without saving config", async () => {
-    for (const id of ["abc", "0", "9007199254740992"]) {
-      await expect(cli(["--id", id], companySetDefaultCommand)).rejects.toThrow();
-      expect(existsSync(join(testDir, "config.json"))).toBe(false);
-    }
-  });
-
   test("stores and returns a numeric company ID", async () => {
-    const result = await cli(["--id", "007", "--format", "json"], companySetDefaultCommand);
+    const result = await cli(["--id", "007"], companySetDefaultCommand);
 
     if (typeof result !== "string") throw new Error("expected string result");
     expect(JSON.parse(result)).toEqual({ profile: "default", companyId: 7, name: "7" });

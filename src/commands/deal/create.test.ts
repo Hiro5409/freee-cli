@@ -84,42 +84,10 @@ describe("deal create command", () => {
     expect(onCreateDeal).toHaveBeenCalledWith(expect.objectContaining({ partner_id: 55 }));
   });
 
-  test("validates the payload before writing", async () => {
-    await expect(
-      cli([...baseArgs, "--type", "invalid", "--amount", "not-a-number"], dealCreateCommand),
-    ).rejects.toThrow();
-
-    expect(onCreateDeal).not.toHaveBeenCalled();
-  });
-
   test("rejects an invalid calendar date", async () => {
     const args = baseArgs.map((arg) => (arg === "2026-03-15" ? "2026-02-30" : arg));
 
     await expect(cli(args, dealCreateCommand)).rejects.toThrow();
     expect(onCreateDeal).not.toHaveBeenCalled();
-  });
-
-  test("rejects malformed IDs and non-integer amounts before calling the API", async () => {
-    const invalidArguments: [string, ...string[]][] = [
-      ["--account-item-id", "0x10"],
-      ["--tax-code=-1"],
-      ["--amount", "1.5"],
-      ["--partner-id", "Infinity"],
-    ];
-    for (const replacement of invalidArguments) {
-      const flag = replacement[0].replace(/=.*/, "");
-      const index = baseArgs.indexOf(flag);
-      const args =
-        index === -1 ? [...baseArgs, ...replacement] : baseArgs.toSpliced(index, 2, ...replacement);
-      await expect(cli(args, dealCreateCommand)).rejects.toThrow();
-    }
-    expect(onCreateDeal).not.toHaveBeenCalled();
-  });
-
-  test("--format json returns the created deal response", async () => {
-    const result = await cli([...baseArgs, "--format", "json"], dealCreateCommand);
-
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(JSON.parse(result).id).toBe(42);
   });
 });

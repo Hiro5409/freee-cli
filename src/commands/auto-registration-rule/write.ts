@@ -9,12 +9,11 @@ import {
   required,
   string,
 } from "gunshi/combinators";
-import colors from "yoctocolors";
 
 import { CliError, errorHints } from "../../errors.ts";
 import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatDryRun } from "../../output/formatter.ts";
+import { dryRunOutput } from "../../output/dry-run.ts";
 import { createUserMatcher, getUserMatcher, updateUserMatcher } from "../../types/freee/sdk.gen.ts";
 import type { CreateUserMatcherData, UpdateUserMatcherData } from "../../types/freee/types.gen.ts";
 import { currentRuleBody } from "./rule-body.ts";
@@ -289,9 +288,9 @@ export const autoRegistrationRuleCreateCommand = define({
     }),
   ),
   examples: `$ freee auto-rule create --act manual-transfer --description 振込 --condition exact \\
-    --entry-side expense --priority 5 --transfer-walletable 普通預金 --dry-run --format json`,
+    --entry-side expense --priority 5 --transfer-walletable 普通預金 --dry-run`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const body = {
       ...optionalOverrides(ctx.values),
       act: ACT_CODES[ctx.values.act],
@@ -304,16 +303,16 @@ export const autoRegistrationRuleCreateCommand = define({
     validateBody(body);
 
     if (ctx.values["dry-run"]) {
-      return formatDryRun(
-        format,
-        { method: "POST", path: "/api/1/user_matchers", query: { company_id: companyId }, body },
-        `${colors.yellow("Dry run —")} would POST /api/1/user_matchers: ${JSON.stringify(body, null, 2)}`,
-      );
+      return dryRunOutput({
+        method: "POST",
+        path: "/api/1/user_matchers",
+        query: { company_id: companyId },
+        body,
+      });
     }
 
     const { data } = await createUserMatcher({ query: { company_id: companyId }, body });
-    if (format === "json") return JSON.stringify(data, null, 2);
-    return colors.green(`Auto-registration rule created: id=${data.id} act=${data.act}`);
+    return JSON.stringify(data);
   },
 });
 
@@ -335,10 +334,10 @@ export const autoRegistrationRuleUpdateCommand = define({
     }),
   ),
   examples: `$ freee auto-rule update --id 42 --account-item-name 通信費 \\
-    --deal-description 開発用サービス --dry-run --format json
-$ freee auto-rule update --id 42 --clear walletable --dry-run --format json`,
+    --deal-description 開発用サービス --dry-run
+$ freee auto-rule update --id 42 --clear walletable --dry-run`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const id = ctx.values.id;
     const valueOverrides = optionalOverrides(ctx.values);
     const clearedOverrides = clearOverrides(ctx.values.clear);
@@ -381,16 +380,12 @@ $ freee auto-rule update --id 42 --clear walletable --dry-run --format json`,
     validateBody(body);
 
     if (ctx.values["dry-run"]) {
-      return formatDryRun(
-        format,
-        {
-          method: "PUT",
-          path: `/api/1/user_matchers/${id}`,
-          query: { company_id: companyId },
-          body,
-        },
-        `${colors.yellow("Dry run —")} would PUT /api/1/user_matchers/${id}: ${JSON.stringify(body, null, 2)}`,
-      );
+      return dryRunOutput({
+        method: "PUT",
+        path: `/api/1/user_matchers/${id}`,
+        query: { company_id: companyId },
+        body,
+      });
     }
 
     const { data } = await updateUserMatcher({
@@ -398,7 +393,6 @@ $ freee auto-rule update --id 42 --clear walletable --dry-run --format json`,
       query: { company_id: companyId },
       body,
     });
-    if (format === "json") return JSON.stringify(data, null, 2);
-    return colors.green(`Auto-registration rule updated: id=${data.id} act=${data.act}`);
+    return JSON.stringify(data);
   },
 });

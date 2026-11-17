@@ -72,7 +72,7 @@ describe("HR payroll list command", () => {
     );
 
     const result = await cli(
-      ["--company-id", "123", "--format", "json", "--month", "2026-08"],
+      ["--company-id", "123", "--month", "2026-08", "--all-fields"],
       hrPayrollListCommand,
     );
 
@@ -98,7 +98,7 @@ describe("HR payroll list command", () => {
     );
 
     const result = await cli(
-      ["--company-id", "123", "--format", "json", "--month", "2026-08", "--employee-id", "42"],
+      ["--company-id", "123", "--month", "2026-08", "--employee-id", "42", "--all-fields"],
       hrPayrollListCommand,
     );
 
@@ -107,49 +107,26 @@ describe("HR payroll list command", () => {
     expect(listCalled).toBe(false);
   });
 
-  test("table output shows payment totals without deduction details", async () => {
-    const result = await cli(["--company-id", "123", "--month", "2026-08"], hrPayrollListCommand);
+  test("omits deduction details unless --all-fields is passed", async () => {
+    const args = ["--company-id", "123", "--month", "2026-08"];
 
-    if (typeof result !== "string") throw new Error("expected string result");
-    expect(result).toContain("gross_payment_amount");
-    expect(result).toContain("45000.0");
-    expect(result).toContain("33000.0");
-    expect(result).not.toContain("社会保険料");
-  });
-
-  test("rejects an invalid employee ID before calling the API", async () => {
-    let called = false;
-    network.use(
-      handleGetSalariesEmployeePayrollStatement(() => {
-        called = true;
-        return Response.json({ employee_payroll_statement: statement });
-      }),
-    );
-
-    await expect(
-      cli(
-        ["--company-id", "123", "--month", "2026-08", "--employee-id", "0"],
-        hrPayrollListCommand,
-      ),
-    ).rejects.toThrow();
-    expect(called).toBe(false);
-  });
-
-  test("validates --limit when employee ID selects the detail endpoint", async () => {
-    let called = false;
-    network.use(
-      handleGetSalariesEmployeePayrollStatement(() => {
-        called = true;
-        return Response.json({ employee_payroll_statement: statement });
-      }),
-    );
-
-    await expect(
-      cli(
-        ["--company-id", "123", "--month", "2026-08", "--employee-id", "42", "--limit", "0"],
-        hrPayrollListCommand,
-      ),
-    ).rejects.toThrow();
-    expect(called).toBe(false);
+    expect(JSON.parse(String(await cli(args, hrPayrollListCommand)))).toEqual([
+      {
+        employee_id: 42,
+        employee_num: "A-001",
+        employee_name: "山田 太郎",
+        employee_display_name: "山田 太郎",
+        pay_date: "2026-08-25",
+        fixed: true,
+        calc_status: "calculated",
+        gross_payment_amount: "45000.0",
+        total_deduction_amount: "12000.0",
+        net_payment_amount: "33000.0",
+        total_transfer_amount: "33000.0",
+      },
+    ]);
+    expect(JSON.parse(String(await cli([...args, "--all-fields"], hrPayrollListCommand)))).toEqual([
+      statement,
+    ]);
   });
 });

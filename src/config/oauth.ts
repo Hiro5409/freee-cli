@@ -14,12 +14,9 @@ import {
 import { join } from "node:path";
 
 import { ConfigError } from "../errors.ts";
+import { isErrnoException } from "./config.ts";
 
 export type OAuthCredentials = { clientId: string; clientSecret: string };
-
-function isErrnoException(error: unknown): error is NodeJS.ErrnoException {
-  return error instanceof Error && "code" in error;
-}
 
 function ensureRegularOAuthPath(path: string): void {
   try {
@@ -63,7 +60,7 @@ export function loadOAuthCredentials(dir: string): OAuthCredentials | undefined 
     }
     return { clientId: values.FREEE_CLIENT_ID, clientSecret: values.FREEE_CLIENT_SECRET };
   } catch (error) {
-    if (error instanceof Error && "code" in error && error.code === "ENOENT") return undefined;
+    if (isErrnoException(error) && error.code === "ENOENT") return undefined;
     throw error;
   }
 }

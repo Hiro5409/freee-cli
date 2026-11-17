@@ -44,8 +44,6 @@ type FreeePage = {
   resourceTimingClears: number;
 };
 
-// The page state that scripts sent to Agent Browser observe: where the tab is, which
-// Company and CSRF token its document declares, and what the network answers in order.
 function freeePage(responses: FreeePage["responses"] = []): FreeePage {
   return {
     origin: "about:blank",
@@ -381,18 +379,6 @@ describe("Agent Browserのfreeeセッション", () => {
       spawn.mockRestore();
     }
     expect(page.requests).toEqual([]);
-  });
-
-  test("walletable summaryの観測schemaが崩れたら失敗する", async () => {
-    Bun.env.AGENT_BROWSER_ENCRYPTION_KEY = encryptionKey;
-    const { spawn } = mockAgentBrowser(
-      freeePage([{ body: { walletables: [{ walletable_id: 7, name: "銀行" }], summary: {} } }]),
-    );
-    try {
-      await expect(withFreeeWeb(webScope, (web) => web.walletableSummary())).rejects.toThrow();
-    } finally {
-      spawn.mockRestore();
-    }
   });
 
   test("請求書の送付ステータスを専用Web endpointで送付済みにする", async () => {

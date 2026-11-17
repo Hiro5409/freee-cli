@@ -4,7 +4,6 @@ import { args, merge, required, string } from "gunshi/combinators";
 import { isoDateArg } from "../cli-input.ts";
 import { companyArgs } from "../global-args.ts";
 import { initCommand } from "../helpers.ts";
-import { formatOutput } from "../output/formatter.ts";
 import { getGeneralLedgers } from "../types/freee/sdk.gen.ts";
 
 export const generalLedgerCommand = define({
@@ -23,9 +22,9 @@ export const generalLedgerCommand = define({
     }),
   ),
   examples: `$ freee general-ledger list --start-date 2026-01-01 --end-date 2026-12-31 \\
-    --account-item-name 売上高 --format json`,
+    --account-item-name 売上高`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const { data } = await getGeneralLedgers({
       query: {
         company_id: companyId,
@@ -38,6 +37,6 @@ export const generalLedgerCommand = define({
         tag_name: ctx.values["tag-name"],
       },
     });
-    return formatOutput(data.general_ledgers, format);
+    return JSON.stringify(data.general_ledgers);
   },
 });

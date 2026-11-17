@@ -4,7 +4,6 @@ import { configureClient } from "../../api/client.ts";
 import { configDir, loadConfig } from "../../config/config.ts";
 import { CliError } from "../../errors.ts";
 import { globalArgs } from "../../global-args.ts";
-import { formatValue } from "../../output/formatter.ts";
 import { freeeWebStatus } from "../../plugins/web-operations/freee-web.ts";
 import { resolveConfiguredProfile } from "../../profiles.ts";
 import { getCompanies } from "../../types/freee/sdk.gen.ts";
@@ -47,11 +46,6 @@ export const statusCommand = define({
         : await freeeWebStatus({ profile, companyId }).catch((error: unknown) =>
             failure(error, `freee auth login --web --profile ${profile}`),
           );
-    const result = { profile, companyId, api, web };
-    return formatValue(
-      result,
-      ctx.values.format,
-      `Profile: ${profile}\nCompany: ${companyId ?? "not configured"}\nAPI: ${api.status}\nWeb: ${web.status}${"hint" in web ? `\n${web.hint}` : ""}${"hint" in api ? `\n${api.hint}` : ""}`,
-    );
+    return JSON.stringify({ profile, companyId, api, web });
   },
 });

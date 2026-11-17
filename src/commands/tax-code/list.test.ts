@@ -47,7 +47,7 @@ afterEach(() => {
 
 describe("tax code list command", () => {
   test("uses the company-scoped current endpoint and returns available tax codes", async () => {
-    const result = await cli(["--company-id", "123", "--format", "json"], taxCodeListCommand);
+    const result = await cli(["--company-id", "123"], taxCodeListCommand);
 
     const url = new URL(requestedUrl);
     expect(url.pathname).toBe("/api/1/taxes/companies/123");

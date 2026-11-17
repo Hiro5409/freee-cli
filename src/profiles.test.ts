@@ -152,7 +152,6 @@ describe("stored profile configuration", () => {
     });
     saveConfig(testDir, {
       activeProfile: "work",
-      defaults: { format: "table" },
       profiles: {
         work: { companyId: 123, name: "Test Company" },
       },

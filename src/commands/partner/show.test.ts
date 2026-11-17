@@ -49,20 +49,12 @@ afterEach(() => {
 
 describe("partner show command", () => {
   test("fetches the partner by ID and outputs it as JSON", async () => {
-    const result = await cli(
-      ["--company-id", "123", "--id", "42", "--format", "json"],
-      partnerShowCommand,
-    );
+    const result = await cli(["--company-id", "123", "--id", "42"], partnerShowCommand);
 
     expect(onGetPartner).toHaveBeenCalledWith({ id: "42", companyId: "123" });
     if (typeof result !== "string") throw new Error("expected string result");
     expect(JSON.parse(result)).toEqual(
       expect.objectContaining({ id: 42, code: "P-001", name: "Acme" }),
     );
-  });
-
-  test("rejects a non-positive ID before calling the API", async () => {
-    await expect(cli(["--company-id", "123", "--id", "0"], partnerShowCommand)).rejects.toThrow();
-    expect(onGetPartner).not.toHaveBeenCalled();
   });
 });

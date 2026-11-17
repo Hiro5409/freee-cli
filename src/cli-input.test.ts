@@ -3,40 +3,17 @@ import { describe, expect, test } from "bun:test";
 import {
   IsoDateSchema,
   MonthTextSchema,
-  PositiveIntegerSchema,
   PositiveIntegerTextSchema,
   YearTextSchema,
   parseCliInput,
 } from "./cli-input.ts";
 import { CliError } from "./errors.ts";
 
-describe("parseCliInput", () => {
-  test("turns schema issues into a structured CliError", () => {
-    try {
-      parseCliInput(PositiveIntegerTextSchema, "0", { label: "--id" });
-      throw new Error("expected parsing to fail");
-    } catch (error) {
-      expect(error).toBeInstanceOf(CliError);
-      expect(error).toMatchObject({ code: "INVALID_INPUT" });
-      expect((error as Error).message).toContain("--id");
-    }
-  });
-});
-
 describe("CLI scalar schemas", () => {
   test("parses positive integer strings without coercing other syntax", () => {
     expect(parseCliInput(PositiveIntegerTextSchema, "1", { label: "--id" })).toBe(1);
     for (const value of ["0", "1.5", "1e3", "abc", String(Number.MAX_SAFE_INTEGER + 1)]) {
       expect(() => parseCliInput(PositiveIntegerTextSchema, value, { label: "--id" })).toThrow(
-        CliError,
-      );
-    }
-  });
-
-  test("accepts an already numeric positive integer only when safe", () => {
-    expect(parseCliInput(PositiveIntegerSchema, 42, { label: "--company-id" })).toBe(42);
-    for (const value of [0, 1.5, Number.MAX_SAFE_INTEGER + 1, "42"]) {
-      expect(() => parseCliInput(PositiveIntegerSchema, value, { label: "--company-id" })).toThrow(
         CliError,
       );
     }

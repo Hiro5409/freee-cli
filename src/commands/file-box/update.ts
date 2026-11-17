@@ -1,12 +1,11 @@
 import { define } from "gunshi";
 import { args, choice, integer, merge, required, string } from "gunshi/combinators";
-import colors from "yoctocolors";
 
 import { isoDateArg } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatDryRun, formatValue } from "../../output/formatter.ts";
+import { dryRunOutput } from "../../output/dry-run.ts";
 import { updateReceipt } from "../../types/freee/sdk.gen.ts";
 import type { ReceiptUpdateParams } from "../../types/freee/types.gen.ts";
 
@@ -42,9 +41,9 @@ export const fileBoxUpdateCommand = define({
     }),
   ),
   examples: `$ freee file-box update --id 55 --description "Books" --document-type receipt \\
-    --dry-run --format json`,
+    --dry-run`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const id = ctx.values.id;
     const hasMetadata =
       ctx.values["partner-name"] !== undefined ||
@@ -80,18 +79,10 @@ export const fileBoxUpdateCommand = define({
     const path = `/api/1/receipts/${id}`;
 
     if (ctx.values["dry-run"]) {
-      return formatDryRun(
-        format,
-        { method: "PUT", path, body },
-        `${colors.yellow("Dry run —")} would update File Box document ${id}.`,
-      );
+      return dryRunOutput({ method: "PUT", path, body });
     }
 
     const { data } = await updateReceipt({ path: { id }, body });
-    return formatValue(
-      data.receipt,
-      format,
-      `${colors.green("File Box document updated:")} ${JSON.stringify(data.receipt, null, 2)}`,
-    );
+    return JSON.stringify(data.receipt);
   },
 });

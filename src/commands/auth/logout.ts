@@ -1,10 +1,8 @@
 import { define } from "gunshi";
-import colors from "yoctocolors";
 
 import { configDir, loadConfig } from "../../config/config.ts";
 import { updateCredentials } from "../../config/credentials.ts";
 import { globalArgs } from "../../global-args.ts";
-import { formatValue } from "../../output/formatter.ts";
 import { logoutFreeeWeb } from "../../plugins/web-operations/freee-web.ts";
 import { resolveConfiguredProfile } from "../../profiles.ts";
 
@@ -20,10 +18,6 @@ export const logoutCommand = define({
     await updateCredentials(dir, (credentials) => {
       delete credentials[profile];
     });
-    return formatValue(
-      { profile, loggedOut: true },
-      ctx.values.format,
-      colors.green(`Logged out from profile "${profile}".`),
-    );
+    return JSON.stringify({ profile, loggedOut: true });
   },
 });

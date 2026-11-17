@@ -54,8 +54,6 @@ describe("File Box update command", () => {
         "--document-type",
         "receipt",
         "--dry-run",
-        "--format",
-        "json",
       ],
       fileBoxUpdateCommand,
     );

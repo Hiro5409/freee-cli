@@ -3,7 +3,6 @@ import { args, integer, merge, required } from "gunshi/combinators";
 
 import { companyArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatResource } from "../../output/formatter.ts";
 import { getReceipt } from "../../types/freee/sdk.gen.ts";
 
 export const fileBoxShowCommand = define({
@@ -17,13 +16,13 @@ export const fileBoxShowCommand = define({
       ),
     }),
   ),
-  examples: "$ freee file-box show --id 456 --format json",
+  examples: "$ freee file-box show --id 456",
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const { data } = await getReceipt({
       path: { id: ctx.values.id },
       query: { company_id: companyId },
     });
-    return formatResource(data.receipt, format);
+    return JSON.stringify(data.receipt);
   },
 });

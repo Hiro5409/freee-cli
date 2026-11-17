@@ -51,15 +51,12 @@ test.each([
         });
       }),
     );
-    await expect(cli(["--company-id", "123", "--format", "json"], command)).rejects.toMatchObject({
+    await expect(cli(["--company-id", "123"], command)).rejects.toMatchObject({
       code: "INVALID_INPUT",
       hint: expect.stringContaining("--month"),
       message: expect.stringContaining("10,000"),
     });
-    const bounded = await cli(
-      ["--company-id", "123", "--format", "json", "--limit", "10000"],
-      command,
-    );
+    const bounded = await cli(["--company-id", "123", "--limit", "10000"], command);
     const records = JSON.parse(String(bounded));
     expect(records).toHaveLength(10_000);
     expect(records.at(-1)).toEqual({ id: 10_000 });

@@ -1,9 +1,7 @@
 import { define } from "gunshi";
 import { args, merge, required, string, integer } from "gunshi/combinators";
-import colors from "yoctocolors";
 
 import { globalArgs } from "../../global-args.ts";
-import { formatValue } from "../../output/formatter.ts";
 import { resolveConfiguredProfile } from "../../profiles.ts";
 
 export const companySetDefaultCommand = define({
@@ -37,10 +35,6 @@ export const companySetDefaultCommand = define({
     config.profiles[profile] = selectedCompany;
 
     saveConfig(dir, config);
-    return formatValue(
-      { profile, companyId, name: selectedCompany.name },
-      ctx.values.format,
-      colors.green(`Default company set to ${companyId} for profile "${profile}".`),
-    );
+    return JSON.stringify({ profile, companyId, name: selectedCompany.name });
   },
 });

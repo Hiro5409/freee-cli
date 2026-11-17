@@ -5,7 +5,6 @@ import { fetchAll } from "../../api/paginate.ts";
 import { monthArg } from "../../cli-input.ts";
 import { listArgs } from "../../global-args.ts";
 import { initCommand, monthToDateRange } from "../../helpers.ts";
-import { formatOutput } from "../../output/formatter.ts";
 import { getDeals } from "../../types/freee/sdk.gen.ts";
 
 const DEAL_TYPES = ["income", "expense"] as const;
@@ -36,7 +35,7 @@ export const dealListCommand = define({
     }),
   ),
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
 
     const monthFilter = ctx.values.month ? monthToDateRange(ctx.values.month) : undefined;
 
@@ -59,6 +58,6 @@ export const dealListCommand = define({
       return data.deals;
     }, ctx.values.limit);
 
-    return formatOutput(deals, format);
+    return JSON.stringify(deals);
   },
 });

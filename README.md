@@ -10,10 +10,6 @@
   <a href="./LICENSE"><img src="https://img.shields.io/github/license/Hiro5409/freee-cli" alt="License: MIT"></a>
 </p>
 
-<p align="center">
-  English | <a href="README.ja.md">日本語</a>
-</p>
-
 ## Why a CLI?
 
 freee already provides an [official MCP server](https://github.com/freee/freee-mcp).
@@ -22,7 +18,7 @@ freee-cli exists because we believe a CLI is the better interface for coding age
 A CLI gives agents the same interface used by developers, scripts, and CI.
 Commands can be discovered with `--help`, composed with files and pipes, and run directly when debugging.
 
-freee-cli therefore exposes small freee operations rather than application-specific workflows, with JSON output, structured errors, and focused `--dry-run` previews where they reveal more than the supplied arguments.
+freee-cli therefore exposes small freee operations rather than application-specific workflows: every result is compact JSON on stdout, every error is one line of JSON on stderr, and `--dry-run` previews exist where they reveal more than the supplied arguments. `auth login` also writes its browser prompts to stderr as JSON lines.
 
 ## Generated from official schemas
 
@@ -76,7 +72,7 @@ freee segment-tag list --segment 1
 freee balance-sheet show --fiscal-year 2025
 freee profit-and-loss show --fiscal-year 2025
 freee general-ledger list --start-date 2025-01-01 --end-date 2025-12-31 \
-  --account-item-name Sales --format json
+  --account-item-name Sales
 freee journal export --download-type generic_v2 --encoding utf-8 \
   --start-date 2025-01-01 --end-date 2025-12-31 --output journal-2025.csv
 ```
@@ -89,7 +85,7 @@ freee auto-rule create --act auto-standard --description AMAZON --condition part
   --entry-side expense --priority 5 --tax-name 課対仕入10% \
   --account-item-name 消耗品費 --qualified-invoice-setting qualified --dry-run
 freee auto-rule update --id 42 --account-item-name 通信費 --dry-run
-freee auto-rule update --id 42 --clear walletable --dry-run --format json
+freee auto-rule update --id 42 --clear walletable --dry-run
 freee auto-rule disable --id 42 --dry-run
 freee wallet-txn create --date 2026-08-01 --entry-side expense --amount 5000 \
   --walletable-id 55 --walletable-type credit_card --description AMAZON.CO.JP
@@ -113,12 +109,12 @@ freee invoice update --id 456 --subject "August invoice" --dry-run
 Quotations use the freee invoice API and their own document templates.
 
 ```bash
-freee quotation list --month 2026-10 --format json
-freee quotation show --id 456 --format json
-freee quotation-template list --format json
+freee quotation list --month 2026-10
+freee quotation show --id 456
+freee quotation-template list
 freee quotation create --partner-id 123 --quotation-date 2026-10-01 \
   --expiration-date 2026-10-31 --subject "Development estimate" \
-  --line '{"description":"Development","quantity":1,"unit_price":"100000","tax_rate":10}' --format json
+  --line '{"description":"Development","quantity":1,"unit_price":"100000","tax_rate":10}'
 ```
 
 Use either `--partner-id` or `--partner-code`. Repeat `--line` for multiple lines;
@@ -133,6 +129,8 @@ freee hr employee list --month 2026-08
 freee hr payroll list --month 2026-08
 ```
 
+Both return a summary without sensitive personal data. `--all-fields` returns the full API records, including basic pension numbers and deduction details.
+
 ### Processing account statements
 
 Statement processing uses the official Accounting API with API authentication. `register`, `settle`, and `transfer` accept the [official API request body](https://developer.freee.co.jp/reference/accounting) as `--body` JSON. The selected profile or `--company-id` supplies `company_id`, overriding that field in the body.
@@ -144,7 +142,7 @@ freee wallet-txn register --id 42 --body '{"deal_lines":[{"account_item_id":101,
 freee wallet-txn register-private --id 42
 freee wallet-txn settle --id 42 --body '{"deals":[{"deal_id":91,"amount":10000}]}'
 freee wallet-txn transfer --id 42 --body '{"transfer_from_line":{"walletable_id":1,"walletable_type":"bank_account"},"transfer_to_lines":[{"walletable_id":7,"walletable_type":"wallet","amount":10000}]}'
-freee wallet-txn apply-rules --id 42 --id 43 --format json
+freee wallet-txn apply-rules --id 42 --id 43
 ```
 
 The CLI sends one request and returns the API result, without preflight reads, previews, dry-runs, or follow-up reads. freee validates accounting constraints and applies its defaults. `register` accepts all deal fields, `settle` supports multiple payments and an `adjustment_deal`, and `transfer` supports multiple destinations and `charge_lines`. `reset` returns a statement to unprocessed. `register-private` uses freee's company-specific private accounting treatment.
@@ -153,7 +151,7 @@ Rule application requires 1–1,000 statement IDs and runs asynchronously. freee
 
 ### Browser-backed operations
 
-Invoice registration, invoice sending-status changes, and account synchronization use [Agent Browser](https://github.com/vercel-labs/agent-browser). Run `freee auth login --web --profile <name>` to open a dedicated browser and select the configured company. The CLI waits up to five minutes and saves only a verified, encrypted session. `freee auth status --profile <name> --format json` reports API and browser access separately.
+Invoice registration, invoice sending-status changes, and account synchronization use [Agent Browser](https://github.com/vercel-labs/agent-browser). Run `freee auth login --web --profile <name>` to open a dedicated browser and select the configured company. The CLI waits up to five minutes and saves only a verified, encrypted session. `freee auth status --profile <name>` reports API and browser access separately.
 
 ```bash
 freee invoice register-deal --id 456
@@ -162,7 +160,7 @@ freee walletable sync --id 42
 freee walletable sync --all
 ```
 
-Account synchronization waits up to one hour. Table output reports progress on stderr; JSON output keeps stdout machine-readable. With `--all`, freee selects eligible wallets and the result identifies those whose synchronization started and completed.
+Account synchronization waits up to one hour. With `--all`, freee selects eligible wallets and the result identifies those whose synchronization started and completed.
 
 These operations depend on observed Web interfaces. See the [Web operations module](src/plugins/web-operations/README.md) for their scope. Authentication state belongs to freee-cli and remains outside the repository.
 
@@ -186,7 +184,7 @@ gh skill install Hiro5409/freee-cli freee-cli
 
 ## Development
 
-Install and [activate mise](https://mise.jdx.dev/getting-started.html). `mise.toml` pins Bun, Node.js, GitHub CLI, Gitleaks, and Lefthook and puts the locally installed Vite+ commands on `PATH`:
+Install and [activate mise](https://mise.jdx.dev/getting-started.html), then:
 
 ```bash
 mise trust
@@ -195,8 +193,6 @@ bun install --frozen-lockfile
 lefthook install
 bun run check
 ```
-
-[Lefthook](https://lefthook.dev/) runs the Git hooks defined in `lefthook.yml`. The pre-commit hook formats, lints, and type-checks staged files, then scans them for secrets with Gitleaks. The pre-push hook runs `bun audit --audit-level=high`, the same audit that CI runs. The post-checkout hook installs dependencies from the lockfile when `node_modules` is missing. CI runs the full `bun run check` and scans Git history with the same Gitleaks version.
 
 ## Releases
 
@@ -213,31 +209,17 @@ git push origin v1.2.3
 
 The tag message lists, as Markdown, the changes a user will notice, and becomes the GitHub Release notes. Git reads it from standard input, and `--cleanup=verbatim` keeps lines that start with `#`, such as headings, which Git otherwise strips as comments.
 
-The tag starts the Release workflow. The workflow verifies that the tag is annotated, matches `package.json`, and belongs to `main`, then runs CI on the tagged commit. CI packs the npm artifact once and smoke-tests that tarball, and both publishing jobs download the tested artifact instead of building it again.
-
-The first job publishes the artifact to npm through trusted publishing, with provenance. npm [scans a new version](https://github.blog/changelog/2026-07-28-npm-publish-time-malware-scanning-and-dual-use-metadata/) before serving it, so the second job waits up to 30 minutes for the version to become visible. It creates the GitHub Release only when the version published on npm has the integrity of the tested artifact. It attaches the artifact while the release is still a draft and then publishes it, because an immutable release locks its assets once it is published.
-
 Release configuration includes these settings outside the repository:
 
 - An npm [trusted publisher](https://docs.npmjs.com/trusted-publishers/) for user `Hiro5409`, repository `freee-cli`, and workflow filename `release.yml`, with no environment.
 - [Immutable releases](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases) for the repository, so that the tag and the attached artifact of a published GitHub Release cannot change.
 - An active tag ruleset for `v*` that restricts updates and deletions, allows creation, and has no bypass actors. Tags are protected from the moment they are pushed, including while CI and npm publication are in progress.
 
-To retry a transient failure, run the workflow again from its tag:
+To retry a failed run, run the workflow again from its tag. It publishes and releases only what is still missing. Release tags are never moved; to change a released commit, release a new version.
 
 ```bash
 gh workflow run release.yml --ref v1.2.3
 ```
-
-This run packs and tests the tagged commit again; packing is reproducible, so it tests the artifact an earlier run published. Every run acts on what it finds: it publishes the artifact while the version is not visible on npm, and creates the GitHub Release while no published release exists for the tag. A published release that carries the tested artifact is complete, and the run leaves it as it is. A run started from a branch stops at tag verification; the workflow never changes `main`, the version, or tags.
-
-A retry uses the code and workflow at the same tag. To correct the tagged commit, tag metadata, or workflow, fix `main` and release a new version with a new annotated tag. Existing release tags are not moved or reused.
-
-A run stops when it cannot read npm or GitHub, when the published version differs from the tested artifact, and when a published release lacks the tested artifact or carries one with a different digest. The workflow does not repair such a release.
-
-A run fails when npm does not serve the version within 30 minutes. Run the workflow again once the version is visible on npm; a run that starts earlier attempts to publish the version again.
-
-GitHub CLI attempts to delete its draft when attaching the artifact or publishing the release fails. A failed cleanup or an interrupted run can leave a draft release behind; the workflow does not look for drafts, so a maintainer deletes it.
 
 ## License
 

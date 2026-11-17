@@ -14,7 +14,6 @@ export { client, hrClient, invoiceClient };
 type FreeeClient = typeof client | typeof hrClient | typeof invoiceClient;
 
 // Only reads are safe to retry automatically; writes can create accounting records.
-// Hey API passes a fully constructed Request to its fetch implementation.
 const apiFetch = Object.assign(
   async (request: Parameters<typeof fetch>[0]) => {
     try {

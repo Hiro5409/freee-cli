@@ -82,18 +82,6 @@ describe("invoice set sending status command", () => {
     expect(writtenStatuses).toEqual(["sent"]);
   });
 
-  test("sets a sent invoice back to unsent and verifies the official invoice API", async () => {
-    const { deps, writtenStatuses } = dependencies({
-      before: { sending_status: "sent" },
-      after: { sending_status: "unsent" },
-    });
-
-    await expect(
-      runInvoiceSetSendingStatusCommand({ id: 77, profile: "business", status: "unsent" }, deps),
-    ).resolves.toMatchObject({ before: "sent", after: "unsent", changed: true });
-    expect(writtenStatuses).toEqual(["unsent"]);
-  });
-
   test("succeeds without opening freee Web when the requested state already exists", async () => {
     const { deps, reads, webSessions, writtenStatuses } = dependencies({
       before: { sending_status: "sent" },

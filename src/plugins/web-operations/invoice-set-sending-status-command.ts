@@ -45,7 +45,7 @@ function invalidInvoice(message: string): CliError {
   return new CliError(message, {
     code: "INVALID_INPUT",
     why: "Changing the sending status requires one active invoice in the selected company.",
-    hint: 'Use "freee invoice show --id <id> --format json" and retry with its ID.',
+    hint: 'Use "freee invoice show --id <id>" and retry with its ID.',
   });
 }
 

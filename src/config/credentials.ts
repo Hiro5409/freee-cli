@@ -18,10 +18,7 @@ import { join } from "node:path";
 import * as v from "valibot";
 
 import { ConfigError } from "../errors.ts";
-
-function isErrnoException(e: unknown): e is NodeJS.ErrnoException {
-  return e instanceof Error && "code" in e;
-}
+import { isErrnoException, readConfigFile } from "./config.ts";
 
 const TokenSetSchema = v.strictObject({
   clientId: v.string(),
@@ -105,19 +102,7 @@ async function acquireCredentialsLock(lockPath: string): Promise<FileHandle> {
 }
 
 export function loadCredentials(dir: string): Credentials {
-  const filePath = join(dir, "credentials.json");
-  try {
-    const raw = readFileSync(filePath, "utf-8");
-    const json: unknown = JSON.parse(raw);
-    return v.parse(CredentialsSchema, json);
-  } catch (e) {
-    if (isErrnoException(e) && e.code === "ENOENT") {
-      return {};
-    }
-    throw new ConfigError(
-      `Failed to parse credentials.json: ${e instanceof Error ? e.message : String(e)}`,
-    );
-  }
+  return readConfigFile(dir, "credentials.json", CredentialsSchema);
 }
 
 export function saveCredentials(dir: string, credentials: Credentials): void {

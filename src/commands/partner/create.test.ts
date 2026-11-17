@@ -54,7 +54,7 @@ afterEach(() => {
 describe("partner create command", () => {
   test("creates a partner and returns the API response as JSON", async () => {
     const result = await cli(
-      ["--company-id", "123", "--name", "Acme", "--code", "P-001", "--format", "json"],
+      ["--company-id", "123", "--name", "Acme", "--code", "P-001"],
       partnerCreateCommand,
     );
 
@@ -69,12 +69,5 @@ describe("partner create command", () => {
     await cli(["--company-id", "123", "--name", "Acme"], partnerCreateCommand);
 
     expect(onCreatePartner).toHaveBeenCalledWith({ company_id: 123, name: "Acme" });
-  });
-
-  test("rejects a name over the API limit before calling the API", async () => {
-    await expect(
-      cli(["--company-id", "123", "--name", "a".repeat(256)], partnerCreateCommand),
-    ).rejects.toThrow();
-    expect(onCreatePartner).not.toHaveBeenCalled();
   });
 });

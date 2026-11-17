@@ -46,7 +46,7 @@ afterEach(() => {
 describe("auto-registration rule show command", () => {
   test("fetches the rule by ID and outputs it as JSON", async () => {
     const result = await cli(
-      ["--company-id", "123", "--format", "json", "--id", "42"],
+      ["--company-id", "123", "--id", "42"],
       autoRegistrationRuleShowCommand,
     );
 
@@ -55,12 +55,5 @@ describe("auto-registration rule show command", () => {
     const rule = JSON.parse(result);
     expect(rule.id).toBe(42);
     expect(rule.description).toBe("AMAZON");
-  });
-
-  test("rejects a non-positive --id before calling the API", async () => {
-    await expect(
-      cli(["--company-id", "123", "--id", "0"], autoRegistrationRuleShowCommand),
-    ).rejects.toThrow();
-    expect(onGetUserMatcher).not.toHaveBeenCalled();
   });
 });

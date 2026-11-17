@@ -39,16 +39,7 @@ afterEach(() => {
 describe("File Box list command", () => {
   test("passes the required upload date range through to freee", async () => {
     const result = await cli(
-      [
-        "--company-id",
-        "123",
-        "--start-date",
-        "2026-07-15",
-        "--end-date",
-        "2026-08-14",
-        "--format",
-        "json",
-      ],
+      ["--company-id", "123", "--start-date", "2026-07-15", "--end-date", "2026-08-14"],
       fileBoxListCommand,
     );
 
@@ -75,8 +66,6 @@ describe("File Box list command", () => {
         "2026-08-31",
         "--category",
         category,
-        "--format",
-        "json",
       ],
       fileBoxListCommand,
     );

@@ -38,7 +38,7 @@ afterEach(() => {
 describe("wallet transaction delete command", () => {
   test("previews deletion without writing", async () => {
     const result = await cli(
-      ["--company-id", "123", "--id", "7", "--dry-run", "--format", "json"],
+      ["--company-id", "123", "--id", "7", "--dry-run"],
       walletTransactionDeleteCommand,
     );
     expect(onDelete).not.toHaveBeenCalled();

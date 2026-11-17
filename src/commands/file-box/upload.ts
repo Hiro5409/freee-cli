@@ -2,12 +2,10 @@ import { statSync } from "node:fs";
 
 import { define } from "gunshi";
 import { args, merge, required, string } from "gunshi/combinators";
-import colors from "yoctocolors";
 
 import { CliError } from "../../errors.ts";
 import { companyArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatValue } from "../../output/formatter.ts";
 import { createReceipt } from "../../types/freee/sdk.gen.ts";
 
 const FILE_SIZE_LIMIT_BYTES = 64 * 1024 * 1024;
@@ -45,9 +43,9 @@ export const fileBoxUploadCommand = define({
       description: string({ description: "Document description" }),
     }),
   ),
-  examples: `$ freee file-box upload --file receipt.jpg --format json`,
+  examples: `$ freee file-box upload --file receipt.jpg`,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const document = validateDocument(ctx.values.file);
 
     const { data } = await createReceipt({
@@ -57,10 +55,6 @@ export const fileBoxUploadCommand = define({
         description: ctx.values.description,
       },
     });
-    return formatValue(
-      data.receipt,
-      format,
-      `${colors.green("File Box document uploaded:")} ${JSON.stringify(data.receipt, null, 2)}`,
-    );
+    return JSON.stringify(data.receipt);
   },
 });

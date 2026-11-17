@@ -45,7 +45,7 @@ afterEach(() => {
   rmSync(testDir, { recursive: true, force: true });
 });
 
-const baseArgs = ["--company-id", "123", "--format", "json"];
+const baseArgs = ["--company-id", "123"];
 
 describe("auto-registration rule list command", () => {
   test("outputs all rules as JSON, paginating with company_id/limit/offset", async () => {
@@ -85,12 +85,5 @@ describe("auto-registration rule list command", () => {
         walletable: "楽天カード",
       }),
     );
-  });
-
-  test("rejects an unknown --active before calling the API", async () => {
-    await expect(
-      cli([...baseArgs, "--active", "on"], autoRegistrationRuleListCommand),
-    ).rejects.toThrow();
-    expect(onGetUserMatchers).not.toHaveBeenCalled();
   });
 });

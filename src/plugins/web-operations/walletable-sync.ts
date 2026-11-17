@@ -1,9 +1,5 @@
 import { OutcomeUnknownError } from "../../errors.ts";
-import type {
-  FreeeWebOperations,
-  FreeeWebWalletable,
-  FreeeWebWalletableType,
-} from "./freee-web.ts";
+import type { FreeeWebOperations, FreeeWebWalletableType } from "./freee-web.ts";
 
 export type WalletableSyncWeb = Pick<
   FreeeWebOperations,
@@ -11,16 +7,6 @@ export type WalletableSyncWeb = Pick<
 >;
 
 export type WalletableSyncScope = { kind: "all" } | { kind: "one"; walletableId: number };
-
-export type WalletableSyncProgress =
-  | { kind: "bulk"; status: "started" }
-  | {
-      kind: "walletable";
-      walletableId: number;
-      walletableName: string;
-      walletableType: FreeeWebWalletableType;
-      status: "started" | "syncing" | "synced";
-    };
 
 export type WalletableSyncResult = {
   walletables: Array<{
@@ -75,26 +61,10 @@ async function observeAfterStart<T>(operation: () => Promise<T>): Promise<T> {
 export function createWalletableSync(input: {
   web: WalletableSyncWeb;
   polling?: Polling;
-  onProgress?: (progress: WalletableSyncProgress) => void;
 }): (scope: WalletableSyncScope) => Promise<WalletableSyncResult> {
   const polling = input.polling ?? defaultPolling;
 
   return async (scope) => {
-    const reportedStatuses = new Map<number, "started" | "syncing" | "synced">();
-    const reportWalletable = (
-      walletable: FreeeWebWalletable,
-      status: "started" | "syncing" | "synced",
-    ) => {
-      if (reportedStatuses.get(walletable.id) === status) return;
-      reportedStatuses.set(walletable.id, status);
-      input.onProgress?.({
-        kind: "walletable",
-        walletableId: walletable.id,
-        walletableName: walletable.name,
-        walletableType: walletable.type,
-        status,
-      });
-    };
     const initial = await input.web.walletableSummary();
     const deadline = polling.now() + polling.timeoutMs;
 
@@ -105,7 +75,6 @@ export function createWalletableSync(input: {
         throw new Error(`${target.name} is not connected to a sync service.`);
       }
       await input.web.startWalletableSync(target.type, target.id);
-      reportWalletable(target, "started");
 
       let participating = false;
       while (true) {
@@ -116,7 +85,6 @@ export function createWalletableSync(input: {
           current.status === "synced" &&
           completedAfter(target.lastSyncedAt, current.lastSyncedAt)
         ) {
-          reportWalletable(target, "synced");
           return {
             walletables: [
               {
@@ -130,10 +98,7 @@ export function createWalletableSync(input: {
           };
         }
         const wasParticipating = participating;
-        if (current.status === "syncing") {
-          participating = true;
-          reportWalletable(target, "syncing");
-        }
+        if (current.status === "syncing") participating = true;
         const reason = current.syncFailedReason;
         const newlyFailed = reason !== null && reason !== target.syncFailedReason;
         if (
@@ -161,7 +126,6 @@ export function createWalletableSync(input: {
     if (targets.length === 0) throw new Error("No connected walletables can be synced.");
 
     await input.web.startBulkWalletableSync();
-    input.onProgress?.({ kind: "bulk", status: "started" });
 
     const participatingIds = new Set<number>();
     while (true) {
@@ -176,10 +140,6 @@ export function createWalletableSync(input: {
         const completed = completedAfter(target.lastSyncedAt, state?.lastSyncedAt ?? null);
         if (state?.status === "syncing" || completed || newlyFailed) {
           participatingIds.add(target.id);
-        }
-        if (state?.status === "syncing") reportWalletable(target, "syncing");
-        if (state?.status === "synced" && completed) {
-          reportWalletable(target, "synced");
         }
         if (
           reason &&

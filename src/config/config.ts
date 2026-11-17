@@ -5,7 +5,7 @@ import * as v from "valibot";
 
 import { ConfigError } from "../errors.ts";
 
-function isErrnoException(e: unknown): e is NodeJS.ErrnoException {
+export function isErrnoException(e: unknown): e is NodeJS.ErrnoException {
   return e instanceof Error && "code" in e;
 }
 
@@ -14,11 +14,8 @@ const ProfileSchema = v.strictObject({
   name: v.string(),
 });
 
-const ConfigSchema = v.strictObject({
+const ConfigSchema = v.object({
   activeProfile: v.optional(v.string(), "default"),
-  defaults: v.optional(v.strictObject({ format: v.optional(v.string(), "table") }), {
-    format: "table",
-  }),
   profiles: v.optional(v.record(v.string(), ProfileSchema), {}),
 });
 
@@ -31,23 +28,28 @@ export function configDir(env: NodeJS.ProcessEnv = process.env): string {
   return join(home, ".config", "freee-cli");
 }
 
-export function loadConfig(dir = configDir()): Config {
-  const filePath = join(dir, "config.json");
+export function readConfigFile<const TSchema extends v.GenericSchema>(
+  dir: string,
+  name: string,
+  schema: TSchema,
+): v.InferOutput<TSchema> {
   try {
-    const raw = readFileSync(filePath, "utf-8");
-    const json: unknown = JSON.parse(raw);
-    return v.parse(ConfigSchema, json);
+    const json: unknown = JSON.parse(readFileSync(join(dir, name), "utf-8"));
+    return v.parse(schema, json);
   } catch (e) {
-    if (isErrnoException(e) && e.code === "ENOENT") {
-      return v.parse(ConfigSchema, {});
-    }
-    throw new ConfigError(
-      `Failed to parse config.json: ${e instanceof Error ? e.message : String(e)}`,
-    );
+    if (isErrnoException(e) && e.code === "ENOENT") return v.parse(schema, {});
+    // Parser messages quote the input, which can be a token.
+    throw new ConfigError(`Failed to parse ${name}.`, {
+      hint: `Fix or delete ${join(dir, name)}, then log in and select the company again.`,
+    });
   }
 }
 
-export function saveConfig(dir = configDir(), config: Config): void {
+export function loadConfig(dir: string): Config {
+  return readConfigFile(dir, "config.json", ConfigSchema);
+}
+
+export function saveConfig(dir: string, config: Config): void {
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "config.json"), `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
 }

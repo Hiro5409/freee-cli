@@ -65,8 +65,6 @@ describe("deal payment update command", () => {
         "bank_account",
         "--walletable-id",
         "9",
-        "--format",
-        "json",
       ],
       dealPaymentUpdateCommand,
     );
@@ -92,8 +90,6 @@ describe("deal payment update command", () => {
         "--walletable-id",
         "9",
         "--dry-run",
-        "--format",
-        "json",
       ],
       dealPaymentUpdateCommand,
     );

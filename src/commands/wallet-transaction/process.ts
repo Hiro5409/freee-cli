@@ -6,7 +6,6 @@ import { parseCliInput } from "../../cli-input.ts";
 import { CliError } from "../../errors.ts";
 import { companyArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
-import { formatValue } from "../../output/formatter.ts";
 import {
   ignoreWalletTxn,
   resetWalletTxn,
@@ -43,13 +42,9 @@ export const walletTransactionIgnoreCommand = define({
   description: "Ignore a wallet transaction",
   args: transactionArgs,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     await ignoreWalletTxn({ path: { id: ctx.values.id }, body: { company_id: companyId } });
-    return formatValue(
-      { wallet_txn_id: ctx.values.id, status: 3 },
-      format,
-      `Wallet transaction ignored: ${ctx.values.id}`,
-    );
+    return JSON.stringify({ wallet_txn_id: ctx.values.id, status: 3 });
   },
 });
 
@@ -58,13 +53,9 @@ export const walletTransactionResetCommand = define({
   description: "Return a wallet transaction to unprocessed",
   args: transactionArgs,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     await resetWalletTxn({ path: { id: ctx.values.id }, body: { company_id: companyId } });
-    return formatValue(
-      { wallet_txn_id: ctx.values.id, status: 1 },
-      format,
-      `Wallet transaction reset: ${ctx.values.id}`,
-    );
+    return JSON.stringify({ wallet_txn_id: ctx.values.id, status: 1 });
   },
 });
 
@@ -94,17 +85,13 @@ export const walletTransactionRegisterCommand = define({
   examples: `freee wallet-txn register --id 42 --body '{"deal_lines":[{"account_item_id":101,"amount":10000}]}'`,
   args: bodyArgs,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const { data } = await createWalletTxnDeal({
       path: { id: ctx.values.id },
       body: requestBody<CreateWalletTxnDealData["body"]>(ctx.values.body, companyId),
     });
     const result = { wallet_txn_id: ctx.values.id, ...data };
-    return formatValue(
-      result,
-      format,
-      `Wallet transaction registered: ${JSON.stringify(result, null, 2)}`,
-    );
+    return JSON.stringify(result);
   },
 });
 
@@ -113,16 +100,12 @@ export const walletTransactionRegisterPrivateCommand = define({
   description: "Create and link a private Deal using the company's accounting treatment",
   args: transactionArgs,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const { data } = await createWalletTxnPrivateDeal({
       path: { id: ctx.values.id },
       body: { company_id: companyId },
     });
-    return formatValue(
-      { wallet_txn_id: ctx.values.id, ...data },
-      format,
-      `Private Deal registered: ${data.deal_id}`,
-    );
+    return JSON.stringify({ wallet_txn_id: ctx.values.id, ...data });
   },
 });
 
@@ -132,16 +115,12 @@ export const walletTransactionSettleCommand = define({
   examples: `freee wallet-txn settle --id 42 --body '{"deals":[{"deal_id":91,"amount":10000}]}'`,
   args: bodyArgs,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const { data } = await reconcileWalletTxn({
       path: { id: ctx.values.id },
       body: requestBody<ReconcileWalletTxnData["body"]>(ctx.values.body, companyId),
     });
-    return formatValue(
-      data,
-      format,
-      `Wallet transaction settled: ${JSON.stringify(data, null, 2)}`,
-    );
+    return JSON.stringify(data);
   },
 });
 
@@ -151,16 +130,12 @@ export const walletTransactionTransferCommand = define({
   examples: `freee wallet-txn transfer --id 42 --body '{"transfer_from_line":{"walletable_id":1,"walletable_type":"bank_account"},"transfer_to_lines":[{"walletable_id":2,"walletable_type":"wallet","amount":10000}]}'`,
   args: bodyArgs,
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const { data } = await createWalletTxnTransfer({
       path: { id: ctx.values.id },
       body: requestBody<CreateWalletTxnTransferData["body"]>(ctx.values.body, companyId),
     });
-    return formatValue(
-      data,
-      format,
-      `Wallet transaction transferred: ${JSON.stringify(data, null, 2)}`,
-    );
+    return JSON.stringify(data);
   },
 });
 
@@ -182,15 +157,11 @@ export const walletTransactionApplyRulesCommand = define({
     }),
   ),
   run: async (ctx) => {
-    const { companyId, format } = initCommand(ctx);
+    const { companyId } = initCommand(ctx);
     const ids = [...new Set(ctx.values.id)];
     if (ids.length > 1000)
       throw invalid("At most 1000 statement IDs can be submitted per request.");
     await applyUserMatchers({ body: { company_id: companyId, wallet_txn_ids: ids } });
-    return formatValue(
-      { wallet_txn_ids: ids, status: "queued" },
-      format,
-      `Auto-registration rules queued for ${ids.length} statements; processing is asynchronous.`,
-    );
+    return JSON.stringify({ wallet_txn_ids: ids, status: "queued" });
   },
 });

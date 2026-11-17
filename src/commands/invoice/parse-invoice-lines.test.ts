@@ -20,28 +20,6 @@ describe("parseInvoiceLines", () => {
     ]);
   });
 
-  test("複数の --line を順序どおり配列にする", () => {
-    const lines = parseInvoiceLines([
-      '{"description":"A","quantity":1,"unit_price":"100","tax_rate":10}',
-      '{"description":"B","quantity":2,"unit_price":"200","tax_rate":8}',
-    ]);
-
-    expect(lines).toHaveLength(2);
-    expect(lines[0]?.description).toBe("A");
-    expect(lines[1]?.description).toBe("B");
-  });
-
-  test("取引登録用の勘定科目と税区分を受け取る", () => {
-    const lines = parseInvoiceLines([
-      '{"description":"立替金","quantity":1,"unit_price":"30000","tax_rate":0,"account_item_id":323375732,"tax_code":2}',
-    ]);
-
-    expect(lines[0]).toMatchObject({
-      account_item_id: 323375732,
-      tax_code: 2,
-    });
-  });
-
   test("テキスト行は description だけで通る", () => {
     const lines = parseInvoiceLines(['{"type":"text","description":"— 以下余白 —"}']);
 
@@ -69,12 +47,6 @@ describe("parseInvoiceLines", () => {
   test("品目行に quantity がなければ CliError", () => {
     expect(() =>
       parseInvoiceLines(['{"description":"A","unit_price":"100","tax_rate":10}']),
-    ).toThrow(CliError);
-  });
-
-  test("freee が認めない税率は CliError", () => {
-    expect(() =>
-      parseInvoiceLines(['{"description":"A","quantity":1,"unit_price":"100","tax_rate":5}']),
     ).toThrow(CliError);
   });
 

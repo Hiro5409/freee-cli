@@ -49,10 +49,7 @@ test("quotation template list uses quotation templates from the selected company
       { baseUrl },
     ),
   );
-  const result = await cli(
-    ["--company-id", "123", "--format", "json"],
-    quotationTemplateListCommand,
-  );
+  const result = await cli(["--company-id", "123"], quotationTemplateListCommand);
   expect(new URL(requestedUrl).pathname).toBe("/iv/quotations/templates");
   expect(new URL(requestedUrl).searchParams.get("company_id")).toBe("123");
   expect(JSON.parse(String(result))).toEqual(templates);
@@ -100,8 +97,6 @@ test("quotation create sends quotation dates, commercial terms and ordered lines
       '{"description":"開発","quantity":2,"unit_price":50000,"tax_rate":10}',
       "--line",
       '{"type":"text","description":"納品条件は別紙参照"}',
-      "--format",
-      "json",
     ],
     quotationCreateCommand,
   );
@@ -253,8 +248,6 @@ test("quotation create accepts a partner code and reduced-tax decimal lines with
       "in",
       "--line",
       '{"quantity":-1.125,"unit_price":"9999999999999.999","tax_rate":8,"reduced_tax_rate":true,"withholding":true}',
-      "--format",
-      "json",
     ],
     quotationCreateCommand,
   );
@@ -301,10 +294,7 @@ test("quotation show keeps nullable legacy lines and returns the report URL", as
       { baseUrl },
     ),
   );
-  const result = await cli(
-    ["--company-id", "123", "--id", "42", "--format", "json"],
-    quotationShowCommand,
-  );
+  const result = await cli(["--company-id", "123", "--id", "42"], quotationShowCommand);
   expect(new URL(requestedUrl).pathname).toBe("/iv/quotations/42");
   expect(new URL(requestedUrl).searchParams.get("company_id")).toBe("123");
   expect(JSON.parse(String(result))).toEqual(quotation);
@@ -322,7 +312,7 @@ test("quotation list filters by quotation month and returns records from the inv
   );
 
   const result = await cli(
-    ["--company-id", "123", "--month", "2026-02", "--sending-status", "unsent", "--format", "json"],
+    ["--company-id", "123", "--month", "2026-02", "--sending-status", "unsent"],
     quotationListCommand,
   );
 
