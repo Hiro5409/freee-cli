@@ -3,9 +3,9 @@ import { describe, expect, test } from "bun:test";
 import {
   IsoDateSchema,
   MonthTextSchema,
+  parseCliInput,
   PositiveIntegerTextSchema,
   YearTextSchema,
-  parseCliInput,
 } from "./cli-input.ts";
 import { CliError } from "./errors.ts";
 

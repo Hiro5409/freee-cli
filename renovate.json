@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>Hiro5409/renovate-config", "group:vitePlus"],
+  "extends": ["github>Hiro5409/renovate-config"],
   "packageRules": [
     {
       "description": "Keep the TypeScript 7-compatible OpenAPI generator on its prerelease channel and require review before opening an update PR.",
@@ -10,9 +10,8 @@
       "dependencyDashboardApproval": true
     },
     {
-      "description": "Preserve compatibility overrides except the core package updated with Vite+.",
+      "description": "Preserve compatibility overrides.",
       "matchDepTypes": ["overrides"],
-      "matchPackageNames": ["!@voidzero-dev/vite-plus-core"],
       "enabled": false
     }
   ]

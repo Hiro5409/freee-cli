@@ -5,14 +5,10 @@ import {
 } from "@hey-api/openapi-ts";
 
 type OperationObject =
-  | OpenApiOperationObject.V2_0_X
-  | OpenApiOperationObject.V3_0_X
-  | OpenApiOperationObject.V3_1_X;
+  OpenApiOperationObject.V2_0_X | OpenApiOperationObject.V3_0_X | OpenApiOperationObject.V3_1_X;
 
 type SchemaObject =
-  | OpenApiSchemaObject.V2_0_X
-  | OpenApiSchemaObject.V3_0_X
-  | OpenApiSchemaObject.V3_1_X;
+  OpenApiSchemaObject.V2_0_X | OpenApiSchemaObject.V3_0_X | OpenApiSchemaObject.V3_1_X;
 
 const freeeApiSchemaBaseUrl =
   "https://raw.githubusercontent.com/freee/freee-api-schema/c6b24c3fc7460c13bc555fc4a7c55d406e98536e";
@@ -116,8 +112,8 @@ const parser = {
 } as const;
 
 const formatGeneratedOutput = {
-  name: "Vite+ format",
-  command: "vp",
+  name: "Bun format",
+  command: "bun",
   args: ["fmt", "{{path}}"],
 } as const;
 

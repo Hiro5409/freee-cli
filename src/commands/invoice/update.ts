@@ -47,8 +47,7 @@ function paymentTypeForRequest(
 }
 
 type PartnerOverride =
-  | { partner_id: number; partner_code?: never }
-  | { partner_code: string; partner_id?: never };
+  { partner_id: number; partner_code?: never } | { partner_code: string; partner_id?: never };
 
 function resolvePartnerOverride(values: {
   "partner-id"?: number;

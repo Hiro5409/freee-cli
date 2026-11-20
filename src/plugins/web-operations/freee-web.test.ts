@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { createContext, runInContext } from "node:vm";
 
 import { OutcomeUnknownError } from "../../errors.ts";
-import { type FreeeWebScope, loginFreeeWeb, freeeWebStatus, withFreeeWeb } from "./freee-web.ts";
+import { type FreeeWebScope, freeeWebStatus, loginFreeeWeb, withFreeeWeb } from "./freee-web.ts";
 
 const companyId = 1_234_567;
 let webScope: FreeeWebScope;

@@ -1,7 +1,7 @@
 import { afterAll, afterEach, beforeAll, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
 
-import { HttpResponse, http } from "msw/http";
+import { http, HttpResponse } from "msw/http";
 
 import { createNetwork } from "../test/network.ts";
 import { releaseState } from "./release-state.ts";

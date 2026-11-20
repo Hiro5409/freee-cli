@@ -1,6 +1,6 @@
 import * as v from "valibot";
 
-import { PositiveIntegerSchema, parseCliInput } from "../../cli-input.ts";
+import { parseCliInput, PositiveIntegerSchema } from "../../cli-input.ts";
 import { CliError, errorHints } from "../../errors.ts";
 import type { TransferParams } from "../../types/freee/types.gen.ts";
 

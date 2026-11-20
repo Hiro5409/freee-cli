@@ -1,2 +1,10 @@
 [install]
 minimumReleaseAge = 86400
+
+[run]
+bun = true
+
+[fmt]
+printWidth = 100
+sortImports = true
+sortPackageJson = true

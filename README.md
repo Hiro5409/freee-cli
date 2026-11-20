@@ -189,7 +189,7 @@ Install and [activate mise](https://mise.jdx.dev/getting-started.html), then:
 ```bash
 mise trust
 mise install
-bun install --frozen-lockfile
+bun ci
 lefthook install
 bun run check
 ```

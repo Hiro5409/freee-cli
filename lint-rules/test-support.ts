@@ -1,7 +1,7 @@
 import { join, resolve } from "node:path";
 
 const repositoryRoot = join(import.meta.dir, "..");
-const vitePlus = join(repositoryRoot, "node_modules", ".bin", "vp");
+const oxlint = join(repositoryRoot, "node_modules", ".bin", "oxlint");
 const fixtureConfig = join(import.meta.dir, "fixtures.oxlintrc.json");
 const fixtureRules = [
   "no-cross-command-import",
@@ -43,7 +43,16 @@ export const runOxlint = (rule: string, fixtures: ReadonlyArray<string>) => {
     `freee-cli/${fixtureRule}`,
   ]);
   const result = Bun.spawnSync(
-    [vitePlus, "lint", "--format", "json", "--config", fixtureConfig, ...ruleArgs, ...fixtures],
+    [
+      process.execPath,
+      oxlint,
+      "--format",
+      "json",
+      "--config",
+      fixtureConfig,
+      ...ruleArgs,
+      ...fixtures,
+    ],
     {
       cwd: repositoryRoot,
       stderr: "pipe",

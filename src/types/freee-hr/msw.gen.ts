@@ -2064,8 +2064,7 @@ export type HandleGetSalariesEmployeePayrollStatementsResponse = {
  */
 export function handleGetSalariesEmployeePayrollStatements(
   response?:
-    | HandleGetSalariesEmployeePayrollStatementsResponse
-    | HttpResponseResolver<never, never>,
+    HandleGetSalariesEmployeePayrollStatementsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
 ): HttpHandler {
   return http.get<never, never>(
@@ -2546,8 +2545,7 @@ export type HandleCreateAllowanceResponse = {
  */
 export function handleCreateAllowance(
   response?:
-    | HandleCreateAllowanceResponse
-    | HttpResponseResolver<never, CreateAllowanceData["body"]>,
+    HandleCreateAllowanceResponse | HttpResponseResolver<never, CreateAllowanceData["body"]>,
   options?: RequestHandlerOptions,
 ): HttpHandler {
   return http.post<never, CreateAllowanceData["body"]>(
@@ -2662,8 +2660,7 @@ export type HandleCreateDeductionResponse = {
  */
 export function handleCreateDeduction(
   response?:
-    | HandleCreateDeductionResponse
-    | HttpResponseResolver<never, CreateDeductionData["body"]>,
+    HandleCreateDeductionResponse | HttpResponseResolver<never, CreateDeductionData["body"]>,
   options?: RequestHandlerOptions,
 ): HttpHandler {
   return http.post<never, CreateDeductionData["body"]>(
@@ -2904,8 +2901,7 @@ export type HandleGetApprovalRequestsMonthlyAttendancesResponse = {
  */
 export function handleGetApprovalRequestsMonthlyAttendances(
   response?:
-    | HandleGetApprovalRequestsMonthlyAttendancesResponse
-    | HttpResponseResolver<never, never>,
+    HandleGetApprovalRequestsMonthlyAttendancesResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
 ): HttpHandler {
   return http.get<never, never>(
@@ -4176,8 +4172,7 @@ export type HandleGetApprovalRequestsOvertimeWorkSettingResponse = {
  */
 export function handleGetApprovalRequestsOvertimeWorkSetting(
   response?:
-    | HandleGetApprovalRequestsOvertimeWorkSettingResponse
-    | HttpResponseResolver<never, never>,
+    HandleGetApprovalRequestsOvertimeWorkSettingResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
 ): HttpHandler {
   return http.get<never, never>(
@@ -5403,8 +5398,7 @@ export type CreateMswHandlersResult = {
   all: (options?: {
     pick?: {
       [K in keyof MswHandlerFactories]?:
-        | Parameters<MswHandlerFactories[K]>[0]
-        | Parameters<MswHandlerFactories[K]>;
+        Parameters<MswHandlerFactories[K]>[0] | Parameters<MswHandlerFactories[K]>;
     };
   }) => ReadonlyArray<HttpHandler>;
   pick: MswHandlerFactories;

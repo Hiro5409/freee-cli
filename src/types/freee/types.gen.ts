@@ -1561,12 +1561,7 @@ export type ExpenseApplicationActionCreateParams = {
    * 操作(approve: 承認する、force_approve: 特権承認する、cancel: 申請を取り消す、reject: 却下する、feedback: 申請者へ差し戻す、force_feedback: 承認済み・却下済みを取り消す)
    */
   approval_action:
-    | "approve"
-    | "force_approve"
-    | "cancel"
-    | "reject"
-    | "feedback"
-    | "force_feedback";
+    "approve" | "force_approve" | "cancel" | "reject" | "feedback" | "force_feedback";
   /**
    * 対象承認ステップID 経費申請の取得APIレスポンス.current_step_idを送信してください。
    */
@@ -1759,11 +1754,7 @@ export type PaymentRequestCreateParams = {
    * * `credit_card` - クレジットカード
    */
   payment_method?:
-    | "none"
-    | "domestic_bank_transfer"
-    | "abroad_bank_transfer"
-    | "account_transfer"
-    | "credit_card";
+    "none" | "domestic_bank_transfer" | "abroad_bank_transfer" | "account_transfer" | "credit_card";
   /**
    * 支払先の取引先ID（`/api/1/partners` のレスポンス id で取得できます）
    */
@@ -2009,11 +2000,7 @@ export type PaymentRequestUpdateParams = {
    * * `credit_card` - クレジットカード
    */
   payment_method?:
-    | "none"
-    | "domestic_bank_transfer"
-    | "abroad_bank_transfer"
-    | "account_transfer"
-    | "credit_card";
+    "none" | "domestic_bank_transfer" | "abroad_bank_transfer" | "account_transfer" | "credit_card";
   /**
    * 支払先の取引先ID（`/api/1/partners` のレスポンス id で取得できます）
    */
@@ -2223,11 +2210,7 @@ export type PartnerCreateParams = {
      *
      */
     sending_method?:
-      | "email"
-      | "posting"
-      | "email_and_posting"
-      | "pdf_delivery"
-      | "pdf_delivery_and_posting";
+      "email" | "posting" | "email_and_posting" | "pdf_delivery" | "pdf_delivery_and_posting";
   };
   /**
    * 銀行口座情報（この取引先の受取口座）。
@@ -2456,11 +2439,7 @@ export type PartnerUpdateParams = {
      *
      */
     sending_method?:
-      | "email"
-      | "posting"
-      | "email_and_posting"
-      | "pdf_delivery"
-      | "pdf_delivery_and_posting";
+      "email" | "posting" | "email_and_posting" | "pdf_delivery" | "pdf_delivery_and_posting";
   };
   /**
    * 銀行口座情報（この取引先の受取口座）。指定した属性のみ更新されます。account_type に空文字を指定した場合は ordinary で置き換わる点に注意してください。
@@ -5195,12 +5174,7 @@ export type TrialPlSectionsResponse = {
      *
      */
     breakdown_display_type?:
-      | "partner"
-      | "item"
-      | "account_item"
-      | "segment_1_tag"
-      | "segment_2_tag"
-      | "segment_3_tag";
+      "partner" | "item" | "account_item" | "segment_1_tag" | "segment_2_tag" | "segment_3_tag";
     /**
      * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
      */
@@ -7114,12 +7088,7 @@ export type TrialCrSectionsResponse = {
      *
      */
     breakdown_display_type?:
-      | "partner"
-      | "item"
-      | "account_item"
-      | "segment_1_tag"
-      | "segment_2_tag"
-      | "segment_3_tag";
+      "partner" | "item" | "account_item" | "segment_1_tag" | "segment_2_tag" | "segment_3_tag";
     /**
      * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
      */
@@ -10570,11 +10539,7 @@ export type PartnersResponse = {
        *
        */
       sending_method?:
-        | "email"
-        | "posting"
-        | "email_and_posting"
-        | "pdf_delivery"
-        | "pdf_delivery_and_posting";
+        "email" | "posting" | "email_and_posting" | "pdf_delivery" | "pdf_delivery_and_posting";
     };
     /**
      * 銀行口座情報（この取引先の受取口座）。口座が登録されていない場合はキー自体が返却されません。
@@ -10782,11 +10747,7 @@ export type PartnerResponse = {
        *
        */
       sending_method?:
-        | "email"
-        | "posting"
-        | "email_and_posting"
-        | "pdf_delivery"
-        | "pdf_delivery_and_posting";
+        "email" | "posting" | "email_and_posting" | "pdf_delivery" | "pdf_delivery_and_posting";
     };
     /**
      * 銀行口座情報（この取引先の受取口座）。口座が登録されていない場合はキー自体が返却されません。
@@ -10931,12 +10892,7 @@ export type Walletable = {
    * * `other_error` - その他のエラー（詳細はfreee会計画面上でご確認ください）
    */
   sync_status?:
-    | "success"
-    | "disabled"
-    | "syncing"
-    | "token_refresh_error"
-    | "unsupported"
-    | "other_error";
+    "success" | "disabled" | "syncing" | "token_refresh_error" | "unsupported" | "other_error";
   /**
    * 同期残高（円）。連携サービスから同期した残高です。リクエスト時に with_balance=true を指定した場合のみ返却されます。
    */
@@ -12989,12 +12945,7 @@ export type PaymentRequestActionCreateParams = {
    * 承認操作は申請ステータスが `in_progress` (申請中) / `approved` (承認済) / `rejected` (却下) のもののみが対象です。
    */
   approval_action:
-    | "approve"
-    | "force_approve"
-    | "cancel"
-    | "reject"
-    | "feedback"
-    | "force_feedback";
+    "approve" | "force_approve" | "cancel" | "reject" | "feedback" | "force_feedback";
   /**
    * 対象承認ステップID。支払依頼の取得API (`GET /api/1/payment_requests/{id}`) のレスポンス current_step_id を送信してください。
    */
@@ -13171,12 +13122,7 @@ export type ApprovalRequestActionCreateParams = {
    * 操作(approve: 承認する、force_approve: 特権承認する、cancel: 申請を取り消す、reject: 却下する、feedback: 申請者へ差し戻す、force_feedback: 承認済み・却下済みを取り消す)
    */
   approval_action:
-    | "approve"
-    | "force_approve"
-    | "cancel"
-    | "reject"
-    | "feedback"
-    | "force_feedback";
+    "approve" | "force_approve" | "cancel" | "reject" | "feedback" | "force_feedback";
   /**
    * 対象承認ステップID 各種申請の取得APIレスポンス.current_step_idを送信してください。
    */
@@ -15511,9 +15457,7 @@ export type ApprovalFlowRouteResponse = {
            * * `no_approver_present` - 承認者が不在かどうか
            */
           switch_evaluation_key?:
-            | "total_amount_jpy"
-            | "applicant_position_type"
-            | "no_approver_present";
+            "total_amount_jpy" | "applicant_position_type" | "no_approver_present";
           /**
            * 判定対象とvaluesを比較する演算子
            * * `greater_than_or_equal` - valuesの値以上
@@ -15523,11 +15467,7 @@ export type ApprovalFlowRouteResponse = {
            * * `of` - valuesの値と一致する
            */
           operator:
-            | "greater_than_or_equal"
-            | "less_than_or_equal"
-            | "contains"
-            | "not_contains"
-            | "of";
+            "greater_than_or_equal" | "less_than_or_equal" | "contains" | "not_contains" | "of";
           /**
            * 判定値 (配列)
            */
@@ -15658,13 +15598,7 @@ export type InvoiceIndexResponse = {
      * 請求書ステータス  (draft: 下書き, applying: 申請中, remanded: 差し戻し, rejected: 却下, approved: 承認済み, submitted: 送付済み, unsubmitted: 請求書の承認フローが無効の場合のみ、unsubmitted（送付待ち）の値をとります)
      */
     invoice_status:
-      | "draft"
-      | "applying"
-      | "remanded"
-      | "rejected"
-      | "approved"
-      | "submitted"
-      | "unsubmitted";
+      "draft" | "applying" | "remanded" | "rejected" | "approved" | "submitted" | "unsubmitted";
     /**
      * 入金ステータス  (unsettled: 入金待ち, settled: 入金済み)
      */
@@ -16008,13 +15942,7 @@ export type InvoiceResponse = {
      * 請求書ステータス  (draft: 下書き, applying: 申請中, remanded: 差し戻し, rejected: 却下, approved: 承認済み, submitted: 送付済み, unsubmitted: 請求書の承認フローが無効の場合のみ、unsubmitted（送付待ち）の値をとります)
      */
     invoice_status:
-      | "draft"
-      | "applying"
-      | "remanded"
-      | "rejected"
-      | "approved"
-      | "submitted"
-      | "unsubmitted";
+      "draft" | "applying" | "remanded" | "rejected" | "approved" | "submitted" | "unsubmitted";
     /**
      * 入金ステータス  (unsettled: 入金待ち, settled: 入金済み)
      */
@@ -17583,11 +17511,7 @@ export type ApiV1PartnersUpsertByCodeData = {
          *
          */
         sending_method?:
-          | "email"
-          | "posting"
-          | "email_and_posting"
-          | "pdf_delivery"
-          | "pdf_delivery_and_posting";
+          "email" | "posting" | "email_and_posting" | "pdf_delivery" | "pdf_delivery_and_posting";
       };
       /**
        * 銀行口座情報（この取引先の受取口座）。更新経路では指定した属性のみ上書きし、省略した属性は既存値を維持します。account_type に空文字を指定した場合は ordinary で置き換わる点に注意してください。
@@ -18659,13 +18583,7 @@ export type GetInvoicesData = {
      * 請求書ステータス  (draft: 下書き, applying: 申請中, remanded: 差し戻し, rejected: 却下, approved: 承認済み, unsubmitted: 送付待ち, submitted: 送付済み)
      */
     invoice_status?:
-      | "draft"
-      | "applying"
-      | "remanded"
-      | "rejected"
-      | "approved"
-      | "unsubmitted"
-      | "submitted";
+      "draft" | "applying" | "remanded" | "rejected" | "approved" | "unsubmitted" | "submitted";
     /**
      * 入金ステータス  (unsettled: 入金待ち, settled: 入金済み)
      */
@@ -22452,12 +22370,7 @@ export type GetTrialPlSectionsData = {
      *
      */
     breakdown_display_type?:
-      | "partner"
-      | "item"
-      | "account_item"
-      | "segment_1_tag"
-      | "segment_2_tag"
-      | "segment_3_tag";
+      "partner" | "item" | "account_item" | "segment_1_tag" | "segment_2_tag" | "segment_3_tag";
     /**
      * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
      */
@@ -23244,12 +23157,7 @@ export type GetTrialCrSectionsData = {
      *
      */
     breakdown_display_type?:
-      | "partner"
-      | "item"
-      | "account_item"
-      | "segment_1_tag"
-      | "segment_2_tag"
-      | "segment_3_tag";
+      "partner" | "item" | "account_item" | "segment_1_tag" | "segment_2_tag" | "segment_3_tag";
     /**
      * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
      */
@@ -24032,13 +23940,7 @@ export type GetExpenseApplicationsData = {
      * 申請ステータス(draft:下書き, in_progress:申請中, approved:承認済, rejected:却下, feedback:差戻し)、 取引ステータス(unsettled:清算待ち, settled:精算済み)
      */
     status?:
-      | "draft"
-      | "in_progress"
-      | "approved"
-      | "rejected"
-      | "feedback"
-      | "unsettled"
-      | "settled";
+      "draft" | "in_progress" | "approved" | "rejected" | "feedback" | "unsettled" | "settled";
     /**
      * true:給与連携あり、false:給与連携なし、未指定時:絞り込みなし
      */
@@ -24726,13 +24628,7 @@ export type GetPaymentRequestsData = {
      * approver_id を指定した場合は無効です。
      */
     status?:
-      | "draft"
-      | "in_progress"
-      | "approved"
-      | "rejected"
-      | "feedback"
-      | "unsettled"
-      | "settled";
+      "draft" | "in_progress" | "approved" | "rejected" | "feedback" | "unsettled" | "settled";
     /**
      * 申請日で絞込：開始日(yyyy-mm-dd)
      */
@@ -25593,11 +25489,7 @@ export type GetApprovalFlowRoutesData = {
      * * `DocApproval` - 請求書等 (見積書・納品書・請求書・発注書)
      */
     usage?:
-      | "TxnApproval"
-      | "ExpenseApplication"
-      | "PaymentRequest"
-      | "ApprovalRequest"
-      | "DocApproval";
+      "TxnApproval" | "ExpenseApplication" | "PaymentRequest" | "ApprovalRequest" | "DocApproval";
     /**
      * 申請フォームID（指定した申請フォームが使用できる申請経路に絞り込めます。usage に ApprovalRequest を指定した場合のみ有効で、usage が ApprovalRequest 以外または未指定の場合、このパラメータは無視されます。指定した申請フォームが存在しない場合や無効な場合は空配列が返ります。）
      */

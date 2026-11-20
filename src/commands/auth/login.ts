@@ -20,9 +20,9 @@ import { globalArgs } from "../../global-args.ts";
 import { loginFreeeWeb } from "../../plugins/web-operations/freee-web.ts";
 import {
   assertProfileWritable,
-  resolveFreeeScope,
   defaultProfileAfterLogin,
   resolveConfiguredLoginProfile,
+  resolveFreeeScope,
 } from "../../profiles.ts";
 
 export const loginCommand = define({

@@ -2,7 +2,6 @@ name: CI
 
 on:
   push:
-    # A pull request checks its branch, and the Release workflow calls this one for a pushed tag.
     branches:
       - main
   pull_request:
@@ -37,12 +36,12 @@ jobs:
       - name: Set up tools
         uses: jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd41195 # v5.2.5
         with:
-          install_args: bun node gh
+          install_args: bun gh
           # This job packs the artifact that the Release workflow publishes, so its tools never come from a cache.
           cache: false
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: bun ci
 
       - name: Audit dependencies
         run: bun audit --audit-level=high
@@ -88,7 +87,6 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # 秘匿情報の検査は全履歴が対象
           fetch-depth: 0
           persist-credentials: false
 

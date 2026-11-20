@@ -1,4 +1,4 @@
-import { define, type ArgValues } from "gunshi";
+import { type ArgValues, define } from "gunshi";
 import {
   args,
   boolean,

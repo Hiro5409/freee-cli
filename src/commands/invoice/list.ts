@@ -2,7 +2,7 @@ import { define } from "gunshi";
 import { args, choice, merge, string } from "gunshi/combinators";
 
 import { fetchAllInvoiceRecords } from "../../api/invoice-paginate.ts";
-import { PositiveIntegerTextSchema, monthArg, parseCliInput } from "../../cli-input.ts";
+import { monthArg, parseCliInput, PositiveIntegerTextSchema } from "../../cli-input.ts";
 import { CliError } from "../../errors.ts";
 import { listArgs } from "../../global-args.ts";
 import { initCommand, monthToDateRange } from "../../helpers.ts";

@@ -71,7 +71,7 @@ export async function releaseState(input: {
 
 if (import.meta.main) {
   const tarball = process.argv[2];
-  assert.ok(tarball, "Usage: node scripts/release-state.ts <package.tgz> [--wait]");
+  assert.ok(tarball, "Usage: scripts/release-state.ts <package.tgz> [--wait]");
   const pkg: unknown = JSON.parse(
     readFileSync(new URL("../package.json", import.meta.url), "utf8"),
   );

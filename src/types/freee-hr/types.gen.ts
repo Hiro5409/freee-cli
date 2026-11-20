@@ -2006,10 +2006,7 @@ export type ApiV1EmployeesDependentRuleUpdateRequestSerializer = {
    * 扶養状況 social_insurance_and_tax: 所得税・住民税と社会保険, tax_only: 所得税・住民税のみ, social_insurance_only: 社会保険のみ, not_dependent: 扶養していない
    */
   social_insurance_and_tax_dependent:
-    | "social_insurance_and_tax"
-    | "tax_only"
-    | "social_insurance_only"
-    | "not_dependent";
+    "social_insurance_and_tax" | "tax_only" | "social_insurance_only" | "not_dependent";
   /**
    * 社会保険の扶養加入日
    */
@@ -2096,11 +2093,7 @@ export type ApiV1EmployeesDependentRuleUpdateRequestSerializer = {
    * 非居住者である親族の条件 none: なし, over_16_to_under_30_or_over_70: 16歳以上30歳未満又は70歳以上, study_abroad: 留学, handicapped: 障害者, over_38_man: 38万円以上の支払
    */
   non_resident_dependents_reason?:
-    | "none"
-    | "over_16_to_under_30_or_over_70"
-    | "study_abroad"
-    | "handicapped"
-    | "over_38_man";
+    "none" | "over_16_to_under_30_or_over_70" | "study_abroad" | "handicapped" | "over_38_man";
 };
 
 export type ApiV1EmployeesTimeClockSerializer = {
@@ -3040,11 +3033,7 @@ export type ApiV1EmployeesDependentRuleSerializer = {
    * 非居住者である親族の条件 none: なし, over_16_to_under_30_or_over_70: 16歳以上30歳未満又は70歳以上, study_abroad: 留学, handicapped: 障害者, over_38_man: 38万円以上の支払
    */
   non_resident_dependents_reason?:
-    | "none"
-    | "over_16_to_under_30_or_over_70"
-    | "study_abroad"
-    | "handicapped"
-    | "over_38_man";
+    "none" | "over_16_to_under_30_or_over_70" | "study_abroad" | "handicapped" | "over_38_man";
 };
 
 export type ApiV1EmployeesBasicPayRuleSerializer = {
@@ -4992,10 +4981,7 @@ export type ApiV1EmployeeYearendAdjustmentDependentUpdateRequestSerializer = {
    * 扶養状況 social_insurance_and_tax: 所得税・住民税と社会保険, tax_only: 所得税・住民税のみ, social_insurance_only: 社会保険のみ, not_dependent: 扶養していない
    */
   social_insurance_and_tax_dependent:
-    | "social_insurance_and_tax"
-    | "tax_only"
-    | "social_insurance_only"
-    | "not_dependent";
+    "social_insurance_and_tax" | "tax_only" | "social_insurance_only" | "not_dependent";
   /**
    * 所得 配偶者は「扶養状況」がsocial_insurance_only又はnot_dependentの場合のみ更新可能。配偶者以外は更新可能。 配偶者で「扶養状況」がsocial_insurance_and_tax又はtax_onlyの場合、「給与収入」、「給与以外の所得」から自動で「所得」が計算されます。
    */
@@ -5044,11 +5030,7 @@ export type ApiV1EmployeeYearendAdjustmentDependentUpdateRequestSerializer = {
    * 非居住者である親族の条件 none: なし, over_16_to_under_30_or_over_70: 16歳以上30歳未満又は70歳以上, study_abroad: 留学, handicapped: 障害者, over_38_man: 38万円以上の支払 続柄が「配偶者」または「同居・別居」が「同居」、「別居(国内)」の場合は登録不可
    */
   non_resident_dependents_reason?:
-    | "none"
-    | "over_16_to_under_30_or_over_70"
-    | "study_abroad"
-    | "handicapped"
-    | "over_38_man";
+    "none" | "over_16_to_under_30_or_over_70" | "study_abroad" | "handicapped" | "over_38_man";
   /**
    * 住民税のみの控除対象かどうか 2025年以前の年末調整でのみ更新可能。2026年以降の年末調整では入力された所得額から住民税の控除対象かどうかが自動判定されるため、指定しても無視されます。
    */
@@ -5118,10 +5100,7 @@ export type ApiV1EmployeeYearendAdjustmentDependentSerializer = {
    * 扶養状況 social_insurance_and_tax: 所得税・住民税と社会保険, tax_only: 所得税・住民税のみ, social_insurance_only: 社会保険のみ, not_dependent: 扶養していない
    */
   social_insurance_and_tax_dependent?:
-    | "social_insurance_and_tax"
-    | "tax_only"
-    | "social_insurance_only"
-    | "not_dependent";
+    "social_insurance_and_tax" | "tax_only" | "social_insurance_only" | "not_dependent";
   /**
    * 所得 配偶者は「扶養状況」がsocial_insurance_only又はnot_dependentの場合のみ更新可能。配偶者以外は更新可能。 配偶者で「扶養状況」がsocial_insurance_and_tax又はtax_onlyの場合、「給与収入」、「給与以外の所得」から自動で「所得」が計算されます。
    */
@@ -5170,11 +5149,7 @@ export type ApiV1EmployeeYearendAdjustmentDependentSerializer = {
    * 非居住者である親族の条件 none: なし, over_16_to_under_30_or_over_70: 16歳以上30歳未満又は70歳以上, study_abroad: 留学, handicapped: 障害者, over_38_man: 38万円以上の支払 続柄が「配偶者」または「同居・別居」が「同居」、「別居(国内)」の場合は登録不可
    */
   non_resident_dependents_reason?:
-    | "none"
-    | "over_16_to_under_30_or_over_70"
-    | "study_abroad"
-    | "handicapped"
-    | "over_38_man";
+    "none" | "over_16_to_under_30_or_over_70" | "study_abroad" | "handicapped" | "over_38_man";
   /**
    * 住民税のみの控除対象かどうか 2025年以前の年末調整でのみ返却されます。2026年以降の年末調整では入力された所得額から住民税の控除対象かどうかが自動判定されるため、レスポンスに含まれません。
    */

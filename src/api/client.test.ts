@@ -3,7 +3,7 @@ import { mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { HttpResponse, http } from "msw/http";
+import { http, HttpResponse } from "msw/http";
 
 import { createNetwork } from "../../test/network.ts";
 import { loadCredentials, saveCredentials, updateCredentials } from "../config/credentials.ts";

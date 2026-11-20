@@ -1,7 +1,7 @@
 import { configureClient } from "../../api/client.ts";
 import { configDir } from "../../config/config.ts";
 import { CliError, OutcomeUnknownError } from "../../errors.ts";
-import { resolveFreeeScope, type FreeeScope } from "../../profiles.ts";
+import { type FreeeScope, resolveFreeeScope } from "../../profiles.ts";
 import { invoicesShow } from "../../types/freee-invoice/sdk.gen.ts";
 import type { InvoiceShowResponseInvoice } from "../../types/freee-invoice/types.gen.ts";
 import { type FreeeWebOperations, withFreeeWeb } from "./freee-web.ts";
