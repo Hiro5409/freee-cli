@@ -2,9 +2,9 @@ import * as v from "valibot";
 
 import { CliError, OutcomeUnknownError } from "../../errors.ts";
 import {
-  createAgentBrowserSession,
-  clearAgentBrowserSession,
   type AgentBrowserSession,
+  clearAgentBrowserSession,
+  createAgentBrowserSession,
 } from "./agent-browser.ts";
 
 export { OutcomeUnknownError } from "../../errors.ts";

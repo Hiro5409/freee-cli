@@ -1,5 +1,5 @@
 import { CliError, errorHints } from "../../errors.ts";
-import { resolveFreeeScope, type FreeeScope } from "../../profiles.ts";
+import { type FreeeScope, resolveFreeeScope } from "../../profiles.ts";
 import { type FreeeWebOperations, withFreeeWeb } from "./freee-web.ts";
 import {
   createWalletableSync,

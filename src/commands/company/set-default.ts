@@ -1,5 +1,5 @@
 import { define } from "gunshi";
-import { args, merge, required, string, integer } from "gunshi/combinators";
+import { args, integer, merge, required, string } from "gunshi/combinators";
 
 import { globalArgs } from "../../global-args.ts";
 import { resolveConfiguredProfile } from "../../profiles.ts";

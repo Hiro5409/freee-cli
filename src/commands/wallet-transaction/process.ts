@@ -1,5 +1,5 @@
 import { define } from "gunshi";
-import { args, integer, merge, required, multiple, string } from "gunshi/combinators";
+import { args, integer, merge, multiple, required, string } from "gunshi/combinators";
 import * as v from "valibot";
 
 import { parseCliInput } from "../../cli-input.ts";
@@ -7,18 +7,18 @@ import { CliError } from "../../errors.ts";
 import { companyArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";
 import {
-  ignoreWalletTxn,
-  resetWalletTxn,
+  applyUserMatchers,
   createWalletTxnDeal,
   createWalletTxnPrivateDeal,
-  reconcileWalletTxn,
   createWalletTxnTransfer,
-  applyUserMatchers,
+  ignoreWalletTxn,
+  reconcileWalletTxn,
+  resetWalletTxn,
 } from "../../types/freee/sdk.gen.ts";
 import type {
   CreateWalletTxnDealData,
-  ReconcileWalletTxnData,
   CreateWalletTxnTransferData,
+  ReconcileWalletTxnData,
 } from "../../types/freee/types.gen.ts";
 
 const transactionArgs = merge(

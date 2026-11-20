@@ -757,8 +757,7 @@ export type HandleCreateAccountItemResponse = {
  */
 export function handleCreateAccountItem(
   response?:
-    | HandleCreateAccountItemResponse
-    | HttpResponseResolver<never, CreateAccountItemData["body"]>,
+    HandleCreateAccountItemResponse | HttpResponseResolver<never, CreateAccountItemData["body"]>,
   options?: RequestHandlerOptions,
 ): HttpHandler {
   return http.post<never, CreateAccountItemData["body"]>(
@@ -2722,8 +2721,7 @@ export type HandleCreateWalletableResponse = {
  */
 export function handleCreateWalletable(
   response?:
-    | HandleCreateWalletableResponse
-    | HttpResponseResolver<never, CreateWalletableData["body"]>,
+    HandleCreateWalletableResponse | HttpResponseResolver<never, CreateWalletableData["body"]>,
   options?: RequestHandlerOptions,
 ): HttpHandler {
   return http.post<never, CreateWalletableData["body"]>(
@@ -3222,8 +3220,7 @@ export type HandleCreateWalletTxnResponse = {
  */
 export function handleCreateWalletTxn(
   response?:
-    | HandleCreateWalletTxnResponse
-    | HttpResponseResolver<never, CreateWalletTxnData["body"]>,
+    HandleCreateWalletTxnResponse | HttpResponseResolver<never, CreateWalletTxnData["body"]>,
   options?: RequestHandlerOptions,
 ): HttpHandler {
   return http.post<never, CreateWalletTxnData["body"]>(
@@ -6713,8 +6710,7 @@ export type HandleCreateAccountGroupResponse = {
  */
 export function handleCreateAccountGroup(
   response?:
-    | HandleCreateAccountGroupResponse
-    | HttpResponseResolver<never, CreateAccountGroupData["body"]>,
+    HandleCreateAccountGroupResponse | HttpResponseResolver<never, CreateAccountGroupData["body"]>,
   options?: RequestHandlerOptions,
 ): HttpHandler {
   return http.post<never, CreateAccountGroupData["body"]>(
@@ -6783,8 +6779,7 @@ export type HandleCreateUserMatcherResponse = {
  */
 export function handleCreateUserMatcher(
   response?:
-    | HandleCreateUserMatcherResponse
-    | HttpResponseResolver<never, CreateUserMatcherData["body"]>,
+    HandleCreateUserMatcherResponse | HttpResponseResolver<never, CreateUserMatcherData["body"]>,
   options?: RequestHandlerOptions,
 ): HttpHandler {
   return http.post<never, CreateUserMatcherData["body"]>(
@@ -6957,8 +6952,7 @@ export type HandleApplyUserMatchersResponse = {
  */
 export function handleApplyUserMatchers(
   response?:
-    | HandleApplyUserMatchersResponse
-    | HttpResponseResolver<never, ApplyUserMatchersData["body"]>,
+    HandleApplyUserMatchersResponse | HttpResponseResolver<never, ApplyUserMatchersData["body"]>,
   options?: RequestHandlerOptions,
 ): HttpHandler {
   return http.post<never, ApplyUserMatchersData["body"]>(
@@ -7650,8 +7644,7 @@ export type CreateMswHandlersResult = {
   all: (options?: {
     pick?: {
       [K in keyof MswHandlerFactories]?:
-        | Parameters<MswHandlerFactories[K]>[0]
-        | Parameters<MswHandlerFactories[K]>;
+        Parameters<MswHandlerFactories[K]>[0] | Parameters<MswHandlerFactories[K]>;
     };
   }) => ReadonlyArray<HttpHandler>;
   pick: MswHandlerFactories;

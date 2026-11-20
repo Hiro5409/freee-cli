@@ -34,10 +34,7 @@ type TransferValues = {
 };
 
 type LegacySingleDestinationKey =
-  | "to_walletable_id"
-  | "to_walletable_type"
-  | "amount"
-  | "description";
+  "to_walletable_id" | "to_walletable_type" | "amount" | "description";
 type CurrentTransferParams = Omit<TransferParams, LegacySingleDestinationKey>;
 type FullTransferParams = {
   [K in keyof Required<CurrentTransferParams>]: CurrentTransferParams[K];

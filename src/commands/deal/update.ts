@@ -3,9 +3,9 @@ import { args, integer, merge, multiple, required, string } from "gunshi/combina
 import * as v from "valibot";
 
 import {
+  parseCliInput,
   PositiveIntegerSchema,
   PositiveIntegerTextSchema,
-  parseCliInput,
 } from "../../cli-input.ts";
 import { dryRunArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";

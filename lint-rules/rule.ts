@@ -3,8 +3,7 @@ import type { TSESTree } from "@typescript-eslint/types";
 export type CommentLike = Pick<TSESTree.Comment, "loc" | "value">;
 
 type ReportDescriptor = { messageId: "default" } & (
-  | { node: TSESTree.Node }
-  | { loc: TSESTree.SourceLocation }
+  { node: TSESTree.Node } | { loc: TSESTree.SourceLocation }
 );
 
 export type RuleContext = {

@@ -1,5 +1,5 @@
 import { define } from "gunshi";
-import { args, merge, choice } from "gunshi/combinators";
+import { args, choice, merge } from "gunshi/combinators";
 
 import { companyArgs } from "../../global-args.ts";
 import { initCommand } from "../../helpers.ts";

@@ -1277,8 +1277,7 @@ export type HandleQuotationsCreateResponse = {
  */
 export function handleQuotationsCreate(
   response?:
-    | HandleQuotationsCreateResponse
-    | HttpResponseResolver<never, QuotationsCreateData["body"]>,
+    HandleQuotationsCreateResponse | HttpResponseResolver<never, QuotationsCreateData["body"]>,
   options?: RequestHandlerOptions,
 ): HttpHandler {
   return http.post<never, QuotationsCreateData["body"]>(
@@ -1982,8 +1981,7 @@ export type CreateMswHandlersResult = {
   all: (options?: {
     pick?: {
       [K in keyof MswHandlerFactories]?:
-        | Parameters<MswHandlerFactories[K]>[0]
-        | Parameters<MswHandlerFactories[K]>;
+        Parameters<MswHandlerFactories[K]>[0] | Parameters<MswHandlerFactories[K]>;
     };
   }) => ReadonlyArray<HttpHandler>;
   pick: MswHandlerFactories;

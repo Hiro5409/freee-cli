@@ -1,5 +1,5 @@
 import { configureClient } from "./api/client.ts";
-import { PositiveIntegerSchema, parseCliInput } from "./cli-input.ts";
+import { parseCliInput, PositiveIntegerSchema } from "./cli-input.ts";
 import { configDir, loadConfig } from "./config/config.ts";
 import { CliError, errorHints } from "./errors.ts";
 import { resolveConfiguredProfile, resolveConfiguredProfileName } from "./profiles.ts";

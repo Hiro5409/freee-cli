@@ -6,7 +6,7 @@ import { join } from "node:path";
 import * as v from "valibot";
 
 import { CliError } from "../../errors.ts";
-import { runSubprocess, type RunSubprocess, type SubprocessResult } from "./subprocess.ts";
+import { type RunSubprocess, runSubprocess, type SubprocessResult } from "./subprocess.ts";
 
 const EncryptionKeySchema = v.pipe(v.string(), v.regex(/^[A-Fa-f0-9]{64}$/));
 const AgentBrowserOutputSchema = v.object({
