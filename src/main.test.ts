@@ -29,12 +29,11 @@ async function runCliWithEmptyConfig(args: string[]): Promise<Result> {
 }
 
 describe("CLI integration", () => {
-  test("resources expose API and browser operations under the same command group", async () => {
+  test("resource commands accept a connection profile", async () => {
     for (const args of [
       ["deal", "list"],
       ["wallet-txn", "list"],
       ["wallet-txn", "ignore"],
-      ["invoice", "register-deal"],
     ]) {
       const result = await runCli([...args, "--help"]);
       expect(result.exitCode).toBe(0);
@@ -73,7 +72,6 @@ describe("CLI integration", () => {
   test("freee auth login --help shows login usage", async () => {
     const { stdout } = await runCli(["auth", "login", "--help"]);
     expect(stdout).toContain("login");
-    expect(stdout).toContain("--web");
     expect(stdout).toContain("freee auth login --profile");
   });
 

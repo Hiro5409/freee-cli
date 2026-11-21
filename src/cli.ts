@@ -82,11 +82,6 @@ import { printError } from "./error-output.ts";
 import { CliError } from "./errors.ts";
 import { globalArgs } from "./global-args.ts";
 import { writeOutput } from "./output/write.ts";
-import {
-  invoiceRegisterDealCommand,
-  invoiceSetSendingStatusCommand,
-  walletableSyncCommand,
-} from "./plugins/web-operations/commands.ts";
 
 function requireSubcommand(): never {
   throw new CliError("A subcommand is required.", {
@@ -98,7 +93,7 @@ function requireSubcommand(): never {
 const commands = {
   auth: define({
     name: "auth",
-    description: "Manage API and browser authentication",
+    description: "Manage authentication",
     subCommands: {
       login: loginCommand,
       logout: logoutCommand,
@@ -181,10 +176,9 @@ const commands = {
   }),
   walletable: define({
     name: "walletable",
-    description: "List and synchronize bank, card, and wallet accounts",
+    description: "List bank, card, and wallet accounts",
     subCommands: {
       list: walletableListCommand,
-      sync: walletableSyncCommand,
     },
     run: requireSubcommand,
   }),
@@ -295,8 +289,6 @@ const commands = {
       update: invoiceUpdateCommand,
       cancel: invoiceCancelCommand,
       restore: invoiceRestoreCommand,
-      "register-deal": invoiceRegisterDealCommand,
-      "set-sending-status": invoiceSetSendingStatusCommand,
     },
     run: requireSubcommand,
   }),

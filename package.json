@@ -34,10 +34,6 @@
     "!src/**/*.test.ts"
   ],
   "type": "module",
-  "exports": {
-    "./profiles": "./src/profiles.ts",
-    "./experimental/web": "./src/plugins/web-operations/freee-web.ts"
-  },
   "scripts": {
     "dev": "bun run src/main.ts",
     "build": "bun build src/main.ts --compile --outfile freee",
