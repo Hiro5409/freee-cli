@@ -12,6 +12,7 @@ import {
   merge,
   multiple,
   number,
+  positional,
   required,
   string,
   withDefault,
@@ -389,9 +390,14 @@ function schemaCommand(apis: ReadonlyArray<ApiDefinition>) {
   return define({
     name: "schema",
     description: "Print the JSON Schema of an API command's request",
+    args: defineArgs({
+      command: positional(
+        multiple(string({ description: "Command path, such as accounting deal show" })),
+      ),
+    }),
     examples: "$ freee schema accounting manual-journal create",
     run: (ctx) => {
-      const path = ctx.positionals.slice(ctx.commandPath.length).join(" ");
+      const path = (ctx.values.command ?? []).join(" ");
       const command = byPath.get(path);
       if (!command) {
         throw new CliError(`Unknown API command: ${path || "(none)"}`, {

@@ -93,12 +93,17 @@ export async function main() {
     usageSilent: true,
     renderValidationErrors: null,
     onBeforeCommand: (ctx) => {
-      const extra = ctx.positionals.slice(ctx.commandPath.length);
-      if (extra.length > 0 && ctx.commandPath.length > 0 && ctx.commandPath.at(-1) !== "schema") {
-        throw new CliError(`Unexpected argument: ${extra.join(" ")}`, {
+      const positionalsAllowed =
+        ctx.commandPath.length === 0 ||
+        Object.values(ctx.args).some((arg) => arg.type === "positional");
+      const extra = [
+        ...(positionalsAllowed ? [] : ctx.positionals.slice(ctx.commandPath.length)),
+        ...ctx.rest,
+      ];
+      if (extra.length > 0) {
+        throw new CliError(`Unexpected positional argument (${extra.length}).`, {
           code: "INVALID_INPUT",
-          why: "This command takes only options.",
-          hint: "Pass values as --name value, and booleans as --flag or --flag=false.",
+          why: "This command takes no further positional arguments, so a subcommand name may be misspelled.",
         });
       }
     },

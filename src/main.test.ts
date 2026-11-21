@@ -99,22 +99,27 @@ describe("CLI integration", () => {
     );
   });
 
-  test("a stray argument stops the command before it runs", async () => {
-    const { stdout, stderr, exitCode } = await runCliWithEmptyConfig([
-      "accounting",
-      "deal",
-      "delete",
-      "--company-id",
-      "1",
-      "--id",
-      "2",
-      "--dry-run",
-      "false",
-    ]);
+  test("a stray argument stops the command without echoing it", async () => {
+    const write = ["accounting", "deal", "delete", "--company-id", "1", "--id", "2"];
+    for (const args of [
+      [...write, "--dry-run", '{"token":"secret-value"}'],
+      [...write, "--", "--dry-run"],
+      [...write, "--dry-run", "--", "secret-value"],
+    ]) {
+      const { stdout, stderr, exitCode } = await runCliWithEmptyConfig(args);
+
+      expect(exitCode).toBe(1);
+      expect(stdout).toBe("");
+      expect(JSON.parse(stderr).error).toBe("Unexpected positional argument (1).");
+      expect(stderr).not.toContain("secret-value");
+    }
+  });
+
+  test("a misspelled subcommand points to the group's help", async () => {
+    const { stderr, exitCode } = await runCliWithEmptyConfig(["accounting", "deel", "list"]);
 
     expect(exitCode).toBe(1);
-    expect(stdout).toBe("");
-    expect(JSON.parse(stderr).error).toBe("Unexpected argument: false");
+    expect(JSON.parse(stderr).hint).toContain('Run "freee accounting --help"');
   });
 
   test("an integer flag beyond 2^53 - 1 is rejected instead of rounded", async () => {
