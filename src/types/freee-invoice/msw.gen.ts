@@ -88,9 +88,6 @@ export type HandleDeliverySlipsIndexResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /delivery_slips` operation.
- */
 export function handleDeliverySlipsIndex(
   response?: HandleDeliverySlipsIndexResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -122,9 +119,6 @@ export type HandleDeliverySlipsCreateResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /delivery_slips` operation.
- */
 export function handleDeliverySlipsCreate(
   response?:
     | HandleDeliverySlipsCreateResponse
@@ -158,9 +152,6 @@ export type HandleDeliverySlipsTemplatesIndexResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /delivery_slips/templates` operation.
- */
 export function handleDeliverySlipsTemplatesIndex(
   response?: HandleDeliverySlipsTemplatesIndexResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -192,9 +183,6 @@ export type HandleDeliverySlipsShowResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /delivery_slips/{id}` operation.
- */
 export function handleDeliverySlipsShow(
   response?:
     | HandleDeliverySlipsShowResponse
@@ -238,9 +226,6 @@ export type HandleDeliverySlipsUpdateResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /delivery_slips/{id}` operation.
- */
 export function handleDeliverySlipsUpdate(
   response?:
     | HandleDeliverySlipsUpdateResponse
@@ -284,9 +269,6 @@ export type HandleDeliverySlipsCancelResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /delivery_slips/{id}/cancel` operation.
- */
 export function handleDeliverySlipsCancel(
   response?:
     | HandleDeliverySlipsCancelResponse
@@ -330,9 +312,6 @@ export type HandleDeliverySlipsUncancelResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /delivery_slips/{id}/uncancel` operation.
- */
 export function handleDeliverySlipsUncancel(
   response?:
     | HandleDeliverySlipsUncancelResponse
@@ -376,9 +355,6 @@ export type HandleInvoicesIndexResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /invoices` operation.
- */
 export function handleInvoicesIndex(
   response?: HandleInvoicesIndexResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -410,9 +386,6 @@ export type HandleInvoicesCreateResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /invoices` operation.
- */
 export function handleInvoicesCreate(
   response?: HandleInvoicesCreateResponse | HttpResponseResolver<never, InvoicesCreateData["body"]>,
   options?: RequestHandlerOptions,
@@ -444,9 +417,6 @@ export type HandleInvoicesTemplatesIndexResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /invoices/templates` operation.
- */
 export function handleInvoicesTemplatesIndex(
   response?: HandleInvoicesTemplatesIndexResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -478,9 +448,6 @@ export type HandleInvoicesShowResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /invoices/{id}` operation.
- */
 export function handleInvoicesShow(
   response?:
     | HandleInvoicesShowResponse
@@ -524,9 +491,6 @@ export type HandleInvoicesUpdateResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /invoices/{id}` operation.
- */
 export function handleInvoicesUpdate(
   response?:
     | HandleInvoicesUpdateResponse
@@ -570,9 +534,6 @@ export type HandleInvoicesCancelResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /invoices/{id}/cancel` operation.
- */
 export function handleInvoicesCancel(
   response?:
     | HandleInvoicesCancelResponse
@@ -616,9 +577,6 @@ export type HandleInvoicesUncancelResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /invoices/{id}/uncancel` operation.
- */
 export function handleInvoicesUncancel(
   response?:
     | HandleInvoicesUncancelResponse
@@ -662,9 +620,6 @@ export type HandlePaymentNoticesIndexResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /payment_notices` operation.
- */
 export function handlePaymentNoticesIndex(
   response?: HandlePaymentNoticesIndexResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -696,9 +651,6 @@ export type HandlePaymentNoticesCreateResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /payment_notices` operation.
- */
 export function handlePaymentNoticesCreate(
   response?:
     | HandlePaymentNoticesCreateResponse
@@ -732,9 +684,6 @@ export type HandlePaymentNoticesTemplatesIndexResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /payment_notices/templates` operation.
- */
 export function handlePaymentNoticesTemplatesIndex(
   response?: HandlePaymentNoticesTemplatesIndexResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -766,9 +715,6 @@ export type HandlePaymentNoticesShowResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /payment_notices/{id}` operation.
- */
 export function handlePaymentNoticesShow(
   response?:
     | HandlePaymentNoticesShowResponse
@@ -812,9 +758,6 @@ export type HandlePaymentNoticesUpdateResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /payment_notices/{id}` operation.
- */
 export function handlePaymentNoticesUpdate(
   response?:
     | HandlePaymentNoticesUpdateResponse
@@ -858,9 +801,6 @@ export type HandlePaymentNoticesCancelResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /payment_notices/{id}/cancel` operation.
- */
 export function handlePaymentNoticesCancel(
   response?:
     | HandlePaymentNoticesCancelResponse
@@ -904,9 +844,6 @@ export type HandlePaymentNoticesUncancelResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /payment_notices/{id}/uncancel` operation.
- */
 export function handlePaymentNoticesUncancel(
   response?:
     | HandlePaymentNoticesUncancelResponse
@@ -950,9 +887,6 @@ export type HandlePurchaseOrdersIndexResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /purchase_orders` operation.
- */
 export function handlePurchaseOrdersIndex(
   response?: HandlePurchaseOrdersIndexResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -984,9 +918,6 @@ export type HandlePurchaseOrdersCreateResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /purchase_orders` operation.
- */
 export function handlePurchaseOrdersCreate(
   response?:
     | HandlePurchaseOrdersCreateResponse
@@ -1020,9 +951,6 @@ export type HandlePurchaseOrdersTemplatesIndexResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /purchase_orders/templates` operation.
- */
 export function handlePurchaseOrdersTemplatesIndex(
   response?: HandlePurchaseOrdersTemplatesIndexResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -1054,9 +982,6 @@ export type HandlePurchaseOrdersShowResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /purchase_orders/{id}` operation.
- */
 export function handlePurchaseOrdersShow(
   response?:
     | HandlePurchaseOrdersShowResponse
@@ -1100,9 +1025,6 @@ export type HandlePurchaseOrdersUpdateResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /purchase_orders/{id}` operation.
- */
 export function handlePurchaseOrdersUpdate(
   response?:
     | HandlePurchaseOrdersUpdateResponse
@@ -1146,9 +1068,6 @@ export type HandlePurchaseOrdersCancelResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /purchase_orders/{id}/cancel` operation.
- */
 export function handlePurchaseOrdersCancel(
   response?:
     | HandlePurchaseOrdersCancelResponse
@@ -1192,9 +1111,6 @@ export type HandlePurchaseOrdersUncancelResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /purchase_orders/{id}/uncancel` operation.
- */
 export function handlePurchaseOrdersUncancel(
   response?:
     | HandlePurchaseOrdersUncancelResponse
@@ -1238,9 +1154,6 @@ export type HandleQuotationsIndexResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /quotations` operation.
- */
 export function handleQuotationsIndex(
   response?: HandleQuotationsIndexResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -1272,9 +1185,6 @@ export type HandleQuotationsCreateResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /quotations` operation.
- */
 export function handleQuotationsCreate(
   response?:
     HandleQuotationsCreateResponse | HttpResponseResolver<never, QuotationsCreateData["body"]>,
@@ -1307,9 +1217,6 @@ export type HandleQuotationsTemplatesIndexResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /quotations/templates` operation.
- */
 export function handleQuotationsTemplatesIndex(
   response?: HandleQuotationsTemplatesIndexResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -1341,9 +1248,6 @@ export type HandleQuotationsShowResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /quotations/{id}` operation.
- */
 export function handleQuotationsShow(
   response?:
     | HandleQuotationsShowResponse
@@ -1387,9 +1291,6 @@ export type HandleQuotationsUpdateResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /quotations/{id}` operation.
- */
 export function handleQuotationsUpdate(
   response?:
     | HandleQuotationsUpdateResponse
@@ -1433,9 +1334,6 @@ export type HandleQuotationsCancelResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /quotations/{id}/cancel` operation.
- */
 export function handleQuotationsCancel(
   response?:
     | HandleQuotationsCancelResponse
@@ -1479,9 +1377,6 @@ export type HandleQuotationsUncancelResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /quotations/{id}/uncancel` operation.
- */
 export function handleQuotationsUncancel(
   response?:
     | HandleQuotationsUncancelResponse
@@ -1525,9 +1420,6 @@ export type HandleReceiptsIndexResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /receipts` operation.
- */
 export function handleReceiptsIndex(
   response?: HandleReceiptsIndexResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -1559,9 +1451,6 @@ export type HandleReceiptsCreateResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /receipts` operation.
- */
 export function handleReceiptsCreate(
   response?: HandleReceiptsCreateResponse | HttpResponseResolver<never, ReceiptsCreateData["body"]>,
   options?: RequestHandlerOptions,
@@ -1593,9 +1482,6 @@ export type HandleReceiptsTemplatesIndexResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /receipts/templates` operation.
- */
 export function handleReceiptsTemplatesIndex(
   response?: HandleReceiptsTemplatesIndexResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -1627,9 +1513,6 @@ export type HandleReceiptsShowResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /receipts/{id}` operation.
- */
 export function handleReceiptsShow(
   response?:
     | HandleReceiptsShowResponse
@@ -1673,9 +1556,6 @@ export type HandleReceiptsUpdateResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /receipts/{id}` operation.
- */
 export function handleReceiptsUpdate(
   response?:
     | HandleReceiptsUpdateResponse
@@ -1719,9 +1599,6 @@ export type HandleReceiptsCancelResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /receipts/{id}/cancel` operation.
- */
 export function handleReceiptsCancel(
   response?:
     | HandleReceiptsCancelResponse
@@ -1765,9 +1642,6 @@ export type HandleReceiptsUncancelResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /receipts/{id}/uncancel` operation.
- */
 export function handleReceiptsUncancel(
   response?:
     | HandleReceiptsUncancelResponse
@@ -1807,173 +1681,47 @@ export function handleReceiptsUncancel(
 }
 
 export type MswHandlerFactories = {
-  /**
-   * Handler for the `GET /delivery_slips` operation.
-   */
   deliverySlipsIndex: typeof handleDeliverySlipsIndex;
-  /**
-   * Handler for the `POST /delivery_slips` operation.
-   */
   deliverySlipsCreate: typeof handleDeliverySlipsCreate;
-  /**
-   * Handler for the `GET /delivery_slips/templates` operation.
-   */
   deliverySlipsTemplatesIndex: typeof handleDeliverySlipsTemplatesIndex;
-  /**
-   * Handler for the `GET /delivery_slips/{id}` operation.
-   */
   deliverySlipsShow: typeof handleDeliverySlipsShow;
-  /**
-   * Handler for the `PUT /delivery_slips/{id}` operation.
-   */
   deliverySlipsUpdate: typeof handleDeliverySlipsUpdate;
-  /**
-   * Handler for the `PUT /delivery_slips/{id}/cancel` operation.
-   */
   deliverySlipsCancel: typeof handleDeliverySlipsCancel;
-  /**
-   * Handler for the `PUT /delivery_slips/{id}/uncancel` operation.
-   */
   deliverySlipsUncancel: typeof handleDeliverySlipsUncancel;
-  /**
-   * Handler for the `GET /invoices` operation.
-   */
   invoicesIndex: typeof handleInvoicesIndex;
-  /**
-   * Handler for the `POST /invoices` operation.
-   */
   invoicesCreate: typeof handleInvoicesCreate;
-  /**
-   * Handler for the `GET /invoices/templates` operation.
-   */
   invoicesTemplatesIndex: typeof handleInvoicesTemplatesIndex;
-  /**
-   * Handler for the `GET /invoices/{id}` operation.
-   */
   invoicesShow: typeof handleInvoicesShow;
-  /**
-   * Handler for the `PUT /invoices/{id}` operation.
-   */
   invoicesUpdate: typeof handleInvoicesUpdate;
-  /**
-   * Handler for the `PUT /invoices/{id}/cancel` operation.
-   */
   invoicesCancel: typeof handleInvoicesCancel;
-  /**
-   * Handler for the `PUT /invoices/{id}/uncancel` operation.
-   */
   invoicesUncancel: typeof handleInvoicesUncancel;
-  /**
-   * Handler for the `GET /payment_notices` operation.
-   */
   paymentNoticesIndex: typeof handlePaymentNoticesIndex;
-  /**
-   * Handler for the `POST /payment_notices` operation.
-   */
   paymentNoticesCreate: typeof handlePaymentNoticesCreate;
-  /**
-   * Handler for the `GET /payment_notices/templates` operation.
-   */
   paymentNoticesTemplatesIndex: typeof handlePaymentNoticesTemplatesIndex;
-  /**
-   * Handler for the `GET /payment_notices/{id}` operation.
-   */
   paymentNoticesShow: typeof handlePaymentNoticesShow;
-  /**
-   * Handler for the `PUT /payment_notices/{id}` operation.
-   */
   paymentNoticesUpdate: typeof handlePaymentNoticesUpdate;
-  /**
-   * Handler for the `PUT /payment_notices/{id}/cancel` operation.
-   */
   paymentNoticesCancel: typeof handlePaymentNoticesCancel;
-  /**
-   * Handler for the `PUT /payment_notices/{id}/uncancel` operation.
-   */
   paymentNoticesUncancel: typeof handlePaymentNoticesUncancel;
-  /**
-   * Handler for the `GET /purchase_orders` operation.
-   */
   purchaseOrdersIndex: typeof handlePurchaseOrdersIndex;
-  /**
-   * Handler for the `POST /purchase_orders` operation.
-   */
   purchaseOrdersCreate: typeof handlePurchaseOrdersCreate;
-  /**
-   * Handler for the `GET /purchase_orders/templates` operation.
-   */
   purchaseOrdersTemplatesIndex: typeof handlePurchaseOrdersTemplatesIndex;
-  /**
-   * Handler for the `GET /purchase_orders/{id}` operation.
-   */
   purchaseOrdersShow: typeof handlePurchaseOrdersShow;
-  /**
-   * Handler for the `PUT /purchase_orders/{id}` operation.
-   */
   purchaseOrdersUpdate: typeof handlePurchaseOrdersUpdate;
-  /**
-   * Handler for the `PUT /purchase_orders/{id}/cancel` operation.
-   */
   purchaseOrdersCancel: typeof handlePurchaseOrdersCancel;
-  /**
-   * Handler for the `PUT /purchase_orders/{id}/uncancel` operation.
-   */
   purchaseOrdersUncancel: typeof handlePurchaseOrdersUncancel;
-  /**
-   * Handler for the `GET /quotations` operation.
-   */
   quotationsIndex: typeof handleQuotationsIndex;
-  /**
-   * Handler for the `POST /quotations` operation.
-   */
   quotationsCreate: typeof handleQuotationsCreate;
-  /**
-   * Handler for the `GET /quotations/templates` operation.
-   */
   quotationsTemplatesIndex: typeof handleQuotationsTemplatesIndex;
-  /**
-   * Handler for the `GET /quotations/{id}` operation.
-   */
   quotationsShow: typeof handleQuotationsShow;
-  /**
-   * Handler for the `PUT /quotations/{id}` operation.
-   */
   quotationsUpdate: typeof handleQuotationsUpdate;
-  /**
-   * Handler for the `PUT /quotations/{id}/cancel` operation.
-   */
   quotationsCancel: typeof handleQuotationsCancel;
-  /**
-   * Handler for the `PUT /quotations/{id}/uncancel` operation.
-   */
   quotationsUncancel: typeof handleQuotationsUncancel;
-  /**
-   * Handler for the `GET /receipts` operation.
-   */
   receiptsIndex: typeof handleReceiptsIndex;
-  /**
-   * Handler for the `POST /receipts` operation.
-   */
   receiptsCreate: typeof handleReceiptsCreate;
-  /**
-   * Handler for the `GET /receipts/templates` operation.
-   */
   receiptsTemplatesIndex: typeof handleReceiptsTemplatesIndex;
-  /**
-   * Handler for the `GET /receipts/{id}` operation.
-   */
   receiptsShow: typeof handleReceiptsShow;
-  /**
-   * Handler for the `PUT /receipts/{id}` operation.
-   */
   receiptsUpdate: typeof handleReceiptsUpdate;
-  /**
-   * Handler for the `PUT /receipts/{id}/cancel` operation.
-   */
   receiptsCancel: typeof handleReceiptsCancel;
-  /**
-   * Handler for the `PUT /receipts/{id}/uncancel` operation.
-   */
   receiptsUncancel: typeof handleReceiptsUncancel;
 };
 

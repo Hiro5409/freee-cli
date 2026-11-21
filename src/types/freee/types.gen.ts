@@ -5,1186 +5,326 @@ export type ClientOptions = {
 };
 
 export type PaymentParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 支払日 (yyyy-mm-dd)
-   */
   date: string;
-  /**
-   * 口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet, プライベート資金: private_account_item)
-   */
   from_walletable_type: "bank_account" | "credit_card" | "wallet" | "private_account_item";
-  /**
-   * 口座ID（from_walletable_typeがprivate_account_itemの場合は勘定科目ID）
-   */
   from_walletable_id: number;
-  /**
-   * 支払金額（円）
-   */
   amount: number;
 };
 
 export type DealCreateParams = {
-  /**
-   * 発生日 (yyyy-mm-dd)
-   */
   issue_date: string;
-  /**
-   * 収支区分 (収入: income, 支出: expense)
-   */
   type: "income" | "expense";
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 支払期日(yyyy-mm-dd)
-   */
   due_date?: string;
-  /**
-   * 取引先ID。partner_codeと同時に指定することはできません。
-   */
   partner_id?: number;
-  /**
-   * 取引先コード。利用するには事業所の設定で取引先コードの利用を有効にする必要があります。partner_idと同時に指定することはできません。
-   */
   partner_code?: string;
-  /**
-   * 管理番号
-   */
   ref_number?: string;
-  /**
-   * 取引の明細行（最大100行）
-   */
   details: Array<{
-    /**
-     * 税区分コード
-     */
     tax_code: number;
-    /**
-     * 勘定科目ID。account_item_idまたはaccount_item_codeのいずれかの指定が必要です（同時に指定することはできません）。
-     */
     account_item_id?: number;
-    /**
-     * 勘定科目コード。利用するには事業所の設定で勘定科目コードの利用を有効にする必要があります。account_item_idまたはaccount_item_codeのいずれかの指定が必要です（同時に指定することはできません）。
-     */
     account_item_code?: string;
-    /**
-     * 取引金額（円・税込で指定してください）<br>
-     * マイナスの値を指定した場合、控除・マイナス行として登録されます。<br>
-     * 上記以外の値を指定した場合、通常行として登録されます。
-     *
-     */
     amount: number;
-    /**
-     * 品目ID。item_codeと同時に指定することはできません。
-     */
     item_id?: number;
-    /**
-     * 品目コード。利用するには事業所の設定で品目コードの利用を有効にする必要があります。item_idと同時に指定することはできません。
-     */
     item_code?: string;
-    /**
-     * 部門ID。section_codeと同時に指定することはできません。
-     */
     section_id?: number;
-    /**
-     * 部門コード。利用するには事業所の設定で部門コードの利用を有効にする必要があります。section_idと同時に指定することはできません。
-     */
     section_code?: string;
-    /**
-     * 取引先ID。partner_codeと同時に指定することはできません。
-     */
     partner_id?: number | null;
-    /**
-     * 取引先コード。利用するには事業所の設定で取引先コードの利用を有効にする必要があります。partner_idと同時に指定することはできません。
-     */
     partner_code?: string | null;
-    /**
-     * メモタグID
-     */
     tag_ids?: Array<number>;
-    /**
-     * セグメント１タグID。セグメントタグが利用可能なプランでのみ指定できます。segment_1_tag_codeと同時に指定することはできません。
-     */
     segment_1_tag_id?: number;
-    /**
-     * セグメント１タグコード。利用するには事業所の設定でセグメントタグコードの利用を有効にする必要があります。segment_1_tag_idと同時に指定することはできません。
-     */
     segment_1_tag_code?: string;
-    /**
-     * セグメント２タグID。セグメントタグが利用可能なプランでのみ指定できます。segment_2_tag_codeと同時に指定することはできません。
-     */
     segment_2_tag_id?: number;
-    /**
-     * セグメント２タグコード。利用するには事業所の設定でセグメントタグコードの利用を有効にする必要があります。segment_2_tag_idと同時に指定することはできません。
-     */
     segment_2_tag_code?: string;
-    /**
-     * セグメント３タグID。セグメントタグが利用可能なプランでのみ指定できます。segment_3_tag_codeと同時に指定することはできません。
-     */
     segment_3_tag_id?: number;
-    /**
-     * セグメント３タグコード。利用するには事業所の設定でセグメントタグコードの利用を有効にする必要があります。segment_3_tag_idと同時に指定することはできません。
-     */
     segment_3_tag_code?: string;
-    /**
-     * 備考
-     */
     description?: string;
-    /**
-     * 消費税額（円。指定しない場合は自動で計算されます）。 tax_code で税額が不要な税区分を指定する場合は指定できません。
-     */
     vat?: number;
   }>;
-  /**
-   * 支払行一覧（配列）：未指定の場合、未決済の取引を作成します。
-   */
   payments?: Array<{
-    /**
-     * 支払金額（円）：payments指定時は必須
-     */
     amount: number;
-    /**
-     * 口座ID（from_walletable_typeがprivate_account_itemの場合は勘定科目ID）：payments指定時は必須
-     */
     from_walletable_id: number;
-    /**
-     * 口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet, プライベート資金: private_account_item)：payments指定時は必須
-     */
     from_walletable_type: "bank_account" | "credit_card" | "wallet" | "private_account_item";
-    /**
-     * 支払日 (yyyy-mm-dd)：payments指定時は必須
-     */
     date: string;
   }>;
-  /**
-   * ファイルボックス（証憑ファイル）ID（配列）
-   */
   receipt_ids?: Array<number>;
-  /**
-   * 作成した取引を紐付ける各種申請のID。承認済みの各種申請を元に取引を作成する場合に指定します。作成した取引は指定した各種申請に紐付き、各種申請APIのレスポンスのdeal_idで確認できます。存在しない・閲覧権限のない各種申請、承認されていない各種申請、すでに取引・振替伝票と紐付いている各種申請を指定した場合はエラーになり、取引は作成されません。指定するには、各種申請を利用できるプランであること、各種申請を閲覧する権限、アプリに read または accounting:approval_requests:read のスコープが必要です (満たさない場合は 403 になります)。
-   */
   parent_id?: number;
 };
 
 export type DealUpdateParams = {
-  /**
-   * 発生日 (yyyy-mm-dd)
-   */
   issue_date: string;
-  /**
-   * 収支区分 (収入: income, 支出: expense)
-   */
   type: "income" | "expense";
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 支払期日(yyyy-mm-dd)
-   */
   due_date?: string;
-  /**
-   * 取引先ID。partner_codeと同時に指定することはできません。
-   */
   partner_id?: number;
-  /**
-   * 取引先コード。利用するには事業所の設定で取引先コードの利用を有効にする必要があります。partner_idと同時に指定することはできません。
-   */
   partner_code?: string;
-  /**
-   * 管理番号
-   */
   ref_number?: string;
-  /**
-   * 取引の明細行（最大100行）。detailsに含まれない既存の取引行は削除されます。更新後も残したい行は、必ず取引行ID（id）を指定してdetailsに含めてください。
-   */
   details: Array<{
-    /**
-     * 取引行ID: 既存取引行を更新する場合に指定します。IDを指定しない取引行は、新規行として扱われ追加されます。また、detailsに含まれない既存の取引行は削除されます。更新後も残したい行は、必ず取引行IDを指定してdetailsに含めてください。
-     */
     id?: number;
-    /**
-     * 税区分コード
-     */
     tax_code: number;
-    /**
-     * 勘定科目ID
-     */
     account_item_id: number;
-    /**
-     * 取引金額（円・税込で指定してください）<br>
-     * マイナスの値を指定した場合、控除・マイナス行として登録されます。<br>
-     * 上記以外の値を指定した場合、通常行として登録されます。
-     *
-     */
     amount: number;
-    /**
-     * 品目ID
-     */
     item_id?: number;
-    /**
-     * 部門ID
-     */
     section_id?: number;
-    /**
-     * 取引先ID
-     */
     partner_id?: number | null;
-    /**
-     * メモタグID
-     */
     tag_ids?: Array<number>;
-    /**
-     * セグメント１タグID。セグメントタグが利用可能なプランでのみ指定できます。
-     */
     segment_1_tag_id?: number;
-    /**
-     * セグメント２タグID。セグメントタグが利用可能なプランでのみ指定できます。
-     */
     segment_2_tag_id?: number;
-    /**
-     * セグメント３タグID。セグメントタグが利用可能なプランでのみ指定できます。
-     */
     segment_3_tag_id?: number;
-    /**
-     * 備考
-     */
     description?: string;
-    /**
-     * 消費税額（円。指定しない場合は自動で計算されます）。 tax_code で税額が不要な税区分を指定する場合は指定できません。
-     */
     vat?: number;
   }>;
-  /**
-   * ファイルボックス（証憑ファイル）ID（配列）。指定した場合、取引に紐づくファイルはこの配列の内容で置き換えられます。指定しない場合は変更されません。
-   */
   receipt_ids?: Array<number> | null;
 };
 
 export type ManualJournalCreateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 振替伝票の発生日（yyyy-mm-dd）
-   */
   issue_date: string;
-  /**
-   * 決算整理仕訳フラグ（true: 決算整理仕訳、falseまたは未指定: 日常仕訳）
-   */
   adjustment?: boolean;
-  /**
-   * 利用者が振替伝票を管理するための管理番号（20文字以内）
-   */
   ref_number?: string;
-  /**
-   * 貸借行一覧。貸方と借方の合計金額を一致させ、合計100行以内で指定します。
-   */
   details: Array<{
-    /**
-     * 貸借区分（debit: 借方、credit: 貸方）
-     */
     entry_side: "debit" | "credit";
-    /**
-     * 貸借行に適用する税区分コード。税区分APIで取得したcodeを指定します。
-     */
     tax_code: number;
-    /**
-     * 勘定科目ID。account_item_codeと同時に指定できません。どちらか一方を指定してください。
-     */
     account_item_id?: number;
-    /**
-     * 勘定科目コード。事業所の勘定科目コード利用設定が有効な場合に、account_item_idの代わりに指定できます。
-     */
     account_item_code?: string;
-    /**
-     * 取引金額（税込・円）
-     */
     amount: number;
-    /**
-     * 消費税額（円）。未指定の場合はamountとtax_codeから自動計算されます。
-     */
     vat?: number;
-    /**
-     * 取引先ID。partner_codeと同時に指定できません。
-     */
     partner_id?: number;
-    /**
-     * 取引先コード。事業所の取引先コード利用設定が有効な場合に、partner_idの代わりに指定できます。
-     */
     partner_code?: string;
-    /**
-     * 品目ID。item_codeと同時に指定できません。
-     */
     item_id?: number;
-    /**
-     * 品目コード。事業所の品目コード利用設定が有効な場合に、item_idの代わりに指定できます。
-     */
     item_code?: string;
-    /**
-     * 部門ID。section_codeと同時に指定できません。操作ユーザーが利用可能な部門を指定してください。
-     */
     section_id?: number;
-    /**
-     * 部門コード。事業所の部門コード利用設定が有効な場合に、section_idの代わりに指定できます。
-     */
     section_code?: string;
-    /**
-     * 貸借行に付与するメモタグIDの一覧
-     */
     tag_ids?: Array<number>;
-    /**
-     * セグメント1タグID。segment_1_tag_codeと同時に指定できません。
-     */
     segment_1_tag_id?: number;
-    /**
-     * セグメント2タグID。segment_2_tag_codeと同時に指定できません。
-     */
     segment_2_tag_id?: number;
-    /**
-     * セグメント3タグID。segment_3_tag_codeと同時に指定できません。
-     */
     segment_3_tag_id?: number;
-    /**
-     * セグメント1タグコード。事業所のセグメントタグコード利用設定が有効な場合に、segment_1_tag_idの代わりに指定できます。
-     */
     segment_1_tag_code?: string;
-    /**
-     * セグメント2タグコード。事業所のセグメントタグコード利用設定が有効な場合に、segment_2_tag_idの代わりに指定できます。
-     */
     segment_2_tag_code?: string;
-    /**
-     * セグメント3タグコード。事業所のセグメントタグコード利用設定が有効な場合に、segment_3_tag_idの代わりに指定できます。
-     */
     segment_3_tag_code?: string;
-    /**
-     * 備考
-     */
     description?: string;
   }>;
-  /**
-   * 振替伝票に添付するファイルボックス（証憑ファイル）IDの一覧。操作ユーザーが参照可能なファイルを指定してください。
-   */
   receipt_ids?: Array<number>;
-  /**
-   * 作成した振替伝票を紐付ける各種申請のID。承認済みの各種申請を元に振替伝票を作成する場合に指定します。作成した振替伝票は指定した各種申請に紐付き、各種申請APIのレスポンスのmanual_journal_idで確認できます。存在しない・閲覧権限のない各種申請、承認されていない各種申請、すでに取引・振替伝票と紐付いている各種申請を指定した場合はエラーになり、振替伝票は作成されません。指定するには、各種申請を利用できるプランであること、各種申請を閲覧する権限、アプリに read または accounting:approval_requests:read のスコープが必要です (満たさない場合は 403 になります)。
-   */
   parent_id?: number;
 };
 
 export type ManualJournalUpdateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 振替伝票の発生日（yyyy-mm-dd）
-   */
   issue_date: string;
-  /**
-   * 決算整理仕訳フラグ（true: 決算整理仕訳、falseまたは未指定: 日常仕訳）
-   */
   adjustment?: boolean;
-  /**
-   * 利用者が振替伝票を管理するための管理番号（20文字以内）
-   */
   ref_number?: string;
-  /**
-   * 貸借行一覧。貸方と借方の合計金額を一致させ、合計100行以内で指定します。ここに含めない既存の貸借行は削除されます。
-   */
   details: Array<{
-    /**
-     * 貸借行ID。既存行を更新して残す場合に指定します。IDを指定しない行は新規行として追加されます。
-     */
     id?: number;
-    /**
-     * 貸借区分（debit: 借方、credit: 貸方）
-     */
     entry_side: "debit" | "credit";
-    /**
-     * 貸借行に適用する税区分コード。税区分APIで取得したcodeを指定します。
-     */
     tax_code: number;
-    /**
-     * 勘定科目ID。account_item_codeと同時に指定できません。どちらか一方を指定してください。
-     */
     account_item_id?: number;
-    /**
-     * 勘定科目コード。事業所の勘定科目コード利用設定が有効な場合に、account_item_idの代わりに指定できます。
-     */
     account_item_code?: string;
-    /**
-     * 取引金額（税込・円）
-     */
     amount: number;
-    /**
-     * 消費税額（円）。未指定の場合はamountとtax_codeから自動計算されます。
-     */
     vat?: number;
-    /**
-     * 取引先ID。partner_codeと同時に指定できません。
-     */
     partner_id?: number;
-    /**
-     * 取引先コード。事業所の取引先コード利用設定が有効な場合に、partner_idの代わりに指定できます。
-     */
     partner_code?: string;
-    /**
-     * 品目ID。item_codeと同時に指定できません。
-     */
     item_id?: number;
-    /**
-     * 品目コード。事業所の品目コード利用設定が有効な場合に、item_idの代わりに指定できます。
-     */
     item_code?: string;
-    /**
-     * 部門ID。section_codeと同時に指定できません。操作ユーザーが利用可能な部門を指定してください。
-     */
     section_id?: number;
-    /**
-     * 部門コード。事業所の部門コード利用設定が有効な場合に、section_idの代わりに指定できます。
-     */
     section_code?: string;
-    /**
-     * 貸借行に付与するメモタグIDの一覧
-     */
     tag_ids?: Array<number>;
-    /**
-     * セグメント1タグID。segment_1_tag_codeと同時に指定できません。
-     */
     segment_1_tag_id?: number;
-    /**
-     * セグメント2タグID。segment_2_tag_codeと同時に指定できません。
-     */
     segment_2_tag_id?: number;
-    /**
-     * セグメント3タグID。segment_3_tag_codeと同時に指定できません。
-     */
     segment_3_tag_id?: number;
-    /**
-     * セグメント1タグコード。事業所のセグメントタグコード利用設定が有効な場合に、segment_1_tag_idの代わりに指定できます。
-     */
     segment_1_tag_code?: string;
-    /**
-     * セグメント2タグコード。事業所のセグメントタグコード利用設定が有効な場合に、segment_2_tag_idの代わりに指定できます。
-     */
     segment_2_tag_code?: string;
-    /**
-     * セグメント3タグコード。事業所のセグメントタグコード利用設定が有効な場合に、segment_3_tag_idの代わりに指定できます。
-     */
     segment_3_tag_code?: string;
-    /**
-     * 備考
-     */
     description?: string;
   }>;
-  /**
-   * 更新後に振替伝票へ添付するファイルボックス（証憑ファイル）IDの一覧。操作ユーザーが参照可能なファイルを指定してください。
-   */
   receipt_ids?: Array<number>;
 };
 
 export type ItemParams = {
-  /**
-   * 事業所ID。品目を作成・更新する対象の事業所を指定します。
-   */
   company_id: number;
-  /**
-   * 品目名 (30文字以内)。事業所内で重複できません。既に同名の品目が存在する場合は 400 エラーになります。
-   */
   name: string;
-  /**
-   * ショートカット１ (20文字以内)。Web画面などで品目を検索する際のキーワードとして使用します。更新時に省略した場合は未設定（null）に更新されます。
-   */
   shortcut1?: string;
-  /**
-   * ショートカット２ (20文字以内)。Web画面などで品目を検索する際のキーワードとして使用します。更新時に省略した場合は未設定（null）に更新されます。
-   */
   shortcut2?: string;
-  /**
-   * 品目コード (20文字以内、半角英数字・ハイフン・アンダースコアのみ)。事業所内で重複できません。事業所の設定で品目コードを使用する設定にしている場合のみ保存され、設定が無効の場合は指定しても無視されます。更新時に省略した場合は未設定（null）に更新されます。
-   */
   code?: string;
 };
 
 export type WalletableCreateParams = {
-  /**
-   * 口座名（255文字以内）。事業所内で既存の口座名と重複する場合は 400 エラーになります。
-   */
   name: string;
-  /**
-   * 口座種別。
-   * * `bank_account` - 銀行口座
-   * * `credit_card` - クレジットカード
-   * * `wallet` - その他の決済口座（現金・電子マネー・売掛/買掛など）
-   */
   type: "bank_account" | "credit_card" | "wallet";
-  /**
-   * 事業所ID。/api/1/companies（事業所一覧の取得）で取得できます。
-   */
   company_id: number;
-  /**
-   * 連携サービスID。/api/1/banks（連携サービス一覧の取得）で取得できます。type に bank_account、credit_card を指定する場合は必須です。type に wallet を指定する場合は省略できます（省略時は連携サービスに紐づかない現金口座などとして作成されます）。
-   */
   bank_id?: number | null;
-  /**
-   * 口座を資産口座（true、デフォルト）とするか負債口座（false）とするか。<br>
-   * type に wallet を指定し、かつ bank_id を省略した場合にのみ有効です。<br>
-   * bank_id を指定した場合は、資産口座か負債口座かは bank_id に指定したサービスに応じて自動判定され、is_asset に指定した値は無視されます。
-   *
-   */
   is_asset?: boolean;
 };
 
 export type WalletableUpdateParams = {
-  /**
-   * 口座名（255文字以内）。事業所内で既存の口座名と重複する場合は 400 エラーになります。type や bank_id、資産/負債区分は更新できません（変更したい場合は口座を作り直してください）。
-   */
   name: string;
-  /**
-   * 事業所ID。/api/1/companies（事業所一覧の取得）で取得できます。
-   */
   company_id: number;
 };
 
 export type WalletableUpdateResponse = {
-  /**
-   * 口座ID
-   */
   id: number;
-  /**
-   * 口座名（255文字以内）
-   */
   name: string;
-  /**
-   * 連携サービスID。type が wallet で連携サービスに紐づかない口座の場合は null になります。
-   */
   bank_id: number | null;
-  /**
-   * 口座種別。
-   * * `bank_account` - 銀行口座
-   * * `credit_card` - クレジットカード
-   * * `wallet` - その他の決済口座（現金・電子マネー・売掛/買掛など）
-   */
   type: "bank_account" | "credit_card" | "wallet";
-  /**
-   * 同期残高（円）。連携サービスから同期した残高です。
-   */
   last_balance: number;
-  /**
-   * 登録残高（円）。freee会計上の取引から計算される、借方を正とする残高です。
-   */
   walletable_balance: number;
 };
 
 export type TransferParams = {
-  /**
-   * 振替先口座ID（単一振替先の場合に指定）。口座一覧の取得（GET /api/1/walletables）で取得できるIDを指定します。to_walletablesと同時に指定することはできません。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesを利用してください。
-   *
-   * @deprecated
-   */
   to_walletable_id?: number;
-  /**
-   * 振替先口座の口座区分（単一振替先の場合に指定）。to_walletablesと同時に指定することはできません。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesを利用してください。
-   * * `bank_account` - 銀行口座
-   * * `credit_card` - クレジットカード
-   * * `wallet` - その他の決済口座（現金・電子マネー・売掛/買掛など）
-   *
-   * @deprecated
-   */
   to_walletable_type?: "bank_account" | "credit_card" | "wallet";
-  /**
-   * 振替元口座ID。口座一覧の取得（GET /api/1/walletables）で取得できるIDを指定します。
-   */
   from_walletable_id: number;
-  /**
-   * 振替元口座の口座区分
-   * * `bank_account` - 銀行口座
-   * * `credit_card` - クレジットカード
-   * * `wallet` - その他の決済口座（現金・電子マネー・売掛/買掛など）
-   */
   from_walletable_type: "bank_account" | "credit_card" | "wallet";
-  /**
-   * 振替金額（円・単一振替先の場合に指定）。to_walletablesと同時に指定することはできません。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesの各行amountを利用してください。
-   *
-   * @deprecated
-   */
   amount?: number;
-  /**
-   * 振替元口座行の取引先ID。更新時にキーを省略すると既存値を引き継ぎます。0またはnullは取引先を外す指定です。作成時にキーを省略するか、0またはnullを指定すると取引先なしになります。「口座振替（口座間移動）での取引先タグ付与ルール」が未設定の場合、既存値と同じIDの指定を除き、取引先の追加・変更・削除はできません。
-   */
   from_partner_id?: number | null;
-  /**
-   * 振替元口座行の部門ID。更新時にキーを省略すると既存値を引き継ぎます。0またはnullは部門を外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。部門の入力が必須（全ての科目）の事業所では、部門なしになる保存はエラーです。
-   */
   from_section_id?: number | null;
-  /**
-   * 振替元口座行の品目ID。更新時にキーを省略すると既存値を引き継ぎます。0またはnullは品目を外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。
-   */
   from_item_id?: number | null;
-  /**
-   * 振替元口座行のメモタグID。更新時にキーを省略すると既存値を引き継ぎます。空配列またはnullはメモタグをすべて外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。
-   */
   from_tag_ids?: Array<number> | null;
-  /**
-   * 振替元口座行のセグメント１タグID。更新時にキーを省略すると既存値を引き継ぎます。0またはnullはタグを外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。セグメントタグを利用できないプランでは指定を無視します。
-   */
   from_segment_1_tag_id?: number | null;
-  /**
-   * 振替元口座行のセグメント２タグID。更新時にキーを省略すると既存値を引き継ぎます。0またはnullはタグを外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。セグメントタグを利用できないプランでは指定を無視します。
-   */
   from_segment_2_tag_id?: number | null;
-  /**
-   * 振替元口座行のセグメント３タグID。更新時にキーを省略すると既存値を引き継ぎます。0またはnullはタグを外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。セグメントタグを利用できないプランでは指定を無視します。
-   */
   from_segment_3_tag_id?: number | null;
-  /**
-   * 振替日 (yyyy-mm-dd)
-   */
   date: string;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 備考（単一振替先の場合に指定）。to_walletablesと同時に指定することはできません。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesの各行descriptionを利用してください。
-   *
-   * @deprecated
-   */
   description?: string;
-  /**
-   * 振替先口座行（振替先が複数の場合に指定・最大50行）。単一のto_walletable_id / to_walletable_type / amount / descriptionと同時に指定することはできません。振替元はfrom_walletable_id / from_walletable_typeで共通指定。
-   */
   to_walletables?: Array<{
-    /**
-     * 振替先口座の口座区分
-     * * `bank_account` - 銀行口座
-     * * `credit_card` - クレジットカード
-     * * `wallet` - その他の決済口座（現金・電子マネー・売掛/買掛など）
-     */
     type: "bank_account" | "credit_card" | "wallet";
-    /**
-     * 振替先口座ID。口座一覧の取得（GET /api/1/walletables）で取得できるIDを指定します。
-     */
     id: number;
-    /**
-     * 振替先口座への振替金額（円）。0円より大きい金額を指定します。
-     */
     amount: number;
-    /**
-     * 備考
-     */
     description?: string;
-    /**
-     * 振替先口座行の取引先ID。更新時にキーを省略すると同一口座の既存行から引き継ぎます。0またはnullは取引先を外す指定です。作成時にキーを省略するか、0またはnullを指定すると取引先なしになります。「口座振替（口座間移動）での取引先タグ付与ルール」が未設定の場合、既存値と同じIDの指定を除き、取引先の追加・変更・削除はできません。
-     */
     partner_id?: number | null;
-    /**
-     * 振替先口座行の部門ID。更新時にキーを省略すると同一口座の既存行から引き継ぎます。0またはnullは部門を外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。部門の入力が必須（全ての科目）の事業所では、部門なしになる保存はエラーです。
-     */
     section_id?: number | null;
-    /**
-     * 振替先口座行の品目ID。更新時にキーを省略すると同一口座の既存行から引き継ぎます。0またはnullは品目を外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。
-     */
     item_id?: number | null;
-    /**
-     * 振替先口座行のメモタグID。更新時にキーを省略すると同一口座の既存行から引き継ぎます。空配列またはnullはメモタグをすべて外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。
-     */
     tag_ids?: Array<number> | null;
-    /**
-     * 振替先口座行のセグメント１タグID。更新時にキーを省略すると同一口座の既存行から引き継ぎます。0またはnullはタグを外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。セグメントタグを利用できないプランでは指定を無視します。
-     */
     segment_1_tag_id?: number | null;
-    /**
-     * 振替先口座行のセグメント２タグID。更新時にキーを省略すると同一口座の既存行から引き継ぎます。0またはnullはタグを外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。セグメントタグを利用できないプランでは指定を無視します。
-     */
     segment_2_tag_id?: number | null;
-    /**
-     * 振替先口座行のセグメント３タグID。更新時にキーを省略すると同一口座の既存行から引き継ぎます。0またはnullはタグを外す指定です。作成時にキーを省略すると口座タグ設定に従います。口座タグ設定が固定の場合は設定タグを優先し、未設定の場合は有効なIDを指定できません。セグメントタグを利用できないプランでは指定を無視します。
-     */
     segment_3_tag_id?: number | null;
   }>;
 };
 
 export type WalletTxnParams = {
-  /**
-   * 入金・出金の区分
-   * * `income` - 入金
-   * * `expense` - 出金
-   */
   entry_side: "income" | "expense";
-  /**
-   * 取引内容（摘要）。未指定の場合は空文字列で登録されます。
-   */
   description?: string;
-  /**
-   * 取引金額（単位: 円）。入金・出金の区別は entry_side で指定します。
-   */
   amount: number;
-  /**
-   * 口座ID（walletable_type で指定した口座区分の口座のID）。口座一覧の取得API（GET /api/1/walletables）で確認できます。
-   */
   walletable_id: number;
-  /**
-   * 口座区分
-   * * `bank_account` - 銀行口座
-   * * `credit_card` - クレジットカード
-   * * `wallet` - 現金・その他の決済口座
-   */
   walletable_type: "bank_account" | "credit_card" | "wallet";
-  /**
-   * 取引日 (yyyy-mm-dd)
-   */
   date: string;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 残高（単位: 円）。指定しない場合、作成された明細の balance は null になります。
-   */
   balance?: number;
 };
 
-/**
- * 消込対象の取引
- */
 export type WalletTxnReconcileDeal = {
-  /**
-   * 取引ID
-   */
   deal_id: number;
-  /**
-   * 決済金額（単位: 円）。正の整数で指定します。
-   */
   amount: number;
 };
 
-/**
- * 消込時に差額を新規取引として登録するための取引
- */
 export type WalletTxnReconcileAdjustmentDeal = {
-  /**
-   * 取引発生日 (yyyy-mm-dd)。明細の取引日以前の日付を指定します。省略時は明細の取引日と同日になります。
-   */
   issue_date?: string;
-  /**
-   * 管理番号
-   */
   ref?: string;
-  /**
-   * 取引先ID
-   */
   partner_id?: number;
-  /**
-   * 取引の内訳行
-   */
   deal_lines: Array<{
-    /**
-     * 金額（税込。単位: 円）。0以外の符号付きの整数で指定します。明細の入出金区分（entry_side）と符号から借方・貸方が決まります。
-     */
     amount: number;
-    /**
-     * 税額（単位: 円）。省略時は amount と tax_code から自動計算されます。
-     */
     vat?: number;
-    /**
-     * メモタグIDのリスト
-     */
     tag_ids?: Array<number>;
-    /**
-     * セグメント1タグID
-     */
     segment_1_tag_id?: number;
-    /**
-     * セグメント2タグID
-     */
     segment_2_tag_id?: number;
-    /**
-     * セグメント3タグID
-     */
     segment_3_tag_id?: number;
-    /**
-     * 品目ID
-     */
     item_id?: number;
-    /**
-     * 摘要
-     */
     description?: string;
-    /**
-     * 税区分コード。省略時は勘定科目に紐づくデフォルトの税区分が適用されます。
-     */
     tax_code?: number;
-    /**
-     * 税入力方法
-     * - `in` - 内税
-     * - `out` - 外税
-     */
     tax_entry_method?: "in" | "out";
-    /**
-     * 部門ID
-     */
     section_id?: number;
-    /**
-     * 勘定科目ID
-     */
     account_item_id: number;
-    /**
-     * 取引先ID。「内訳行ごとの取引先個別指定」の設定が有効な事業所でのみ指定できます。設定が有効な場合、省略するとその内訳行には取引先を設定しません。
-     */
     partner_id?: number;
   }>;
 };
 
-/**
- * 明細から登録する取引の内訳行
- */
 export type WalletTxnDealLine = {
-  /**
-   * 金額（税込。単位: 円）。0以外の符号付きの整数で指定します。明細の入出金区分（entry_side）と符号から借方・貸方が決まります。
-   */
   amount: number;
-  /**
-   * 税額（単位: 円）。省略時は amount と tax_code から自動計算されます。
-   */
   vat?: number;
-  /**
-   * メモタグIDのリスト
-   */
   tag_ids?: Array<number>;
-  /**
-   * セグメント1タグID
-   */
   segment_1_tag_id?: number;
-  /**
-   * セグメント2タグID
-   */
   segment_2_tag_id?: number;
-  /**
-   * セグメント3タグID
-   */
   segment_3_tag_id?: number;
-  /**
-   * 品目ID
-   */
   item_id?: number;
-  /**
-   * 摘要
-   */
   description?: string;
-  /**
-   * 税区分コード。省略時は勘定科目に紐づくデフォルトの税区分が適用されます。
-   */
   tax_code?: number;
-  /**
-   * 税入力方法
-   * - `in` - 内税
-   * - `out` - 外税
-   */
   tax_entry_method?: "in" | "out";
-  /**
-   * 部門ID
-   */
   section_id?: number;
-  /**
-   * 勘定科目ID
-   */
   account_item_id: number;
-  /**
-   * 取引先ID。「内訳行ごとの取引先個別指定」の設定が有効な事業所でのみ指定できます。設定が有効な場合、省略するとその内訳行には取引先を設定しません。
-   */
   partner_id?: number;
 };
 
-/**
- * 口座振替の振替元の口座
- */
 export type WalletTxnTransferFromLine = {
-  /**
-   * 口座区分
-   * - `bank_account` - 銀行口座
-   * - `credit_card` - クレジットカード
-   * - `wallet` - 現金・その他の決済口座
-   */
   walletable_type: "bank_account" | "credit_card" | "wallet";
-  /**
-   * walletable_type で指定した振替元口座のID
-   */
   walletable_id: number;
-  /**
-   * 口座振替の仕訳行に付与する品目・部門・取引先・メモタグ・セグメント
-   */
   walletable_tags?: {
-    /**
-     * 振替の仕訳行に付与する品目のID
-     */
     item_id?: number | null;
-    /**
-     * 振替の仕訳行に付与する部門のID
-     */
     section_id?: number | null;
-    /**
-     * 振替の仕訳行に付与する取引先のID
-     */
     partner_id?: number | null;
-    /**
-     * 振替の仕訳行に付与するメモタグのIDのリスト
-     */
     tag_ids?: Array<number>;
-    /**
-     * 振替の仕訳行に付与するセグメント1のタグID
-     */
     segment_1_tag_id?: number | null;
-    /**
-     * 振替の仕訳行に付与するセグメント2のタグID
-     */
     segment_2_tag_id?: number | null;
-    /**
-     * 振替の仕訳行に付与するセグメント3のタグID
-     */
     segment_3_tag_id?: number | null;
   };
 };
 
-/**
- * 口座振替の振替先の口座と振替金額
- */
 export type WalletTxnTransferToLine = {
-  /**
-   * 口座区分
-   * - `bank_account` - 銀行口座
-   * - `credit_card` - クレジットカード
-   * - `wallet` - 現金・その他の決済口座
-   */
   walletable_type: "bank_account" | "credit_card" | "wallet";
-  /**
-   * walletable_type で指定した振替先口座のID
-   */
   walletable_id: number;
-  /**
-   * 振替先口座へ振り替える金額（単位: 円）。正の整数で指定します。
-   */
   amount: number;
-  /**
-   * 振替先の仕訳行に記録する摘要
-   */
   description?: string | null;
-  /**
-   * 口座振替の仕訳行に付与する品目・部門・取引先・メモタグ・セグメント
-   */
   walletable_tags?: {
-    /**
-     * 振替の仕訳行に付与する品目のID
-     */
     item_id?: number | null;
-    /**
-     * 振替の仕訳行に付与する部門のID
-     */
     section_id?: number | null;
-    /**
-     * 振替の仕訳行に付与する取引先のID
-     */
     partner_id?: number | null;
-    /**
-     * 振替の仕訳行に付与するメモタグのIDのリスト
-     */
     tag_ids?: Array<number>;
-    /**
-     * 振替の仕訳行に付与するセグメント1のタグID
-     */
     segment_1_tag_id?: number | null;
-    /**
-     * 振替の仕訳行に付与するセグメント2のタグID
-     */
     segment_2_tag_id?: number | null;
-    /**
-     * 振替の仕訳行に付与するセグメント3のタグID
-     */
     segment_3_tag_id?: number | null;
   };
 };
 
-/**
- * 口座振替と同時に支払または受取として計上する手数料等の仕訳行
- */
 export type WalletTxnTransferChargeLine = {
-  /**
-   * 手数料等の仕訳行に使用する勘定科目のID
-   */
   account_item_id: number;
-  /**
-   * 手数料等の金額（単位: 円）。正の整数で指定します。
-   */
   amount: number;
-  /**
-   * 手数料等の収支区分
-   * - `paid` - 支払手数料等として計上する
-   * - `received` - 受取利息等として計上する
-   */
   line_type: "paid" | "received";
-  /**
-   * 手数料等の仕訳行に適用する税区分コード
-   */
   tax_code?: number | null;
-  /**
-   * 手数料等の消費税額（単位: 円）。0以上の整数で指定します。省略時は amount と tax_code から自動計算されます。税込経理の事業所では指定できません。
-   */
   vat?: number | null;
-  /**
-   * 手数料等の仕訳行に記録する摘要
-   */
   description?: string | null;
-  /**
-   * 手数料等の仕訳行に付与する品目のID
-   */
   item_id?: number | null;
-  /**
-   * 手数料等の仕訳行に付与する部門のID
-   */
   section_id?: number | null;
-  /**
-   * 手数料等の仕訳行に付与する取引先のID
-   */
   partner_id?: number | null;
-  /**
-   * 手数料等の仕訳行に付与するメモタグのIDのリスト
-   */
   tag_ids?: Array<number>;
-  /**
-   * 手数料等の仕訳行に付与するセグメント1のタグID
-   */
   segment_1_tag_id?: number | null;
-  /**
-   * 手数料等の仕訳行に付与するセグメント2のタグID
-   */
   segment_2_tag_id?: number | null;
-  /**
-   * 手数料等の仕訳行に付与するセグメント3のタグID
-   */
   segment_3_tag_id?: number | null;
 };
 
 export type ExpenseApplicationCreateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 申請タイトル (250文字以内)
-   */
   title: string;
-  /**
-   * 申請日 (yyyy-mm-dd)<br>
-   * 指定しない場合は当日の日付が登録されます。
-   *
-   */
   issue_date?: string;
-  /**
-   * 備考 (10000文字以内)
-   */
   description?: string;
-  /**
-   * 部門ID
-   */
   section_id?: number;
-  /**
-   * メモタグID
-   */
   tag_ids?: Array<number>;
-  /**
-   * 経費申請の申請行一覧（配列）
-   */
   purchase_lines?: Array<{
-    /**
-     * ファイルボックス（証憑ファイル）ID
-     */
     receipt_id?: number;
-    /**
-     * 発生日(yyyy-mm-dd)
-     */
     transaction_date: string;
-    /**
-     * 補足資料（配列）
-     *   receipt_id（証憑ファイル）を指定してください。
-     *   receipt_id（証憑ファイル）は5個まで指定できます
-     */
     sub_receipt_ids?: Array<number>;
-    /**
-     * 外貨を利用するか<br>
-     * trueを指定する場合は、expense_application_purchase_line_currencyも指定してください。事業所の外貨利用設定が無効な場合は400エラーになります。<br>
-     */
     use_currency?: boolean;
-    /**
-     * 申請行の通貨情報<br>
-     * use_currencyにtrueを指定した場合に有効です。
-     */
     expense_application_purchase_line_currency?: {
-      /**
-       * 通貨ID。事業所で利用可能な通貨を指定します。存在しない通貨IDを指定すると400エラーになります。
-       */
       currency_id?: number;
-      /**
-       * 通貨コード（ISO 4217）。currency_idの通貨コードと一致しない場合は400エラーになります。
-       */
       currency_code?: string;
-      /**
-       * 為替レート（小数点以下4桁まで）。5桁以上を指定すると400エラーになります。
-       */
       exchange_rate?: number;
     };
-    /**
-     * 明細行一覧（配列）
-     */
     expense_application_lines?: Array<{
-      /**
-       * 内容 (250文字以内)
-       */
       description?: string;
-      /**
-       * 金額（円）<br>
-       * use_currency・exchange_rate・currency_amountをすべて指定した場合は省略できます。省略した場合は、外貨額と為替レートからサーバーが円換算した金額を設定します。指定した場合は、換算額と異なっていても指定した金額がそのまま保存されます（カード手数料などで換算額と実際の申請金額が異なる場合は、実際の金額を指定してください）。<br>
-       * 上記を指定しない場合は、金額を指定してください。
-       */
       amount?: number;
-      /**
-       * 経費科目ID<br>
-       * 申請時（draftにfalseを指定した時）は、経費科目の利用可能範囲（部門・申請者）により、section_idの部門と申請者で利用できない経費科目を指定すると400エラーになります。下書きでは利用可否を検証しません。<br>
-       * 利用可能な経費科目は、経費科目一覧APIのsection_ids[]に部門IDを指定して取得してください。
-       */
       expense_application_line_template_id?: number;
-      /**
-       * 明細行の外貨額<br>
-       * 申請行でuse_currencyにtrueを指定した場合に有効です。<br>
-       * 外貨額と為替レートから円換算した金額は、amountを省略した場合にamountへ設定されます。amountを指定した場合も、円換算した金額はレスポンスのsystem_calc_amountとして返ります。円換算時の端数は、事業所の経費精算設定の端数処理に従います。
-       */
       expense_application_line_currency_amount?: {
-        /**
-         * 外貨額（小数点以下4桁まで）。5桁以上を指定すると400エラーになります。
-         */
         currency_amount?: number;
       };
-      /**
-       * カスタム申請項目の値一覧（配列）<br>
-       * 経費科目に設定されたカスタム申請項目に対する入力値を指定します。カスタム申請項目の一覧は経費科目APIから取得してください。<br>
-       * 金額の自動計算が設定された経費科目では、custom_valuesから計算した金額とamountが一致しない場合は400エラーになります（サーバー側の計算結果でamountを上書きすることはありません）。
-       */
       custom_values?: Array<{
-        /**
-         * カスタム申請項目のキー。経費科目APIのカスタム申請項目が返すkeyを指定します。<br>
-         * 明細行の経費科目に存在しないキーを指定した場合は400エラーになります。
-         */
         key: string;
-        /**
-         * カスタム申請項目の入力形式<br>
-         * 経費科目に登録されているカスタム申請項目の入力形式と一致しない場合は400エラーになります。
-         */
         type:
           | "single_line_string"
           | "multi_line_string"
@@ -1195,293 +335,56 @@ export type ExpenseApplicationCreateParams = {
           | "radio_button"
           | "checkbox"
           | "number";
-        /**
-         * カスタム申請項目の値。typeによって指定できる形式が変わります。<br>
-         * <ul>
-         *   <li>single_line_string: 文字列 (255文字以内)</li>
-         *   <li>multi_line_string: 文字列 (10000文字以内)</li>
-         *   <li>date: 文字列 (yyyy-mm-dd)</li>
-         *   <li>date_range: start_date（開始日 yyyy-mm-dd）とend_date（終了日 yyyy-mm-dd）を持つオブジェクト</li>
-         *   <li>datetime: 文字列 (yyyy-mm-dd hh:mm)</li>
-         *   <li>pulldown: 文字列。カスタム申請項目の選択肢のいずれか</li>
-         *   <li>radio_button: 文字列。カスタム申請項目の選択肢のいずれか</li>
-         *   <li>checkbox: 文字列の配列。カスタム申請項目の選択肢のうち選択されたもの</li>
-         *   <li>number: 数値 (10桁以内、小数3桁まで)</li>
-         * </ul>
-         * nullまたは未指定の場合は未入力として扱います。入力設定が必須のカスタム申請項目を未入力で申請すると400エラーになります。
-         */
         value?: unknown;
       }>;
-      /**
-       * 明細行の部門・メモタグ・セグメントの付与先<br>
-       * <ul>
-       *   <li>application: 申請全体に付与（画面の「申請全体に合わせる」）。申請全体のsection_id・tag_ids・segment_1〜3_tag_idを明細行に適用します。明細行のsection_id・tag_ids・segment_1〜3_tag_idを指定しても無視します。</li>
-       *   <li>line: 明細に個別付与（画面の「個別付与」）。明細行のsection_id・tag_ids・segment_1〜3_tag_idを明細行に設定します。</li>
-       * </ul>
-       * 未指定またはnullの場合は申請全体に付与（application）として作成します。<br>
-       * 明細行のsection_id・tag_ids・segment_1〜3_tag_idを指定する場合は、lineを指定してください。tag_assignmentを指定せずにこれらを指定すると400エラーになります。<br>
-       * 上記以外の値を指定すると400エラーになります。
-       */
       tag_assignment?: string | null;
-      /**
-       * 明細行の部門ID<br>
-       * tag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合は部門なしになります。<br>
-       * 存在しない部門や、申請者が利用できない部門を指定すると400エラーになります。
-       */
       section_id?: number | null;
-      /**
-       * 明細行のメモタグID<br>
-       * tag_assignmentにlineを指定した場合のみ有効です。未指定の場合はメモタグなしになります。<br>
-       * 存在しないメモタグを指定すると400エラーになります。
-       */
       tag_ids?: Array<number>;
-      /**
-       * 明細行のセグメント１タグID<br>
-       * tag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合はセグメント１タグなしになります。<br>
-       * セグメントタグ一覧の取得APIを利用して取得してください。事業所でセグメント１が利用可能なプラン契約・設定になっている必要があります。<br>
-       * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>
-       */
       segment_1_tag_id?: number | null;
-      /**
-       * 明細行のセグメント２タグID<br>
-       * tag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合はセグメント２タグなしになります。<br>
-       * セグメントタグ一覧の取得APIを利用して取得してください。事業所でセグメント２が利用可能なプラン契約・設定になっている必要があります。<br>
-       * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>
-       */
       segment_2_tag_id?: number | null;
-      /**
-       * 明細行のセグメント３タグID<br>
-       * tag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合はセグメント３タグなしになります。<br>
-       * セグメントタグ一覧の取得APIを利用して取得してください。事業所でセグメント３が利用可能なプラン契約・設定になっている必要があります。<br>
-       * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>
-       */
       segment_3_tag_id?: number | null;
     }>;
   }>;
-  /**
-   * 申請経路ID<br>
-   * <ul>
-   *     <li>経費申請のステータスを申請中として作成する場合は、必ず指定してください。</li>
-   *     <li>指定する申請経路IDは、申請経路APIを利用して取得してください。</li>
-   *     <li>
-   *         未指定の場合は、基本経路を設定している事業所では基本経路が、基本経路を設定していない事業所では利用可能な申請経路の中から最初の申請経路が自動的に使用されます。
-   *         <ul>
-   *            <li>意図しない申請経路を持った経費申請の作成を防ぐために、使用する申請経路IDを指定することを推奨します。</li>
-   *         </ul>
-   *     </li>
-   *     <li>
-   *         法人スタータープラン、法人スタンダードプラン（および旧法人ベーシックプラン）の事業所では以下のデフォルトで用意された申請経路のみ指定できます
-   *         <ul>
-   *         <li>指定なし</li>
-   *         <li>承認者を指定</li>
-   *         </ul>
-   *     </li>
-   * </ul>
-   *
-   */
   approval_flow_route_id?: number;
-  /**
-   * 承認者のユーザーID<br>
-   * 「承認者を指定」の経路を申請経路として使用する場合に指定してください。<br>
-   * 指定する承認者のユーザーIDは、申請経路APIを利用して取得してください。
-   *
-   */
   approver_id?: number;
-  /**
-   * 申請者の所属部門ID<br>
-   * 「部門役職」の承認ステップを含む申請経路で、申請者がどの所属部門として申請するかを指定します。<br>
-   * <ul>
-   *   <li>申請者が複数の部門に所属している場合は必須です。省略すると400エラーになります。</li>
-   *   <li>申請者の所属部門が1つだけの場合は、省略するとその部門が採用されます。</li>
-   * </ul>
-   *
-   */
   applicant_group_id?: number | null;
-  /**
-   * 申請経路の承認部門ID<br>
-   * 1段階目の承認ステップが部門選択型の場合に、承認させる部門を指定してください。
-   *
-   */
   approval_flow_group_id?: number | null;
-  /**
-   * 経費申請のステータス<br>
-   * falseを指定した時は申請中（in_progress）で経費申請を作成します。<br>
-   * trueを指定した時は下書き（draft）で経費申請を作成します。<br>
-   * 未指定の時は下書きとみなして経費申請を作成します。
-   *
-   */
   draft?: boolean;
-  /**
-   * 親申請ID(法人アドバンスプラン（および旧法人プロフェッショナルプラン）, 法人エンタープライズプラン)<br>
-   * <ul>
-   *   <li>承認済みの既存各種申請IDのみ指定可能です。</li>
-   *   <li>各種申請一覧APIを利用して取得してください。</li>
-   *   <li>親申請の種別を購買申請にする場合は parent_type に PurchaseRequest を指定してください。</li>
-   * </ul>
-   *
-   */
   parent_id?: number;
-  /**
-   * 親申請の種別 (parent_id を指定した場合のみ有効)<br>
-   * <ul>
-   *   <li>ApprovalRequest: 各種申請 (parent_type 未指定時のデフォルト)</li>
-   *   <li>PurchaseRequest: 購買申請</li>
-   * </ul>
-   * 上記以外の値を指定するとバリデーションエラーになります。
-   *
-   */
   parent_type?: string;
-  /**
-   * セグメント１タグID<br>
-   * セグメントタグ一覧の取得APIを利用して取得してください。<br>
-   * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a><br>
-   *
-   */
   segment_1_tag_id?: number;
-  /**
-   * セグメント２タグID<br>
-   * セグメントタグ一覧の取得APIを利用して取得してください。<br>
-   * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a><br>
-   *
-   */
   segment_2_tag_id?: number;
-  /**
-   * セグメント３タグID<br>
-   * セグメントタグ一覧の取得APIを利用して取得してください。<br>
-   * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a><br>
-   *
-   */
   segment_3_tag_id?: number;
 };
 
 export type ExpenseApplicationUpdateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 申請タイトル (250文字以内)
-   */
   title: string;
-  /**
-   * 申請日 (yyyy-mm-dd)<br>
-   * 指定しない場合は当日の日付が登録されます。
-   *
-   */
   issue_date?: string;
-  /**
-   * 備考 (10000文字以内)
-   */
   description?: string;
-  /**
-   * 部門ID<br>
-   * 未指定の場合は部門なしで更新されます。<br>
-   * 明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。
-   */
   section_id?: number;
-  /**
-   * メモタグID<br>
-   * 未指定の場合はメモタグなしで更新されます。<br>
-   * 明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。
-   */
   tag_ids?: Array<number>;
-  /**
-   * 経費申請の申請行一覧（配列）
-   */
   purchase_lines?: Array<{
-    /**
-     * 経費申請の申請行ID: 既存申請行を更新する場合に指定します。IDを指定しない申請行は、新規行として扱われ追加されます。また、purchase_linesに含まれない既存の申請行は削除されます。更新後も残したい行は、必ず経費申請の申請行IDを指定してpurchase_linesに含めてください。
-     */
     id?: number;
-    /**
-     * 発生日(yyyy-mm-dd)
-     */
     transaction_date: string;
-    /**
-     * ファイルボックス（証憑ファイル）ID
-     */
     receipt_id?: number;
-    /**
-     * 補足資料（配列）
-     *   receipt_id（証憑ファイル）を指定してください。
-     *   receipt_id（証憑ファイル）は5個まで指定できます
-     */
     sub_receipt_ids?: Array<number>;
-    /**
-     * 外貨を利用するか<br>
-     * trueを指定する場合は、expense_application_purchase_line_currencyも指定してください。事業所の外貨利用設定が無効な場合は400エラーになります。<br>
-     * 更新時、use_currencyを省略した場合は既存の外貨情報が保持されます。falseを指定した場合のみ外貨情報が削除されます。<br>
-     */
     use_currency?: boolean;
-    /**
-     * 申請行の通貨情報<br>
-     * use_currencyにtrueを指定した場合に有効です。
-     */
     expense_application_purchase_line_currency?: {
-      /**
-       * 通貨ID。事業所で利用可能な通貨を指定します。存在しない通貨IDを指定すると400エラーになります。
-       */
       currency_id?: number;
-      /**
-       * 通貨コード（ISO 4217）。currency_idの通貨コードと一致しない場合は400エラーになります。
-       */
       currency_code?: string;
-      /**
-       * 為替レート（小数点以下4桁まで）。5桁以上を指定すると400エラーになります。
-       */
       exchange_rate?: number;
     };
-    /**
-     * 明細行一覧（配列）
-     */
     expense_application_lines?: Array<{
-      /**
-       * 経費申請の明細行ID: 既存明細行を更新する場合に指定します。IDを指定しない明細行は、新規行として扱われ追加されます。また、expense_application_linesに含まれない既存の明細行は削除されます。更新後も残したい行は、必ず経費申請の明細行IDを指定してexpense_application_linesに含めてください。
-       */
       id?: number;
-      /**
-       * 内容 (250文字以内)
-       */
       description?: string;
-      /**
-       * 金額（円）<br>
-       * use_currency・exchange_rate・currency_amountをすべて指定した場合は省略できます。省略した場合は、外貨額と為替レートからサーバーが円換算した金額を設定します。指定した場合は、換算額と異なっていても指定した金額がそのまま保存されます（カード手数料などで換算額と実際の申請金額が異なる場合は、実際の金額を指定してください）。<br>
-       * 上記を指定しない場合は、金額を指定してください。
-       */
       amount?: number;
-      /**
-       * 経費科目ID<br>
-       * 申請時（draftにfalseを指定した時）は、経費科目の利用可能範囲（部門・申請者）により、section_idの部門と申請者で利用できない経費科目を指定すると400エラーになります。下書きでは利用可否を検証しません。<br>
-       * 利用可能な経費科目は、経費科目一覧APIのsection_ids[]に部門IDを指定して取得してください。
-       */
       expense_application_line_template_id?: number;
-      /**
-       * 明細行の外貨額<br>
-       * 申請行でuse_currencyにtrueを指定した場合に有効です。<br>
-       * 外貨額と為替レートから円換算した金額は、amountを省略した場合にamountへ設定されます。amountを指定した場合も、円換算した金額はレスポンスのsystem_calc_amountとして返ります。円換算時の端数は、事業所の経費精算設定の端数処理に従います。
-       */
       expense_application_line_currency_amount?: {
-        /**
-         * 外貨額（小数点以下4桁まで）。5桁以上を指定すると400エラーになります。
-         */
         currency_amount?: number;
       };
-      /**
-       * カスタム申請項目の値一覧（配列）<br>
-       * 経費科目に設定されたカスタム申請項目に対する入力値を指定します。カスタム申請項目の一覧は経費科目APIから取得してください。<br>
-       * 明細行のカスタム申請項目の値は、指定したcustom_valuesの内容で置き換えられます。custom_valuesに含まれない既存の値は削除されるため、更新後も残したい値は必ずcustom_valuesに含めてください。<br>
-       * 金額の自動計算が設定された経費科目では、custom_valuesから計算した金額とamountが一致しない場合は400エラーになります（サーバー側の計算結果でamountを上書きすることはありません）。
-       */
       custom_values?: Array<{
-        /**
-         * カスタム申請項目のキー。経費科目APIのカスタム申請項目が返すkeyを指定します。<br>
-         * 明細行の経費科目に存在しないキーを指定した場合は400エラーになります。
-         */
         key: string;
-        /**
-         * カスタム申請項目の入力形式<br>
-         * 経費科目に登録されているカスタム申請項目の入力形式と一致しない場合は400エラーになります。
-         */
         type:
           | "single_line_string"
           | "multi_line_string"
@@ -1492,1296 +395,280 @@ export type ExpenseApplicationUpdateParams = {
           | "radio_button"
           | "checkbox"
           | "number";
-        /**
-         * カスタム申請項目の値。typeによって指定できる形式が変わります。<br>
-         * <ul>
-         *   <li>single_line_string: 文字列 (255文字以内)</li>
-         *   <li>multi_line_string: 文字列 (10000文字以内)</li>
-         *   <li>date: 文字列 (yyyy-mm-dd)</li>
-         *   <li>date_range: start_date（開始日 yyyy-mm-dd）とend_date（終了日 yyyy-mm-dd）を持つオブジェクト</li>
-         *   <li>datetime: 文字列 (yyyy-mm-dd hh:mm)</li>
-         *   <li>pulldown: 文字列。カスタム申請項目の選択肢のいずれか</li>
-         *   <li>radio_button: 文字列。カスタム申請項目の選択肢のいずれか</li>
-         *   <li>checkbox: 文字列の配列。カスタム申請項目の選択肢のうち選択されたもの</li>
-         *   <li>number: 数値 (10桁以内、小数3桁まで)</li>
-         * </ul>
-         * nullまたは未指定の場合は未入力として扱います。入力設定が必須のカスタム申請項目を未入力で申請すると400エラーになります。
-         */
         value?: unknown;
       }>;
-      /**
-       * 明細行の部門・メモタグ・セグメントの付与先<br>
-       * <ul>
-       *   <li>application: 申請全体に付与（画面の「申請全体に合わせる」）。申請全体のsection_id・tag_ids・segment_1〜3_tag_idを明細行に適用します。明細に個別付与した部門・メモタグ・セグメントは削除されます。明細行のsection_id・tag_ids・segment_1〜3_tag_idを指定しても無視します。</li>
-       *   <li>line: 明細に個別付与（画面の「個別付与」）。明細行の部門・メモタグ・セグメントを、明細行のsection_id・tag_ids・segment_1〜3_tag_idの内容で置き換えます。指定しなかった項目は空になるため、更新後も残したい値は必ず指定してください。</li>
-       * </ul>
-       * 未指定またはnullの場合、既存の明細行の部門・メモタグ・セグメントと付与先は変更しません（申請全体のsection_id・tag_ids・segment_1〜3_tag_idと異なり、省略しても削除されません）。新規に追加する明細行は申請全体に付与（application）として作成します。<br>
-       * ただし未指定またはnullの場合、経費科目の利用可否は明細行の部門ではなく申請全体のsection_idで判定します。個別付与した明細行で部門の利用制限がある経費科目を使っている場合に申請中（draft: false）にするときは、lineを指定し、明細行のsection_id・tag_ids・segment_1〜3_tag_idも指定してください。<br>
-       * 個別付与した明細行を申請全体に合わせるには、applicationを指定してください。<br>
-       * 明細行のsection_id・tag_ids・segment_1〜3_tag_idを指定する場合は、lineを指定してください。tag_assignmentを指定せずにこれらを指定すると400エラーになります。<br>
-       * 上記以外の値を指定すると400エラーになります。
-       */
       tag_assignment?: string | null;
-      /**
-       * 明細行の部門ID<br>
-       * tag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合は部門なしになります。<br>
-       * 存在しない部門や、申請者が利用できない部門を指定すると400エラーになります。
-       */
       section_id?: number | null;
-      /**
-       * 明細行のメモタグID<br>
-       * tag_assignmentにlineを指定した場合のみ有効です。未指定の場合はメモタグなしになります。<br>
-       * 存在しないメモタグを指定すると400エラーになります。
-       */
       tag_ids?: Array<number>;
-      /**
-       * 明細行のセグメント１タグID<br>
-       * tag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合はセグメント１タグなしになります。<br>
-       * セグメントタグ一覧の取得APIを利用して取得してください。事業所でセグメント１が利用可能なプラン契約・設定になっている必要があります。<br>
-       * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>
-       */
       segment_1_tag_id?: number | null;
-      /**
-       * 明細行のセグメント２タグID<br>
-       * tag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合はセグメント２タグなしになります。<br>
-       * セグメントタグ一覧の取得APIを利用して取得してください。事業所でセグメント２が利用可能なプラン契約・設定になっている必要があります。<br>
-       * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>
-       */
       segment_2_tag_id?: number | null;
-      /**
-       * 明細行のセグメント３タグID<br>
-       * tag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合はセグメント３タグなしになります。<br>
-       * セグメントタグ一覧の取得APIを利用して取得してください。事業所でセグメント３が利用可能なプラン契約・設定になっている必要があります。<br>
-       * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>
-       */
       segment_3_tag_id?: number | null;
     }>;
   }>;
-  /**
-   * 申請経路ID<br>
-   * <ul>
-   *     <li>経費申請のステータスを申請中として作成する場合は、必ず指定してください。</li>
-   *     <li>指定する申請経路IDは、申請経路APIを利用して取得してください。</li>
-   *     <li>
-   *         未指定の場合は、基本経路を設定している事業所では基本経路が、基本経路を設定していない事業所では利用可能な申請経路の中から最初の申請経路が自動的に使用されます。
-   *         <ul>
-   *           <li>意図しない申請経路を持った経費申請の作成を防ぐために、使用する申請経路IDを指定することを推奨します。</li>
-   *         </ul>
-   *     </li>
-   *     <li>
-   *         法人スタータープラン、法人スタンダードプラン（および旧法人ベーシックプラン）の事業所では以下のデフォルトで用意された申請経路のみ指定できます
-   *         <ul>
-   *         <li>指定なし</li>
-   *         <li>承認者を指定</li>
-   *         </ul>
-   *     </li>
-   * </ul>
-   *
-   */
   approval_flow_route_id?: number;
-  /**
-   * 承認者のユーザーID<br>
-   * 指定する承認者のユーザーIDは、申請経路APIを利用して取得してください。
-   *
-   */
   approver_id?: number;
-  /**
-   * 申請者の所属部門ID<br>
-   * 「部門役職」の承認ステップを含む申請経路で、申請者がどの所属部門として申請するかを指定します。<br>
-   * <ul>
-   *   <li>申請者が複数の部門に所属している場合は必須です。省略すると400エラーになります。</li>
-   *   <li>申請者の所属部門が1つだけの場合は、省略するとその部門が採用されます。</li>
-   * </ul>
-   *
-   */
   applicant_group_id?: number | null;
-  /**
-   * 申請経路の承認部門ID<br>
-   * 1段階目の承認ステップが部門選択型の場合に、承認させる部門を指定してください。
-   *
-   */
   approval_flow_group_id?: number | null;
-  /**
-   * 経費申請のステータス<br>
-   * falseを指定した時は申請中（in_progress）で経費申請を更新します。<br>
-   * trueを指定した時は下書き（draft）で経費申請を更新します。<br>
-   * 未指定の時は下書きとみなして経費申請を更新します。
-   *
-   */
   draft?: boolean;
-  /**
-   * 親申請ID(法人アドバンスプラン（および旧法人プロフェッショナルプラン）, 法人エンタープライズプラン)<br>
-   * <ul>
-   *   <li>承認済みの既存各種申請IDのみ指定可能です。</li>
-   *   <li>各種申請一覧APIを利用して取得してください。</li>
-   *   <li>親申請の種別を購買申請にする場合は parent_type に PurchaseRequest を指定してください。</li>
-   *   <li>null を指定すると、現在設定されている親申請との関連付けを解除します。</li>
-   *   <li>キーを指定しない場合、親申請は更新されません（他のフィールドと同じキー未指定=更新なしの挙動）。</li>
-   * </ul>
-   *
-   */
   parent_id?: number | null;
-  /**
-   * 親申請の種別 (parent_id を指定した場合のみ有効)<br>
-   * <ul>
-   *   <li>ApprovalRequest: 各種申請 (parent_type 未指定時のデフォルト)</li>
-   *   <li>PurchaseRequest: 購買申請</li>
-   * </ul>
-   * 上記以外の値を指定するとバリデーションエラーになります。
-   *
-   */
   parent_type?: string;
-  /**
-   * セグメント１タグID<br>
-   * 未指定の場合はセグメント１タグなしで更新されます。<br>
-   * 明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。<br>
-   * セグメントタグ一覧の取得APIを利用して取得してください。<br>
-   * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a><br>
-   *
-   */
   segment_1_tag_id?: number;
-  /**
-   * セグメント２タグID<br>
-   * 未指定の場合はセグメント２タグなしで更新されます。<br>
-   * 明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。<br>
-   * セグメントタグ一覧の取得APIを利用して取得してください。<br>
-   * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a><br>
-   *
-   */
   segment_2_tag_id?: number;
-  /**
-   * セグメント３タグID<br>
-   * 未指定の場合はセグメント３タグなしで更新されます。<br>
-   * 明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。<br>
-   * セグメントタグ一覧の取得APIを利用して取得してください。<br>
-   * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a><br>
-   *
-   */
   segment_3_tag_id?: number;
 };
 
 export type ExpenseApplicationActionCreateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 操作(approve: 承認する、force_approve: 特権承認する、cancel: 申請を取り消す、reject: 却下する、feedback: 申請者へ差し戻す、force_feedback: 承認済み・却下済みを取り消す)
-   */
   approval_action:
     "approve" | "force_approve" | "cancel" | "reject" | "feedback" | "force_feedback";
-  /**
-   * 対象承認ステップID 経費申請の取得APIレスポンス.current_step_idを送信してください。
-   */
   target_step_id: number;
-  /**
-   * 対象round。差し戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。経費申請の取得APIレスポンス.current_roundを送信してください。
-   */
   target_round: number;
-  /**
-   * 次ステップの承認者のユーザーID
-   */
   next_approver_id?: number | null;
-  /**
-   * 次ステップの承認部門ID<br>
-   * 次の承認ステップが部門選択型の場合に、承認させる部門を指定してください。
-   *
-   */
   next_group_id?: number | null;
 };
 
 export type ExpenseApplicationParentApprovableRequestUpdateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 各種申請ID
-   * - 経費申請に関連付ける各種申請IDを指定します
-   * - 閲覧権限のある承認済みの既存各種申請IDのみ指定ができます
-   * - 既に経費申請に紐付いている各種申請との関連は解除されます
-   * - 経費申請に紐付く各種申請を解除する場合はnullを指定してください
-   *
-   */
   parent_id: number | null;
 };
 
 export type PaymentRequestCreateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 申請タイトル（250文字以内）
-   */
   title: string;
-  /**
-   * 申請日 (yyyy-mm-dd)
-   * 指定しない場合は当日の日付が登録されます。
-   */
   application_date?: string;
-  /**
-   * 備考。未指定の場合は空文字列になります。
-   */
   description?: string;
-  /**
-   * 支払依頼の項目行一覧（配列）。最大100行までです。
-   * 通常行 (line_type=`deal_line`) を最低1行含める必要があり、控除・マイナス行 (`negative_line`) や源泉所得税行 (`withholding_tax`) だけで構成することはできません。
-   * 申請中 (draft=false) で作成する場合は、通常行の合計金額が控除・マイナス行と源泉所得税行の合計金額より大きい必要があります。
-   */
   payment_request_lines: Array<{
-    /**
-     * 行の種類（デフォルトは `deal_line`）
-     * * `deal_line` - 支払依頼の通常取引行
-     * * `negative_line` - 支払依頼の控除・マイナス行
-     * * `withholding_tax` - 源泉所得税行（1件のみ指定可能）
-     */
     line_type?: "deal_line" | "negative_line" | "withholding_tax";
-    /**
-     * 内容
-     */
     description?: string;
-    /**
-     * 金額（円、税込）。申請中 (draft=false) で作成する場合は0より大きい値を指定してください。
-     */
     amount: number;
-    /**
-     * 勘定科目ID（`/api/1/account_items` のレスポンス id で取得できます）
-     */
     account_item_id?: number | null;
-    /**
-     * 税区分コード
-     * 勘定科目IDを指定する場合は必須です。税区分コードは `/api/1/taxes/codes` で取得できます。
-     */
     tax_code?: number;
-    /**
-     * 品目ID（`/api/1/items` のレスポンス id で取得できます）
-     */
     item_id?: number;
-    /**
-     * 部門ID（`/api/1/sections` のレスポンス id で取得できます）
-     */
     section_id?: number;
-    /**
-     * メモタグID の配列（`/api/1/tags` のレスポンス id で取得できます）
-     */
     tag_ids?: Array<number>;
-    /**
-     * セグメント１タグID
-     * セグメントタグ一覧API (`/api/1/segments/{segment_id}/tags`) で取得できます。
-     * 事業所側でセグメント１が利用可能なプラン契約になっている必要があります。
-     * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>
-     */
     segment_1_tag_id?: number;
-    /**
-     * セグメント２タグID
-     * セグメントタグ一覧API (`/api/1/segments/{segment_id}/tags`) で取得できます。
-     * 事業所側でセグメント２が利用可能なプラン契約になっている必要があります。
-     * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>
-     */
     segment_2_tag_id?: number;
-    /**
-     * セグメント３タグID
-     * セグメントタグ一覧API (`/api/1/segments/{segment_id}/tags`) で取得できます。
-     * 事業所側でセグメント３が利用可能なプラン契約になっている必要があります。
-     * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>
-     */
     segment_3_tag_id?: number;
   }>;
-  /**
-   * 承認者のユーザーID
-   * 「承認者を指定」の申請経路 (resource_type: `selected_user`) を利用する場合に指定してください。
-   * 指定する承認者のユーザーIDは、申請経路取得API (`/api/1/approval_flow_routes`) のレスポンス steps[].users_ids から取得できます。
-   */
   approver_id?: number;
-  /**
-   * 申請経路ID
-   * 指定する申請経路IDは、申請経路一覧API (`/api/1/approval_flow_routes`) のレスポンス id から取得してください。
-   * usages に `PaymentRequest` を含む申請経路のみ利用可能です。
-   */
   approval_flow_route_id: number;
-  /**
-   * 申請者の所属部門ID<br>
-   * 「部門役職」の承認ステップを含む申請経路で、申請者がどの所属部門として申請するかを指定します。<br>
-   * <ul>
-   *   <li>申請者が複数の部門に所属している場合は必須です。省略すると400エラーになります。</li>
-   *   <li>申請者の所属部門が1つだけの場合は、省略するとその部門が採用されます。</li>
-   * </ul>
-   *
-   */
   applicant_group_id?: number | null;
-  /**
-   * 申請経路の承認部門ID<br>
-   * 1段階目の承認ステップが部門選択型の場合に、承認させる部門を指定してください。
-   *
-   */
   approval_flow_group_id?: number | null;
-  /**
-   * 親申請ID
-   * 法人エンタープライズプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）で利用できます。
-   * 承認済みの既存各種申請IDまたは購買申請IDのみ指定可能です（各種申請一覧API `/api/1/approval_requests`、購買申請一覧API `/api/1/purchase_requests` で取得できます）。
-   * 親申請の種別を購買申請にする場合は parent_type に `PurchaseRequest` を指定してください。
-   */
   parent_id?: number | null;
-  /**
-   * 親申請の種別（parent_id を指定した場合のみ有効）
-   * * `ApprovalRequest` - 各種申請（parent_type 未指定時のデフォルト）
-   * * `PurchaseRequest` - 購買申請
-   *
-   * 上記以外の値を指定するとバリデーションエラーになります。
-   */
   parent_type?: "ApprovalRequest" | "PurchaseRequest";
-  /**
-   * 支払依頼のステータス
-   * * `true` - 下書き (draft) で支払依頼を作成します
-   * * `false` - 申請中 (in_progress) で支払依頼を作成します
-   */
   draft: boolean;
-  /**
-   * 請求書番号（255文字以内）
-   */
   document_code?: string;
-  /**
-   * ファイルボックス（証憑ファイル）ID の配列（`/api/1/receipts` で取得できます）
-   */
   receipt_ids?: Array<number>;
-  /**
-   * 発生日 (yyyy-mm-dd)
-   */
   issue_date: string;
-  /**
-   * 支払期限 (yyyy-mm-dd)。指定しない場合は null で登録されます。
-   */
   payment_date?: string | null;
-  /**
-   * 支払方法（デフォルトは `none`）
-   * * `none` - 指定なし
-   * * `domestic_bank_transfer` - 国内振込
-   * * `abroad_bank_transfer` - 国外振込
-   * * `account_transfer` - 口座振替
-   * * `credit_card` - クレジットカード
-   */
   payment_method?:
     "none" | "domestic_bank_transfer" | "abroad_bank_transfer" | "account_transfer" | "credit_card";
-  /**
-   * 支払先の取引先ID（`/api/1/partners` のレスポンス id で取得できます）
-   */
   partner_id?: number | null;
-  /**
-   * 支払先の取引先コード
-   * partner_id と同時指定した場合は partner_id が優先され、partner_code は無視されます。
-   * 取引先コードを利用するには事業所側で「取引先コードを利用する」設定が有効になっている必要があります。
-   */
   partner_code?: string | null;
-  /**
-   * 銀行コード（半角数字1桁〜4桁）
-   * partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。
-   */
   bank_code?: string;
-  /**
-   * 銀行名（255文字以内）
-   * partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。
-   */
   bank_name?: string;
-  /**
-   * 銀行名（カナ）（15文字以内）
-   * partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。
-   */
   bank_name_kana?: string;
-  /**
-   * 支店番号（半角数字1桁〜3桁）
-   * partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。
-   */
   branch_code?: string;
-  /**
-   * 支店名（255文字以内）
-   * partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。
-   */
   branch_name?: string;
-  /**
-   * 支店名（カナ）（15文字以内）
-   * 指定可能な文字は、英数・カナ・丸括弧・ハイフン・スペースのみです。
-   * partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。
-   */
   branch_kana?: string;
-  /**
-   * 受取人名（カナ）（48文字以内）
-   * partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。
-   */
   account_name?: string;
-  /**
-   * 口座番号（半角数字1桁〜7桁）
-   * partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。
-   */
   account_number?: string;
-  /**
-   * 口座種別（デフォルトは `ordinary`）
-   * * `ordinary` - 普通
-   * * `checking` - 当座
-   * * `earmarked` - 納税準備預金
-   * * `savings` - 貯蓄
-   * * `other` - その他
-   *
-   * partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。
-   */
   account_type?: "ordinary" | "checking" | "earmarked" | "savings" | "other";
-  /**
-   * 適格請求書発行事業者の区分（キーを省略した場合は `unspecified` が適用されます）
-   * * `qualified` - 該当する
-   * * `not_qualified` - 該当しない
-   * * `unspecified` - 未選択
-   *
-   * 支払依頼をインボイス要件をみたす申請として扱うかどうかを表します。
-   * 以下の場合は `unspecified` 以外を指定できません:
-   * - issue_date が 2023年9月30日以前の場合
-   * - 事業所側のインボイス経過措置の税区分の設定が「使用する」になっていない場合
-   */
   qualified_invoice_status?: "qualified" | "not_qualified" | "unspecified";
 };
 
 export type PaymentRequestUpdateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 申請タイトル（250文字以内）
-   * 申請中 (in_progress) の支払依頼に対しては更新できません。下書き状態もしくは差戻し状態の場合のみ有効です。
-   */
   title: string;
-  /**
-   * 申請日 (yyyy-mm-dd)
-   * 指定しない場合は当日の日付が登録されます。
-   * 申請中 (in_progress) の支払依頼に対しては更新できません。下書き状態もしくは差戻し状態の場合のみ有効です。
-   */
   application_date?: string;
-  /**
-   * 備考。未指定の場合は空文字列で登録されます。
-   */
   description?: string;
-  /**
-   * 支払依頼の項目行一覧（配列）。最大100行までです。
-   * 通常行 (line_type=`deal_line`) を最低1行含める必要があり、控除・マイナス行 (`negative_line`) や源泉所得税行 (`withholding_tax`) だけで構成することはできません。
-   * 申請中 (draft=false) で更新する場合は、通常行の合計金額が控除・マイナス行と源泉所得税行の合計金額より大きい必要があります。
-   */
   payment_request_lines: Array<{
-    /**
-     * 支払依頼の項目行ID
-     * 既存項目行を更新する場合に指定します。ID を指定しない項目行は新規行として追加されます。
-     * payment_request_lines に含まれない既存の項目行は削除されます。更新後も残したい行は、必ず支払依頼の項目行 ID を指定して payment_request_lines に含めてください。
-     */
     id?: number;
-    /**
-     * 行の種類（デフォルトは `deal_line`）
-     * * `deal_line` - 支払依頼の通常取引行
-     * * `negative_line` - 支払依頼の控除・マイナス行
-     * * `withholding_tax` - 源泉所得税行（1件のみ指定可能）
-     */
     line_type?: "deal_line" | "negative_line" | "withholding_tax";
-    /**
-     * 内容
-     */
     description?: string;
-    /**
-     * 金額（円、税込）。申請中 (draft=false) で更新する場合は0より大きい値を指定してください。
-     */
     amount: number;
-    /**
-     * 勘定科目ID（`/api/1/account_items` のレスポンス id で取得できます）
-     */
     account_item_id?: number | null;
-    /**
-     * 税区分コード
-     * 勘定科目IDを指定する場合は必須です。税区分コードは `/api/1/taxes/codes` で取得できます。
-     */
     tax_code?: number;
-    /**
-     * 品目ID（`/api/1/items` のレスポンス id で取得できます）
-     */
     item_id?: number;
-    /**
-     * 部門ID（`/api/1/sections` のレスポンス id で取得できます）
-     */
     section_id?: number;
-    /**
-     * メモタグID の配列（`/api/1/tags` のレスポンス id で取得できます）
-     */
     tag_ids?: Array<number>;
-    /**
-     * セグメント１タグID
-     * セグメントタグ一覧API (`/api/1/segments/{segment_id}/tags`) で取得できます。
-     * 事業所側でセグメント１が利用可能なプラン契約になっている必要があります。
-     * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>
-     */
     segment_1_tag_id?: number;
-    /**
-     * セグメント２タグID
-     * セグメントタグ一覧API (`/api/1/segments/{segment_id}/tags`) で取得できます。
-     * 事業所側でセグメント２が利用可能なプラン契約になっている必要があります。
-     * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>
-     */
     segment_2_tag_id?: number;
-    /**
-     * セグメント３タグID
-     * セグメントタグ一覧API (`/api/1/segments/{segment_id}/tags`) で取得できます。
-     * 事業所側でセグメント３が利用可能なプラン契約になっている必要があります。
-     * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>
-     */
     segment_3_tag_id?: number;
   }>;
-  /**
-   * 承認者のユーザーID
-   * 「承認者を指定」の申請経路 (resource_type: `selected_user`) を利用する場合に指定してください。
-   * 指定する承認者のユーザーIDは、申請経路取得API (`/api/1/approval_flow_routes`) のレスポンス steps[].users_ids から取得できます。
-   * 申請中 (in_progress) の支払依頼に対しては更新できません。下書き状態もしくは差戻し状態の場合のみ有効です。
-   */
   approver_id?: number;
-  /**
-   * 申請経路ID
-   * 指定する申請経路IDは、申請経路一覧API (`/api/1/approval_flow_routes`) のレスポンス id から取得してください。
-   * usages に `PaymentRequest` を含む申請経路のみ利用可能です。
-   * 申請中 (in_progress) の支払依頼に対しては更新できません。下書き状態もしくは差戻し状態の場合のみ有効です。
-   */
   approval_flow_route_id: number;
-  /**
-   * 申請者の所属部門ID<br>
-   * 「部門役職」の承認ステップを含む申請経路で、申請者がどの所属部門として申請するかを指定します。<br>
-   * <ul>
-   *   <li>申請者が複数の部門に所属している場合は必須です。省略すると400エラーになります。</li>
-   *   <li>申請者の所属部門が1つだけの場合は、省略するとその部門が採用されます。</li>
-   * </ul>
-   *
-   */
   applicant_group_id?: number | null;
-  /**
-   * 申請経路の承認部門ID<br>
-   * 1段階目の承認ステップが部門選択型の場合に、承認させる部門を指定してください。
-   *
-   */
   approval_flow_group_id?: number | null;
-  /**
-   * 親申請ID
-   * 法人エンタープライズプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）で利用できます。
-   * 承認済みの既存各種申請IDまたは購買申請IDのみ指定可能です（各種申請一覧API `/api/1/approval_requests`、購買申請一覧API `/api/1/purchase_requests` で取得できます）。
-   * * 親申請の種別を購買申請にする場合は parent_type に `PurchaseRequest` を指定してください。
-   * * `null` を指定すると、現在設定されている親申請との関連付けを解除します。
-   * * キーを指定しない場合、親申請は更新されません。
-   * * 親申請の更新には、申請フォームの設定で申請者（申請中の場合は承認者）による親申請の変更が許可されている必要があります。
-   */
   parent_id?: number | null;
-  /**
-   * 親申請の種別（parent_id を指定した場合のみ有効）
-   * * `ApprovalRequest` - 各種申請（parent_type 未指定時のデフォルト）
-   * * `PurchaseRequest` - 購買申請
-   *
-   * 上記以外の値を指定するとバリデーションエラーになります。
-   */
   parent_type?: "ApprovalRequest" | "PurchaseRequest";
-  /**
-   * 支払依頼のステータス
-   * * `true` - 下書き (draft) で支払依頼を更新します
-   * * `false` - 申請中 (in_progress) で支払依頼を更新します
-   */
   draft: boolean;
-  /**
-   * 請求書番号（255文字以内）
-   */
   document_code?: string;
-  /**
-   * ファイルボックス（証憑ファイル）ID の配列（`/api/1/receipts` で取得できます）
-   */
   receipt_ids?: Array<number>;
-  /**
-   * 発生日 (yyyy-mm-dd)
-   */
   issue_date: string;
-  /**
-   * 支払期限 (yyyy-mm-dd)。指定しない場合は null で登録されます。
-   */
   payment_date?: string | null;
-  /**
-   * 支払方法（デフォルトは `none`）
-   * * `none` - 指定なし
-   * * `domestic_bank_transfer` - 国内振込
-   * * `abroad_bank_transfer` - 国外振込
-   * * `account_transfer` - 口座振替
-   * * `credit_card` - クレジットカード
-   */
   payment_method?:
     "none" | "domestic_bank_transfer" | "abroad_bank_transfer" | "account_transfer" | "credit_card";
-  /**
-   * 支払先の取引先ID（`/api/1/partners` のレスポンス id で取得できます）
-   */
   partner_id?: number | null;
-  /**
-   * 支払先の取引先コード
-   * partner_id と同時指定した場合は partner_id が優先され、partner_code は無視されます。
-   * 取引先コードを利用するには事業所側で「取引先コードを利用する」設定が有効になっている必要があります。
-   */
   partner_code?: string | null;
-  /**
-   * 銀行コード（半角数字1桁〜4桁）
-   * partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。
-   */
   bank_code?: string;
-  /**
-   * 銀行名（255文字以内）
-   * partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。
-   */
   bank_name?: string;
-  /**
-   * 銀行名（カナ）（15文字以内）
-   * partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。
-   */
   bank_name_kana?: string;
-  /**
-   * 支店番号（半角数字1桁〜3桁）
-   * partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。
-   */
   branch_code?: string;
-  /**
-   * 支店名（255文字以内）
-   * partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。
-   */
   branch_name?: string;
-  /**
-   * 支店名（カナ）（15文字以内）
-   * 指定可能な文字は、英数・カナ・丸括弧・ハイフン・スペースのみです。
-   * partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。
-   */
   branch_kana?: string;
-  /**
-   * 受取人名（カナ）（48文字以内）
-   * partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。
-   */
   account_name?: string;
-  /**
-   * 口座番号（半角数字1桁〜7桁）
-   * partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。
-   */
   account_number?: string;
-  /**
-   * 口座種別（デフォルトは `ordinary`）
-   * * `ordinary` - 普通
-   * * `checking` - 当座
-   * * `earmarked` - 納税準備預金
-   * * `savings` - 貯蓄
-   * * `other` - その他
-   *
-   * partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。
-   */
   account_type?: "ordinary" | "checking" | "earmarked" | "savings" | "other";
-  /**
-   * 適格請求書発行事業者の区分（キーを省略した場合は `unspecified` が適用されます）
-   * * `qualified` - 該当する
-   * * `not_qualified` - 該当しない
-   * * `unspecified` - 未選択
-   *
-   * 支払依頼をインボイス要件をみたす申請として扱うかどうかを表します。
-   * 以下の場合は `unspecified` 以外を指定できません:
-   * - issue_date が 2023年9月30日以前の場合
-   * - 事業所側のインボイス経過措置の税区分の設定が「使用する」になっていない場合
-   */
   qualified_invoice_status?: "qualified" | "not_qualified" | "unspecified";
 };
 
-/**
- * 取引先作成のリクエストパラメータ。POST /api/1/partners のリクエストボディ。
- */
 export type PartnerCreateParams = {
-  /**
-   * 事業所ID。作成先の事業所を指定します。
-   */
   company_id: number;
-  /**
-   * 取引先名 (255 文字以内、事業所内で重複不可)。取引・請求書で参照される表示名。
-   */
   name: string;
-  /**
-   * 取引先コード。事業所設定で「取引先コードの利用」を有効にしている場合は必須で、事業所内で重複不可。無効な事業所では指定するとエラーになります。
-   */
   code?: string;
-  /**
-   * ショートカット1 (255 文字以内)。取引先検索用の任意キーワード。
-   */
   shortcut1?: string;
-  /**
-   * ショートカット2 (255 文字以内)。shortcut1 と併用可能な補助キーワード。
-   */
   shortcut2?: string;
-  /**
-   * 事業所種別。
-   * <ul>
-   *   <li>null: 未設定（デフォルト）</li>
-   *   <li>1: 法人</li>
-   *   <li>2: 個人</li>
-   * </ul>
-   *
-   */
   org_code?: 1 | 2;
-  /**
-   * 地域。指定しない場合は JP になります。
-   * <ul>
-   *   <li>JP: 国内</li>
-   *   <li>ZZ: 国外</li>
-   * </ul>
-   *
-   */
   country_code?: "JP" | "ZZ";
-  /**
-   * 正式名称（255 文字以内）。取引先の正式な法人・屋号名称。請求書などの帳票に印字される名称。
-   */
   long_name?: string;
-  /**
-   * カナ名称（255 文字以内）。取引先名の全角カナ表記。Web 画面のカナ検索で利用されます。
-   */
   name_kana?: string;
-  /**
-   * 敬称。請求書などで取引先名の後ろに付与される敬称。御中、様、(空白) の 3 つから選択します。
-   */
   default_title?: string;
-  /**
-   * 電話番号。取引先の連絡先電話番号。フォーマット制約はありません。
-   */
   phone?: string;
-  /**
-   * 担当者 氏名 (255 文字以内)。取引先窓口の担当者名。
-   */
   contact_name?: string;
-  /**
-   * 担当者 メールアドレス (255 文字以内)。取引先窓口の担当者メールアドレス。
-   */
   email?: string;
-  /**
-   * 振込元口座ID（一括振込ファイル用）。walletable の type が 'bank_account' の口座 ID のみ指定できます。未設定にする場合は null を指定してください。法人スタータープラン（および旧法人プロフェッショナルプラン）以上でのみ設定可能で、それ未満の事業所では指定しても無視されます。
-   */
   payer_walletable_id?: number | null;
-  /**
-   * 振込手数料負担（一括振込ファイル用）。指定しない場合は payer になります。法人スタータープラン（および旧法人プロフェッショナルプラン）以上でのみ設定可能で、それ未満の事業所では指定しても無視されます。
-   * <ul>
-   *   <li>payer: 振込元（当方）負担</li>
-   *   <li>payee: 振込先（先方）負担</li>
-   * </ul>
-   *
-   */
   transfer_fee_handling_side?: "payer" | "payee";
-  /**
-   * インボイス制度適格請求書発行事業者フラグ。デフォルトは false。
-   * <ul>
-   *   <li>true: 適格請求書発行事業者</li>
-   *   <li>false: 非対象事業者</li>
-   * </ul>
-   * <a target="_blank" href="https://www.invoice-kohyo.nta.go.jp/index.html">国税庁インボイス制度適格請求書発行事業者公表サイト</a>
-   *
-   */
   qualified_invoice_issuer?: boolean;
-  /**
-   * インボイス制度適格請求書発行事業者登録番号。先頭 T + 数字 13 桁の固定 14 文字（先頭 T なしの数字 13 桁も許容）。
-   * <a target="_blank" href="https://www.invoice-kohyo.nta.go.jp/index.html">国税庁インボイス制度適格請求書発行事業者公表サイト</a>
-   *
-   */
   invoice_registration_number?: string | null;
-  /**
-   * 住所情報。省略した場合、address_attributes 自体が未設定になります。country_code を指定していれば address_attributes を省略しても地域は反映されます。
-   */
   address_attributes?: {
-    /**
-     * 郵便番号（ハイフン含む可、8 文字以内）。
-     */
     zipcode?: string;
-    /**
-     * 都道府県コード（-1: 設定しない、0: 北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄）
-     */
     prefecture_code?: number;
-    /**
-     * 市区町村・番地（255 文字以内）。
-     */
     street_name1?: string;
-    /**
-     * 建物名・部屋番号など（255 文字以内）。
-     */
     street_name2?: string;
   };
-  /**
-   * 請求書送付方法の設定。
-   */
   partner_doc_setting_attributes?: {
-    /**
-     * 請求書送付方法。null を指定すると未設定になります。
-     * <ul>
-     *   <li>email: メール</li>
-     *   <li>posting: 郵送</li>
-     *   <li>email_and_posting: メールと郵送</li>
-     *   <li>pdf_delivery: メール（PDFファイル添付）</li>
-     *   <li>pdf_delivery_and_posting: メール（PDFファイル添付）と郵送</li>
-     * </ul>
-     *
-     */
     sending_method?:
       "email" | "posting" | "email_and_posting" | "pdf_delivery" | "pdf_delivery_and_posting";
   };
-  /**
-   * 銀行口座情報（この取引先の受取口座）。
-   */
   partner_bank_account_attributes?: {
-    /**
-     * 銀行名。
-     */
     bank_name?: string;
-    /**
-     * 銀行名（カナ）。
-     */
     bank_name_kana?: string;
-    /**
-     * 銀行コード（4 桁の統一金融機関コード）。
-     */
     bank_code?: string;
-    /**
-     * 支店名。
-     */
     branch_name?: string;
-    /**
-     * 支店名（カナ）。
-     */
     branch_kana?: string;
-    /**
-     * 支店番号（3 桁）。
-     */
     branch_code?: string;
-    /**
-     * 口座種別。指定しない場合は ordinary になります。
-     * <ul>
-     *   <li>ordinary: 普通</li>
-     *   <li>checking: 当座</li>
-     *   <li>earmarked: 納税準備預金</li>
-     *   <li>savings: 貯蓄</li>
-     *   <li>other: その他</li>
-     * </ul>
-     *
-     */
     account_type?: string;
-    /**
-     * 口座番号。
-     */
     account_number?: string;
-    /**
-     * 受取人名。
-     */
     long_account_name?: string;
-    /**
-     * 受取人名（カナ）。全銀フォーマットで送信する際に使用されます。
-     */
     account_name?: string;
   };
-  /**
-   * 支払期日設定。この取引先への支払日を締め日基準で計算するための設定。法人スタータープラン（および旧法人プロフェッショナルプラン）以上でのみ設定可能。cutoff_day / additional_months / fixed_day を組み合わせて指定します。
-   */
   payment_term_attributes?: {
-    /**
-     * 締め日。1〜31 の日付を指定します。29, 30, 31 日の末日を指定する場合は 32 を指定してください。
-     */
     cutoff_day?: number;
-    /**
-     * 支払月。締め日から数えて何ヶ月後に支払うか。当月を指定する場合は 0 を指定してください。
-     */
     additional_months?: number;
-    /**
-     * 支払日。1〜31 の日付を指定します。29, 30, 31 日の末日を指定する場合は 32 を指定してください。
-     */
     fixed_day?: number;
   };
-  /**
-   * 請求の入金期日設定。この取引先からの入金日を締め日基準で計算するための設定。法人スタータープラン（および旧法人プロフェッショナルプラン）以上でのみ設定可能。
-   */
   invoice_payment_term_attributes?: {
-    /**
-     * 締め日。1〜31 の日付を指定します。29, 30, 31 日の末日を指定する場合は 32 を指定してください。
-     */
     cutoff_day?: number;
-    /**
-     * 入金月。締め日から数えて何ヶ月後に入金されるか。当月を指定する場合は 0 を指定してください。
-     */
     additional_months?: number;
-    /**
-     * 入金日。1〜31 の日付を指定します。29, 30, 31 日の末日を指定する場合は 32 を指定してください。
-     */
     fixed_day?: number;
   };
 };
 
-/**
- * 取引先更新のリクエストパラメータ。PUT /api/1/partners/{id} および PUT /api/1/partners/code/{code} のリクエストボディ。PATCH 相当の挙動をするため、リクエストに含まれていない属性は既存値が維持されます（payment_term_attributes / invoice_payment_term_attributes のみ null 指定で未設定に戻せます）。
- */
 export type PartnerUpdateParams = {
-  /**
-   * 事業所ID。取引先が属する事業所を指定します。
-   */
   company_id: number;
-  /**
-   * 取引先名 (255 文字以内、事業所内で重複不可)。
-   */
   name: string;
-  /**
-   * 使用可能フラグ。false を指定すると Web 画面の入力候補として表示されなくなります（取引先自体は削除されません）。
-   * <ul>
-   *   <li>true: 使用可能</li>
-   *   <li>false: 使用停止</li>
-   * </ul>
-   *
-   */
   available?: boolean;
-  /**
-   * ショートカット1 (255 文字以内)。取引先検索用の任意キーワード。
-   */
   shortcut1?: string;
-  /**
-   * ショートカット2 (255 文字以内)。shortcut1 と併用可能な補助キーワード。
-   */
   shortcut2?: string;
-  /**
-   * 事業所種別。null を指定すると未設定に戻ります。
-   * <ul>
-   *   <li>null: 未設定</li>
-   *   <li>1: 法人</li>
-   *   <li>2: 個人</li>
-   * </ul>
-   *
-   */
   org_code?: 1 | 2;
-  /**
-   * 地域。指定しない場合は JP になります。
-   * <ul>
-   *   <li>JP: 国内</li>
-   *   <li>ZZ: 国外</li>
-   * </ul>
-   *
-   */
   country_code?: "JP" | "ZZ";
-  /**
-   * 正式名称（255 文字以内）。取引先の正式な法人・屋号名称。
-   */
   long_name?: string;
-  /**
-   * カナ名称（255 文字以内）。取引先名の全角カナ表記。
-   */
   name_kana?: string;
-  /**
-   * 敬称。御中、様、(空白) の 3 つから選択します。
-   */
   default_title?: string;
-  /**
-   * 電話番号。フォーマット制約はありません。
-   */
   phone?: string;
-  /**
-   * 担当者 氏名 (255 文字以内)。
-   */
   contact_name?: string;
-  /**
-   * 担当者 メールアドレス (255 文字以内)。
-   */
   email?: string;
-  /**
-   * 振込元口座ID（一括振込ファイル用）。walletable の type が 'bank_account' の口座 ID のみ指定できます。未設定にする場合は null。法人スタータープラン（および旧法人プロフェッショナルプラン）以上でのみ設定可能。
-   */
   payer_walletable_id?: number | null;
-  /**
-   * 振込手数料負担（一括振込ファイル用）。指定しない場合は payer になります。法人スタータープラン（および旧法人プロフェッショナルプラン）以上でのみ設定可能。
-   * <ul>
-   *   <li>payer: 振込元（当方）負担</li>
-   *   <li>payee: 振込先（先方）負担</li>
-   * </ul>
-   *
-   */
   transfer_fee_handling_side?: "payer" | "payee";
-  /**
-   * インボイス制度適格請求書発行事業者フラグ。
-   * <ul>
-   *   <li>true: 適格請求書発行事業者</li>
-   *   <li>false: 非対象事業者</li>
-   * </ul>
-   * <a target="_blank" href="https://www.invoice-kohyo.nta.go.jp/index.html">国税庁インボイス制度適格請求書発行事業者公表サイト</a>
-   *
-   */
   qualified_invoice_issuer?: boolean;
-  /**
-   * インボイス制度適格請求書発行事業者登録番号。先頭 T + 数字 13 桁の固定 14 文字（先頭 T なしの数字 13 桁も許容）。
-   * <a target="_blank" href="https://www.invoice-kohyo.nta.go.jp/index.html">国税庁インボイス制度適格請求書発行事業者公表サイト</a>
-   *
-   */
   invoice_registration_number?: string | null;
-  /**
-   * 住所情報。指定した属性のみ更新されます（省略した属性は既存値を維持）。
-   */
   address_attributes?: {
-    /**
-     * 郵便番号（ハイフン含む可、8 文字以内）。
-     */
     zipcode?: string;
-    /**
-     * 都道府県コード（-1: 設定しない、0: 北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄）
-     */
     prefecture_code?: number;
-    /**
-     * 市区町村・番地（255 文字以内）。
-     */
     street_name1?: string;
-    /**
-     * 建物名・部屋番号など（255 文字以内）。
-     */
     street_name2?: string;
   };
-  /**
-   * 請求書送付方法の設定。
-   */
   partner_doc_setting_attributes?: {
-    /**
-     * 請求書送付方法。null を指定すると未設定になります。
-     * <ul>
-     *   <li>email: メール</li>
-     *   <li>posting: 郵送</li>
-     *   <li>email_and_posting: メールと郵送</li>
-     *   <li>pdf_delivery: メール（PDFファイル添付）</li>
-     *   <li>pdf_delivery_and_posting: メール（PDFファイル添付）と郵送</li>
-     * </ul>
-     *
-     */
     sending_method?:
       "email" | "posting" | "email_and_posting" | "pdf_delivery" | "pdf_delivery_and_posting";
   };
-  /**
-   * 銀行口座情報（この取引先の受取口座）。指定した属性のみ更新されます。account_type に空文字を指定した場合は ordinary で置き換わる点に注意してください。
-   */
   partner_bank_account_attributes?: {
-    /**
-     * 銀行名。
-     */
     bank_name?: string;
-    /**
-     * 銀行名（カナ）。
-     */
     bank_name_kana?: string;
-    /**
-     * 銀行コード（4 桁の統一金融機関コード）。
-     */
     bank_code?: string;
-    /**
-     * 支店名。
-     */
     branch_name?: string;
-    /**
-     * 支店名（カナ）。
-     */
     branch_kana?: string;
-    /**
-     * 支店番号（3 桁）。
-     */
     branch_code?: string;
-    /**
-     * 口座種別。指定しない場合は既存値を維持します（空文字は ordinary で置き換わります）。
-     * <ul>
-     *   <li>ordinary: 普通</li>
-     *   <li>checking: 当座</li>
-     *   <li>earmarked: 納税準備預金</li>
-     *   <li>savings: 貯蓄</li>
-     *   <li>other: その他</li>
-     * </ul>
-     *
-     */
     account_type?: string;
-    /**
-     * 口座番号。
-     */
     account_number?: string;
-    /**
-     * 受取人名。
-     */
     long_account_name?: string;
-    /**
-     * 受取人名（カナ）。全銀フォーマットで送信する際に使用されます。
-     */
     account_name?: string;
   };
-  /**
-   * 支払期日設定。null を指定すると期日設定を未設定に戻します。法人スタータープラン（および旧法人プロフェッショナルプラン）以上でのみ設定可能。cutoff_day / additional_months / fixed_day はまとめて指定する必要があります（一部だけの更新はできません）。
-   */
   payment_term_attributes?: {
-    /**
-     * 締め日。1〜31 の日付を指定します。29, 30, 31 日の末日を指定する場合は 32 を指定してください。
-     */
     cutoff_day?: number;
-    /**
-     * 支払月。締め日から数えて何ヶ月後に支払うか。当月を指定する場合は 0 を指定してください。
-     */
     additional_months?: number;
-    /**
-     * 支払日。1〜31 の日付を指定します。29, 30, 31 日の末日を指定する場合は 32 を指定してください。
-     */
     fixed_day?: number;
   } | null;
-  /**
-   * 請求の入金期日設定。null を指定すると期日設定を未設定に戻します。法人スタータープラン（および旧法人プロフェッショナルプラン）以上でのみ設定可能。cutoff_day / additional_months / fixed_day はまとめて指定する必要があります。
-   */
   invoice_payment_term_attributes?: {
-    /**
-     * 締め日。1〜31 の日付を指定します。29, 30, 31 日の末日を指定する場合は 32 を指定してください。
-     */
     cutoff_day?: number;
-    /**
-     * 入金月。締め日から数えて何ヶ月後に入金されるか。当月を指定する場合は 0 を指定してください。
-     */
     additional_months?: number;
-    /**
-     * 入金日。1〜31 の日付を指定します。29, 30, 31 日の末日を指定する場合は 32 を指定してください。
-     */
     fixed_day?: number;
   } | null;
 };
 
 export type ReceiptCreateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * メモ (255文字以内)
-   */
   description?: string;
-  /**
-   * 証憑ファイル（multipart/form-dataのファイルパートとして送信します）
-   */
   receipt: Blob | File;
-  /**
-   * 発行元。本APIではmultipart/form-dataで送信するため、更新APIと異なりreceipt_metadatum_のプレフィックスが付いたフラットなキー名で指定します。
-   */
   receipt_metadatum_partner_name?: string | null;
-  /**
-   * 発行日 (yyyy-mm-dd)
-   */
   receipt_metadatum_issue_date?: string | null;
-  /**
-   * 金額（円）
-   */
   receipt_metadatum_amount?: number | null;
-  /**
-   * 適格請求書等（qualified: 該当する、not_qualified: 該当しない、unselected: 未選択）。未指定の場合はOCR解析結果が採用されます。
-   */
   qualified_invoice?: "qualified" | "not_qualified" | "unselected";
-  /**
-   * 書類の種類（receipt: 領収書、invoice: 請求書、other: その他）。未指定の場合はOCR解析結果が採用されます。
-   */
   document_type?: "receipt" | "invoice" | "other";
 };
 
 export type ReceiptUpdateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * メモ (255文字以内)
-   */
   description?: string;
-  /**
-   * 電子帳簿保存法の検索要件に対応するメタデータ（発行元・発行日・金額）
-   */
   receipt_metadatum?: {
-    /**
-     * 発行元
-     */
     partner_name?: string | null;
-    /**
-     * 発行日 (yyyy-mm-dd)
-     */
     issue_date?: string | null;
-    /**
-     * 金額（円）
-     */
     amount?: number | null;
   };
-  /**
-   * 適格請求書等（qualified: 該当する、not_qualified: 該当しない、unselected: 未選択）
-   */
   qualified_invoice?: "qualified" | "not_qualified" | "unselected";
-  /**
-   * インボイス制度適格請求書発行事業者登録番号
-   * - 先頭T数字13桁の14桁の文字列。先頭のTは省略可能です（省略した場合もT付きの登録番号として登録され、レスポンスではT付きの14桁で返ります）
-   * <a target="_blank" href="https://www.invoice-kohyo.nta.go.jp/index.html">国税庁インボイス制度適格請求書発行事業者公表サイト</a>
-   *
-   */
   invoice_registration_number?: string;
-  /**
-   * 書類の種類（receipt: 領収書、invoice: 請求書、other: その他）
-   */
   document_type?: "receipt" | "invoice" | "other";
 };
 
 export type AccountItemCreateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
   account_item: {
-    /**
-     * 勘定科目名 (30文字以内)
-     */
     name: string;
-    /**
-     * ショートカット1 (20文字以内)
-     */
     shortcut?: string;
-    /**
-     * ショートカット2 (20文字以内)
-     */
     shortcut_num?: string;
-    /**
-     * 勘定科目コード (20文字以内)。半角英数字・ハイフン・アンダースコアのみ利用できます。事業所の設定で勘定科目コードを使用する設定にしている場合のみ有効で、設定が無効の場合は指定しても無視されます。
-     */
     code?: string;
-    /**
-     * 税区分コード 指定できるコードは本APIの注意点をご確認ください。
-     */
     tax_code: number;
-    /**
-     * 決算書表示名（小カテゴリー） Selectablesフォーム用選択項目情報エンドポイント(account_groups.name)で取得可能です
-     */
     group_name: string;
-    /**
-     * 勘定科目カテゴリーID Selectablesフォーム用選択項目情報エンドポイント(account_groups.account_category_id)で取得可能です
-     */
     account_category_id: number;
-    /**
-     * 収入取引相手勘定科目ID
-     */
     corresponding_income_id: number;
-    /**
-     * 支出取引相手勘定科目ID
-     */
     corresponding_expense_id: number;
-    /**
-     * 減価償却累計額勘定科目ID（法人のみ利用可能）
-     */
     accumulated_dep_account_item_id?: number;
-    /**
-     * 検索可能:2, 検索不可：3(登録時未指定の場合は2で登録されます。更新時未指定の場合はsearchableは変更されません。)
-     */
     searchable?: number;
-    /**
-     * 勘定科目に紐付ける品目の一覧
-     */
     items?: Array<{
-      /**
-       * 品目ID
-       */
       id?: number;
     }>;
-    /**
-     * 勘定科目に紐付ける取引先の一覧
-     */
     partners?: Array<{
-      /**
-       * 取引先ID
-       */
       id?: number;
     }>;
   };
@@ -2789,297 +676,90 @@ export type AccountItemCreateParams = {
 
 export type AccountItemsResponse = {
   account_items: Array<{
-    /**
-     * 勘定科目ID
-     */
     id: number;
-    /**
-     * 勘定科目名 (30文字以内)
-     */
     name: string;
-    /**
-     * 税区分コード
-     */
     tax_code: number;
-    /**
-     * ショートカット1 (20文字以内)。未設定の場合はnullが返ります。
-     */
     shortcut: string | null;
-    /**
-     * ショートカット2 (20文字以内)。未設定の場合はnullが返ります。
-     */
     shortcut_num: string | null;
-    /**
-     * 勘定科目コード。事業所の設定で勘定科目コードを使用する設定にしている場合のみ返ります。
-     */
     code?: string | null;
-    /**
-     * デフォルト設定がされている税区分コード。base_date（未指定の場合はリクエスト日）を基準とした税率に基づく値が返ります。
-     */
     default_tax_code: number;
-    /**
-     * 勘定科目カテゴリー
-     */
     account_category: string;
-    /**
-     * 勘定科目のカテゴリーID
-     */
     account_category_id: number;
-    /**
-     * 勘定科目カテゴリーの階層（大分類から順）
-     */
     categories: Array<string>;
-    /**
-     * 勘定科目の使用設定（true: 使用する、false: 使用しない）
-     */
     available: boolean;
-    /**
-     * 口座ID
-     */
     walletable_id: number | null;
-    /**
-     * 決算書表示名（小カテゴリー）
-     */
     group_name: string | null;
-    /**
-     * 決算書表示名ID（小カテゴリー）
-     */
     group_id: number | null;
-    /**
-     * 収入取引相手勘定科目名
-     */
     corresponding_income_name: string | null;
-    /**
-     * 収入取引相手勘定科目ID
-     */
     corresponding_income_id: number | null;
-    /**
-     * 支出取引相手勘定科目名
-     */
     corresponding_expense_name: string | null;
-    /**
-     * 支出取引相手勘定科目ID
-     */
     corresponding_expense_id: number | null;
-    /**
-     * 更新日(yyyy-mm-dd)
-     */
     update_date: string;
   }>;
 };
 
 export type AccountItemResponse = {
   account_item: {
-    /**
-     * 勘定科目ID
-     */
     id: number;
-    /**
-     * 勘定科目名 (30文字以内)
-     */
     name: string;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 税区分コード
-     */
     tax_code: number;
-    /**
-     * 勘定科目カテゴリー
-     */
     account_category: string;
-    /**
-     * 勘定科目のカテゴリーID
-     */
     account_category_id: number;
-    /**
-     * ショートカット1 (20文字以内)。未設定の場合はnullが返ります。
-     */
     shortcut: string | null;
-    /**
-     * ショートカット2 (20文字以内)。未設定の場合はnullが返ります。
-     */
     shortcut_num: string | null;
-    /**
-     * 勘定科目コード。事業所の設定で勘定科目コードを使用する設定にしている場合のみ返ります。
-     */
     code?: string | null;
-    /**
-     * 検索可能の設定（2: 検索可能, 3: 検索不可）
-     */
     searchable: number;
-    /**
-     * 減価償却累計額勘定科目名（法人のみ利用可能）。未設定の場合は空文字が返ります。
-     */
     accumulated_dep_account_item_name: string;
-    /**
-     * 減価償却累計額勘定科目ID（法人のみ利用可能）
-     */
     accumulated_dep_account_item_id: number | null;
-    /**
-     * 勘定科目に紐付く品目の一覧。紐付く品目がない場合は空配列が返ります。
-     */
     items: Array<{
-      /**
-       * 品目ID
-       */
       id: number;
-      /**
-       * 品目名
-       */
       name: string;
     }>;
-    /**
-     * 勘定科目に紐付く取引先の一覧。紐付く取引先がない場合は空配列が返ります。
-     */
     partners: Array<{
-      /**
-       * 取引先ID
-       */
       id: number;
-      /**
-       * 取引先名
-       */
       name: string;
     }>;
-    /**
-     * 勘定科目の使用設定（true: 使用する、false: 使用しない）
-     */
     available: boolean;
-    /**
-     * 口座ID
-     */
     walletable_id: number | null;
-    /**
-     * 決算書表示名（小カテゴリー）
-     */
     group_name: string | null;
-    /**
-     * 決算書表示名ID（小カテゴリー）
-     */
     group_id: number | null;
-    /**
-     * 収入取引相手勘定科目名
-     */
     corresponding_income_name?: string | null;
-    /**
-     * 収入取引相手勘定科目ID
-     */
     corresponding_income_id: number | null;
-    /**
-     * 支出取引相手勘定科目名
-     */
     corresponding_expense_name?: string | null;
-    /**
-     * 支出取引相手勘定科目ID
-     */
     corresponding_expense_id: number | null;
-    /**
-     * リクエストした日時を基準とした税区分コード。勘定科目の取得API（GET /api/1/account_items/{id}）でのみ返ります。勘定科目の作成・更新時に利用するものではありません。
-     */
     default_tax_code?: number;
-    /**
-     * 勘定科目カテゴリーの階層（大分類から順）。勘定科目の取得API（GET /api/1/account_items/{id}）でのみ返ります。
-     */
     categories?: Array<string>;
   };
 };
 
 export type AccountItemUpdateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
   account_item: {
-    /**
-     * 勘定科目名 (30文字以内)
-     * 口座に紐付かない勘定科目の更新時は必須です。
-     * 口座に紐付く勘定科目の更新時は指定することができません。
-     *
-     */
     name?: string;
-    /**
-     * ショートカット1 (20文字以内)
-     */
     shortcut?: string;
-    /**
-     * ショートカット2 (20文字以内)
-     */
     shortcut_num?: string;
-    /**
-     * 勘定科目コード (20文字以内)。半角英数字・ハイフン・アンダースコアのみ利用できます。事業所の設定で勘定科目コードを使用する設定にしている場合のみ有効で、設定が無効の場合は指定しても無視されます。
-     */
     code?: string;
-    /**
-     * 税区分コード 指定できるコードは本APIの注意点をご確認ください。
-     */
     tax_code: number;
-    /**
-     * 決算書表示名（小カテゴリー） Selectablesフォーム用選択項目情報エンドポイント(account_groups.name)で取得可能です
-     */
     group_name: string;
-    /**
-     * 勘定科目カテゴリーID Selectablesフォーム用選択項目情報エンドポイント(account_groups.account_category_id)で取得可能です
-     */
     account_category_id: number;
-    /**
-     * 収入取引相手勘定科目ID
-     */
     corresponding_income_id: number;
-    /**
-     * 支出取引相手勘定科目ID
-     */
     corresponding_expense_id: number;
-    /**
-     * 減価償却累計額勘定科目ID（法人のみ利用可能）
-     */
     accumulated_dep_account_item_id?: number;
-    /**
-     * 検索可能:2, 検索不可：3(登録時未指定の場合は2で登録されます。更新時未指定の場合はsearchableは変更されません。)
-     */
     searchable?: number;
-    /**
-     * 勘定科目に紐付ける品目の一覧
-     */
     items?: Array<{
-      /**
-       * 品目ID
-       */
       id?: number;
     }>;
-    /**
-     * 勘定科目に紐付ける取引先の一覧
-     */
     partners?: Array<{
-      /**
-       * 取引先ID
-       */
       id?: number;
     }>;
   };
 };
 
 export type Bank = {
-  /**
-   * 連携サービスID。口座の作成（POST /api/1/walletables）のbank_idパラメータに指定して利用します。
-   */
   id: number;
-  /**
-   * 連携サービス名
-   */
   name: string;
-  /**
-   * 連携サービス種別
-   * * `bank_account` - 銀行口座
-   * * `credit_card` - クレジットカード
-   * * `wallet` - その他の決済口座
-   */
   type: "bank_account" | "credit_card" | "wallet";
-  /**
-   * 連携サービス名(カナ)。連携サービス一覧の取得（GET /api/1/banks）の取得結果はこの値の昇順で返ります。カナ名が未登録の場合はnullになります。
-   */
   name_kana: string | null;
 };
 
@@ -3089,41 +769,13 @@ export type BankResponse = {
 
 export type JournalsResponse = {
   journals: {
-    /**
-     * 受け付けID。仕訳帳のステータスの取得（GET /api/1/journals/reports/{id}/status）・仕訳帳のダウンロード（GET /api/1/journals/reports/{id}/download）の id として使用します。
-     */
     id: number;
-    /**
-     * 受け付けメッセージ
-     */
     messages: Array<string>;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * ダウンロード形式
-     * * `generic` - 旧CSV形式
-     * * `generic_v2` - 新CSV形式（freee汎用形式）
-     * * `csv` - 弥生会計形式のCSV
-     * * `pdf` - PDF形式
-     */
     download_type: "generic" | "generic_v2" | "csv" | "pdf";
-    /**
-     * 出力ファイルの文字コード。download_type が csv の場合は常に sjis、pdf の場合は null になります。
-     */
     encoding: "sjis" | "utf-8";
-    /**
-     * 取得開始日（yyyy-mm-dd）。リクエストで未指定の場合は当期の会計年度の開始日が設定されます。
-     */
     start_date: string;
-    /**
-     * 取得終了日（yyyy-mm-dd）。リクエストで未指定の場合は当期の会計年度の終了日が設定されます。
-     */
     end_date: string;
-    /**
-     * 補助科目やコメントとして出力する項目。リクエストで visible_tags を指定した場合のみ返ります。all を指定した場合は展開された個別の項目が返ります。
-     */
     visible_tags?: Array<
       | "partner"
       | "item"
@@ -3136,315 +788,95 @@ export type JournalsResponse = {
       | "segment_2_tag"
       | "segment_3_tag"
     >;
-    /**
-     * 追加出力するID項目。リクエストで visible_ids を指定した場合のみ返ります。
-     */
     visible_ids?: Array<"deal_id" | "transfer_id" | "manual_journal_id">;
-    /**
-     * 仕訳帳のステータスの取得（GET /api/1/journals/reports/{id}/status）用URL。作成の進捗はこのURLで確認します。
-     */
     status_url: string;
-    /**
-     * 集計結果が最新かどうか。false の場合は up_to_date_reasons に要因が入ります。
-     */
     up_to_date: boolean;
-    /**
-     * 集計が最新でない場合の要因情報。up_to_date が true の場合は空配列になります。
-     */
     up_to_date_reasons: Array<{
-      /**
-       * 集計が最新でない要因のコード
-       * * `depreciation_creating` - 当期の固定資産の償却作成が実行中
-       * * `depreciation_create_error` - 当期の固定資産の償却作成がエラー終了
-       */
       code: "depreciation_creating" | "depreciation_create_error";
-      /**
-       * 集計が最新でない理由
-       */
       message: string;
     }>;
   };
 };
 
-/**
- * 仕訳 (Transaction) 単位のレスポンス。
- */
 export type ReportJournalsJournal = {
-  /**
-   * 仕訳ID。
-   */
   id: number;
-  /**
-   * 取引ID。取引に紐づかない仕訳 (振替伝票のみ等) では null。
-   */
   deal_id: number | null;
-  /**
-   * 発生日 (YYYY-MM-DD)。
-   */
   txn_date: string;
-  /**
-   * 仕訳番号。仕訳番号を使用しない設定の事業所では常に null。英数字形式があるため文字列。
-   */
   txn_number: string | null;
-  /**
-   * 決算整理仕訳フラグ。
-   */
   adjustment: boolean;
-  /**
-   * 仕訳の承認ステータス
-   */
   approval_status: "none" | "in_progress" | "approved";
-  /**
-   * 作成者ユーザーID。
-   */
   create_user_id: number;
-  /**
-   * 最終承認者ユーザーID。未承認は null。
-   */
   last_approver_user_id: number | null;
-  /**
-   * 現在の承認待ちユーザーIDのリスト。承認済み・フローなしは空配列。会計のロールを持たないユーザーは含まない。
-   */
   current_approver_user_ids: Array<number>;
-  /**
-   * 管理番号 (ref_number)。
-   */
   ref_number: string | null;
-  /**
-   * 取引の登録元表示ラベル (「手動」「自動で経理」「freee請求書」など)。
-   */
   deal_origin_name: string | null;
-  /**
-   * 仕訳の作成日時。
-   */
   created_at: string;
-  /**
-   * 仕訳の最終更新日時。
-   */
   updated_at: string;
-  /**
-   * 紐づく証憑IDのリスト。閲覧権限がない場合は空配列。
-   */
   receipt_ids: Array<number>;
-  /**
-   * 借方行のリスト。配列順が表示順。税抜経理事業所では消費税行 (line_type: tax) が末尾に付与されることがある。
-   */
   debit: Array<{
-    /**
-     * 明細行ID。消費税行では null。
-     */
     id: number | null;
-    /**
-     * 仕訳明細行の種別。detail は通常明細、tax は税抜経理事業所の消費税行。
-     */
     line_type: "detail" | "tax";
-    /**
-     * 勘定科目ID。消費税行では仮払/仮受消費税勘定を指す。
-     */
     account_item_id: number;
-    /**
-     * 表示金額。税込経理では税込金額、税抜経理では税抜金額。消費税行では集約された税額そのものが入る。
-     */
     amount: number;
-    /**
-     * 税抜金額。経理方式によらず、その明細の税込金額から消費税額を引いた値。消費税行では null。
-     */
     net_amount: number | null;
-    /**
-     * 消費税額。通常明細ではその明細の税額、消費税行では null。
-     */
     vat: number | null;
-    /**
-     * 税区分コード。
-     */
     tax_code: number | null;
-    /**
-     * 取引先ID。
-     */
     partner_id: number | null;
-    /**
-     * 品目ID。消費税行では null。
-     */
     item_id: number | null;
-    /**
-     * 部門ID。消費税行では、部門必須設定が「全科目」の事業所のときのみ集約キーとして設定される。
-     */
     section_id: number | null;
-    /**
-     * セグメント1タグID。消費税行では null。
-     */
     segment_tag_1_id: number | null;
-    /**
-     * セグメント2タグID。消費税行では null。
-     */
     segment_tag_2_id: number | null;
-    /**
-     * セグメント3タグID。消費税行では null。
-     */
     segment_tag_3_id: number | null;
-    /**
-     * メモタグIDのリスト。常に配列を返し、null は返さない。消費税行では空配列。
-     */
     memo_tag_ids: Array<number>;
-    /**
-     * 行の備考。逆仕訳の確認等で利用可能。消費税行では null。
-     */
     description: string | null;
   }>;
-  /**
-   * 貸方行のリスト。配列順が表示順。税抜経理事業所では消費税行 (line_type: tax) が末尾に付与されることがある。
-   */
   credit: Array<{
-    /**
-     * 明細行ID。消費税行では null。
-     */
     id: number | null;
-    /**
-     * 仕訳明細行の種別。detail は通常明細、tax は税抜経理事業所の消費税行。
-     */
     line_type: "detail" | "tax";
-    /**
-     * 勘定科目ID。消費税行では仮払/仮受消費税勘定を指す。
-     */
     account_item_id: number;
-    /**
-     * 表示金額。税込経理では税込金額、税抜経理では税抜金額。消費税行では集約された税額そのものが入る。
-     */
     amount: number;
-    /**
-     * 税抜金額。経理方式によらず、その明細の税込金額から消費税額を引いた値。消費税行では null。
-     */
     net_amount: number | null;
-    /**
-     * 消費税額。通常明細ではその明細の税額、消費税行では null。
-     */
     vat: number | null;
-    /**
-     * 税区分コード。
-     */
     tax_code: number | null;
-    /**
-     * 取引先ID。
-     */
     partner_id: number | null;
-    /**
-     * 品目ID。消費税行では null。
-     */
     item_id: number | null;
-    /**
-     * 部門ID。消費税行では、部門必須設定が「全科目」の事業所のときのみ集約キーとして設定される。
-     */
     section_id: number | null;
-    /**
-     * セグメント1タグID。消費税行では null。
-     */
     segment_tag_1_id: number | null;
-    /**
-     * セグメント2タグID。消費税行では null。
-     */
     segment_tag_2_id: number | null;
-    /**
-     * セグメント3タグID。消費税行では null。
-     */
     segment_tag_3_id: number | null;
-    /**
-     * メモタグIDのリスト。常に配列を返し、null は返さない。消費税行では空配列。
-     */
     memo_tag_ids: Array<number>;
-    /**
-     * 行の備考。逆仕訳の確認等で利用可能。消費税行では null。
-     */
     description: string | null;
   }>;
 };
 
-/**
- * 仕訳の承認ステータス
- */
 export type ReportJournalsApprovalStatus = "none" | "in_progress" | "approved";
 
-/**
- * 明細金額絞り込みの基準。auto は検索期間に重なる全会計年度が税込経理のときのみ税込基準、それ以外は税抜基準。
- */
 export type ReportJournalsDetailAmountBasis = "auto" | "tax_included";
 
-/**
- * 決算整理仕訳による絞り込み
- */
 export type ReportJournalsAdjustmentOption = "only" | "without";
 
-/**
- * 証憑 (レシート) 添付有無による絞り込み
- */
 export type ReportJournalsReceiptsOption = "only" | "without";
 
-/**
- * 配賦仕訳による絞り込み。事業所で配賦機能が無効な場合に指定すると 400。
- */
 export type ReportJournalsCostAllocationOption = "only" | "without";
 
-/**
- * 逆仕訳・元仕訳による絞り込み。事業所で逆仕訳機能が無効な場合に指定すると 400。
- */
 export type ReportJournalsReverseJournalOption =
   "reverse" | "not_reverse" | "base" | "not_base" | "both" | "neither";
 
-/**
- * コメントステータスによる絞り込み
- */
 export type ReportJournalsCommentStatusOption = "posted" | "raised" | "resolved";
 
-/**
- * 並び順のキー。値はレスポンスのフィールド名と揃えている。
- */
 export type ReportJournalsOrderByOption = "txn_date" | "created_at";
 
-/**
- * 並び順の方向
- */
 export type ReportJournalsDirectionOption = "asc" | "desc";
 
 export type JournalStatusResponse = {
   journals: {
-    /**
-     * 受け付けID。仕訳帳のダウンロード要求（GET /api/1/journals）のレスポンスで返る id です。
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * ダウンロード形式
-     * * `generic` - 旧CSV形式
-     * * `generic_v2` - 新CSV形式（freee汎用形式）
-     * * `csv` - 弥生会計形式のCSV
-     * * `pdf` - PDF形式
-     */
     download_type: "generic" | "generic_v2" | "csv" | "pdf";
-    /**
-     * 出力ファイルの文字コード。download_type が csv の場合は常に sjis、pdf の場合は null になります。
-     */
     encoding: "sjis" | "utf-8";
-    /**
-     * ダウンロードリクエストのステータス
-     * * `enqueued` - 実行待ち
-     * * `working` - 実行中
-     * * `uploaded` - 準備完了（仕訳帳のダウンロード（GET /api/1/journals/reports/{id}/download）でダウンロードできます）
-     * * `failed` - ファイルの作成に失敗（仕訳帳のダウンロード要求（GET /api/1/journals）から再度やり直してください）
-     */
     status: "enqueued" | "working" | "uploaded" | "failed";
-    /**
-     * 取得開始日（yyyy-mm-dd）
-     */
     start_date: string;
-    /**
-     * 取得終了日（yyyy-mm-dd）
-     */
     end_date: string;
-    /**
-     * 補助科目やコメントとして出力する項目。ダウンロード要求時に visible_tags を指定した場合のみ返ります。all を指定した場合は展開された個別の項目が返ります。
-     */
     visible_tags?: Array<
       | "partner"
       | "item"
@@ -3457,56 +889,20 @@ export type JournalStatusResponse = {
       | "segment_2_tag"
       | "segment_3_tag"
     >;
-    /**
-     * 追加出力するID項目。ダウンロード要求時に visible_ids を指定した場合のみ返ります。
-     */
     visible_ids?: Array<"deal_id" | "transfer_id" | "manual_journal_id">;
-    /**
-     * 仕訳帳のダウンロード（GET /api/1/journals/reports/{id}/download）用URL。status が uploaded の場合のみ返ります。
-     */
     download_url?: string;
   };
 };
 
 export type TrialBsResponse = {
   trial_bs: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。リクエストで指定した場合、または月・日の絞り込み条件が指定されていない場合にのみ含まれる。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。リクエストで指定した場合にのみ含まれる。
-     * * `account_item` - 勘定科目単位で表示（デフォルト）
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。リクエストで指定した場合にのみ含まれる。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。各行の `balances[].partners` / `items` / `sections` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列が返る
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、`balances[]` の中に決算書表示名行に続けて勘定科目行が展開される
-     *
-     */
     breakdown_display_type?:
       | "partner"
       | "item"
@@ -3515,357 +911,98 @@ export type TrialBsResponse = {
       | "segment_1_tag"
       | "segment_2_tag"
       | "segment_3_tag";
-    /**
-     * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
-     */
     partner_id?: number;
-    /**
-     * 絞込に指定された取引先コード。リクエストで指定した場合にのみ含まれる。
-     */
     partner_code?: string;
-    /**
-     * 絞込に指定された品目ID。リクエストで指定した場合にのみ含まれる。0 の場合は「品目が未選択の取引を対象」を意味する。
-     */
     item_id?: number;
-    /**
-     * 絞込に指定された部門ID。リクエストで指定した場合にのみ含まれる。0 の場合は「部門が未選択の取引を対象」を意味する。
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
-    /**
-     * レスポンスを生成した日時(ISO 8601, JST)
-     */
     created_at?: string;
-    /**
-     * 残高一覧。`hierarchy_level` の階層構造で並ぶ。行は次の 3 種類が混在する。
-     * * 勘定科目行: `account_item_id` あり（例: 現金、売掛金）
-     * * 決算書表示名行: `account_item_id` なし・`account_group_name` あり（`account_item_display_type=group` 指定時のみ現れる）
-     * * 勘定科目カテゴリー行: `account_item_id` も `account_group_name` も無く、`account_category_name` あり（カテゴリー合計行は `total_line=true`）
-     *
-     */
     balances: Array<{
-      /**
-       * 勘定科目ID。勘定科目行の場合のみ含まれる（勘定科目カテゴリー行では含まれない）。
-       */
       account_item_id?: number;
-      /**
-       * 勘定科目名。勘定科目行の場合のみ含まれる。
-       */
       account_item_name?: string;
-      /**
-       * 決算書表示名。`account_item_display_type=group` を指定した場合にのみ、決算書表示行に含まれる。
-       */
       account_group_name?: string;
-      /**
-       * 取引先ごとの内訳。`breakdown_display_type=partner` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       partners?: Array<{
-        /**
-         * 取引先ID。0 は取引先が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 取引先名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 期首残高（円）
-         */
         opening_balance?: number;
-        /**
-         * 期間中の借方金額（円）
-         */
         debit_amount?: number;
-        /**
-         * 期間中の貸方金額（円）
-         */
         credit_amount?: number;
-        /**
-         * 期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 構成比（百分率、%）。BSの区分合計（資産の部合計、または負債及び純資産の部合計）に対する当該行の残高割合を 100 換算した値。相殺科目などで基準額を超える場合は 100 を超え得る。
-         */
         composition_ratio?: number;
       }>;
-      /**
-       * 品目ごとの内訳。`breakdown_display_type=item` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       items?: Array<{
-        /**
-         * 品目ID。0 は品目が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 品目名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 期首残高（円）
-         */
         opening_balance?: number;
-        /**
-         * 期間中の借方金額（円）
-         */
         debit_amount?: number;
-        /**
-         * 期間中の貸方金額（円）
-         */
         credit_amount?: number;
-        /**
-         * 期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 構成比（百分率、%）。BSの区分合計（資産の部合計、または負債及び純資産の部合計）に対する当該行の残高割合を 100 換算した値。相殺科目などで基準額を超える場合は 100 を超え得る。
-         */
         composition_ratio?: number;
       }>;
-      /**
-       * 部門ごとの内訳。`breakdown_display_type=section` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       sections?: Array<{
-        /**
-         * 部門ID。0 は部門が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 部門名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 期首残高（円）
-         */
         opening_balance?: number;
-        /**
-         * 期間中の借方金額（円）
-         */
         debit_amount?: number;
-        /**
-         * 期間中の貸方金額（円）
-         */
         credit_amount?: number;
-        /**
-         * 期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 構成比（百分率、%）。BSの区分合計（資産の部合計、または負債及び純資産の部合計）に対する当該行の残高割合を 100 換算した値。相殺科目などで基準額を超える場合は 100 を超え得る。
-         */
         composition_ratio?: number;
       }>;
-      /**
-       * セグメント1タグごとの内訳。`breakdown_display_type=segment_1_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_1_tags?: Array<{
-        /**
-         * セグメント1タグID。0 はセグメント1タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント1タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 期首残高（円）
-         */
         opening_balance?: number;
-        /**
-         * 期間中の借方金額（円）
-         */
         debit_amount?: number;
-        /**
-         * 期間中の貸方金額（円）
-         */
         credit_amount?: number;
-        /**
-         * 期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 構成比（百分率、%）。BSの区分合計（資産の部合計、または負債及び純資産の部合計）に対する当該行の残高割合を 100 換算した値。相殺科目などで基準額を超える場合は 100 を超え得る。
-         */
         composition_ratio?: number;
       }>;
-      /**
-       * セグメント2タグごとの内訳。`breakdown_display_type=segment_2_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_2_tags?: Array<{
-        /**
-         * セグメント2タグID。0 はセグメント2タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント2タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 期首残高（円）
-         */
         opening_balance?: number;
-        /**
-         * 期間中の借方金額（円）
-         */
         debit_amount?: number;
-        /**
-         * 期間中の貸方金額（円）
-         */
         credit_amount?: number;
-        /**
-         * 期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 構成比（百分率、%）。BSの区分合計（資産の部合計、または負債及び純資産の部合計）に対する当該行の残高割合を 100 換算した値。相殺科目などで基準額を超える場合は 100 を超え得る。
-         */
         composition_ratio?: number;
       }>;
-      /**
-       * セグメント3タグごとの内訳。`breakdown_display_type=segment_3_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_3_tags?: Array<{
-        /**
-         * セグメント3タグID。0 はセグメント3タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント3タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 期首残高（円）
-         */
         opening_balance?: number;
-        /**
-         * 期間中の借方金額（円）
-         */
         debit_amount?: number;
-        /**
-         * 期間中の貸方金額（円）
-         */
         credit_amount?: number;
-        /**
-         * 期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 構成比（百分率、%）。BSの区分合計（資産の部合計、または負債及び純資産の部合計）に対する当該行の残高割合を 100 換算した値。相殺科目などで基準額を超える場合は 100 を超え得る。
-         */
         composition_ratio?: number;
       }>;
-      /**
-       * 勘定科目カテゴリー名（例: 流動資産、固定負債など）
-       */
       account_category_name?: string;
-      /**
-       * 合計行かどうか。勘定科目カテゴリーの合計行（当該カテゴリーの小計を表す行）の場合のみ含まれ、`true` となる。
-       */
       total_line?: boolean;
-      /**
-       * 階層レベル（1が最上位。値が大きいほど深い階層）
-       */
       hierarchy_level?: number;
-      /**
-       * 上位勘定科目カテゴリー名。勘定科目カテゴリー行かつ上位階層が存在する場合のみ含まれる。
-       */
       parent_account_category_name?: string;
-      /**
-       * 期首残高（円）
-       */
       opening_balance?: number;
-      /**
-       * 期間中の借方金額（円）
-       */
       debit_amount?: number;
-      /**
-       * 期間中の貸方金額（円）
-       */
       credit_amount?: number;
-      /**
-       * 期末残高（円）
-       */
       closing_balance?: number;
-      /**
-       * 構成比（百分率、%）。BSの区分合計（資産の部合計、または負債及び純資産の部合計）に対する当該行の残高割合を 100 換算した値。相殺科目などで基準額を超える場合は 100 を超え得る。
-       */
       composition_ratio?: number;
     }>;
   };
-  /**
-   * 集計結果が最新かどうか。`false` の場合は残高の集計が完了していないため、時間を置いてから再取得してください。
-   */
   up_to_date: boolean;
-  /**
-   * 集計が最新でない場合の要因情報。`up_to_date=false` のときのみ要因が含まれ、`up_to_date=true` のときは空配列となる。
-   */
   up_to_date_reasons?: Array<{
-    /**
-     * 要因コード。現時点で返り得る値は以下。
-     * * `depreciation_creating` - 当期の固定資産の償却を作成中
-     * * `depreciation_create_error` - 当期の固定資産の償却作成でエラーが発生
-     *
-     */
     code: "depreciation_creating" | "depreciation_create_error";
-    /**
-     * 集計が最新でない理由
-     */
     message: string;
   }>;
 };
 
 export type TrialBsTwoYearsResponse = {
   trial_bs_two_years: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。リクエストで指定した場合、または月・日の絞り込み条件が指定されていない場合にのみ含まれる。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。リクエストで指定した場合にのみ含まれる。
-     * * `account_item` - 勘定科目単位で表示（デフォルト）
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。リクエストで指定した場合にのみ含まれる。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。各行の `balances[].partners` / `items` / `sections` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列が返る
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、`balances[]` の中に決算書表示名行に続けて勘定科目行が展開される
-     *
-     */
     breakdown_display_type?:
       | "partner"
       | "item"
@@ -3874,301 +1011,84 @@ export type TrialBsTwoYearsResponse = {
       | "segment_1_tag"
       | "segment_2_tag"
       | "segment_3_tag";
-    /**
-     * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
-     */
     partner_id?: number;
-    /**
-     * 絞込に指定された取引先コード。リクエストで指定した場合にのみ含まれる。
-     */
     partner_code?: string;
-    /**
-     * 絞込に指定された品目ID。リクエストで指定した場合にのみ含まれる。0 の場合は「品目が未選択の取引を対象」を意味する。
-     */
     item_id?: number;
-    /**
-     * 絞込に指定された部門ID。リクエストで指定した場合にのみ含まれる。0 の場合は「部門が未選択の取引を対象」を意味する。
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
-    /**
-     * レスポンスを生成した日時(ISO 8601, JST)
-     */
     created_at?: string;
-    /**
-     * 残高一覧。当年度期末残高と前年度期末残高、および前年比を返す。`hierarchy_level` の階層構造で並ぶ。行は次の 3 種類が混在する。
-     * * 勘定科目行: `account_item_id` あり（例: 現金、売掛金）
-     * * 決算書表示名行: `account_item_id` なし・`account_group_name` あり（`account_item_display_type=group` 指定時のみ現れる）
-     * * 勘定科目カテゴリー行: `account_item_id` も `account_group_name` も無く、`account_category_name` あり（カテゴリー合計行は `total_line=true`）
-     *
-     */
     balances: Array<{
-      /**
-       * 勘定科目ID。勘定科目行の場合のみ含まれる（勘定科目カテゴリー行では含まれない）。
-       */
       account_item_id?: number;
-      /**
-       * 勘定科目名。勘定科目行の場合のみ含まれる。
-       */
       account_item_name?: string;
-      /**
-       * 決算書表示名。`account_item_display_type=group` を指定した場合にのみ、決算書表示行に含まれる。
-       */
       account_group_name?: string;
-      /**
-       * 取引先ごとの内訳。`breakdown_display_type=partner` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       partners?: Array<{
-        /**
-         * 取引先ID。0 は取引先が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 取引先名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * 品目ごとの内訳。`breakdown_display_type=item` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       items?: Array<{
-        /**
-         * 品目ID。0 は品目が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 品目名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * 部門ごとの内訳。`breakdown_display_type=section` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       sections?: Array<{
-        /**
-         * 部門ID。0 は部門が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 部門名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * セグメント1タグごとの内訳。`breakdown_display_type=segment_1_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_1_tags?: Array<{
-        /**
-         * セグメント1タグID。0 はセグメント1タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント1タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * セグメント2タグごとの内訳。`breakdown_display_type=segment_2_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_2_tags?: Array<{
-        /**
-         * セグメント2タグID。0 はセグメント2タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント2タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * セグメント3タグごとの内訳。`breakdown_display_type=segment_3_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_3_tags?: Array<{
-        /**
-         * セグメント3タグID。0 はセグメント3タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント3タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * 勘定科目カテゴリー名（例: 流動資産、固定負債など）
-       */
       account_category_name?: string;
-      /**
-       * 合計行かどうか。勘定科目カテゴリーの合計行（当該カテゴリーの小計を表す行）の場合のみ含まれ、`true` となる。
-       */
       total_line?: boolean;
-      /**
-       * 階層レベル（1が最上位。値が大きいほど深い階層）
-       */
       hierarchy_level?: number;
-      /**
-       * 上位勘定科目カテゴリー名。勘定科目カテゴリー行かつ上位階層が存在する場合のみ含まれる。
-       */
       parent_account_category_name?: string;
-      /**
-       * 前年度期末残高（円）
-       */
       last_year_closing_balance?: number;
-      /**
-       * 当年度期末残高（円）
-       */
       closing_balance?: number;
-      /**
-       * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-       */
       year_on_year?: number;
     }>;
   };
-  /**
-   * 集計結果が最新かどうか。`false` の場合は残高の集計が完了していないため、時間を置いてから再取得してください。
-   */
   up_to_date: boolean;
-  /**
-   * 集計が最新でない場合の要因情報。`up_to_date=false` のときのみ要因が含まれ、`up_to_date=true` のときは空配列となる。
-   */
   up_to_date_reasons?: Array<{
-    /**
-     * 要因コード。現時点で返り得る値は以下。
-     * * `depreciation_creating` - 当期の固定資産の償却を作成中
-     * * `depreciation_create_error` - 当期の固定資産の償却作成でエラーが発生
-     *
-     */
     code: "depreciation_creating" | "depreciation_create_error";
-    /**
-     * 集計が最新でない理由
-     */
     message: string;
   }>;
 };
 
 export type TrialBsThreeYearsResponse = {
   trial_bs_three_years: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。リクエストで指定した場合、または月・日の絞り込み条件が指定されていない場合にのみ含まれる。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。リクエストで指定した場合にのみ含まれる。
-     * * `account_item` - 勘定科目単位で表示（デフォルト）
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。リクエストで指定した場合にのみ含まれる。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。各行の `balances[].partners` / `items` / `sections` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列が返る
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、`balances[]` の中に決算書表示名行に続けて勘定科目行が展開される
-     *
-     */
     breakdown_display_type?:
       | "partner"
       | "item"
@@ -4177,329 +1097,91 @@ export type TrialBsThreeYearsResponse = {
       | "segment_1_tag"
       | "segment_2_tag"
       | "segment_3_tag";
-    /**
-     * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
-     */
     partner_id?: number;
-    /**
-     * 絞込に指定された取引先コード。リクエストで指定した場合にのみ含まれる。
-     */
     partner_code?: string;
-    /**
-     * 絞込に指定された品目ID。リクエストで指定した場合にのみ含まれる。0 の場合は「品目が未選択の取引を対象」を意味する。
-     */
     item_id?: number;
-    /**
-     * 絞込に指定された部門ID。リクエストで指定した場合にのみ含まれる。0 の場合は「部門が未選択の取引を対象」を意味する。
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
-    /**
-     * レスポンスを生成した日時(ISO 8601, JST)
-     */
     created_at?: string;
-    /**
-     * 残高一覧。当年度・前年度・前々年度の期末残高と前年比を返す。`hierarchy_level` の階層構造で並ぶ。行は次の 3 種類が混在する。
-     * * 勘定科目行: `account_item_id` あり（例: 現金、売掛金）
-     * * 決算書表示名行: `account_item_id` なし・`account_group_name` あり（`account_item_display_type=group` 指定時のみ現れる）
-     * * 勘定科目カテゴリー行: `account_item_id` も `account_group_name` も無く、`account_category_name` あり（カテゴリー合計行は `total_line=true`）
-     *
-     */
     balances: Array<{
-      /**
-       * 勘定科目ID。勘定科目行の場合のみ含まれる（勘定科目カテゴリー行では含まれない）。
-       */
       account_item_id?: number;
-      /**
-       * 勘定科目名。勘定科目行の場合のみ含まれる。
-       */
       account_item_name?: string;
-      /**
-       * 決算書表示名。`account_item_display_type=group` を指定した場合にのみ、決算書表示行に含まれる。
-       */
       account_group_name?: string;
-      /**
-       * 取引先ごとの内訳。`breakdown_display_type=partner` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       partners?: Array<{
-        /**
-         * 取引先ID。0 は取引先が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 取引先名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前々年度期末残高（円）
-         */
         two_years_before_closing_balance?: number;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * 品目ごとの内訳。`breakdown_display_type=item` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       items?: Array<{
-        /**
-         * 品目ID。0 は品目が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 品目名(未選択の合計行では「未選択」が入る)
-         */
         name?: string;
-        /**
-         * 前々年度期末残高（円）
-         */
         two_years_before_closing_balance?: number;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * 部門ごとの内訳。`breakdown_display_type=section` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       sections?: Array<{
-        /**
-         * 部門ID。0 は部門が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 部門名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前々年度期末残高（円）
-         */
         two_years_before_closing_balance?: number;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * セグメント1タグごとの内訳。`breakdown_display_type=segment_1_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_1_tags?: Array<{
-        /**
-         * セグメント1タグID。0 はセグメント1タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント1タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前々年度期末残高（円）
-         */
         two_years_before_closing_balance?: number;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * セグメント2タグごとの内訳。`breakdown_display_type=segment_2_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_2_tags?: Array<{
-        /**
-         * セグメント2タグID。0 はセグメント2タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント2タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前々年度期末残高（円）
-         */
         two_years_before_closing_balance?: number;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * セグメント3タグごとの内訳。`breakdown_display_type=segment_3_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_3_tags?: Array<{
-        /**
-         * セグメント3タグID。0 はセグメント3タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント3タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前々年度期末残高（円）
-         */
         two_years_before_closing_balance?: number;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * 勘定科目カテゴリー名（例: 流動資産、固定負債など）
-       */
       account_category_name?: string;
-      /**
-       * 合計行かどうか。勘定科目カテゴリーの合計行（当該カテゴリーの小計を表す行）の場合のみ含まれ、`true` となる。
-       */
       total_line?: boolean;
-      /**
-       * 階層レベル（1が最上位。値が大きいほど深い階層）
-       */
       hierarchy_level?: number;
-      /**
-       * 上位勘定科目カテゴリー名。勘定科目カテゴリー行かつ上位階層が存在する場合のみ含まれる。
-       */
       parent_account_category_name?: string;
-      /**
-       * 前々年度期末残高（円）
-       */
       two_years_before_closing_balance?: number;
-      /**
-       * 前年度期末残高（円）
-       */
       last_year_closing_balance?: number;
-      /**
-       * 当年度期末残高（円）
-       */
       closing_balance?: number;
-      /**
-       * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-       */
       year_on_year?: number;
     }>;
   };
-  /**
-   * 集計結果が最新かどうか。`false` の場合は残高の集計が完了していないため、時間を置いてから再取得してください。
-   */
   up_to_date: boolean;
-  /**
-   * 集計が最新でない場合の要因情報。`up_to_date=false` のときのみ要因が含まれ、`up_to_date=true` のときは空配列となる。
-   */
   up_to_date_reasons?: Array<{
-    /**
-     * 要因コード。現時点で返り得る値は以下。
-     * * `depreciation_creating` - 当期の固定資産の償却を作成中
-     * * `depreciation_create_error` - 当期の固定資産の償却作成でエラーが発生
-     *
-     */
     code: "depreciation_creating" | "depreciation_create_error";
-    /**
-     * 集計が最新でない理由
-     */
     message: string;
   }>;
 };
 
 export type TrialPlResponse = {
   trial_pl: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。リクエストで指定した場合、または月・日の絞り込み条件が指定されていない場合にのみ含まれる。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。リクエストで指定した場合にのみ含まれる。
-     * * `account_item` - 勘定科目単位で表示（デフォルト）
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。リクエストで指定した場合にのみ含まれる。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。各行の `balances[].partners` / `items` / `sections` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列が返る
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、`balances[]` の中に決算書表示名行に続けて勘定科目行が展開される
-     *
-     */
     breakdown_display_type?:
       | "partner"
       | "item"
@@ -4508,364 +1190,99 @@ export type TrialPlResponse = {
       | "segment_1_tag"
       | "segment_2_tag"
       | "segment_3_tag";
-    /**
-     * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
-     */
     partner_id?: number;
-    /**
-     * 絞込に指定された取引先コード。リクエストで指定した場合にのみ含まれる。
-     */
     partner_code?: string;
-    /**
-     * 絞込に指定された品目ID。リクエストで指定した場合にのみ含まれる。0 の場合は「品目が未選択の取引を対象」を意味する。
-     */
     item_id?: number;
-    /**
-     * 絞込に指定された部門ID。リクエストで指定した場合にのみ含まれる。0 の場合は「部門が未選択の取引を対象」を意味する。
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
-    /**
-     * レスポンスを生成した日時(ISO 8601, JST)
-     */
     created_at?: string;
-    /**
-     * 残高一覧。`hierarchy_level` の階層構造で並ぶ。行は次の 3 種類が混在する。
-     * * 勘定科目行: `account_item_id` あり（例: 売上高、地代家賃）
-     * * 決算書表示名行: `account_item_id` なし・`account_group_name` あり（`account_item_display_type=group` 指定時のみ現れる）
-     * * 勘定科目カテゴリー行: `account_item_id` も `account_group_name` も無く、`account_category_name` あり（カテゴリー合計行は `total_line=true`）
-     *
-     */
     balances: Array<{
-      /**
-       * 勘定科目ID。勘定科目行の場合のみ含まれる（勘定科目カテゴリー行では含まれない）。
-       */
       account_item_id?: number;
-      /**
-       * 勘定科目名。勘定科目行の場合のみ含まれる。
-       */
       account_item_name?: string;
-      /**
-       * 決算書表示名。`account_item_display_type=group` を指定した場合にのみ、決算書表示行に含まれる。
-       */
       account_group_name?: string;
-      /**
-       * 取引先ごとの内訳。`breakdown_display_type=partner` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       partners?: Array<{
-        /**
-         * 取引先ID。0 は取引先が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 取引先名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 期首残高（円）
-         */
         opening_balance?: number;
-        /**
-         * 期間中の借方金額（円）
-         */
         debit_amount?: number;
-        /**
-         * 期間中の貸方金額（円）
-         */
         credit_amount?: number;
-        /**
-         * 期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 構成比（百分率、%）。PLの基準額（法人の場合は売上高の合計、個人の場合は収入金額の合計）に対する当該行の金額割合を 100 換算した値。基準額を超える行では 100 を超え得る。
-         */
         composition_ratio?: number;
       }>;
-      /**
-       * 品目ごとの内訳。`breakdown_display_type=item` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       items?: Array<{
-        /**
-         * 品目ID。0 は品目が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 品目名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 期首残高（円）
-         */
         opening_balance?: number;
-        /**
-         * 期間中の借方金額（円）
-         */
         debit_amount?: number;
-        /**
-         * 期間中の貸方金額（円）
-         */
         credit_amount?: number;
-        /**
-         * 期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 構成比（百分率、%）。PLの基準額（法人の場合は売上高の合計、個人の場合は収入金額の合計）に対する当該行の金額割合を 100 換算した値。基準額を超える行では 100 を超え得る。
-         */
         composition_ratio?: number;
       }>;
-      /**
-       * 部門ごとの内訳。`breakdown_display_type=section` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       sections?: Array<{
-        /**
-         * 部門ID。0 は部門が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 部門名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 期首残高（円）
-         */
         opening_balance?: number;
-        /**
-         * 期間中の借方金額（円）
-         */
         debit_amount?: number;
-        /**
-         * 期間中の貸方金額（円）
-         */
         credit_amount?: number;
-        /**
-         * 期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 構成比（百分率、%）。PLの基準額（法人の場合は売上高の合計、個人の場合は収入金額の合計）に対する当該行の金額割合を 100 換算した値。基準額を超える行では 100 を超え得る。
-         */
         composition_ratio?: number;
       }>;
-      /**
-       * セグメント1タグごとの内訳。`breakdown_display_type=segment_1_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_1_tags?: Array<{
-        /**
-         * セグメント1タグID。0 はセグメント1タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント1タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 期首残高（円）
-         */
         opening_balance?: number;
-        /**
-         * 期間中の借方金額（円）
-         */
         debit_amount?: number;
-        /**
-         * 期間中の貸方金額（円）
-         */
         credit_amount?: number;
-        /**
-         * 期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 構成比（百分率、%）。PLの基準額（法人の場合は売上高の合計、個人の場合は収入金額の合計）に対する当該行の金額割合を 100 換算した値。基準額を超える行では 100 を超え得る。
-         */
         composition_ratio?: number;
       }>;
-      /**
-       * セグメント2タグごとの内訳。`breakdown_display_type=segment_2_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_2_tags?: Array<{
-        /**
-         * セグメント2タグID。0 はセグメント2タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント2タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 期首残高（円）
-         */
         opening_balance?: number;
-        /**
-         * 期間中の借方金額（円）
-         */
         debit_amount?: number;
-        /**
-         * 期間中の貸方金額（円）
-         */
         credit_amount?: number;
-        /**
-         * 期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 構成比（百分率、%）。PLの基準額（法人の場合は売上高の合計、個人の場合は収入金額の合計）に対する当該行の金額割合を 100 換算した値。基準額を超える行では 100 を超え得る。
-         */
         composition_ratio?: number;
       }>;
-      /**
-       * セグメント3タグごとの内訳。`breakdown_display_type=segment_3_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_3_tags?: Array<{
-        /**
-         * セグメント3タグID。0 はセグメント3タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント3タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 期首残高（円）
-         */
         opening_balance?: number;
-        /**
-         * 期間中の借方金額（円）
-         */
         debit_amount?: number;
-        /**
-         * 期間中の貸方金額（円）
-         */
         credit_amount?: number;
-        /**
-         * 期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 構成比（百分率、%）。PLの基準額（法人の場合は売上高の合計、個人の場合は収入金額の合計）に対する当該行の金額割合を 100 換算した値。基準額を超える行では 100 を超え得る。
-         */
         composition_ratio?: number;
       }>;
-      /**
-       * 勘定科目カテゴリー名（例: 売上高、販売管理費など）
-       */
       account_category_name?: string;
-      /**
-       * 合計行かどうか。勘定科目カテゴリーの合計行（当該カテゴリーの小計を表す行）の場合のみ含まれ、`true` となる。
-       */
       total_line?: boolean;
-      /**
-       * 階層レベル（1が最上位。値が大きいほど深い階層）
-       */
       hierarchy_level?: number;
-      /**
-       * 上位勘定科目カテゴリー名。勘定科目カテゴリー行かつ上位階層が存在する場合のみ含まれる。
-       */
       parent_account_category_name?: string;
-      /**
-       * 期首残高（円）
-       */
       opening_balance?: number;
-      /**
-       * 期間中の借方金額（円）
-       */
       debit_amount?: number;
-      /**
-       * 期間中の貸方金額（円）
-       */
       credit_amount?: number;
-      /**
-       * 期末残高（円）
-       */
       closing_balance?: number;
-      /**
-       * 構成比（百分率、%）。PLの基準額（法人の場合は売上高の合計、個人の場合は収入金額の合計）に対する当該行の金額割合を 100 換算した値。基準額を超える行では 100 を超え得る。
-       */
       composition_ratio?: number;
     }>;
   };
-  /**
-   * 集計結果が最新かどうか。`false` の場合は残高の集計が完了していないため、時間を置いてから再取得してください。
-   */
   up_to_date: boolean;
-  /**
-   * 集計が最新でない場合の要因情報。`up_to_date=false` のときのみ要因が含まれ、`up_to_date=true` のときは空配列となる。
-   */
   up_to_date_reasons?: Array<{
-    /**
-     * 要因コード。現時点で返り得る値は以下。
-     * * `depreciation_creating` - 当期の固定資産の償却を作成中
-     * * `depreciation_create_error` - 当期の固定資産の償却作成でエラーが発生
-     *
-     */
     code: "depreciation_creating" | "depreciation_create_error";
-    /**
-     * 集計が最新でない理由
-     */
     message: string;
   }>;
 };
 
 export type TrialPlTwoYearsResponse = {
   trial_pl_two_years: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。リクエストで指定した場合、または月・日の絞り込み条件が指定されていない場合にのみ含まれる。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。リクエストで指定した場合にのみ含まれる。
-     * * `account_item` - 勘定科目単位で表示（デフォルト）
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。リクエストで指定した場合にのみ含まれる。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。各行の `balances[].partners` / `items` / `sections` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列が返る
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、`balances[]` の中に決算書表示名行に続けて勘定科目行が展開される
-     *
-     */
     breakdown_display_type?:
       | "partner"
       | "item"
@@ -4874,308 +1291,85 @@ export type TrialPlTwoYearsResponse = {
       | "segment_1_tag"
       | "segment_2_tag"
       | "segment_3_tag";
-    /**
-     * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
-     */
     partner_id?: number;
-    /**
-     * 絞込に指定された取引先コード。リクエストで指定した場合にのみ含まれる。
-     */
     partner_code?: string;
-    /**
-     * 絞込に指定された品目ID。リクエストで指定した場合にのみ含まれる。0 の場合は「品目が未選択の取引を対象」を意味する。
-     */
     item_id?: number;
-    /**
-     * 絞込に指定された部門ID。リクエストで指定した場合にのみ含まれる。0 の場合は「部門が未選択の取引を対象」を意味する。
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
-    /**
-     * レスポンスを生成した日時(ISO 8601, JST)
-     */
     created_at?: string;
-    /**
-     * 残高一覧。当年度期末残高と前年度期末残高、および前年比を返す。`hierarchy_level` の階層構造で並ぶ。行は次の 3 種類が混在する。
-     * * 勘定科目行: `account_item_id` あり（例: 売上高、地代家賃）
-     * * 決算書表示名行: `account_item_id` なし・`account_group_name` あり（`account_item_display_type=group` 指定時のみ現れる）
-     * * 勘定科目カテゴリー行: `account_item_id` も `account_group_name` も無く、`account_category_name` あり（カテゴリー合計行は `total_line=true`）
-     *
-     */
     balances: Array<{
-      /**
-       * 勘定科目ID。勘定科目行の場合のみ含まれる（勘定科目カテゴリー行では含まれない）。
-       */
       account_item_id?: number;
-      /**
-       * 勘定科目名。勘定科目行の場合のみ含まれる。
-       */
       account_item_name?: string;
-      /**
-       * 決算書表示名。`account_item_display_type=group` を指定した場合にのみ、決算書表示行に含まれる。
-       */
       account_group_name?: string;
-      /**
-       * 取引先ごとの内訳。`breakdown_display_type=partner` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       partners?: Array<{
-        /**
-         * 取引先ID。0 は取引先が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 取引先名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * 品目ごとの内訳。`breakdown_display_type=item` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       items?: Array<{
-        /**
-         * 品目ID。0 は品目が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 品目名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * 部門ごとの内訳。`breakdown_display_type=section` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       sections?: Array<{
-        /**
-         * 部門ID。0 は部門が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 部門名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * セグメント1タグごとの内訳。`breakdown_display_type=segment_1_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_1_tags?: Array<{
-        /**
-         * セグメント1タグID。0 はセグメント1タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント1タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * セグメント2タグごとの内訳。`breakdown_display_type=segment_2_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_2_tags?: Array<{
-        /**
-         * セグメント2タグID。0 はセグメント2タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント2タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * セグメント3タグごとの内訳。`breakdown_display_type=segment_3_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_3_tags?: Array<{
-        /**
-         * セグメント3タグID。0 はセグメント3タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント3タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * 勘定科目カテゴリー名（例: 売上高、販売管理費など）
-       */
       account_category_name?: string;
-      /**
-       * 合計行かどうか。勘定科目カテゴリーの合計行（当該カテゴリーの小計を表す行）の場合のみ含まれ、`true` となる。
-       */
       total_line?: boolean;
-      /**
-       * 階層レベル（1が最上位。値が大きいほど深い階層）
-       */
       hierarchy_level?: number;
-      /**
-       * 上位勘定科目カテゴリー名。勘定科目カテゴリー行かつ上位階層が存在する場合のみ含まれる。
-       */
       parent_account_category_name?: string;
-      /**
-       * 前年度期末残高（円）
-       */
       last_year_closing_balance?: number;
-      /**
-       * 当年度期末残高（円）
-       */
       closing_balance?: number;
-      /**
-       * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-       */
       year_on_year?: number;
     }>;
   };
-  /**
-   * 集計結果が最新かどうか。`false` の場合は残高の集計が完了していないため、時間を置いてから再取得してください。
-   */
   up_to_date: boolean;
-  /**
-   * 集計が最新でない場合の要因情報。`up_to_date=false` のときのみ要因が含まれ、`up_to_date=true` のときは空配列となる。
-   */
   up_to_date_reasons?: Array<{
-    /**
-     * 要因コード。現時点で返り得る値は以下。
-     * * `depreciation_creating` - 当期の固定資産の償却を作成中
-     * * `depreciation_create_error` - 当期の固定資産の償却作成でエラーが発生
-     *
-     */
     code: "depreciation_creating" | "depreciation_create_error";
-    /**
-     * 集計が最新でない理由
-     */
     message: string;
   }>;
 };
 
 export type TrialPlThreeYearsResponse = {
   trial_pl_three_years: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。リクエストで指定した場合、または月・日の絞り込み条件が指定されていない場合にのみ含まれる。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。リクエストで指定した場合にのみ含まれる。
-     * * `account_item` - 勘定科目単位で表示（デフォルト）
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。リクエストで指定した場合にのみ含まれる。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。各行の `balances[].partners` / `items` / `sections` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列が返る
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、`balances[]` の中に決算書表示名行に続けて勘定科目行が展開される
-     *
-     */
     breakdown_display_type?:
       | "partner"
       | "item"
@@ -5184,1236 +1378,330 @@ export type TrialPlThreeYearsResponse = {
       | "segment_1_tag"
       | "segment_2_tag"
       | "segment_3_tag";
-    /**
-     * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
-     */
     partner_id?: number;
-    /**
-     * 絞込に指定された取引先コード。リクエストで指定した場合にのみ含まれる。
-     */
     partner_code?: string;
-    /**
-     * 絞込に指定された品目ID。リクエストで指定した場合にのみ含まれる。0 の場合は「品目が未選択の取引を対象」を意味する。
-     */
     item_id?: number;
-    /**
-     * 絞込に指定された部門ID。リクエストで指定した場合にのみ含まれる。0 の場合は「部門が未選択の取引を対象」を意味する。
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
-    /**
-     * レスポンスを生成した日時(ISO 8601, JST)
-     */
     created_at?: string;
-    /**
-     * 残高一覧。当年度・前年度・前々年度の期末残高と前年比を返す。`hierarchy_level` の階層構造で並ぶ。行は次の 3 種類が混在する。
-     * * 勘定科目行: `account_item_id` あり（例: 売上高、地代家賃）
-     * * 決算書表示名行: `account_item_id` なし・`account_group_name` あり（`account_item_display_type=group` 指定時のみ現れる）
-     * * 勘定科目カテゴリー行: `account_item_id` も `account_group_name` も無く、`account_category_name` あり（カテゴリー合計行は `total_line=true`）
-     *
-     */
     balances: Array<{
-      /**
-       * 勘定科目ID。勘定科目行の場合のみ含まれる（勘定科目カテゴリー行では含まれない）。
-       */
       account_item_id?: number;
-      /**
-       * 勘定科目名。勘定科目行の場合のみ含まれる。
-       */
       account_item_name?: string;
-      /**
-       * 決算書表示名。`account_item_display_type=group` を指定した場合にのみ、決算書表示行に含まれる。
-       */
       account_group_name?: string;
-      /**
-       * 取引先ごとの内訳。`breakdown_display_type=partner` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       partners?: Array<{
-        /**
-         * 取引先ID。0 は取引先が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 取引先名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前々年度期末残高（円）
-         */
         two_years_before_closing_balance?: number;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * 品目ごとの内訳。`breakdown_display_type=item` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       items?: Array<{
-        /**
-         * 品目ID。0 は品目が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 品目名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前々年度期末残高（円）
-         */
         two_years_before_closing_balance?: number;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * 部門ごとの内訳。`breakdown_display_type=section` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       sections?: Array<{
-        /**
-         * 部門ID。0 は部門が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 部門名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前々年度期末残高（円）
-         */
         two_years_before_closing_balance?: number;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * セグメント1タグごとの内訳。`breakdown_display_type=segment_1_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_1_tags?: Array<{
-        /**
-         * セグメント1タグID。0 はセグメント1タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント1タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前々年度期末残高（円）
-         */
         two_years_before_closing_balance?: number;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * セグメント2タグごとの内訳。`breakdown_display_type=segment_2_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_2_tags?: Array<{
-        /**
-         * セグメント2タグID。0 はセグメント2タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント2タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前々年度期末残高（円）
-         */
         two_years_before_closing_balance?: number;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * セグメント3タグごとの内訳。`breakdown_display_type=segment_3_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_3_tags?: Array<{
-        /**
-         * セグメント3タグID。0 はセグメント3タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント3タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前々年度期末残高（円）
-         */
         two_years_before_closing_balance?: number;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * 勘定科目カテゴリー名（例: 売上高、販売管理費など）
-       */
       account_category_name?: string;
-      /**
-       * 合計行かどうか。勘定科目カテゴリーの合計行（当該カテゴリーの小計を表す行）の場合のみ含まれ、`true` となる。
-       */
       total_line?: boolean;
-      /**
-       * 階層レベル（1が最上位。値が大きいほど深い階層）
-       */
       hierarchy_level?: number;
-      /**
-       * 上位勘定科目カテゴリー名。勘定科目カテゴリー行かつ上位階層が存在する場合のみ含まれる。
-       */
       parent_account_category_name?: string;
-      /**
-       * 前々年度期末残高（円）
-       */
       two_years_before_closing_balance?: number;
-      /**
-       * 前年度期末残高（円）
-       */
       last_year_closing_balance?: number;
-      /**
-       * 当年度期末残高（円）
-       */
       closing_balance?: number;
-      /**
-       * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-       */
       year_on_year?: number;
     }>;
   };
-  /**
-   * 集計結果が最新かどうか。`false` の場合は残高の集計が完了していないため、時間を置いてから再取得してください。
-   */
   up_to_date: boolean;
-  /**
-   * 集計が最新でない場合の要因情報。`up_to_date=false` のときのみ要因が含まれ、`up_to_date=true` のときは空配列となる。
-   */
   up_to_date_reasons?: Array<{
-    /**
-     * 要因コード。現時点で返り得る値は以下。
-     * * `depreciation_creating` - 当期の固定資産の償却を作成中
-     * * `depreciation_create_error` - 当期の固定資産の償却作成でエラーが発生
-     *
-     */
     code: "depreciation_creating" | "depreciation_create_error";
-    /**
-     * 集計が最新でない理由
-     */
     message: string;
   }>;
 };
 
 export type TrialPlSectionsResponse = {
   trial_pl_sections: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 比較対象に指定された部門IDの一覧（リクエストで指定したカンマ区切りの文字列がそのまま返る。0 は「部門が未選択の取引」を意味する）
-     */
     section_ids: string;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。リクエストで指定した場合、または月・日の絞り込み条件が指定されていない場合にのみ含まれる。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。リクエストで指定した場合にのみ含まれる。
-     * * `account_item` - 勘定科目単位で表示（デフォルト）
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。リクエストで指定した場合にのみ含まれる。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。`balances[].sections[]` の各部門要素配下の `partners` / `items` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列が返る
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、`balances[]` の中に決算書表示名行に続けて勘定科目行が展開される
-     * * 部門比較では `section` は指定できない
-     *
-     */
     breakdown_display_type?:
       "partner" | "item" | "account_item" | "segment_1_tag" | "segment_2_tag" | "segment_3_tag";
-    /**
-     * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
-     */
     partner_id?: number;
-    /**
-     * 絞込に指定された取引先コード。リクエストで指定した場合にのみ含まれる。
-     */
     partner_code?: string;
-    /**
-     * 絞込に指定された品目ID。リクエストで指定した場合にのみ含まれる。0 の場合は「品目が未選択の取引を対象」を意味する。
-     */
     item_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
-    /**
-     * レスポンスを生成した日時(ISO 8601, JST)
-     */
     created_at?: string;
-    /**
-     * 残高一覧。指定した部門ごとの期末残高を `sections` に並べて比較する。`hierarchy_level` の階層構造で並ぶ。行は次の 3 種類が混在する。
-     * * 勘定科目行: `account_item_id` あり（例: 売上高、地代家賃）
-     * * 決算書表示名行: `account_item_id` なし・`account_group_name` あり（`account_item_display_type=group` 指定時のみ現れる）
-     * * 勘定科目カテゴリー行: `account_item_id` も `account_group_name` も無く、`account_category_name` あり（カテゴリー合計行は `total_line=true`）
-     *
-     */
     balances: Array<{
-      /**
-       * 勘定科目ID。勘定科目行の場合のみ含まれる（勘定科目カテゴリー行では含まれない）。
-       */
       account_item_id?: number;
-      /**
-       * 勘定科目名。勘定科目行の場合のみ含まれる。
-       */
       account_item_name?: string;
-      /**
-       * 決算書表示名。`account_item_display_type=group` を指定した場合にのみ、決算書表示行に含まれる。
-       */
       account_group_name?: string;
-      /**
-       * 比較対象に指定した部門ごとの期末残高。`breakdown_display_type` を指定した場合は、各部門要素の配下に内訳配列（`partners` / `items` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags`）が含まれる。
-       */
       sections?: Array<{
-        /**
-         * 部門ID。0 は部門が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 部門名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 当該部門の期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 取引先ごとの内訳。`breakdown_display_type=partner` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         partners?: Array<{
-          /**
-           * 取引先ID。0 は取引先が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 取引先名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該部門・取引先の期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * 品目ごとの内訳。`breakdown_display_type=item` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         items?: Array<{
-          /**
-           * 品目ID。0 は品目が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 品目名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該部門・品目の期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * セグメント1タグごとの内訳。`breakdown_display_type=segment_1_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         segment_1_tags?: Array<{
-          /**
-           * セグメント1タグID。0 はセグメント1タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * セグメント1タグ名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該部門・セグメント1タグの期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * セグメント2タグごとの内訳。`breakdown_display_type=segment_2_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         segment_2_tags?: Array<{
-          /**
-           * セグメント2タグID。0 はセグメント2タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * セグメント2タグ名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該部門・セグメント2タグの期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * セグメント3タグごとの内訳。`breakdown_display_type=segment_3_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         segment_3_tags?: Array<{
-          /**
-           * セグメント3タグID。0 はセグメント3タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * セグメント3タグ名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該部門・セグメント3タグの期末残高（円）
-           */
           closing_balance?: number;
         }>;
       }>;
-      /**
-       * 勘定科目カテゴリー名（例: 売上高、販売管理費など）
-       */
       account_category_name?: string;
-      /**
-       * 合計行かどうか。勘定科目カテゴリーの合計行（当該カテゴリーの小計を表す行）の場合のみ含まれ、`true` となる。
-       */
       total_line?: boolean;
-      /**
-       * 階層レベル（1が最上位。値が大きいほど深い階層）
-       */
       hierarchy_level?: number;
-      /**
-       * 上位勘定科目カテゴリー名。勘定科目カテゴリー行かつ上位階層が存在する場合のみ含まれる。
-       */
       parent_account_category_name?: string;
-      /**
-       * 期末残高（円）。比較対象に指定した部門の合計値。
-       */
       closing_balance?: number;
     }>;
   };
-  /**
-   * 集計結果が最新かどうか。`false` の場合は残高の集計が完了していないため、時間を置いてから再取得してください。
-   */
   up_to_date: boolean;
-  /**
-   * 集計が最新でない場合の要因情報。`up_to_date=false` のときのみ要因が含まれ、`up_to_date=true` のときは空配列となる。
-   */
   up_to_date_reasons?: Array<{
-    /**
-     * 要因コード。現時点で返り得る値は以下。
-     * * `depreciation_creating` - 当期の固定資産の償却を作成中
-     * * `depreciation_create_error` - 当期の固定資産の償却作成でエラーが発生
-     *
-     */
     code: "depreciation_creating" | "depreciation_create_error";
-    /**
-     * 集計が最新でない理由
-     */
     message: string;
   }>;
 };
 
 export type TrialPlSegment1TagsResponse = {
   trial_pl_segment_1_tags: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 比較対象に指定されたセグメント1タグIDの一覧（リクエストで指定したカンマ区切りの文字列がそのまま返る。0 は「セグメント1タグが未選択の取引」を意味する）
-     */
     segment_1_tag_ids: string;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。リクエストで指定した場合、または月・日の絞り込み条件が指定されていない場合にのみ含まれる。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。リクエストで指定した場合にのみ含まれる。
-     * * `account_item` - 勘定科目単位で表示（デフォルト）
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。リクエストで指定した場合にのみ含まれる。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。`balances[].segment_1_tags[]` の各セグメント1タグ要素配下の `partners` / `items` / `sections` に内訳配列が返る
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、`balances[]` の中に決算書表示名行に続けて勘定科目行が展開される
-     *
-     */
     breakdown_display_type?: "partner" | "item" | "section" | "account_item";
-    /**
-     * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
-     */
     partner_id?: number;
-    /**
-     * 絞込に指定された取引先コード。リクエストで指定した場合にのみ含まれる。
-     */
     partner_code?: string;
-    /**
-     * 絞込に指定された品目ID。リクエストで指定した場合にのみ含まれる。0 の場合は「品目が未選択の取引を対象」を意味する。
-     */
     item_id?: number;
-    /**
-     * 絞込に指定された部門ID。リクエストで指定した場合にのみ含まれる。0 の場合は「部門が未選択の取引を対象」を意味する。
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
-    /**
-     * レスポンスを生成した日時(ISO 8601, JST)
-     */
     created_at?: string;
-    /**
-     * 残高一覧。指定したセグメント1タグごとの期末残高を `segment_1_tags` に並べて比較する。`hierarchy_level` の階層構造で並ぶ。行は次の 3 種類が混在する。
-     * * 勘定科目行: `account_item_id` あり（例: 売上高、地代家賃）
-     * * 決算書表示名行: `account_item_id` なし・`account_group_name` あり（`account_item_display_type=group` 指定時のみ現れる）
-     * * 勘定科目カテゴリー行: `account_item_id` も `account_group_name` も無く、`account_category_name` あり（カテゴリー合計行は `total_line=true`）
-     *
-     */
     balances: Array<{
-      /**
-       * 勘定科目ID。勘定科目行の場合のみ含まれる（勘定科目カテゴリー行では含まれない）。
-       */
       account_item_id?: number;
-      /**
-       * 勘定科目名。勘定科目行の場合のみ含まれる。
-       */
       account_item_name?: string;
-      /**
-       * 決算書表示名。`account_item_display_type=group` を指定した場合にのみ、決算書表示行に含まれる。
-       */
       account_group_name?: string;
-      /**
-       * 比較対象に指定したセグメント1タグごとの期末残高。`breakdown_display_type` を指定した場合は、各セグメント1タグ要素の配下に内訳配列（`partners` / `items` / `sections`）が含まれる。
-       */
       segment_1_tags?: Array<{
-        /**
-         * セグメント1タグID。0 はセグメント1タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント1タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 当該セグメント1タグの期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 取引先ごとの内訳。`breakdown_display_type=partner` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         partners?: Array<{
-          /**
-           * 取引先ID。0 は取引先が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 取引先名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該セグメント1タグ・取引先の期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * 品目ごとの内訳。`breakdown_display_type=item` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         items?: Array<{
-          /**
-           * 品目ID。0 は品目が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 品目名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該セグメント1タグ・品目の期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * 部門ごとの内訳。`breakdown_display_type=section` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         sections?: Array<{
-          /**
-           * 部門ID。0 は部門が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 部門名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該セグメント1タグ・部門の期末残高（円）
-           */
           closing_balance?: number;
         }>;
       }>;
-      /**
-       * 勘定科目カテゴリー名（例: 売上高、販売管理費など）
-       */
       account_category_name?: string;
-      /**
-       * 合計行かどうか。勘定科目カテゴリーの合計行（当該カテゴリーの小計を表す行）の場合のみ含まれ、`true` となる。
-       */
       total_line?: boolean;
-      /**
-       * 階層レベル（1が最上位。値が大きいほど深い階層）
-       */
       hierarchy_level?: number;
-      /**
-       * 上位勘定科目カテゴリー名。勘定科目カテゴリー行かつ上位階層が存在する場合のみ含まれる。
-       */
       parent_account_category_name?: string;
-      /**
-       * 期末残高（円）。比較対象に指定したセグメント1タグの合計値。
-       */
       closing_balance?: number;
     }>;
   };
-  /**
-   * 集計結果が最新かどうか。`false` の場合は残高の集計が完了していないため、時間を置いてから再取得してください。
-   */
   up_to_date: boolean;
-  /**
-   * 集計が最新でない場合の要因情報。`up_to_date=false` のときのみ要因が含まれ、`up_to_date=true` のときは空配列となる。
-   */
   up_to_date_reasons?: Array<{
-    /**
-     * 要因コード。現時点で返り得る値は以下。
-     * * `depreciation_creating` - 当期の固定資産の償却を作成中
-     * * `depreciation_create_error` - 当期の固定資産の償却作成でエラーが発生
-     *
-     */
     code: "depreciation_creating" | "depreciation_create_error";
-    /**
-     * 集計が最新でない理由
-     */
     message: string;
   }>;
 };
 
 export type TrialPlSegment2TagsResponse = {
   trial_pl_segment_2_tags: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 比較対象に指定されたセグメント2タグIDの一覧（リクエストで指定したカンマ区切りの文字列がそのまま返る。0 は「セグメント2タグが未選択の取引」を意味する）
-     */
     segment_2_tag_ids: string;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。リクエストで指定した場合、または月・日の絞り込み条件が指定されていない場合にのみ含まれる。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。リクエストで指定した場合にのみ含まれる。
-     * * `account_item` - 勘定科目単位で表示（デフォルト）
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。リクエストで指定した場合にのみ含まれる。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。`balances[].segment_2_tags[]` の各セグメント2タグ要素配下の `partners` / `items` / `sections` に内訳配列が返る
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、`balances[]` の中に決算書表示名行に続けて勘定科目行が展開される
-     *
-     */
     breakdown_display_type?: "partner" | "item" | "section" | "account_item";
-    /**
-     * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
-     */
     partner_id?: number;
-    /**
-     * 絞込に指定された取引先コード。リクエストで指定した場合にのみ含まれる。
-     */
     partner_code?: string;
-    /**
-     * 絞込に指定された品目ID。リクエストで指定した場合にのみ含まれる。0 の場合は「品目が未選択の取引を対象」を意味する。
-     */
     item_id?: number;
-    /**
-     * 絞込に指定された部門ID。リクエストで指定した場合にのみ含まれる。0 の場合は「部門が未選択の取引を対象」を意味する。
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
-    /**
-     * レスポンスを生成した日時(ISO 8601, JST)
-     */
     created_at?: string;
-    /**
-     * 残高一覧。指定したセグメント2タグごとの期末残高を `segment_2_tags` に並べて比較する。`hierarchy_level` の階層構造で並ぶ。行は次の 3 種類が混在する。
-     * * 勘定科目行: `account_item_id` あり（例: 売上高、地代家賃）
-     * * 決算書表示名行: `account_item_id` なし・`account_group_name` あり（`account_item_display_type=group` 指定時のみ現れる）
-     * * 勘定科目カテゴリー行: `account_item_id` も `account_group_name` も無く、`account_category_name` あり（カテゴリー合計行は `total_line=true`）
-     *
-     */
     balances: Array<{
-      /**
-       * 勘定科目ID。勘定科目行の場合のみ含まれる（勘定科目カテゴリー行では含まれない）。
-       */
       account_item_id?: number;
-      /**
-       * 勘定科目名。勘定科目行の場合のみ含まれる。
-       */
       account_item_name?: string;
-      /**
-       * 決算書表示名。`account_item_display_type=group` を指定した場合にのみ、決算書表示行に含まれる。
-       */
       account_group_name?: string;
-      /**
-       * 比較対象に指定したセグメント2タグごとの期末残高。`breakdown_display_type` を指定した場合は、各セグメント2タグ要素の配下に内訳配列（`partners` / `items` / `sections`）が含まれる。
-       */
       segment_2_tags?: Array<{
-        /**
-         * セグメント2タグID。0 はセグメント2タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント2タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 当該セグメント2タグの期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 取引先ごとの内訳。`breakdown_display_type=partner` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         partners?: Array<{
-          /**
-           * 取引先ID。0 は取引先が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 取引先名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該セグメント2タグ・取引先の期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * 品目ごとの内訳。`breakdown_display_type=item` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         items?: Array<{
-          /**
-           * 品目ID。0 は品目が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 品目名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該セグメント2タグ・品目の期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * 部門ごとの内訳。`breakdown_display_type=section` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         sections?: Array<{
-          /**
-           * 部門ID。0 は部門が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 部門名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該セグメント2タグ・部門の期末残高（円）
-           */
           closing_balance?: number;
         }>;
       }>;
-      /**
-       * 勘定科目カテゴリー名（例: 売上高、販売管理費など）
-       */
       account_category_name?: string;
-      /**
-       * 合計行かどうか。勘定科目カテゴリーの合計行（当該カテゴリーの小計を表す行）の場合のみ含まれ、`true` となる。
-       */
       total_line?: boolean;
-      /**
-       * 階層レベル（1が最上位。値が大きいほど深い階層）
-       */
       hierarchy_level?: number;
-      /**
-       * 上位勘定科目カテゴリー名。勘定科目カテゴリー行かつ上位階層が存在する場合のみ含まれる。
-       */
       parent_account_category_name?: string;
-      /**
-       * 期末残高（円）。比較対象に指定したセグメント2タグの合計値。
-       */
       closing_balance?: number;
     }>;
   };
-  /**
-   * 集計結果が最新かどうか。`false` の場合は残高の集計が完了していないため、時間を置いてから再取得してください。
-   */
   up_to_date: boolean;
-  /**
-   * 集計が最新でない場合の要因情報。`up_to_date=false` のときのみ要因が含まれ、`up_to_date=true` のときは空配列となる。
-   */
   up_to_date_reasons?: Array<{
-    /**
-     * 要因コード。現時点で返り得る値は以下。
-     * * `depreciation_creating` - 当期の固定資産の償却を作成中
-     * * `depreciation_create_error` - 当期の固定資産の償却作成でエラーが発生
-     *
-     */
     code: "depreciation_creating" | "depreciation_create_error";
-    /**
-     * 集計が最新でない理由
-     */
     message: string;
   }>;
 };
 
 export type TrialPlSegment3TagsResponse = {
   trial_pl_segment_3_tags: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 比較対象に指定されたセグメント3タグIDの一覧（リクエストで指定したカンマ区切りの文字列がそのまま返る。0 は「セグメント3タグが未選択の取引」を意味する）
-     */
     segment_3_tag_ids: string;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。リクエストで指定した場合、または月・日の絞り込み条件が指定されていない場合にのみ含まれる。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。リクエストで指定した場合にのみ含まれる。
-     * * `account_item` - 勘定科目単位で表示（デフォルト）
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。リクエストで指定した場合にのみ含まれる。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。`balances[].segment_3_tags[]` の各セグメント3タグ要素配下の `partners` / `items` / `sections` に内訳配列が返る
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、`balances[]` の中に決算書表示名行に続けて勘定科目行が展開される
-     *
-     */
     breakdown_display_type?: "partner" | "item" | "section" | "account_item";
-    /**
-     * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
-     */
     partner_id?: number;
-    /**
-     * 絞込に指定された取引先コード。リクエストで指定した場合にのみ含まれる。
-     */
     partner_code?: string;
-    /**
-     * 絞込に指定された品目ID。リクエストで指定した場合にのみ含まれる。0 の場合は「品目が未選択の取引を対象」を意味する。
-     */
     item_id?: number;
-    /**
-     * 絞込に指定された部門ID。リクエストで指定した場合にのみ含まれる。0 の場合は「部門が未選択の取引を対象」を意味する。
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
-    /**
-     * レスポンスを生成した日時(ISO 8601, JST)
-     */
     created_at?: string;
-    /**
-     * 残高一覧。指定したセグメント3タグごとの期末残高を `segment_3_tags` に並べて比較する。`hierarchy_level` の階層構造で並ぶ。行は次の 3 種類が混在する。
-     * * 勘定科目行: `account_item_id` あり（例: 売上高、地代家賃）
-     * * 決算書表示名行: `account_item_id` なし・`account_group_name` あり（`account_item_display_type=group` 指定時のみ現れる）
-     * * 勘定科目カテゴリー行: `account_item_id` も `account_group_name` も無く、`account_category_name` あり（カテゴリー合計行は `total_line=true`）
-     *
-     */
     balances: Array<{
-      /**
-       * 勘定科目ID。勘定科目行の場合のみ含まれる（勘定科目カテゴリー行では含まれない）。
-       */
       account_item_id?: number;
-      /**
-       * 勘定科目名。勘定科目行の場合のみ含まれる。
-       */
       account_item_name?: string;
-      /**
-       * 決算書表示名。`account_item_display_type=group` を指定した場合にのみ、決算書表示行に含まれる。
-       */
       account_group_name?: string;
-      /**
-       * 比較対象に指定したセグメント3タグごとの期末残高。`breakdown_display_type` を指定した場合は、各セグメント3タグ要素の配下に内訳配列（`partners` / `items` / `sections`）が含まれる。
-       */
       segment_3_tags?: Array<{
-        /**
-         * セグメント3タグID。0 はセグメント3タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント3タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 当該セグメント3タグの期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 取引先ごとの内訳。`breakdown_display_type=partner` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         partners?: Array<{
-          /**
-           * 取引先ID。0 は取引先が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 取引先名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該セグメント3タグ・取引先の期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * 品目ごとの内訳。`breakdown_display_type=item` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         items?: Array<{
-          /**
-           * 品目ID。0 は品目が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 品目名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該セグメント3タグ・品目の期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * 部門ごとの内訳。`breakdown_display_type=section` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         sections?: Array<{
-          /**
-           * 部門ID。0 は部門が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 部門名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該セグメント3タグ・部門の期末残高（円）
-           */
           closing_balance?: number;
         }>;
       }>;
-      /**
-       * 勘定科目カテゴリー名（例: 売上高、販売管理費など）
-       */
       account_category_name?: string;
-      /**
-       * 合計行かどうか。勘定科目カテゴリーの合計行（当該カテゴリーの小計を表す行）の場合のみ含まれ、`true` となる。
-       */
       total_line?: boolean;
-      /**
-       * 階層レベル（1が最上位。値が大きいほど深い階層）
-       */
       hierarchy_level?: number;
-      /**
-       * 上位勘定科目カテゴリー名。勘定科目カテゴリー行かつ上位階層が存在する場合のみ含まれる。
-       */
       parent_account_category_name?: string;
-      /**
-       * 期末残高（円）。比較対象に指定したセグメント3タグの合計値。
-       */
       closing_balance?: number;
     }>;
   };
-  /**
-   * 集計結果が最新かどうか。`false` の場合は残高の集計が完了していないため、時間を置いてから再取得してください。
-   */
   up_to_date: boolean;
-  /**
-   * 集計が最新でない場合の要因情報。`up_to_date=false` のときのみ要因が含まれ、`up_to_date=true` のときは空配列となる。
-   */
   up_to_date_reasons?: Array<{
-    /**
-     * 要因コード。現時点で返り得る値は以下。
-     * * `depreciation_creating` - 当期の固定資産の償却を作成中
-     * * `depreciation_create_error` - 当期の固定資産の償却作成でエラーが発生
-     *
-     */
     code: "depreciation_creating" | "depreciation_create_error";
-    /**
-     * 集計が最新でない理由
-     */
     message: string;
   }>;
 };
 
 export type TrialCrResponse = {
   trial_cr: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。リクエストで指定した場合、または月・日の絞り込み条件が指定されていない場合にのみ含まれる。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。リクエストで指定した場合にのみ含まれる。
-     * * `account_item` - 勘定科目単位で表示（デフォルト）
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。リクエストで指定した場合にのみ含まれる。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。各行の `balances[].partners` / `items` / `sections` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列が返る
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、`balances[]` の中に決算書表示名行に続けて勘定科目行が展開される
-     *
-     */
     breakdown_display_type?:
       | "partner"
       | "item"
@@ -6422,364 +1710,99 @@ export type TrialCrResponse = {
       | "segment_1_tag"
       | "segment_2_tag"
       | "segment_3_tag";
-    /**
-     * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
-     */
     partner_id?: number;
-    /**
-     * 絞込に指定された取引先コード。リクエストで指定した場合にのみ含まれる。
-     */
     partner_code?: string;
-    /**
-     * 絞込に指定された品目ID。リクエストで指定した場合にのみ含まれる。0 の場合は「品目が未選択の取引を対象」を意味する。
-     */
     item_id?: number;
-    /**
-     * 絞込に指定された部門ID。リクエストで指定した場合にのみ含まれる。0 の場合は「部門が未選択の取引を対象」を意味する。
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
-    /**
-     * レスポンスを生成した日時(ISO 8601, JST)
-     */
     created_at?: string;
-    /**
-     * 残高一覧。`hierarchy_level` の階層構造で並ぶ。行は次の 3 種類が混在する。
-     * * 勘定科目行: `account_item_id` あり（例: [製]期首材料棚卸高、[製]給料手当）
-     * * 決算書表示名行: `account_item_id` なし・`account_group_name` あり（`account_item_display_type=group` 指定時のみ現れる）
-     * * 勘定科目カテゴリー行: `account_item_id` も `account_group_name` も無く、`account_category_name` あり（カテゴリー合計行は `total_line=true`）
-     *
-     */
     balances: Array<{
-      /**
-       * 勘定科目ID。勘定科目行の場合のみ含まれる（勘定科目カテゴリー行では含まれない）。
-       */
       account_item_id?: number;
-      /**
-       * 勘定科目名。勘定科目行の場合のみ含まれる。
-       */
       account_item_name?: string;
-      /**
-       * 決算書表示名。`account_item_display_type=group` を指定した場合にのみ、決算書表示行に含まれる。
-       */
       account_group_name?: string;
-      /**
-       * 取引先ごとの内訳。`breakdown_display_type=partner` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       partners?: Array<{
-        /**
-         * 取引先ID。0 は取引先が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 取引先名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 期首残高（円）
-         */
         opening_balance?: number;
-        /**
-         * 期間中の借方金額（円）
-         */
         debit_amount?: number;
-        /**
-         * 期間中の貸方金額（円）
-         */
         credit_amount?: number;
-        /**
-         * 期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 構成比（百分率、%）。製造原価報告書の基準額（勘定科目カテゴリー「製造原価」の金額。法人・個人共通）に対する当該行の金額割合を 100 換算した値。基準額を超える行では 100 を超え得る。
-         */
         composition_ratio?: number;
       }>;
-      /**
-       * 品目ごとの内訳。`breakdown_display_type=item` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       items?: Array<{
-        /**
-         * 品目ID。0 は品目が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 品目名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 期首残高（円）
-         */
         opening_balance?: number;
-        /**
-         * 期間中の借方金額（円）
-         */
         debit_amount?: number;
-        /**
-         * 期間中の貸方金額（円）
-         */
         credit_amount?: number;
-        /**
-         * 期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 構成比（百分率、%）。製造原価報告書の基準額（勘定科目カテゴリー「製造原価」の金額。法人・個人共通）に対する当該行の金額割合を 100 換算した値。基準額を超える行では 100 を超え得る。
-         */
         composition_ratio?: number;
       }>;
-      /**
-       * 部門ごとの内訳。`breakdown_display_type=section` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       sections?: Array<{
-        /**
-         * 部門ID。0 は部門が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 部門名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 期首残高（円）
-         */
         opening_balance?: number;
-        /**
-         * 期間中の借方金額（円）
-         */
         debit_amount?: number;
-        /**
-         * 期間中の貸方金額（円）
-         */
         credit_amount?: number;
-        /**
-         * 期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 構成比（百分率、%）。製造原価報告書の基準額（勘定科目カテゴリー「製造原価」の金額。法人・個人共通）に対する当該行の金額割合を 100 換算した値。基準額を超える行では 100 を超え得る。
-         */
         composition_ratio?: number;
       }>;
-      /**
-       * セグメント1タグごとの内訳。`breakdown_display_type=segment_1_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_1_tags?: Array<{
-        /**
-         * セグメント1タグID。0 はセグメント1タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント1タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 期首残高（円）
-         */
         opening_balance?: number;
-        /**
-         * 期間中の借方金額（円）
-         */
         debit_amount?: number;
-        /**
-         * 期間中の貸方金額（円）
-         */
         credit_amount?: number;
-        /**
-         * 期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 構成比（百分率、%）。製造原価報告書の基準額（勘定科目カテゴリー「製造原価」の金額。法人・個人共通）に対する当該行の金額割合を 100 換算した値。基準額を超える行では 100 を超え得る。
-         */
         composition_ratio?: number;
       }>;
-      /**
-       * セグメント2タグごとの内訳。`breakdown_display_type=segment_2_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_2_tags?: Array<{
-        /**
-         * セグメント2タグID。0 はセグメント2タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント2タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 期首残高（円）
-         */
         opening_balance?: number;
-        /**
-         * 期間中の借方金額（円）
-         */
         debit_amount?: number;
-        /**
-         * 期間中の貸方金額（円）
-         */
         credit_amount?: number;
-        /**
-         * 期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 構成比（百分率、%）。製造原価報告書の基準額（勘定科目カテゴリー「製造原価」の金額。法人・個人共通）に対する当該行の金額割合を 100 換算した値。基準額を超える行では 100 を超え得る。
-         */
         composition_ratio?: number;
       }>;
-      /**
-       * セグメント3タグごとの内訳。`breakdown_display_type=segment_3_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_3_tags?: Array<{
-        /**
-         * セグメント3タグID。0 はセグメント3タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント3タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 期首残高（円）
-         */
         opening_balance?: number;
-        /**
-         * 期間中の借方金額（円）
-         */
         debit_amount?: number;
-        /**
-         * 期間中の貸方金額（円）
-         */
         credit_amount?: number;
-        /**
-         * 期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 構成比（百分率、%）。製造原価報告書の基準額（勘定科目カテゴリー「製造原価」の金額。法人・個人共通）に対する当該行の金額割合を 100 換算した値。基準額を超える行では 100 を超え得る。
-         */
         composition_ratio?: number;
       }>;
-      /**
-       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用 など）
-       */
       account_category_name?: string;
-      /**
-       * 合計行かどうか。勘定科目カテゴリーの合計行（当該カテゴリーの小計を表す行）の場合のみ含まれ、`true` となる。
-       */
       total_line?: boolean;
-      /**
-       * 階層レベル（1が最上位。値が大きいほど深い階層）
-       */
       hierarchy_level?: number;
-      /**
-       * 上位勘定科目カテゴリー名。勘定科目カテゴリー行かつ上位階層が存在する場合のみ含まれる。
-       */
       parent_account_category_name?: string;
-      /**
-       * 期首残高（円）
-       */
       opening_balance?: number;
-      /**
-       * 期間中の借方金額（円）
-       */
       debit_amount?: number;
-      /**
-       * 期間中の貸方金額（円）
-       */
       credit_amount?: number;
-      /**
-       * 期末残高（円）
-       */
       closing_balance?: number;
-      /**
-       * 構成比（百分率、%）。製造原価報告書の基準額（勘定科目カテゴリー「製造原価」の金額。法人・個人共通）に対する当該行の金額割合を 100 換算した値。基準額を超える行では 100 を超え得る。
-       */
       composition_ratio?: number;
     }>;
   };
-  /**
-   * 集計結果が最新かどうか。`false` の場合は残高の集計が完了していないため、時間を置いてから再取得してください。
-   */
   up_to_date: boolean;
-  /**
-   * 集計が最新でない場合の要因情報。`up_to_date=false` のときのみ要因が含まれ、`up_to_date=true` のときは空配列となる。
-   */
   up_to_date_reasons?: Array<{
-    /**
-     * 要因コード。現時点で返り得る値は以下。
-     * * `depreciation_creating` - 当期の固定資産の償却を作成中
-     * * `depreciation_create_error` - 当期の固定資産の償却作成でエラーが発生
-     *
-     */
     code: "depreciation_creating" | "depreciation_create_error";
-    /**
-     * 集計が最新でない理由
-     */
     message: string;
   }>;
 };
 
 export type TrialCrTwoYearsResponse = {
   trial_cr_two_years: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。リクエストで指定した場合、または月・日の絞り込み条件が指定されていない場合にのみ含まれる。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。リクエストで指定した場合にのみ含まれる。
-     * * `account_item` - 勘定科目単位で表示（デフォルト）
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。リクエストで指定した場合にのみ含まれる。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。各行の `balances[].partners` / `items` / `sections` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列が返る
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、`balances[]` の中に決算書表示名行に続けて勘定科目行が展開される
-     *
-     */
     breakdown_display_type?:
       | "partner"
       | "item"
@@ -6788,308 +1811,85 @@ export type TrialCrTwoYearsResponse = {
       | "segment_1_tag"
       | "segment_2_tag"
       | "segment_3_tag";
-    /**
-     * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
-     */
     partner_id?: number;
-    /**
-     * 絞込に指定された取引先コード。リクエストで指定した場合にのみ含まれる。
-     */
     partner_code?: string;
-    /**
-     * 絞込に指定された品目ID。リクエストで指定した場合にのみ含まれる。0 の場合は「品目が未選択の取引を対象」を意味する。
-     */
     item_id?: number;
-    /**
-     * 絞込に指定された部門ID。リクエストで指定した場合にのみ含まれる。0 の場合は「部門が未選択の取引を対象」を意味する。
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
-    /**
-     * レスポンスを生成した日時(ISO 8601, JST)
-     */
     created_at?: string;
-    /**
-     * 残高一覧。当年度期末残高と前年度期末残高、および前年比を返す。`hierarchy_level` の階層構造で並ぶ。行は次の 3 種類が混在する。
-     * * 勘定科目行: `account_item_id` あり（例: [製]期首材料棚卸高、[製]給料手当）
-     * * 決算書表示名行: `account_item_id` なし・`account_group_name` あり（`account_item_display_type=group` 指定時のみ現れる）
-     * * 勘定科目カテゴリー行: `account_item_id` も `account_group_name` も無く、`account_category_name` あり（カテゴリー合計行は `total_line=true`）
-     *
-     */
     balances: Array<{
-      /**
-       * 勘定科目ID。勘定科目行の場合のみ含まれる（勘定科目カテゴリー行では含まれない）。
-       */
       account_item_id?: number;
-      /**
-       * 勘定科目名。勘定科目行の場合のみ含まれる。
-       */
       account_item_name?: string;
-      /**
-       * 決算書表示名。`account_item_display_type=group` を指定した場合にのみ、決算書表示行に含まれる。
-       */
       account_group_name?: string;
-      /**
-       * 取引先ごとの内訳。`breakdown_display_type=partner` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       partners?: Array<{
-        /**
-         * 取引先ID。0 は取引先が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 取引先名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * 品目ごとの内訳。`breakdown_display_type=item` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       items?: Array<{
-        /**
-         * 品目ID。0 は品目が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 品目名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * 部門ごとの内訳。`breakdown_display_type=section` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       sections?: Array<{
-        /**
-         * 部門ID。0 は部門が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 部門名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * セグメント1タグごとの内訳。`breakdown_display_type=segment_1_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_1_tags?: Array<{
-        /**
-         * セグメント1タグID。0 はセグメント1タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント1タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * セグメント2タグごとの内訳。`breakdown_display_type=segment_2_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_2_tags?: Array<{
-        /**
-         * セグメント2タグID。0 はセグメント2タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント2タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * セグメント3タグごとの内訳。`breakdown_display_type=segment_3_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_3_tags?: Array<{
-        /**
-         * セグメント3タグID。0 はセグメント3タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント3タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用 など）
-       */
       account_category_name?: string;
-      /**
-       * 合計行かどうか。勘定科目カテゴリーの合計行（当該カテゴリーの小計を表す行）の場合のみ含まれ、`true` となる。
-       */
       total_line?: boolean;
-      /**
-       * 階層レベル（1が最上位。値が大きいほど深い階層）
-       */
       hierarchy_level?: number;
-      /**
-       * 上位勘定科目カテゴリー名。勘定科目カテゴリー行かつ上位階層が存在する場合のみ含まれる。
-       */
       parent_account_category_name?: string;
-      /**
-       * 前年度期末残高（円）
-       */
       last_year_closing_balance?: number;
-      /**
-       * 当年度期末残高（円）
-       */
       closing_balance?: number;
-      /**
-       * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-       */
       year_on_year?: number;
     }>;
   };
-  /**
-   * 集計結果が最新かどうか。`false` の場合は残高の集計が完了していないため、時間を置いてから再取得してください。
-   */
   up_to_date: boolean;
-  /**
-   * 集計が最新でない場合の要因情報。`up_to_date=false` のときのみ要因が含まれ、`up_to_date=true` のときは空配列となる。
-   */
   up_to_date_reasons?: Array<{
-    /**
-     * 要因コード。現時点で返り得る値は以下。
-     * * `depreciation_creating` - 当期の固定資産の償却を作成中
-     * * `depreciation_create_error` - 当期の固定資産の償却作成でエラーが発生
-     *
-     */
     code: "depreciation_creating" | "depreciation_create_error";
-    /**
-     * 集計が最新でない理由
-     */
     message: string;
   }>;
 };
 
 export type TrialCrThreeYearsResponse = {
   trial_cr_three_years: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。リクエストで指定した場合、または月・日の絞り込み条件が指定されていない場合にのみ含まれる。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。リクエストで指定した場合にのみ含まれる。
-     * * `account_item` - 勘定科目単位で表示（デフォルト）
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。リクエストで指定した場合にのみ含まれる。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。各行の `balances[].partners` / `items` / `sections` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列が返る
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、`balances[]` の中に決算書表示名行に続けて勘定科目行が展開される
-     *
-     */
     breakdown_display_type?:
       | "partner"
       | "item"
@@ -7098,1540 +1898,412 @@ export type TrialCrThreeYearsResponse = {
       | "segment_1_tag"
       | "segment_2_tag"
       | "segment_3_tag";
-    /**
-     * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
-     */
     partner_id?: number;
-    /**
-     * 絞込に指定された取引先コード。リクエストで指定した場合にのみ含まれる。
-     */
     partner_code?: string;
-    /**
-     * 絞込に指定された品目ID。リクエストで指定した場合にのみ含まれる。0 の場合は「品目が未選択の取引を対象」を意味する。
-     */
     item_id?: number;
-    /**
-     * 絞込に指定された部門ID。リクエストで指定した場合にのみ含まれる。0 の場合は「部門が未選択の取引を対象」を意味する。
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
-    /**
-     * レスポンスを生成した日時(ISO 8601, JST)
-     */
     created_at?: string;
-    /**
-     * 残高一覧。当年度・前年度・前々年度の期末残高と前年比を返す。`hierarchy_level` の階層構造で並ぶ。行は次の 3 種類が混在する。
-     * * 勘定科目行: `account_item_id` あり（例: [製]期首材料棚卸高、[製]給料手当）
-     * * 決算書表示名行: `account_item_id` なし・`account_group_name` あり（`account_item_display_type=group` 指定時のみ現れる）
-     * * 勘定科目カテゴリー行: `account_item_id` も `account_group_name` も無く、`account_category_name` あり（カテゴリー合計行は `total_line=true`）
-     *
-     */
     balances: Array<{
-      /**
-       * 勘定科目ID。勘定科目行の場合のみ含まれる（勘定科目カテゴリー行では含まれない）。
-       */
       account_item_id?: number;
-      /**
-       * 勘定科目名。勘定科目行の場合のみ含まれる。
-       */
       account_item_name?: string;
-      /**
-       * 決算書表示名。`account_item_display_type=group` を指定した場合にのみ、決算書表示行に含まれる。
-       */
       account_group_name?: string;
-      /**
-       * 取引先ごとの内訳。`breakdown_display_type=partner` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       partners?: Array<{
-        /**
-         * 取引先ID。0 は取引先が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 取引先名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前々年度期末残高（円）
-         */
         two_years_before_closing_balance?: number;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * 品目ごとの内訳。`breakdown_display_type=item` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       items?: Array<{
-        /**
-         * 品目ID。0 は品目が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 品目名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前々年度期末残高（円）
-         */
         two_years_before_closing_balance?: number;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * 部門ごとの内訳。`breakdown_display_type=section` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       sections?: Array<{
-        /**
-         * 部門ID。0 は部門が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 部門名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前々年度期末残高（円）
-         */
         two_years_before_closing_balance?: number;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * セグメント1タグごとの内訳。`breakdown_display_type=segment_1_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_1_tags?: Array<{
-        /**
-         * セグメント1タグID。0 はセグメント1タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント1タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前々年度期末残高（円）
-         */
         two_years_before_closing_balance?: number;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * セグメント2タグごとの内訳。`breakdown_display_type=segment_2_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_2_tags?: Array<{
-        /**
-         * セグメント2タグID。0 はセグメント2タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント2タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前々年度期末残高（円）
-         */
         two_years_before_closing_balance?: number;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * セグメント3タグごとの内訳。`breakdown_display_type=segment_3_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-       */
       segment_3_tags?: Array<{
-        /**
-         * セグメント3タグID。0 はセグメント3タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント3タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 前々年度期末残高（円）
-         */
         two_years_before_closing_balance?: number;
-        /**
-         * 前年度期末残高（円）
-         */
         last_year_closing_balance?: number;
-        /**
-         * 当年度期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-         */
         year_on_year?: number;
       }>;
-      /**
-       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用 など）
-       */
       account_category_name?: string;
-      /**
-       * 合計行かどうか。勘定科目カテゴリーの合計行（当該カテゴリーの小計を表す行）の場合のみ含まれ、`true` となる。
-       */
       total_line?: boolean;
-      /**
-       * 階層レベル（1が最上位。値が大きいほど深い階層）
-       */
       hierarchy_level?: number;
-      /**
-       * 上位勘定科目カテゴリー名。勘定科目カテゴリー行かつ上位階層が存在する場合のみ含まれる。
-       */
       parent_account_category_name?: string;
-      /**
-       * 前々年度期末残高（円）
-       */
       two_years_before_closing_balance?: number;
-      /**
-       * 前年度期末残高（円）
-       */
       last_year_closing_balance?: number;
-      /**
-       * 当年度期末残高（円）
-       */
       closing_balance?: number;
-      /**
-       * 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍を意味する。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）
-       */
       year_on_year?: number;
     }>;
   };
-  /**
-   * 集計結果が最新かどうか。`false` の場合は残高の集計が完了していないため、時間を置いてから再取得してください。
-   */
   up_to_date: boolean;
-  /**
-   * 集計が最新でない場合の要因情報。`up_to_date=false` のときのみ要因が含まれ、`up_to_date=true` のときは空配列となる。
-   */
   up_to_date_reasons?: Array<{
-    /**
-     * 要因コード。現時点で返り得る値は以下。
-     * * `depreciation_creating` - 当期の固定資産の償却を作成中
-     * * `depreciation_create_error` - 当期の固定資産の償却作成でエラーが発生
-     *
-     */
     code: "depreciation_creating" | "depreciation_create_error";
-    /**
-     * 集計が最新でない理由
-     */
     message: string;
   }>;
 };
 
 export type TrialCrSectionsResponse = {
   trial_cr_sections: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 比較対象に指定された部門IDの一覧（リクエストで指定したカンマ区切りの文字列がそのまま返る。0 は「部門が未選択の取引」を意味する）
-     */
     section_ids: string;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。リクエストで指定した場合、または月・日の絞り込み条件が指定されていない場合にのみ含まれる。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。リクエストで指定した場合にのみ含まれる。
-     * * `account_item` - 勘定科目単位で表示（デフォルト）
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。リクエストで指定した場合にのみ含まれる。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。`balances[].sections[]` の各部門要素配下の `partners` / `items` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列が返る
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、`balances[]` の中に決算書表示名行に続けて勘定科目行が展開される
-     * * 部門比較では `section` は指定できない
-     *
-     */
     breakdown_display_type?:
       "partner" | "item" | "account_item" | "segment_1_tag" | "segment_2_tag" | "segment_3_tag";
-    /**
-     * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
-     */
     partner_id?: number;
-    /**
-     * 絞込に指定された取引先コード。リクエストで指定した場合にのみ含まれる。
-     */
     partner_code?: string;
-    /**
-     * 絞込に指定された品目ID。リクエストで指定した場合にのみ含まれる。0 の場合は「品目が未選択の取引を対象」を意味する。
-     */
     item_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
-    /**
-     * レスポンスを生成した日時(ISO 8601, JST)
-     */
     created_at?: string;
-    /**
-     * 残高一覧。指定した部門ごとの期末残高を `sections` に並べて比較する。`hierarchy_level` の階層構造で並ぶ。行は次の 3 種類が混在する。
-     * * 勘定科目行: `account_item_id` あり（例: [製]期首材料棚卸高、[製]給料手当）
-     * * 決算書表示名行: `account_item_id` なし・`account_group_name` あり（`account_item_display_type=group` 指定時のみ現れる）
-     * * 勘定科目カテゴリー行: `account_item_id` も `account_group_name` も無く、`account_category_name` あり（カテゴリー合計行は `total_line=true`）
-     *
-     */
     balances: Array<{
-      /**
-       * 勘定科目ID。勘定科目行の場合のみ含まれる（勘定科目カテゴリー行では含まれない）。
-       */
       account_item_id?: number;
-      /**
-       * 勘定科目名。勘定科目行の場合のみ含まれる。
-       */
       account_item_name?: string;
-      /**
-       * 決算書表示名。`account_item_display_type=group` を指定した場合にのみ、決算書表示行に含まれる。
-       */
       account_group_name?: string;
-      /**
-       * 比較対象に指定した部門ごとの期末残高。`breakdown_display_type` を指定した場合は、各部門要素の配下に内訳配列（`partners` / `items` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags`）が含まれる。
-       */
       sections?: Array<{
-        /**
-         * 部門ID。0 は部門が未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * 部門名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 当該部門の期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 取引先ごとの内訳。`breakdown_display_type=partner` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         partners?: Array<{
-          /**
-           * 取引先ID。0 は取引先が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 取引先名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該部門・取引先の期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * 品目ごとの内訳。`breakdown_display_type=item` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         items?: Array<{
-          /**
-           * 品目ID。0 は品目が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 品目名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該部門・品目の期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * セグメント1タグごとの内訳。`breakdown_display_type=segment_1_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         segment_1_tags?: Array<{
-          /**
-           * セグメント1タグID。0 はセグメント1タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * セグメント1タグ名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該部門・セグメント1タグの期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * セグメント2タグごとの内訳。`breakdown_display_type=segment_2_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         segment_2_tags?: Array<{
-          /**
-           * セグメント2タグID。0 はセグメント2タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * セグメント2タグ名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該部門・セグメント2タグの期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * セグメント3タグごとの内訳。`breakdown_display_type=segment_3_tag` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         segment_3_tags?: Array<{
-          /**
-           * セグメント3タグID。0 はセグメント3タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * セグメント3タグ名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該部門・セグメント3タグの期末残高（円）
-           */
           closing_balance?: number;
         }>;
       }>;
-      /**
-       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用 など）
-       */
       account_category_name?: string;
-      /**
-       * 合計行かどうか。勘定科目カテゴリーの合計行（当該カテゴリーの小計を表す行）の場合のみ含まれ、`true` となる。
-       */
       total_line?: boolean;
-      /**
-       * 階層レベル（1が最上位。値が大きいほど深い階層）
-       */
       hierarchy_level?: number;
-      /**
-       * 上位勘定科目カテゴリー名。勘定科目カテゴリー行かつ上位階層が存在する場合のみ含まれる。
-       */
       parent_account_category_name?: string;
-      /**
-       * 期末残高（円）。比較対象に指定した部門の合計値。
-       */
       closing_balance?: number;
     }>;
   };
-  /**
-   * 集計結果が最新かどうか。`false` の場合は残高の集計が完了していないため、時間を置いてから再取得してください。
-   */
   up_to_date: boolean;
-  /**
-   * 集計が最新でない場合の要因情報。`up_to_date=false` のときのみ要因が含まれ、`up_to_date=true` のときは空配列となる。
-   */
   up_to_date_reasons?: Array<{
-    /**
-     * 要因コード。現時点で返り得る値は以下。
-     * * `depreciation_creating` - 当期の固定資産の償却を作成中
-     * * `depreciation_create_error` - 当期の固定資産の償却作成でエラーが発生
-     *
-     */
     code: "depreciation_creating" | "depreciation_create_error";
-    /**
-     * 集計が最新でない理由
-     */
     message: string;
   }>;
 };
 
 export type TrialCrSegment1TagsResponse = {
   trial_cr_segment_1_tags: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 比較対象に指定されたセグメント1タグIDの一覧（リクエストで指定したカンマ区切りの文字列がそのまま返る。0 は「セグメント1タグが未選択の取引」を意味する）
-     */
     segment_1_tag_ids: string;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。リクエストで指定した場合、または月・日の絞り込み条件が指定されていない場合にのみ含まれる。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。リクエストで指定した場合にのみ含まれる。
-     * * `account_item` - 勘定科目単位で表示（デフォルト）
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。リクエストで指定した場合にのみ含まれる。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。`balances[].segment_1_tags[]` の各セグメント1タグ要素配下の `partners` / `items` / `sections` に内訳配列が返る
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、`balances[]` の中に決算書表示名行に続けて勘定科目行が展開される
-     *
-     */
     breakdown_display_type?: "partner" | "item" | "section" | "account_item";
-    /**
-     * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
-     */
     partner_id?: number;
-    /**
-     * 絞込に指定された取引先コード。リクエストで指定した場合にのみ含まれる。
-     */
     partner_code?: string;
-    /**
-     * 絞込に指定された品目ID。リクエストで指定した場合にのみ含まれる。0 の場合は「品目が未選択の取引を対象」を意味する。
-     */
     item_id?: number;
-    /**
-     * 絞込に指定された部門ID。リクエストで指定した場合にのみ含まれる。0 の場合は「部門が未選択の取引を対象」を意味する。
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
-    /**
-     * レスポンスを生成した日時(ISO 8601, JST)
-     */
     created_at?: string;
-    /**
-     * 残高一覧。指定したセグメント1タグごとの期末残高を `segment_1_tags` に並べて比較する。`hierarchy_level` の階層構造で並ぶ。行は次の 3 種類が混在する。
-     * * 勘定科目行: `account_item_id` あり（例: [製]期首材料棚卸高、[製]給料手当）
-     * * 決算書表示名行: `account_item_id` なし・`account_group_name` あり（`account_item_display_type=group` 指定時のみ現れる）
-     * * 勘定科目カテゴリー行: `account_item_id` も `account_group_name` も無く、`account_category_name` あり（カテゴリー合計行は `total_line=true`）
-     *
-     */
     balances: Array<{
-      /**
-       * 勘定科目ID。勘定科目行の場合のみ含まれる（勘定科目カテゴリー行では含まれない）。
-       */
       account_item_id?: number;
-      /**
-       * 勘定科目名。勘定科目行の場合のみ含まれる。
-       */
       account_item_name?: string;
-      /**
-       * 決算書表示名。`account_item_display_type=group` を指定した場合にのみ、決算書表示行に含まれる。
-       */
       account_group_name?: string;
-      /**
-       * 比較対象に指定したセグメント1タグごとの期末残高。`breakdown_display_type` を指定した場合は、各セグメント1タグ要素の配下に内訳配列（`partners` / `items` / `sections`）が含まれる。
-       */
       segment_1_tags?: Array<{
-        /**
-         * セグメント1タグID。0 はセグメント1タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント1タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 当該セグメント1タグの期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 取引先ごとの内訳。`breakdown_display_type=partner` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         partners?: Array<{
-          /**
-           * 取引先ID。0 は取引先が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 取引先名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該セグメント1タグ・取引先の期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * 品目ごとの内訳。`breakdown_display_type=item` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         items?: Array<{
-          /**
-           * 品目ID。0 は品目が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 品目名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該セグメント1タグ・品目の期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * 部門ごとの内訳。`breakdown_display_type=section` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         sections?: Array<{
-          /**
-           * 部門ID。0 は部門が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 部門名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該セグメント1タグ・部門の期末残高（円）
-           */
           closing_balance?: number;
         }>;
       }>;
-      /**
-       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用 など）
-       */
       account_category_name?: string;
-      /**
-       * 合計行かどうか。勘定科目カテゴリーの合計行（当該カテゴリーの小計を表す行）の場合のみ含まれ、`true` となる。
-       */
       total_line?: boolean;
-      /**
-       * 階層レベル（1が最上位。値が大きいほど深い階層）
-       */
       hierarchy_level?: number;
-      /**
-       * 上位勘定科目カテゴリー名。勘定科目カテゴリー行かつ上位階層が存在する場合のみ含まれる。
-       */
       parent_account_category_name?: string;
-      /**
-       * 期末残高（円）。比較対象に指定したセグメント1タグの合計値。
-       */
       closing_balance?: number;
     }>;
   };
-  /**
-   * 集計結果が最新かどうか。`false` の場合は残高の集計が完了していないため、時間を置いてから再取得してください。
-   */
   up_to_date: boolean;
-  /**
-   * 集計が最新でない場合の要因情報。`up_to_date=false` のときのみ要因が含まれ、`up_to_date=true` のときは空配列となる。
-   */
   up_to_date_reasons?: Array<{
-    /**
-     * 要因コード。現時点で返り得る値は以下。
-     * * `depreciation_creating` - 当期の固定資産の償却を作成中
-     * * `depreciation_create_error` - 当期の固定資産の償却作成でエラーが発生
-     *
-     */
     code: "depreciation_creating" | "depreciation_create_error";
-    /**
-     * 集計が最新でない理由
-     */
     message: string;
   }>;
 };
 
 export type TrialCrSegment2TagsResponse = {
   trial_cr_segment_2_tags: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 比較対象に指定されたセグメント2タグIDの一覧（リクエストで指定したカンマ区切りの文字列がそのまま返る。0 は「セグメント2タグが未選択の取引」を意味する）
-     */
     segment_2_tag_ids: string;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。リクエストで指定した場合、または月・日の絞り込み条件が指定されていない場合にのみ含まれる。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。リクエストで指定した場合にのみ含まれる。
-     * * `account_item` - 勘定科目単位で表示（デフォルト）
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。リクエストで指定した場合にのみ含まれる。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。`balances[].segment_2_tags[]` の各セグメント2タグ要素配下の `partners` / `items` / `sections` に内訳配列が返る
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、`balances[]` の中に決算書表示名行に続けて勘定科目行が展開される
-     *
-     */
     breakdown_display_type?: "partner" | "item" | "section" | "account_item";
-    /**
-     * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
-     */
     partner_id?: number;
-    /**
-     * 絞込に指定された取引先コード。リクエストで指定した場合にのみ含まれる。
-     */
     partner_code?: string;
-    /**
-     * 絞込に指定された品目ID。リクエストで指定した場合にのみ含まれる。0 の場合は「品目が未選択の取引を対象」を意味する。
-     */
     item_id?: number;
-    /**
-     * 絞込に指定された部門ID。リクエストで指定した場合にのみ含まれる。0 の場合は「部門が未選択の取引を対象」を意味する。
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
-    /**
-     * レスポンスを生成した日時(ISO 8601, JST)
-     */
     created_at?: string;
-    /**
-     * 残高一覧。指定したセグメント2タグごとの期末残高を `segment_2_tags` に並べて比較する。`hierarchy_level` の階層構造で並ぶ。行は次の 3 種類が混在する。
-     * * 勘定科目行: `account_item_id` あり（例: [製]期首材料棚卸高、[製]給料手当）
-     * * 決算書表示名行: `account_item_id` なし・`account_group_name` あり（`account_item_display_type=group` 指定時のみ現れる）
-     * * 勘定科目カテゴリー行: `account_item_id` も `account_group_name` も無く、`account_category_name` あり（カテゴリー合計行は `total_line=true`）
-     *
-     */
     balances: Array<{
-      /**
-       * 勘定科目ID。勘定科目行の場合のみ含まれる（勘定科目カテゴリー行では含まれない）。
-       */
       account_item_id?: number;
-      /**
-       * 勘定科目名。勘定科目行の場合のみ含まれる。
-       */
       account_item_name?: string;
-      /**
-       * 決算書表示名。`account_item_display_type=group` を指定した場合にのみ、決算書表示行に含まれる。
-       */
       account_group_name?: string;
-      /**
-       * 比較対象に指定したセグメント2タグごとの期末残高。`breakdown_display_type` を指定した場合は、各セグメント2タグ要素の配下に内訳配列（`partners` / `items` / `sections`）が含まれる。
-       */
       segment_2_tags?: Array<{
-        /**
-         * セグメント2タグID。0 はセグメント2タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント2タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 当該セグメント2タグの期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 取引先ごとの内訳。`breakdown_display_type=partner` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         partners?: Array<{
-          /**
-           * 取引先ID。0 は取引先が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 取引先名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該セグメント2タグ・取引先の期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * 品目ごとの内訳。`breakdown_display_type=item` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         items?: Array<{
-          /**
-           * 品目ID。0 は品目が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 品目名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該セグメント2タグ・品目の期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * 部門ごとの内訳。`breakdown_display_type=section` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         sections?: Array<{
-          /**
-           * 部門ID。0 は部門が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 部門名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該セグメント2タグ・部門の期末残高（円）
-           */
           closing_balance?: number;
         }>;
       }>;
-      /**
-       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用 など）
-       */
       account_category_name?: string;
-      /**
-       * 合計行かどうか。勘定科目カテゴリーの合計行（当該カテゴリーの小計を表す行）の場合のみ含まれ、`true` となる。
-       */
       total_line?: boolean;
-      /**
-       * 階層レベル（1が最上位。値が大きいほど深い階層）
-       */
       hierarchy_level?: number;
-      /**
-       * 上位勘定科目カテゴリー名。勘定科目カテゴリー行かつ上位階層が存在する場合のみ含まれる。
-       */
       parent_account_category_name?: string;
-      /**
-       * 期末残高（円）。比較対象に指定したセグメント2タグの合計値。
-       */
       closing_balance?: number;
     }>;
   };
-  /**
-   * 集計結果が最新かどうか。`false` の場合は残高の集計が完了していないため、時間を置いてから再取得してください。
-   */
   up_to_date: boolean;
-  /**
-   * 集計が最新でない場合の要因情報。`up_to_date=false` のときのみ要因が含まれ、`up_to_date=true` のときは空配列となる。
-   */
   up_to_date_reasons?: Array<{
-    /**
-     * 要因コード。現時点で返り得る値は以下。
-     * * `depreciation_creating` - 当期の固定資産の償却を作成中
-     * * `depreciation_create_error` - 当期の固定資産の償却作成でエラーが発生
-     *
-     */
     code: "depreciation_creating" | "depreciation_create_error";
-    /**
-     * 集計が最新でない理由
-     */
     message: string;
   }>;
 };
 
 export type TrialCrSegment3TagsResponse = {
   trial_cr_segment_3_tags: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 比較対象に指定されたセグメント3タグIDの一覧（リクエストで指定したカンマ区切りの文字列がそのまま返る。0 は「セグメント3タグが未選択の取引」を意味する）
-     */
     segment_3_tag_ids: string;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。リクエストで指定した場合、または月・日の絞り込み条件が指定されていない場合にのみ含まれる。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)。リクエストで指定した場合にのみ含まれる。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)。リクエストで指定した場合にのみ含まれる。
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。リクエストで指定した場合にのみ含まれる。
-     * * `account_item` - 勘定科目単位で表示（デフォルト）
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。リクエストで指定した場合にのみ含まれる。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。`balances[].segment_3_tags[]` の各セグメント3タグ要素配下の `partners` / `items` / `sections` に内訳配列が返る
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、`balances[]` の中に決算書表示名行に続けて勘定科目行が展開される
-     *
-     */
     breakdown_display_type?: "partner" | "item" | "section" | "account_item";
-    /**
-     * 絞込に指定された取引先ID。リクエストで指定した場合にのみ含まれる。0 の場合は「取引先が未選択の取引を対象」を意味する（リクエスト側の 0 指定と同じ）。
-     */
     partner_id?: number;
-    /**
-     * 絞込に指定された取引先コード。リクエストで指定した場合にのみ含まれる。
-     */
     partner_code?: string;
-    /**
-     * 絞込に指定された品目ID。リクエストで指定した場合にのみ含まれる。0 の場合は「品目が未選択の取引を対象」を意味する。
-     */
     item_id?: number;
-    /**
-     * 絞込に指定された部門ID。リクエストで指定した場合にのみ含まれる。0 の場合は「部門が未選択の取引を対象」を意味する。
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。リクエストで指定した場合にのみ含まれる。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
-    /**
-     * レスポンスを生成した日時(ISO 8601, JST)
-     */
     created_at?: string;
-    /**
-     * 残高一覧。指定したセグメント3タグごとの期末残高を `segment_3_tags` に並べて比較する。`hierarchy_level` の階層構造で並ぶ。行は次の 3 種類が混在する。
-     * * 勘定科目行: `account_item_id` あり（例: [製]期首材料棚卸高、[製]給料手当）
-     * * 決算書表示名行: `account_item_id` なし・`account_group_name` あり（`account_item_display_type=group` 指定時のみ現れる）
-     * * 勘定科目カテゴリー行: `account_item_id` も `account_group_name` も無く、`account_category_name` あり（カテゴリー合計行は `total_line=true`）
-     *
-     */
     balances: Array<{
-      /**
-       * 勘定科目ID。勘定科目行の場合のみ含まれる（勘定科目カテゴリー行では含まれない）。
-       */
       account_item_id?: number;
-      /**
-       * 勘定科目名。勘定科目行の場合のみ含まれる。
-       */
       account_item_name?: string;
-      /**
-       * 決算書表示名。`account_item_display_type=group` を指定した場合にのみ、決算書表示行に含まれる。
-       */
       account_group_name?: string;
-      /**
-       * 比較対象に指定したセグメント3タグごとの期末残高。`breakdown_display_type` を指定した場合は、各セグメント3タグ要素の配下に内訳配列（`partners` / `items` / `sections`）が含まれる。
-       */
       segment_3_tags?: Array<{
-        /**
-         * セグメント3タグID。0 はセグメント3タグが未選択の取引の合計を示す（name には「未選択」が入る）。
-         */
         id: number;
-        /**
-         * セグメント3タグ名（未選択の合計行では「未選択」が入る）
-         */
         name?: string;
-        /**
-         * 当該セグメント3タグの期末残高（円）
-         */
         closing_balance?: number;
-        /**
-         * 取引先ごとの内訳。`breakdown_display_type=partner` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         partners?: Array<{
-          /**
-           * 取引先ID。0 は取引先が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 取引先名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該セグメント3タグ・取引先の期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * 品目ごとの内訳。`breakdown_display_type=item` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         items?: Array<{
-          /**
-           * 品目ID。0 は品目が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 品目名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該セグメント3タグ・品目の期末残高（円）
-           */
           closing_balance?: number;
         }>;
-        /**
-         * 部門ごとの内訳。`breakdown_display_type=section` かつ `account_item_display_type=account_item`（または省略）を指定した場合にのみ含まれる。
-         */
         sections?: Array<{
-          /**
-           * 部門ID。0 は部門が未選択の取引の合計を示す（name には「未選択」が入る）。
-           */
           id: number;
-          /**
-           * 部門名（未選択の合計行では「未選択」が入る）
-           */
           name?: string;
-          /**
-           * 当該セグメント3タグ・部門の期末残高（円）
-           */
           closing_balance?: number;
         }>;
       }>;
-      /**
-       * 勘定科目カテゴリー名（例: 材料費、労務費、総製造費用 など）
-       */
       account_category_name?: string;
-      /**
-       * 合計行かどうか。勘定科目カテゴリーの合計行（当該カテゴリーの小計を表す行）の場合のみ含まれ、`true` となる。
-       */
       total_line?: boolean;
-      /**
-       * 階層レベル（1が最上位。値が大きいほど深い階層）
-       */
       hierarchy_level?: number;
-      /**
-       * 上位勘定科目カテゴリー名。勘定科目カテゴリー行かつ上位階層が存在する場合のみ含まれる。
-       */
       parent_account_category_name?: string;
-      /**
-       * 期末残高（円）。比較対象に指定したセグメント3タグの合計値。
-       */
       closing_balance?: number;
     }>;
   };
-  /**
-   * 集計結果が最新かどうか。`false` の場合は残高の集計が完了していないため、時間を置いてから再取得してください。
-   */
   up_to_date: boolean;
-  /**
-   * 集計が最新でない場合の要因情報。`up_to_date=false` のときのみ要因が含まれ、`up_to_date=true` のときは空配列となる。
-   */
   up_to_date_reasons?: Array<{
-    /**
-     * 要因コード。現時点で返り得る値は以下。
-     * * `depreciation_creating` - 当期の固定資産の償却を作成中
-     * * `depreciation_create_error` - 当期の固定資産の償却作成でエラーが発生
-     *
-     */
     code: "depreciation_creating" | "depreciation_create_error";
-    /**
-     * 集計が最新でない理由
-     */
     message: string;
   }>;
 };
 
 export type SectionParams = {
-  /**
-   * 事業所ID。部門を作成・更新する対象の事業所を指定します。
-   */
   company_id: number;
-  /**
-   * 部門名 (30文字以内)。事業所内で重複できません。既に同名の部門が存在する場合は 400 エラーになります。
-   */
   name: string;
-  /**
-   * 部門の正式名称 (255文字以内)。作成時に省略した場合は未設定（null）になります。更新時に省略した場合は現在の値を維持し、null を指定した場合は未設定に更新します。
-   */
   long_name?: string | null;
-  /**
-   * ショートカット1 (20文字以内)。Web画面などで部門を検索する際のキーワードとして使用します。更新時に省略または null を指定した場合は未設定（null）に更新されます。
-   */
   shortcut1?: string | null;
-  /**
-   * ショートカット2 (20文字以内)。Web画面などで部門を検索する際のキーワードとして使用します。更新時に省略または null を指定した場合は未設定（null）に更新されます。
-   */
   shortcut2?: string | null;
-  /**
-   * 部門コード (20文字以内、半角英数字・ハイフン・アンダースコアのみ)。事業所内で重複できません。事業所の設定で部門コードを使用する設定にしている場合のみ保存され、設定が無効の場合は指定しても無視されます。更新時に省略または null を指定した場合は未設定（null）に更新されます。
-   */
   code?: string | null;
-  /**
-   * 親部門ID。部門階層を利用できるプランでのみ反映されます。更新時に省略した場合は現在の親子関係を維持し、null を指定した場合は親部門との関係を解除します。
-   */
   parent_id?: number | null;
 };
 
 export type Section = {
-  /**
-   * 部門ID。部門の取得・更新・削除APIのパスパラメータや、取引作成時の明細（details）の section_id に指定します。
-   */
   id: number;
-  /**
-   * 部門名 (30文字以内)。事業所内で重複しません。
-   */
   name: string;
-  /**
-   * 部門の使用設定（true: 使用する、false: 使用しない）。
-   * <br>
-   * <ul>
-   *   <li>
-   *     本APIで部門を作成した場合は true になります。
-   *   </li>
-   *   <li>
-   *     false にする場合はWeb画面から変更できます。
-   *   </li>
-   *   <li>
-   *     true の場合、Web画面での取引登録時などに入力候補として表示されます。
-   *   </li>
-   *   <li>
-   *     false の場合、部門自体は削除せず、Web画面での取引登録時などに入力候補として表示されません。ただし取引（収入・支出）の作成APIなどでは、false の部門もパラメータに指定できます。
-   *   </li>
-   * </ul>
-   */
   available: boolean;
-  /**
-   * 部門の正式名称 (255文字以内)。未設定の場合は null が返ります。
-   */
   long_name: string | null;
-  /**
-   * 部門が属する事業所ID
-   */
   company_id: number;
-  /**
-   * ショートカット1 (20文字以内)。Web画面などで部門を検索する際のキーワードとして使用します。未設定の場合は null が返ります。
-   */
   shortcut1: string | null;
-  /**
-   * ショートカット2 (20文字以内)。Web画面などで部門を検索する際のキーワードとして使用します。未設定の場合は null が返ります。
-   */
   shortcut2: string | null;
-  /**
-   * 部門コード (20文字以内)。事業所の設定で部門コードを使用する設定にしている場合のみレスポンスに含まれます（設定が無効の場合は code キー自体が返りません）。部門コードが未設定の場合は null が返ります。
-   */
   code?: string | null;
-  /**
-   * <a target="_blank" href="https://support.freee.co.jp/hc/ja/articles/209093566">部門階層</a>の深さ。最上位の部門は 0 です。部門階層を利用できるプランの場合のみレスポンスに含まれます。
-   */
   indent_count?: number;
-  /**
-   * <a target="_blank" href="https://support.freee.co.jp/hc/ja/articles/209093566">親部門ID</a>。最上位の部門では null が返ります。部門階層を利用できるプランの場合のみレスポンスに含まれます。
-   */
   parent_id?: number | null;
-  /**
-   * 部門の最終更新日 (yyyy-mm-dd, JST)。部門一覧の取得APIでのみレスポンスに含まれ、start_update_date / end_update_date による絞り込みの対象です。
-   */
   update_date?: string;
 };
 
-/**
- * 部門の取得・作成・更新結果
- */
 export type SectionResponse = {
   section: Section;
 };
 
 export type DealCreateResponse = {
   deal: {
-    /**
-     * 取引ID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 発生日 (yyyy-mm-dd)
-     */
     issue_date: string;
-    /**
-     * 支払期日 (yyyy-mm-dd)。支払期日が設定されていない場合はnullを返します。
-     */
     due_date?: string | null;
-    /**
-     * 金額（円・税込）
-     */
     amount: number;
-    /**
-     * 支払残額（円）。決済が完了している場合は0を返します。
-     */
     due_amount?: number;
-    /**
-     * 収支区分 (収入: income, 支出: expense)
-     */
     type?: "income" | "expense";
-    /**
-     * 取引先ID。取引先が設定されていない場合はnullを返します。
-     */
     partner_id: number | null;
-    /**
-     * 取引先コード。事業所の設定で取引先コードの利用が無効の場合、または取引先が設定されていない場合はnullを返します。
-     */
     partner_code?: string | null;
-    /**
-     * 管理番号。設定されていない場合はnullを返します。
-     */
     ref_number?: string | null;
-    /**
-     * 決済状況 (未決済: unsettled, 完了: settled)
-     */
     status: "unsettled" | "settled";
-    /**
-     * 取引の登録元の表示名（例: 手動, freee請求書, 自動で経理, 経費精算）。登録元の機能・連携アプリによって値が異なります。
-     */
     deal_origin_name?: string;
-    /**
-     * 取引の明細行
-     */
     details?: Array<{
-      /**
-       * 取引行ID。取引の更新（PUT /api/1/deals/{id}）で既存の明細行を指定する際に使用します。
-       */
       id: number;
-      /**
-       * 勘定科目ID
-       */
       account_item_id: number;
-      /**
-       * 勘定科目コード。事業所の設定で勘定科目コードの利用が無効の場合はnullを返します。
-       */
       account_item_code?: string | null;
-      /**
-       * 税区分コード
-       */
       tax_code: number;
-      /**
-       * 取引先ID。取引先が設定されていない場合はnullを返します。
-       */
       partner_id?: number | null;
-      /**
-       * 取引先コード。事業所の設定で取引先コードの利用が無効の場合、または取引先が設定されていない場合はnullを返します。
-       */
       partner_code?: string | null;
-      /**
-       * 品目ID。品目が設定されていない場合はnullを返します。
-       */
       item_id?: number | null;
-      /**
-       * 品目コード。事業所の設定で品目コードの利用が無効の場合、または品目が設定されていない場合はnullを返します。
-       */
       item_code?: string | null;
-      /**
-       * 部門ID。部門が設定されていない場合はnullを返します。
-       */
       section_id?: number | null;
-      /**
-       * 部門コード。事業所の設定で部門コードの利用が無効の場合、または部門が設定されていない場合はnullを返します。
-       */
       section_code?: string | null;
-      /**
-       * メモタグID
-       */
       tag_ids?: Array<number>;
-      /**
-       * セグメント１タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント１タグが設定されていない場合はnullを返します。
-       */
       segment_1_tag_id?: number | null;
-      /**
-       * セグメント１タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント１タグが設定されていない場合はnullを返します。
-       */
       segment_1_tag_code?: string | null;
-      /**
-       * セグメント２タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント２タグが設定されていない場合はnullを返します。
-       */
       segment_2_tag_id?: number | null;
-      /**
-       * セグメント２タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント２タグが設定されていない場合はnullを返します。
-       */
       segment_2_tag_code?: string | null;
-      /**
-       * セグメント３タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント３タグが設定されていない場合はnullを返します。
-       */
       segment_3_tag_id?: number | null;
-      /**
-       * セグメント３タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント３タグが設定されていない場合はnullを返します。
-       */
       segment_3_tag_code?: string | null;
-      /**
-       * 取引金額（円・税込）
-       */
       amount: number;
-      /**
-       * 消費税額（円）
-       */
       vat: number;
-      /**
-       * 備考
-       */
       description?: string | null;
-      /**
-       * 貸借（貸方: credit, 借方: debit）
-       */
       entry_side: "credit" | "debit";
     }>;
-    /**
-     * 取引の支払行。支払行が存在しない場合、キー自体がレスポンスに含まれません。決済行単位の配列のため、1回の決済でも口座タグの組合せによって複数の要素に分かれることがあります。各行のタグは口座タグ設定に基づくサーバー決定値のため、detailsのタグと一致しないことがあります。+更新による決済行は含まれず、renewsに出力されます。
-     */
     payments?: Array<{
-      /**
-       * 支払行ID。支払行の更新（PUT /api/1/deals/{id}/payments/{payment_id}）・削除（DELETE /api/1/deals/{id}/payments/{payment_id}）のpayment_idに指定します。支払行の更新後は決済行が再集計されるため、IDやタグが変わることがあります。
-       */
       id: number;
-      /**
-       * 支払日 (yyyy-mm-dd)
-       */
       date: string;
-      /**
-       * 口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet, プライベート資金: private_account_item)。後から決済した場合の支払手数料行はprivate_account_itemで出力されます。
-       */
       from_walletable_type?: "bank_account" | "credit_card" | "wallet" | "private_account_item";
-      /**
-       * 口座ID（from_walletable_typeがprivate_account_itemの場合は勘定科目ID）
-       */
       from_walletable_id?: number;
-      /**
-       * 支払金額（円）
-       */
       amount: number;
-      /**
-       * 取引先ID。取引先が設定されていない場合は0を返します。
-       */
       partner_id: number;
-      /**
-       * 取引先コード。事業所の設定で取引先コードの利用が無効の場合、または取引先が設定されていない場合はnullを返します。
-       */
       partner_code: string | null;
-      /**
-       * 品目ID。品目が設定されていない場合はnullを返します。
-       */
       item_id: number | null;
-      /**
-       * 品目コード。事業所の設定で品目コードの利用が無効の場合、または品目が設定されていない場合はnullを返します。
-       */
       item_code: string | null;
-      /**
-       * 部門ID。部門が設定されていない場合はnullを返します。
-       */
       section_id: number | null;
-      /**
-       * 部門コード。事業所の設定で部門コードの利用が無効の場合、または部門が設定されていない場合はnullを返します。
-       */
       section_code: string | null;
-      /**
-       * メモタグID
-       */
       tag_ids: Array<number>;
-      /**
-       * セグメント１タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント１タグが設定されていない場合はnullを返します。
-       */
       segment_1_tag_id?: number | null;
-      /**
-       * セグメント１タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント１タグが設定されていない場合はnullを返します。
-       */
       segment_1_tag_code?: string | null;
-      /**
-       * セグメント２タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント２タグが設定されていない場合はnullを返します。
-       */
       segment_2_tag_id?: number | null;
-      /**
-       * セグメント２タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント２タグが設定されていない場合はnullを返します。
-       */
       segment_2_tag_code?: string | null;
-      /**
-       * セグメント３タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント３タグが設定されていない場合はnullを返します。
-       */
       segment_3_tag_id?: number | null;
-      /**
-       * セグメント３タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント３タグが設定されていない場合はnullを返します。
-       */
       segment_3_tag_code?: string | null;
     }>;
-    /**
-     * 取引に添付されたファイルボックス（証憑ファイル）
-     */
     receipts?: Array<{
-      /**
-       * ファイルボックス（証憑ファイル）ID
-       */
       id: number;
-      /**
-       * ステータス（confirmed: 確認済み, deleted: 削除済み, ignored: 無視）
-       */
       status: "confirmed" | "deleted" | "ignored";
-      /**
-       * メモ
-       */
       description?: string | null;
-      /**
-       * ファイルのMIMEタイプ（例：image/png, image/jpeg, application/pdf）
-       */
       mime_type: string;
-      /**
-       * 発生日 (yyyy-mm-dd)。設定されていない場合はnullを返します。
-       */
       issue_date?: string | null;
-      /**
-       * アップロード元種別
-       */
       origin:
         | "unknown"
         | "web"
@@ -8643,71 +2315,19 @@ export type DealCreateResponse = {
         | "mail"
         | "safety_contact_file"
         | "public_api";
-      /**
-       * 適格請求書等（qualified: 該当する、not_qualified: 該当しない、unselected: 未選択、null: OCR解析結果が保存されておらず、ユーザーによる手動保存もされていない場合）
-       */
       qualified_invoice?: "qualified" | "not_qualified" | "unselected";
-      /**
-       * インボイス制度適格請求書発行事業者登録番号（null: OCR解析結果が保存されておらず、ユーザーによる手動保存もされていない場合）
-       * - 先頭T数字13桁の固定14桁の文字列
-       * <a target="_blank" href="https://www.invoice-kohyo.nta.go.jp/index.html">国税庁インボイス制度適格請求書発行事業者公表サイト</a>
-       *
-       */
       invoice_registration_number?: string | null;
-      /**
-       * 書類の種類（receipt: 領収書、invoice: 請求書、other: その他、receipt_and_invoice: 領収書・請求書（旧区分）、contract: 契約書（旧区分）、null: OCR解析結果が保存されておらず、ユーザーによる手動保存もされていない場合）。receipt_and_invoiceとcontractは2023年6月に廃止された旧区分で、旧区分のまま保存されている既存ファイルでのみ返ります。
-       */
       document_type?: "receipt" | "invoice" | "other" | "receipt_and_invoice" | "contract";
-      /**
-       * アップロード日時（ISO8601形式）
-       */
       created_at: string;
-      /**
-       * ファイルのダウンロードURL（freeeにログインした状態でのみ閲覧可能です。）
-       * <br>
-       * <br>
-       * file_srcは廃止予定の属性になります。<br>
-       * file_srcに替わり、ファイルボックス（証憑ファイル）のダウンロード APIをご利用ください。<br>
-       * ファイルボックス（証憑ファイル）のダウンロードAPIを利用することで、以下のようになります。
-       * <ul>
-       *   <li>アプリケーション利用者はfreee APIアプリケーションにログインしていれば、証憑ダウンロード毎にfreeeに改めてログインすることなくファイルが参照できるようになります。</li>
-       * </ul>
-       *
-       * @deprecated
-       */
       file_src: string;
-      /**
-       * ファイルをアップロードしたユーザー
-       */
       user: {
-        /**
-         * ユーザーID
-         */
         id: number;
-        /**
-         * メールアドレス
-         */
         email: string;
-        /**
-         * 表示名
-         */
         display_name?: string | null;
       } | null;
-      /**
-       * 電子帳簿保存法の検索要件に対応するメタデータ（発行元・発行日・金額）。電子帳簿保存法対応ファイルボックスの対象ファイルでメタデータが存在する場合のみレスポンスに含まれます。
-       */
       receipt_metadatum?: {
-        /**
-         * 発行元
-         */
         partner_name?: string | null;
-        /**
-         * 発行日 (yyyy-mm-dd)
-         */
         issue_date?: string | null;
-        /**
-         * 金額（円）
-         */
         amount?: number | null;
       };
     }>;
@@ -8715,398 +2335,107 @@ export type DealCreateResponse = {
 };
 
 export type Deal = {
-  /**
-   * 取引ID
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 発生日 (yyyy-mm-dd)
-   */
   issue_date: string;
-  /**
-   * 支払期日 (yyyy-mm-dd)。支払期日が設定されていない場合はnullを返します。
-   */
   due_date?: string | null;
-  /**
-   * 金額（円・税込）
-   */
   amount: number;
-  /**
-   * 支払残額（円）。決済が完了している場合は0を返します。
-   */
   due_amount?: number;
-  /**
-   * 収支区分 (収入: income, 支出: expense)
-   */
   type?: "income" | "expense";
-  /**
-   * 取引先ID。取引先が設定されていない場合はnullを返します。
-   */
   partner_id: number | null;
-  /**
-   * 取引先コード。事業所の設定で取引先コードの利用が無効の場合、または取引先が設定されていない場合はnullを返します。
-   */
   partner_code?: string | null;
-  /**
-   * 管理番号。設定されていない場合はnullを返します。
-   */
   ref_number?: string | null;
-  /**
-   * 決済状況 (未決済: unsettled, 完了: settled)
-   */
   status: "unsettled" | "settled";
-  /**
-   * 取引の登録元の表示名（例: 手動, freee請求書, 自動で経理, 経費精算）。登録元の機能・連携アプリによって値が異なります。
-   */
   deal_origin_name?: string;
-  /**
-   * 取引の明細行
-   */
   details?: Array<{
-    /**
-     * 取引行ID。取引の更新（PUT /api/1/deals/{id}）で既存の明細行を指定する際に使用します。
-     */
     id: number;
-    /**
-     * 勘定科目ID
-     */
     account_item_id: number;
-    /**
-     * 勘定科目コード。事業所の設定で勘定科目コードの利用が無効の場合はnullを返します。一覧の取得（GET /api/1/deals）のレスポンスには含まれません。
-     */
     account_item_code?: string | null;
-    /**
-     * 税区分コード
-     */
     tax_code: number;
-    /**
-     * 取引先ID。取引先が設定されていない場合はnullを返します。
-     */
     partner_id?: number | null;
-    /**
-     * 取引先コード。事業所の設定で取引先コードの利用が無効の場合、または取引先が設定されていない場合はnullを返します。
-     */
     partner_code?: string | null;
-    /**
-     * 品目ID。品目が設定されていない場合はnullを返します。
-     */
     item_id?: number | null;
-    /**
-     * 品目コード。事業所の設定で品目コードの利用が無効の場合、または品目が設定されていない場合はnullを返します。一覧の取得（GET /api/1/deals）のレスポンスには含まれません。
-     */
     item_code?: string | null;
-    /**
-     * 部門ID。部門が設定されていない場合はnullを返します。
-     */
     section_id?: number | null;
-    /**
-     * 部門コード。事業所の設定で部門コードの利用が無効の場合、または部門が設定されていない場合はnullを返します。一覧の取得（GET /api/1/deals）のレスポンスには含まれません。
-     */
     section_code?: string | null;
-    /**
-     * メモタグID
-     */
     tag_ids?: Array<number>;
-    /**
-     * セグメント１タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント１タグが設定されていない場合はnullを返します。
-     */
     segment_1_tag_id?: number | null;
-    /**
-     * セグメント１タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント１タグが設定されていない場合はnullを返します。一覧の取得（GET /api/1/deals）のレスポンスには含まれません。
-     */
     segment_1_tag_code?: string | null;
-    /**
-     * セグメント２タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント２タグが設定されていない場合はnullを返します。
-     */
     segment_2_tag_id?: number | null;
-    /**
-     * セグメント２タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント２タグが設定されていない場合はnullを返します。一覧の取得（GET /api/1/deals）のレスポンスには含まれません。
-     */
     segment_2_tag_code?: string | null;
-    /**
-     * セグメント３タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント３タグが設定されていない場合はnullを返します。
-     */
     segment_3_tag_id?: number | null;
-    /**
-     * セグメント３タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント３タグが設定されていない場合はnullを返します。一覧の取得（GET /api/1/deals）のレスポンスには含まれません。
-     */
     segment_3_tag_code?: string | null;
-    /**
-     * 取引金額（円・税込）
-     */
     amount: number;
-    /**
-     * 消費税額（円）
-     */
     vat: number;
-    /**
-     * 備考
-     */
     description?: string | null;
-    /**
-     * 貸借（貸方: credit, 借方: debit）
-     */
     entry_side: "credit" | "debit";
   }>;
-  /**
-   * 取引の債権債務行。一覧の取得（GET /api/1/deals）または取引の取得（GET /api/1/deals/{id}）でクエリパラメータaccruals=withを指定し、かつ債権債務行が存在する場合のみレスポンスに含まれます。
-   */
   accruals?: Array<{
-    /**
-     * 債権債務行ID。+更新の作成（POST /api/1/deals/{id}/renews）のrenew_target_idに指定できます。
-     */
     id: number;
-    /**
-     * 勘定科目ID
-     */
     account_item_id: number;
-    /**
-     * 税区分コード
-     */
     tax_code: number;
-    /**
-     * 取引先ID。取引先が設定されていない場合はnullを返します。
-     */
     partner_id?: number | null;
-    /**
-     * 取引先コード。事業所の設定で取引先コードの利用が無効の場合、または取引先が設定されていない場合はnullを返します。
-     */
     partner_code?: string | null;
-    /**
-     * 品目ID。品目が設定されていない場合はnullを返します。
-     */
     item_id?: number | null;
-    /**
-     * 部門ID。部門が設定されていない場合はnullを返します。
-     */
     section_id?: number | null;
-    /**
-     * メモタグID
-     */
     tag_ids?: Array<number>;
-    /**
-     * 金額（円・税込）
-     */
     amount: number;
-    /**
-     * 消費税額（円）
-     */
     vat: number;
-    /**
-     * 備考。設定されていない場合は空文字を返します。
-     */
     description?: string;
-    /**
-     * 貸借（貸方: credit, 借方: debit）
-     */
     entry_side: "credit" | "debit";
-    /**
-     * セグメント１タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント１タグが設定されていない場合はnullを返します。
-     */
     segment_1_tag_id?: number | null;
-    /**
-     * セグメント２タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント２タグが設定されていない場合はnullを返します。
-     */
     segment_2_tag_id?: number | null;
-    /**
-     * セグメント３タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント３タグが設定されていない場合はnullを返します。
-     */
     segment_3_tag_id?: number | null;
   }>;
-  /**
-   * 取引の+更新行。+更新行が存在しない場合、キー自体がレスポンスに含まれません。
-   */
   renews?: Array<{
-    /**
-     * +更新行ID。+更新の更新（PUT /api/1/deals/{id}/renews/{renew_id}）・削除（DELETE /api/1/deals/{id}/renews/{renew_id}）のrenew_idに指定します。
-     */
     id: number;
-    /**
-     * 更新日 (yyyy-mm-dd)
-     */
     update_date: string;
-    /**
-     * +更新の対象行ID
-     */
     renew_target_id: number;
-    /**
-     * +更新の対象行タイプ（detail: 取引の明細行, accrual: 債権債務行, renew: +更新の明細行）
-     */
     renew_target_type: "detail" | "accrual" | "renew";
-    /**
-     * +更新の明細行一覧（配列）
-     */
     details: Array<{
-      /**
-       * +更新の明細行ID
-       */
       id: number;
-      /**
-       * 貸借(貸方: credit, 借方: debit)
-       */
       entry_side: "credit" | "debit";
-      /**
-       * 勘定科目ID
-       */
       account_item_id: number;
-      /**
-       * 税区分コード
-       */
       tax_code: number;
-      /**
-       * 取引先ID
-       */
       partner_id?: number | null;
-      /**
-       * 取引先コード
-       */
       partner_code?: string | null;
-      /**
-       * 品目ID
-       */
       item_id?: number | null;
-      /**
-       * 部門ID
-       */
       section_id?: number | null;
-      /**
-       * メモタグID
-       */
       tag_ids: Array<number>;
-      /**
-       * セグメント１タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント１タグが設定されていない場合はnullを返します。
-       */
       segment_1_tag_id?: number | null;
-      /**
-       * セグメント２タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント２タグが設定されていない場合はnullを返します。
-       */
       segment_2_tag_id?: number | null;
-      /**
-       * セグメント３タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント３タグが設定されていない場合はnullを返します。
-       */
       segment_3_tag_id?: number | null;
-      /**
-       * 金額（円・税込）
-       */
       amount: number;
-      /**
-       * 消費税額（円）
-       */
       vat: number;
-      /**
-       * 備考
-       */
       description?: string | null;
     }>;
   }>;
-  /**
-   * 取引の支払行。支払行が存在しない場合、キー自体がレスポンスに含まれません。決済行単位の配列のため、1回の決済でも口座タグの組合せによって複数の要素に分かれることがあります。各行のタグは口座タグ設定に基づくサーバー決定値のため、detailsのタグと一致しないことがあります。+更新による決済行は含まれず、renewsに出力されます。
-   */
   payments?: Array<{
-    /**
-     * 支払行ID。支払行の更新（PUT /api/1/deals/{id}/payments/{payment_id}）・削除（DELETE /api/1/deals/{id}/payments/{payment_id}）のpayment_idに指定します。支払行の更新後は決済行が再集計されるため、IDやタグが変わることがあります。
-     */
     id: number;
-    /**
-     * 支払日 (yyyy-mm-dd)
-     */
     date: string;
-    /**
-     * 口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet, プライベート資金: private_account_item)。後から決済した場合の支払手数料行はprivate_account_itemで出力されます。
-     */
     from_walletable_type?: "bank_account" | "credit_card" | "wallet" | "private_account_item";
-    /**
-     * 口座ID（from_walletable_typeがprivate_account_itemの場合は勘定科目ID）
-     */
     from_walletable_id?: number;
-    /**
-     * 支払金額（円）
-     */
     amount: number;
-    /**
-     * 取引先ID。取引先が設定されていない場合は0を返します。
-     */
     partner_id: number;
-    /**
-     * 取引先コード。事業所の設定で取引先コードの利用が無効の場合、または取引先が設定されていない場合はnullを返します。
-     */
     partner_code: string | null;
-    /**
-     * 品目ID。品目が設定されていない場合はnullを返します。
-     */
     item_id: number | null;
-    /**
-     * 品目コード。事業所の設定で品目コードの利用が無効の場合、または品目が設定されていない場合はnullを返します。
-     */
     item_code: string | null;
-    /**
-     * 部門ID。部門が設定されていない場合はnullを返します。
-     */
     section_id: number | null;
-    /**
-     * 部門コード。事業所の設定で部門コードの利用が無効の場合、または部門が設定されていない場合はnullを返します。
-     */
     section_code: string | null;
-    /**
-     * メモタグID
-     */
     tag_ids: Array<number>;
-    /**
-     * セグメント１タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント１タグが設定されていない場合はnullを返します。
-     */
     segment_1_tag_id?: number | null;
-    /**
-     * セグメント１タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント１タグが設定されていない場合はnullを返します。
-     */
     segment_1_tag_code?: string | null;
-    /**
-     * セグメント２タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント２タグが設定されていない場合はnullを返します。
-     */
     segment_2_tag_id?: number | null;
-    /**
-     * セグメント２タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント２タグが設定されていない場合はnullを返します。
-     */
     segment_2_tag_code?: string | null;
-    /**
-     * セグメント３タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント３タグが設定されていない場合はnullを返します。
-     */
     segment_3_tag_id?: number | null;
-    /**
-     * セグメント３タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント３タグが設定されていない場合はnullを返します。
-     */
     segment_3_tag_code?: string | null;
   }>;
-  /**
-   * 取引に添付されたファイルボックス（証憑ファイル）
-   */
   receipts?: Array<{
-    /**
-     * ファイルボックス（証憑ファイル）ID
-     */
     id: number;
-    /**
-     * ステータス（confirmed: 確認済み, deleted: 削除済み, ignored: 無視）
-     */
     status: "confirmed" | "deleted" | "ignored";
-    /**
-     * メモ
-     */
     description?: string | null;
-    /**
-     * ファイルのMIMEタイプ（例：image/png, image/jpeg, application/pdf）
-     */
     mime_type: string;
-    /**
-     * 発生日 (yyyy-mm-dd)。設定されていない場合はnullを返します。
-     */
     issue_date?: string | null;
-    /**
-     * アップロード元種別
-     */
     origin:
       | "unknown"
       | "web"
@@ -9118,71 +2447,19 @@ export type Deal = {
       | "mail"
       | "safety_contact_file"
       | "public_api";
-    /**
-     * 適格請求書等（qualified: 該当する、not_qualified: 該当しない、unselected: 未選択、null: OCR解析結果が保存されておらず、ユーザーによる手動保存もされていない場合）
-     */
     qualified_invoice?: "qualified" | "not_qualified" | "unselected";
-    /**
-     * インボイス制度適格請求書発行事業者登録番号（null: OCR解析結果が保存されておらず、ユーザーによる手動保存もされていない場合）
-     * - 先頭T数字13桁の固定14桁の文字列
-     * <a target="_blank" href="https://www.invoice-kohyo.nta.go.jp/index.html">国税庁インボイス制度適格請求書発行事業者公表サイト</a>
-     *
-     */
     invoice_registration_number?: string | null;
-    /**
-     * 書類の種類（receipt: 領収書、invoice: 請求書、other: その他、receipt_and_invoice: 領収書・請求書（旧区分）、contract: 契約書（旧区分）、null: OCR解析結果が保存されておらず、ユーザーによる手動保存もされていない場合）。receipt_and_invoiceとcontractは2023年6月に廃止された旧区分で、旧区分のまま保存されている既存ファイルでのみ返ります。
-     */
     document_type?: "receipt" | "invoice" | "other" | "receipt_and_invoice" | "contract";
-    /**
-     * アップロード日時（ISO8601形式）
-     */
     created_at: string;
-    /**
-     * ファイルのダウンロードURL（freeeにログインした状態でのみ閲覧可能です。）
-     * <br>
-     * <br>
-     * file_srcは廃止予定の属性になります。<br>
-     * file_srcに替わり、ファイルボックス（証憑ファイル）のダウンロード APIをご利用ください。<br>
-     * ファイルボックス（証憑ファイル）のダウンロードAPIを利用することで、以下のようになります。
-     * <ul>
-     *   <li>アプリケーション利用者はfreee APIアプリケーションにログインしていれば、証憑ダウンロード毎にfreeeに改めてログインすることなくファイルが参照できるようになります。</li>
-     * </ul>
-     *
-     * @deprecated
-     */
     file_src: string;
-    /**
-     * ファイルをアップロードしたユーザー
-     */
     user: {
-      /**
-       * ユーザーID
-       */
       id: number;
-      /**
-       * メールアドレス
-       */
       email: string;
-      /**
-       * 表示名
-       */
       display_name?: string | null;
     } | null;
-    /**
-     * 電子帳簿保存法の検索要件に対応するメタデータ（発行元・発行日・金額）。電子帳簿保存法対応ファイルボックスの対象ファイルでメタデータが存在する場合のみレスポンスに含まれます。
-     */
     receipt_metadatum?: {
-      /**
-       * 発行元
-       */
       partner_name?: string | null;
-      /**
-       * 発行日 (yyyy-mm-dd)
-       */
       issue_date?: string | null;
-      /**
-       * 金額（円）
-       */
       amount?: number | null;
     };
   }>;
@@ -9192,552 +2469,159 @@ export type DealResponse = {
   deal: Deal;
 };
 
-/**
- * フォーム用選択項目情報。includes に account_item を指定しない場合は空のオブジェクトになります。
- */
 export type SelectablesIndexResponse = {
-  /**
-   * 勘定科目を用途別に分類したカテゴリーの一覧
-   */
   account_categories?: Array<{
-    /**
-     * 収支区分（expense: 支出、income: 収入）
-     */
     balance: "expense" | "income";
-    /**
-     * 事業形態（personal: 個人事業主、corporate: 法人）
-     */
     org_code: "personal" | "corporate";
-    /**
-     * 勘定科目カテゴリーを識別するコード
-     */
     role: string;
-    /**
-     * フォームに表示する勘定科目カテゴリー名
-     */
     title: string;
-    /**
-     * 勘定科目カテゴリーの用途。説明がない場合は空文字列になります。
-     */
     desc: string;
-    /**
-     * 勘定科目の一覧
-     */
     account_items: Array<{
-      /**
-       * 勘定科目ID
-       */
       id: number;
-      /**
-       * 勘定科目名
-       */
       name: string;
-      /**
-       * 勘定科目の用途。説明がない場合は空文字列になります。
-       */
       desc: string;
-      /**
-       * 勘定科目の詳細な用途。説明がない場合は空文字列になります。
-       */
       help: string;
-      /**
-       * 勘定科目を検索するためのショートカット。設定されていない場合は null になります。
-       */
       shortcut: string | null;
-      /**
-       * 事業所で有効な税率ごとのデフォルト税区分。利用できない税率・控除割合のキーは返りません。
-       */
       default_tax: {
-        /**
-         * 税率5%に適用するデフォルト税区分。事業所で税率5%を利用しない場合は返りません。
-         */
         tax_rate_5?: {
-          /**
-           * 税区分コード
-           */
           code: number | null;
-          /**
-           * 税区分
-           */
           name: string | null;
         };
-        /**
-         * 税率8%に適用するデフォルト税区分。事業所で税率8%を利用しない場合は返りません。
-         */
         tax_rate_8?: {
-          /**
-           * 税区分コード
-           */
           code: number | null;
-          /**
-           * 税区分
-           */
           name: string | null;
         };
-        /**
-         * 税率10%に適用するデフォルト税区分。事業所で税率10%を利用しない場合は返りません。
-         */
         tax_rate_10?: {
-          /**
-           * 税区分コード
-           */
           code: number | null;
-          /**
-           * 税区分
-           */
           name: string | null;
         };
-        /**
-         * 軽減税率8%に適用するデフォルト税区分。事業所で軽減税率8%を利用しない場合は返りません。
-         */
         tax_rate_r8?: {
-          /**
-           * 税区分コード
-           */
           code: number | null;
-          /**
-           * 税区分
-           */
           name: string | null;
         };
-        /**
-         * 税率5%・仕入税額控除80%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
-         */
         tax_rate_5_exempt_80?: {
-          /**
-           * 税区分コード
-           */
           code: number;
-          /**
-           * 税区分
-           */
           name: string;
         };
-        /**
-         * 税率5%・仕入税額控除50%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
-         */
         tax_rate_5_exempt_50?: {
-          /**
-           * 税区分コード
-           */
           code: number;
-          /**
-           * 税区分
-           */
           name: string;
         };
-        /**
-         * 税率8%・仕入税額控除80%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
-         */
         tax_rate_8_exempt_80?: {
-          /**
-           * 税区分コード
-           */
           code: number;
-          /**
-           * 税区分
-           */
           name: string;
         };
-        /**
-         * 税率8%・仕入税額控除50%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
-         */
         tax_rate_8_exempt_50?: {
-          /**
-           * 税区分コード
-           */
           code: number;
-          /**
-           * 税区分
-           */
           name: string;
         };
-        /**
-         * 税率10%・仕入税額控除80%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
-         */
         tax_rate_10_exempt_80?: {
-          /**
-           * 税区分コード
-           */
           code: number;
-          /**
-           * 税区分
-           */
           name: string;
         };
-        /**
-         * 税率10%・仕入税額控除50%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
-         */
         tax_rate_10_exempt_50?: {
-          /**
-           * 税区分コード
-           */
           code: number;
-          /**
-           * 税区分
-           */
           name: string;
         };
-        /**
-         * 軽減税率8%・仕入税額控除80%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
-         */
         tax_rate_r8_exempt_80?: {
-          /**
-           * 税区分コード
-           */
           code: number;
-          /**
-           * 税区分
-           */
           name: string;
         };
-        /**
-         * 軽減税率8%・仕入税額控除50%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
-         */
         tax_rate_r8_exempt_50?: {
-          /**
-           * 税区分コード
-           */
           code: number;
-          /**
-           * 税区分
-           */
           name: string;
         };
-        /**
-         * 税率5%・仕入税額控除70%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
-         */
         tax_rate_5_exempt_70?: {
-          /**
-           * 税区分コード
-           */
           code: number;
-          /**
-           * 税区分
-           */
           name: string;
         };
-        /**
-         * 税率5%・仕入税額控除30%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
-         */
         tax_rate_5_exempt_30?: {
-          /**
-           * 税区分コード
-           */
           code: number;
-          /**
-           * 税区分
-           */
           name: string;
         };
-        /**
-         * 税率8%・仕入税額控除70%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
-         */
         tax_rate_8_exempt_70?: {
-          /**
-           * 税区分コード
-           */
           code: number;
-          /**
-           * 税区分
-           */
           name: string;
         };
-        /**
-         * 税率8%・仕入税額控除30%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
-         */
         tax_rate_8_exempt_30?: {
-          /**
-           * 税区分コード
-           */
           code: number;
-          /**
-           * 税区分
-           */
           name: string;
         };
-        /**
-         * 税率10%・仕入税額控除70%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
-         */
         tax_rate_10_exempt_70?: {
-          /**
-           * 税区分コード
-           */
           code: number;
-          /**
-           * 税区分
-           */
           name: string;
         };
-        /**
-         * 税率10%・仕入税額控除30%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
-         */
         tax_rate_10_exempt_30?: {
-          /**
-           * 税区分コード
-           */
           code: number;
-          /**
-           * 税区分
-           */
           name: string;
         };
-        /**
-         * 軽減税率8%・仕入税額控除70%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
-         */
         tax_rate_r8_exempt_70?: {
-          /**
-           * 税区分コード
-           */
           code: number;
-          /**
-           * 税区分
-           */
           name: string;
         };
-        /**
-         * 軽減税率8%・仕入税額控除30%に適用するデフォルト税区分。該当する税区分がない場合は返りません。
-         */
         tax_rate_r8_exempt_30?: {
-          /**
-           * 税区分コード
-           */
           code: number;
-          /**
-           * 税区分
-           */
           name: string;
         };
       };
-      /**
-       * 勘定科目の詳細情報
-       */
       account_item?: {
-        /**
-         * 勘定科目テンプレートID
-         */
         a_chart_template_id: number | null;
-        /**
-         * 内部管理用のID。設定されていない場合は null になります。
-         */
         cf_category_id: number | null;
-        /**
-         * 事業所ID
-         */
         company_id: number;
-        /**
-         * 支出取引相手勘定科目の種別。設定されていない場合は null になります。
-         */
         corresponding_type_expense: number | null;
-        /**
-         * 収入取引相手勘定科目の種別。設定されていない場合は null になります。
-         */
         corresponding_type_income: number | null;
-        /**
-         * 作成日時（ISO 8601）
-         */
         created_at: string;
-        /**
-         * 勘定科目の貸借（0: 未定義、1: 貸方、-1: 借方）
-         */
         entry_side: number | null;
-        /**
-         * 勘定科目ID（親の id と同じ値）
-         */
         id: number;
-        /**
-         * 勘定科目コード。事業所の設定によらず返ります。設定されていない場合は null になります。
-         */
         master_code: string | null;
-        /**
-         * 勘定科目名（親の name と同じ値）
-         */
         name: string;
-        /**
-         * 勘定科目の作成元（0: 未定義、1: 初期登録、2: 口座、3: 事業所独自）
-         */
         origin_code: number;
-        /**
-         * 内部管理用の並び順
-         */
         report_order: number | null;
-        /**
-         * 検索可能の設定（2: 検索可能。0, 1 は旧区分）
-         */
         searchable: number;
-        /**
-         * 勘定科目を検索するためのショートカット（親の shortcut と同じ値）。設定されていない場合は null になります。
-         */
         shortcut: string | null;
-        /**
-         * 勘定科目を検索するためのショートカット番号。設定されていない場合は null になります。
-         */
         shortcut_num: string | null;
-        /**
-         * 勘定科目のステータス（0: 有効）
-         */
         status: number | null;
-        /**
-         * システムによる編集制限の有無
-         */
         sys_locked: boolean;
-        /**
-         * 内部管理用のコード
-         */
         tax_business_code: number | null;
-        /**
-         * 内部管理用のコード
-         */
         tax_calc_type_code: number | null;
-        /**
-         * 税区分コード
-         */
         tax_code: number | null;
-        /**
-         * 内部管理用のコード
-         */
         tax_truncate_code: number | null;
-        /**
-         * 内部管理用のコード
-         */
         template_code: number | null;
-        /**
-         * 更新日時（ISO 8601）
-         */
         updated_at: string;
-        /**
-         * 勘定科目に紐づく口座ID。口座に紐づかない場合は null になります。
-         */
         walletable_id: number | null;
-        /**
-         * 勘定科目に紐づく口座の種別。口座に紐づかない場合は null になります。
-         */
         walletable_type: string | null;
-        /**
-         * 決算書表示名（小カテゴリー）ID
-         */
         group_id: number;
-        /**
-         * 決算書表示名（小カテゴリー）
-         */
         group_name: string;
-        /**
-         * 決算書表示名の並び順
-         */
         group_index: number;
-        /**
-         * 決算書表示名が属する勘定科目カテゴリーのID
-         */
         account_category_id: number;
-        /**
-         * 決算書表示名内での勘定科目の並び順
-         */
         account_item_index: number;
-        /**
-         * 勘定科目カテゴリーのレポート区分（0: 貸借対照表、1: 損益計算書、2: 製造原価報告書、3: 不動産所得）
-         */
         a_report_code: number | null;
-        /**
-         * 勘定科目カテゴリーの表示順
-         */
         a_order: number | null;
-        /**
-         * 勘定科目カテゴリーの貸借（0: 未定義、1: 貸方、-1: 借方）
-         */
         category_entry_side: number | null;
       };
     }>;
   }>;
-  /**
-   * 勘定科目を決算書上で集約するための決算書表示名（小カテゴリー）の一覧
-   */
   account_groups?: Array<{
-    /**
-     * 決算書表示名（小カテゴリー）を識別するID
-     */
     id: number;
-    /**
-     * 決算書に表示する小カテゴリー名
-     */
     name: string;
-    /**
-     * 決算書表示名が属する勘定科目体系のID
-     */
     account_structure_id: number;
-    /**
-     * 決算書表示名が属する勘定科目カテゴリーのID
-     */
     account_category_id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 補助項目種別（現状は常に `0`（補助項目なし）が返ります）
-     */
     detail_type: 0 | 1 | 2 | 3 | 4;
-    /**
-     * 決算書表示名の並び順。小さい値ほど先に表示されます。
-     */
     index: number;
-    /**
-     * 作成日時（ISO 8601）。記録されていない場合は null になります。
-     */
     created_at: string | null;
-    /**
-     * 更新日時（ISO 8601）。記録されていない場合は null になります。
-     */
     updated_at: string | null;
   }>;
 };
 
 export type Item = {
-  /**
-   * 品目ID。品目の取得・更新・削除APIのパスパラメータや、取引作成時の明細（details）の item_id に指定します。
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 品目名 (255文字以内)。事業所内で重複しません。
-   */
   name: string;
-  /**
-   * 品目の最終更新日 (yyyy-mm-dd, JST)。品目一覧の取得APIの start_update_date / end_update_date による絞り込みの対象です。
-   */
   update_date: string;
-  /**
-   * 品目の使用設定（true: 使用する、false: 使用しない）
-   * <br>
-   * <ul>
-   *   <li>
-   *     本APIでitemを作成した場合はtrueになります。
-   *   </li>
-   *   <li>
-   *     falseにする場合はWeb画面から変更できます。
-   *   </li>
-   *   <li>
-   *     trueの場合、Web画面での取引登録時などに入力候補として表示されます。
-   *   </li>
-   *   <li>
-   *     falseの場合、品目自体は削除せず、Web画面での取引登録時などに入力候補として表示されません。ただし取引（収入・支出）の作成APIなどでfalseの品目をパラメータに指定すれば、取引などにfalseの品目を設定できます。
-   *   </li>
-   * </ul>
-   */
   available: boolean;
-  /**
-   * ショートカット１ (20文字以内)。Web画面などで品目を検索する際のキーワードとして使用します。未設定の場合は null が返ります。
-   */
   shortcut1: string | null;
-  /**
-   * ショートカット２ (20文字以内)。Web画面などで品目を検索する際のキーワードとして使用します。未設定の場合は null が返ります。
-   */
   shortcut2: string | null;
-  /**
-   * 品目コード (20文字以内)。事業所の設定で品目コードを使用する設定にしている場合のみレスポンスに含まれます（設定が無効の場合は code キー自体が返りません）。品目コードが未設定の品目では null が返ります。
-   */
   code?: string | null;
 };
 
@@ -9746,154 +2630,43 @@ export type ItemResponse = {
 };
 
 export type ManualJournal = {
-  /**
-   * 振替伝票ID
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 振替伝票の発生日（yyyy-mm-dd）
-   */
   issue_date: string;
-  /**
-   * 決算整理仕訳フラグ（true: 決算整理仕訳、false: 日常仕訳）
-   */
   adjustment: boolean;
-  /**
-   * 仕訳番号。事業所の仕訳番号形式が無効の場合はnullです。作成時のレスポンスには含まれません。
-   */
   txn_number?: string | null;
-  /**
-   * 利用者が振替伝票を管理するための管理番号。未設定の場合はnullです。
-   */
   ref_number: string | null;
-  /**
-   * 振替伝票の貸借行一覧
-   */
   details: Array<{
-    /**
-     * 貸借行ID
-     */
     id: number;
-    /**
-     * 貸借区分（credit: 貸方、debit: 借方）
-     */
     entry_side: "credit" | "debit";
-    /**
-     * 勘定科目ID
-     */
     account_item_id: number;
-    /**
-     * 貸借行に適用されている税区分コード
-     */
     tax_code: number;
-    /**
-     * 取引先ID。取引先が未選択の場合はnullです。
-     */
     partner_id: number | null;
-    /**
-     * 取引先名。取引先が未選択の場合はnullです。
-     */
     partner_name: string | null;
-    /**
-     * 取引先コード。事業所の取引先コード利用設定が無効、または取引先が未選択の場合はnullです。
-     */
     partner_code: string | null;
-    /**
-     * 取引先の正式名称（255文字以内）。取引先が未選択、または正式名称が未設定の場合はnullです。
-     */
     partner_long_name: string | null;
-    /**
-     * 品目ID。品目が未選択の場合はnullです。
-     */
     item_id: number | null;
-    /**
-     * 品目名。品目が未選択の場合はnullです。
-     */
     item_name: string | null;
-    /**
-     * 部門ID。部門が未選択の場合はnullです。
-     */
     section_id: number | null;
-    /**
-     * 部門名。部門が未選択の場合はnullです。
-     */
     section_name: string | null;
-    /**
-     * 貸借行に付与されているメモタグIDの一覧。未設定の場合は空配列です。
-     */
     tag_ids: Array<number>;
-    /**
-     * 貸借行に付与されているメモタグ名の一覧。未設定の場合は空配列です。
-     */
     tag_names: Array<string>;
-    /**
-     * セグメント1タグID。契約プランでセグメント1が利用できる場合のみ含まれ、未選択の場合はnullです。
-     */
     segment_1_tag_id?: number | null;
-    /**
-     * セグメント1タグ名。契約プランでセグメント1が利用できる場合のみ含まれ、未選択の場合はnullです。
-     */
     segment_1_tag_name?: string | null;
-    /**
-     * セグメント2タグID。契約プランでセグメント2が利用できる場合のみ含まれ、未選択の場合はnullです。
-     */
     segment_2_tag_id?: number | null;
-    /**
-     * セグメント2タグ名。契約プランでセグメント2が利用できる場合のみ含まれ、未選択の場合はnullです。
-     */
     segment_2_tag_name?: string | null;
-    /**
-     * セグメント3タグID。契約プランでセグメント3が利用できる場合のみ含まれ、未選択の場合はnullです。
-     */
     segment_3_tag_id?: number | null;
-    /**
-     * セグメント3タグ名。契約プランでセグメント3が利用できる場合のみ含まれ、未選択の場合はnullです。
-     */
     segment_3_tag_name?: string | null;
-    /**
-     * 勘定科目コード。事業所の勘定科目コード利用設定が有効な場合のみ含まれ、コードが未設定の場合はnullです。
-     */
     account_item_code?: string | null;
-    /**
-     * 品目コード。事業所の品目コード利用設定が有効な場合のみ含まれ、品目が未選択またはコードが未設定の場合はnullです。
-     */
     item_code?: string | null;
-    /**
-     * 部門コード。事業所の部門コード利用設定が有効な場合のみ含まれ、部門が未選択またはコードが未設定の場合はnullです。
-     */
     section_code?: string | null;
-    /**
-     * セグメント1タグコード。セグメント1と事業所のセグメントタグコード利用設定が有効な場合のみ含まれ、未選択の場合はnullです。
-     */
     segment_1_tag_code?: string | null;
-    /**
-     * セグメント2タグコード。セグメント2と事業所のセグメントタグコード利用設定が有効な場合のみ含まれ、未選択の場合はnullです。
-     */
     segment_2_tag_code?: string | null;
-    /**
-     * セグメント3タグコード。セグメント3と事業所のセグメントタグコード利用設定が有効な場合のみ含まれ、未選択の場合はnullです。
-     */
     segment_3_tag_code?: string | null;
-    /**
-     * 取引金額（税込・円）
-     */
     amount: number;
-    /**
-     * 消費税額（円）
-     */
     vat: number;
-    /**
-     * 備考
-     */
     description: string | null;
   }>;
-  /**
-   * 振替伝票に添付されているファイルボックス（証憑ファイル）IDの一覧。未添付の場合は空配列です。
-   */
   receipt_ids: Array<number>;
 };
 
@@ -9902,48 +2675,18 @@ export type ManualJournalResponse = {
 };
 
 export type TagParams = {
-  /**
-   * 事業所ID。メモタグを作成・更新する対象の事業所を指定します。
-   */
   company_id: number;
-  /**
-   * メモタグ名 (30文字以内)。事業所内で重複できません。既に同名のメモタグが存在する場合は 400 エラーになります。
-   */
   name: string;
-  /**
-   * ショートカット１ (20文字以内)。Web画面などでメモタグを検索する際のキーワードとして使用します。更新時に省略した場合は未設定（null）に更新されます。
-   */
   shortcut1?: string;
-  /**
-   * ショートカット２ (20文字以内)。Web画面などでメモタグを検索する際のキーワードとして使用します。更新時に省略した場合は未設定（null）に更新されます。
-   */
   shortcut2?: string;
 };
 
 export type Tag = {
-  /**
-   * メモタグID。メモタグの取得・更新・削除 API のパスパラメータや、取引作成時の明細に指定します。
-   */
   id: number;
-  /**
-   * メモタグが属する事業所のID
-   */
   company_id: number;
-  /**
-   * メモタグ名 (30文字以内)。事業所内で重複しません。
-   */
   name: string;
-  /**
-   * メモタグの最終更新日 (yyyy-mm-dd, JST)。メモタグ一覧の取得 API の start_update_date / end_update_date による絞り込みの対象です。
-   */
   update_date: string;
-  /**
-   * ショートカット１。Web画面などでメモタグを検索する際のキーワードとして使用します。未設定の場合は null が返ります。
-   */
   shortcut1: string | null;
-  /**
-   * ショートカット２。Web画面などでメモタグを検索する際のキーワードとして使用します。未設定の場合は null が返ります。
-   */
   shortcut2: string | null;
 };
 
@@ -9952,39 +2695,12 @@ export type TagResponse = {
 };
 
 export type CompanyIndexResponse = {
-  /**
-   * アクセストークンのユーザーが所属する事業所の一覧
-   */
   companies: Array<{
-    /**
-     * 事業所ID。他のAPIで事業所を指定するパラメータ（company_id）にはこの値を使用する
-     */
     id: number;
-    /**
-     * 事業所の正式名称 (100文字以内)。未設定の場合は null
-     */
     name: string | null;
-    /**
-     * 事業所の正式名称フリガナ (100文字以内)。未設定の場合は null
-     */
     name_kana: string | null;
-    /**
-     * 事業所の表示名。freee上の画面表示に使用される名称
-     */
     display_name: string | null;
-    /**
-     * 事業所番号（ハイフン無し・半角英数字10桁）
-     */
     company_number: string;
-    /**
-     * アクセストークンのユーザーがこの事業所で持つ権限
-     *
-     * * admin - 管理者
-     * * simple_accounting - 一般（経理）
-     * * self_only - 取引登録のみ
-     * * read_only - 閲覧のみ
-     * * workflow - 申請・承認
-     */
     role:
       | "admin"
       | "simple_accounting"
@@ -10007,71 +2723,20 @@ export type CompanyIndexResponse = {
 
 export type CompanyResponse = {
   company: {
-    /**
-     * 事業所ID。他のAPIで事業所を指定するパラメータ（company_id）にはこの値を使用する
-     */
     id: number;
-    /**
-     * 事業所の正式名称 (100文字以内)。未設定の場合は null
-     */
     name: string | null;
-    /**
-     * 事業所の正式名称フリガナ (100文字以内)。未設定の場合は null
-     */
     name_kana: string | null;
-    /**
-     * 事業所の表示名。freee上の画面表示に使用される名称
-     */
     display_name: string | null;
-    /**
-     * 源泉徴収税計算（0: 消費税を含める、1: 消費税を含めない）
-     */
     tax_at_source_calc_type: number;
-    /**
-     * 担当者名 (50文字以内)。未設定の場合は null
-     */
     contact_name: string | null;
-    /**
-     * 従業員数（0: 経営者のみ、1: 2〜5人、2: 6〜10人、3: 11〜20人、4: 21〜30人、5: 31〜40人、6: 41〜100人、7: 100人以上、13: 21〜50人、14: 51〜100人、15: 101〜300人、16: 501〜1000人、17: 1001人以上、18: 301〜500人）。未設定の場合は null
-     */
     head_count: number | null;
-    /**
-     * 法人番号 (半角数字13桁、法人のみ)。未設定の場合および個人事業主の場合は空文字
-     */
     corporate_number: string;
-    /**
-     * 仕訳番号形式（not_used: 使用しない、digits: 数字（例：5091824）、alnum: 英数字（例：59J0P））
-     */
     txn_number_format: "not_used" | "digits" | "alnum";
-    /**
-     * デフォルトの決済口座が紐づく勘定科目ID。未設定の場合は null
-     */
     default_wallet_account_id: number | null;
-    /**
-     * プライベート資金/役員資金（false: 使用しない、true: 使用する）
-     */
     private_settlement: boolean;
-    /**
-     * マイナスの表示方法（0: -、 1: △）
-     */
     minus_format: number;
-    /**
-     * 事業所種別コード（1: 法人、 2: 個人事業主）
-     */
     org_code: number;
-    /**
-     * 事業所番号（ハイフン無し・半角英数字10桁）
-     */
     company_number: string;
-    /**
-     * アクセストークンのユーザーがこの事業所で持つ権限
-     *
-     * * admin - 管理者
-     * * simple_accounting - 一般（経理）
-     * * self_only - 取引登録のみ
-     * * read_only - 閲覧のみ
-     * * workflow - 申請・承認
-     */
     role:
       | "admin"
       | "simple_accounting"
@@ -10089,52 +2754,13 @@ export type CompanyResponse = {
       | "voucher_mgt_report"
       | "bank_accountant"
       | "bank_accountant_report";
-    /**
-     * 電話番号１。未設定の場合は null
-     */
     phone1: string | null;
-    /**
-     * 電話番号２。未設定の場合は null
-     */
     phone2: string | null;
-    /**
-     * FAX番号。未設定の場合は null
-     */
     fax: string | null;
-    /**
-     * 郵便番号。未設定の場合は null
-     */
     zipcode: string | null;
-    /**
-     * 都道府県コード（-1: 設定しない、0: 北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄
-     */
     prefecture_code: number | null;
-    /**
-     * 市区町村・番地。未設定の場合は null
-     */
     street_name1: string | null;
-    /**
-     * 建物名・部屋番号など。未設定の場合は null
-     */
     street_name2: string | null;
-    /**
-     * 請求書レイアウト
-     * * `default_classic` - レイアウト１/クラシック (デフォルト)
-     *
-     * * `standard_classic` - レイアウト２/クラシック
-     *
-     * * `envelope_classic` - 封筒１/クラシック
-     *
-     * * `carried_forward_standard_classic` - レイアウト３（繰越金額欄あり）/クラシック
-     *
-     * * `carried_forward_envelope_classic` - 封筒２（繰越金額欄あり）/クラシック
-     *
-     * * `default_modern` - レイアウト１/モダン
-     *
-     * * `standard_modern` - レイアウト２/モダン
-     *
-     * * `envelope_modern` - 封筒/モダン
-     */
     invoice_layout:
       | "default_classic"
       | "standard_classic"
@@ -10144,17 +2770,8 @@ export type CompanyResponse = {
       | "default_modern"
       | "standard_modern"
       | "envelope_modern";
-    /**
-     * 金額端数処理方法（0: 切り捨て、1: 切り上げ、2: 四捨五入）
-     */
     amount_fraction: number;
-    /**
-     * 取引先コードの利用設定（true: 有効、 false: 無効）
-     */
     use_partner_code: boolean;
-    /**
-     * 種別（agriculture_forestry_fisheries_ore: 農林水産業/鉱業,construction: 建設,manufacturing_processing: 製造/加工,it: IT,transportation_logistics: 運輸/物流,retail_wholesale: 小売/卸売,finance_insurance: 金融/保険,real_estate_rental: 不動産/レンタル,profession: 士業/学術/専門技術サービス,design_production: デザイン/制作,food: 飲食,leisure_entertainment: レジャー/娯楽,lifestyle: 生活関連サービス,education: 教育/学習支援,medical_welfare: 医療/福祉,other_services: その他サービス,other_association: NPO、一般社団法人等,other: その他, "": 未選択）
-     */
     industry_class:
       | "agriculture_forestry_fisheries_ore"
       | "construction"
@@ -10175,144 +2792,6 @@ export type CompanyResponse = {
       | "other_association"
       | "other"
       | "";
-    /**
-     * ### 業種 法人<br>
-     *   - '': 未選択
-     *   - agriculture: 農業
-     *   - forestry: 林業
-     *   - fishing_industry: 漁業、水産養殖業
-     *   - mining: 鉱業、採石業、砂利採取業
-     *   - civil_contractors: 土木工事業
-     *   - pavement: 舗装工事業
-     *   - carpenter: とび、大工、左官等の建設工事業
-     *   - renovation: リフォーム工事業
-     *   - electrical_plumbing: 電気、管工事等の設備工事業
-     *   - grocery: 食料品の製造加工業
-     *   - machinery_manufacturing: 機械器具の製造加工業
-     *   - printing: 印刷業
-     *   - other_manufacturing: その他の製造加工業
-     *   - software_development: 受託：ソフトウェア、アプリ開発業
-     *   - system_development: 受託：システム開発業
-     *   - survey_analysis: 受託：調査、分析等の情報処理業
-     *   - server_management: 受託：サーバー運営管理
-     *   - website_production: 受託：ウェブサイト制作
-     *   - online_service_management: オンラインサービス運営業
-     *   - online_advertising_agency: オンライン広告代理店業
-     *   - online_advertising_planning_production: オンライン広告企画・制作業
-     *   - online_media_management: オンラインメディア運営業
-     *   - portal_site_management: ポータルサイト運営業
-     *   - other_it_services: その他、IT サービス業
-     *   - transport_delivery: 輸送業、配送業
-     *   - delivery: バイク便等の配達業
-     *   - other_transportation_logistics: その他の運輸業、物流業
-     *   - other_wholesale: 卸売業：その他
-     *   - clothing_wholesale_fiber: 卸売業：衣類卸売／繊維
-     *   - food_wholesale: 卸売業：飲食料品
-     *   - entrusted_development_wholesale: 卸売業：機械器具
-     *   - online_shop: 小売業：無店舗　オンラインショップ
-     *   - fashion_grocery_store: 小売業：店舗あり　ファッション、雑貨
-     *   - food_store: 小売業：店舗あり　生鮮食品、飲食料品
-     *   - entrusted_store: 小売業：店舗あり　機械、器具
-     *   - other_store: 小売業：店舗あり　その他
-     *   - financial_instruments_exchange: 金融業：金融商品取引
-     *   - commodity_futures_investment_advisor: 金融業：商品先物取引、商品投資顧問
-     *   - other_financial: 金融業：その他
-     *   - brokerage_insurance: 保険業：仲介、代理
-     *   - other_insurance: 保険業：その他
-     *   - real_estate_developer: 不動産業：ディベロッパー
-     *   - real_estate_brokerage: 不動産業：売買、仲介
-     *   - rent_coin_parking_management: 不動産業：賃貸、コインパーキング、管理
-     *   - rental_office_co_working_space: 不動産業：レンタルオフィス、コワーキングスペース
-     *   - rental_lease: レンタル業、リース業
-     *   - cpa_tax_accountant: 士業：公認会計士事務所、税理士事務所
-     *   - law_office: 士業：法律事務所
-     *   - judicial_and_administrative_scrivener: 士業：司法書士事務所／行政書士事務所
-     *   - labor_consultant: 士業：社会保険労務士事務所
-     *   - other_profession: 士業：その他
-     *   - business_consultant: 経営コンサルタント
-     *   - academic_research_development: 学術・開発研究機関
-     *   - advertising_agency: 広告代理店
-     *   - advertising_planning_production: 広告企画／制作
-     *   - design_development: ソフトウェア、アプリ開発業（受託）
-     *   - apparel_industry_design: 服飾デザイン業、工業デザイン業
-     *   - website_design: ウェブサイト制作（受託）
-     *   - advertising_planning_design: 広告企画／制作業
-     *   - other_design: その他、デザイン／制作
-     *   - restaurants_coffee_shops: レストラン、喫茶店等の飲食店業
-     *   - sale_of_lunch: 弁当の販売業
-     *   - bread_confectionery_manufacture_sale: パン、菓子等の製造販売業
-     *   - delivery_catering_mobile_catering: デリバリー業、ケータリング業、移動販売業
-     *   - hotel_inn: 宿泊業：ホテル、旅館
-     *   - homestay: 宿泊業：民泊
-     *   - travel_agency: 旅行代理店業
-     *   - leisure_sports_facility_management: レジャー、スポーツ等の施設運営業
-     *   - show_event_management: ショー、イベント等の興行、イベント運営業
-     *   - barber: ビューティ、ヘルスケア業：床屋、理容室
-     *   - beauty_salon: ビューティ、ヘルスケア業：美容室
-     *   - spa_sand_bath_sauna: ビューティ、ヘルスケア業：スパ、砂風呂、サウナ等
-     *   - este_ail_salon: ビューティ、ヘルスケア業：その他、エステサロン、ネイルサロン等
-     *   - bridal_planning_introduce_wedding: 冠婚葬祭業：ブライダルプランニング、結婚式場紹介等
-     *   - memorial_ceremony_funeral: 冠婚葬祭業：メモリアルセレモニー、葬儀等
-     *   - moving: 引っ越し業
-     *   - courier_industry: 宅配業
-     *   - house_maid_cleaning_agency: 家事代行サービス業：無店舗　ハウスメイド、掃除代行等
-     *   - re_tailoring_clothes: 家事代行サービス業：店舗あり　衣類修理、衣類仕立て直し等
-     *   - training_institute_management: 研修所等の施設運営業
-     *   - tutoring_school: 学習塾、進学塾等の教育・学習支援業
-     *   - music_calligraphy_abacus_classroom: 音楽教室、書道教室、そろばん教室等の教育・学習支援業
-     *   - english_school: 英会話スクール等の語学学習支援業
-     *   - tennis_yoga_judo_school: テニススクール、ヨガ教室、柔道場等のスポーツ指導、支援業
-     *   - culture_school: その他、カルチャースクール等の教育・学習支援業
-     *   - seminar_planning_management: セミナー等の企画、運営業
-     *   - hospital_clinic: 医療業：病院、一般診療所、クリニック等
-     *   - dental_clinic: 医療業：歯科診療所
-     *   - other_medical_services: 医療業：その他、医療サービス等
-     *   - nursery: 福祉業：保育所等、児童向け施設型サービス
-     *   - nursing_home: 福祉業：老人ホーム等、老人向け施設型サービス
-     *   - rehabilitation_support_services: 福祉業：療育支援サービス等、障害者等向け施設型サービス
-     *   - other_welfare: 福祉業：その他、施設型福祉サービス
-     *   - visit_welfare_service: 福祉業：訪問型福祉サービス
-     *   - recruitment_temporary_staffing: 人材紹介業、人材派遣業
-     *   - life_related_recruitment_temporary_staffing: 生活関連サービスの人材紹介業、人材派遣業
-     *   - car_maintenance_car_repair: 自動車整備業、自動車修理業
-     *   - machinery_equipment_maintenance_repair: 機械機器類の整備業、修理業
-     *   - cleaning_maintenance_building_management: 清掃業、メンテナンス業、建物管理業
-     *   - security: 警備業
-     *   - other_services: その他のサービス業
-     *   - npo: 'NPO'
-     *   - general_incorporated_association: '一般社団法人'
-     *   - general_incorporated_foundation: '一般財団法人'
-     *   - other_association: 'その他組織'
-     * <br>
-     * <br>
-     * ### 業種 個人<br>
-     *   - '': 未選択
-     *   - manufacturing: 製造業
-     *   - education: 教育
-     *   - medical: 医療/福祉
-     *   - ict: ソフトウェア・情報サービス業
-     *   - food: 飲食業
-     *   - construction: 建設業
-     *   - transportation: 運送業
-     *   - trading: 卸売業
-     *   - retail: 小売業
-     *   - finance: 金融/保険業
-     *   - real_estate: 不動産業
-     *   - agriculture: 農業
-     *   - travel: 旅行・宿泊業
-     *   - accountant: 専門業（税理士・会計士）
-     *   - lawer: その他専門業（法律など）
-     *   - consultant: サービス業（コンサルティング）
-     *   - recruit: サービス業（人材）
-     *   - publication: サービス業（出版）
-     *   - design: サービス業（デザイン）
-     *   - barber: サービス業（理容・美容）
-     *   - others: その他サービス業
-     *   - company_employee: 会社員
-     *   - others_side_business: その他(副業や株取引のみなど)
-     *   - others_deduction: その他(医療費などの控除のみ)
-     *   - default: 未定
-     */
     industry_code:
       | ""
       | "agriculture"
@@ -10443,174 +2922,49 @@ export type CompanyResponse = {
       | "others_side_business"
       | "others_deduction"
       | "default";
-    /**
-     * 仕訳承認フロー（enable: 有効、 disable: 無効）
-     */
     workflow_setting: "enable" | "disable";
-    /**
-     * 会計年度の一覧（現在および過去の有効な会計年度）
-     */
     fiscal_years: Array<FiscalYears>;
-    /**
-     * 勘定科目の一覧。クエリパラメータ account_items または details に true を指定した場合のみ返る
-     */
     account_items?: Array<{
-      /**
-       * 勘定科目ID
-       */
       id: number;
-      /**
-       * 勘定科目名 (30文字以内)
-       */
       name: string;
-      /**
-       * ショートカット1 (20文字以内)
-       */
       shortcut?: string | null;
       categories: Array<string>;
     }>;
-    /**
-     * 税区分コードの一覧。クエリパラメータ taxes または details に true を指定した場合のみ返る
-     */
     tax_codes?: Array<{
-      /**
-       * 税区分コード
-       */
       code: number;
-      /**
-       * 税区分名
-       */
       name: string;
-      /**
-       * 税区分名（日本語表示用）
-       */
       name_ja: string;
     }>;
-    /**
-     * 品目の一覧。クエリパラメータ items または details に true を指定した場合のみ返る
-     */
     items?: Array<{
-      /**
-       * 品目ID
-       */
       id: number;
-      /**
-       * 品目名 (255文字以内)
-       */
       name: string;
-      /**
-       * ショートカット１ (20文字以内)
-       */
       shortcut1?: string | null;
-      /**
-       * ショートカット２ (20文字以内)
-       */
       shortcut2?: string | null;
     }>;
-    /**
-     * 取引先の一覧。クエリパラメータ partners または details に true を指定した場合のみ返る
-     */
     partners?: Array<{
-      /**
-       * 取引先ID
-       */
       id: number;
-      /**
-       * 取引先コード。取引先コードの利用設定（use_partner_code）が有効な事業所でのみ返る。未設定の場合は null
-       */
       code?: string | null;
-      /**
-       * 取引先名
-       */
       name: string;
-      /**
-       * ショートカット1 (255文字以内)
-       */
       shortcut1?: string | null;
-      /**
-       * ショートカット2 (255文字以内)
-       */
       shortcut2?: string | null;
     }>;
-    /**
-     * 部門の一覧。クエリパラメータ sections または details に true を指定した場合のみ返る
-     */
     sections?: Array<{
-      /**
-       * 部門ID
-       */
       id: number;
-      /**
-       * 部門名 (30文字以内)
-       */
       name: string;
-      /**
-       * ショートカット１ (20文字以内)
-       */
       shortcut1?: string | null;
-      /**
-       * ショートカット２ (20文字以内)
-       */
       shortcut2?: string | null;
-      /**
-       * <a target="_blank" href="https://support.freee.co.jp/hc/ja/articles/209093566">部門階層</a>
-       * <br>
-       * ※ indent_count が 0 のときは第一階層の親部門です。
-       * <br>
-       * ※ 部門階層機能が利用できるプラン（法人: ベーシックプラン以上、個人: プレミアムプラン）の場合のみ返ります。
-       *
-       */
       indent_count?: number;
-      /**
-       * <a target="_blank" href="https://support.freee.co.jp/hc/ja/articles/209093566">親部門ID</a>
-       * <br>
-       * ※ parent_id が null のときは第一階層の親部門です。
-       * <br>
-       * ※ 部門階層機能が利用できるプラン（法人: ベーシックプラン以上、個人: プレミアムプラン）の場合のみ返ります。
-       *
-       */
       parent_id?: number | null;
     }>;
-    /**
-     * メモタグの一覧。クエリパラメータ tags または details に true を指定した場合のみ返る
-     */
     tags?: Array<{
-      /**
-       * タグID
-       */
       id: number;
-      /**
-       * 名前(30文字以内)
-       */
       name: string;
-      /**
-       * ショートカット1 (255文字以内)
-       */
       shortcut1?: string | null;
-      /**
-       * ショートカット2 (255文字以内)
-       */
       shortcut2?: string | null;
     }>;
-    /**
-     * 口座の一覧（操作ユーザーが利用可能な口座のみ）。クエリパラメータ walletables または details に true を指定した場合のみ返る
-     */
     walletables?: Array<{
-      /**
-       * 口座ID
-       */
       id: number;
-      /**
-       * 口座名 (255文字以内)
-       */
       name: string;
-      /**
-       * 口座区分
-       *
-       * * bank_account - 銀行口座
-       * * credit_card - クレジットカード
-       * * wallet - 現金
-       */
       type: "bank_account" | "credit_card" | "wallet";
     }>;
   };
@@ -10688,21 +3042,9 @@ export type ConflictError = {
 export type TooManyRequestsError = {
   status_code: number;
   meta: {
-    /**
-     * 設定されている上限値
-     */
     limit: number;
-    /**
-     * 使用回数をカウントする期間 (秒)
-     */
     period?: number;
-    /**
-     * 上限に達するまでの使用可能回数
-     */
     remaining: number;
-    /**
-     * （上限値に達した場合）使用回数がリセットされる時刻
-     */
     reset: string;
   };
 };
@@ -10732,471 +3074,113 @@ export type MessagesError = {
   messages: Array<string>;
 };
 
-/**
- * 取引先一覧のレスポンス。GET /api/1/partners で返される、取引先の配列を包むオブジェクト。
- */
 export type PartnersResponse = {
-  /**
-   * 取引先の配列。offset / limit / keyword / start_update_date / end_update_date の条件で絞り込まれた結果が id 昇順で返ります。件数がない場合は空配列。
-   */
   partners: Array<{
-    /**
-     * 取引先ID。事業所内でユニークな取引先の識別子。取引・請求書などで参照するためのキーになります。
-     */
     id: number;
-    /**
-     * 取引先コード。事業所設定で「取引先コードの利用」が有効な場合のみ実際の値が返り、無効な場合は null が返ります。取引先マスタを外部システムのコードと突合する用途で利用します。
-     */
     code: string | null;
-    /**
-     * 事業所ID。取引先が属する事業所の識別子。
-     */
     company_id: number;
-    /**
-     * 取引先名。事業所内で重複しない一意の名称。取引・請求書などで表示・検索に使われます。
-     */
     name: string;
-    /**
-     * 更新日 (yyyy-mm-dd, JST)。取引先情報が最後に更新された日付。start_update_date / end_update_date による絞り込みキーになります。
-     */
     update_date: string;
-    /**
-     * 使用可能フラグ。取引先が入力候補として表示可能かを示します。
-     * <ul>
-     *   <li>true: 使用可能。Web 画面の取引登録時などに入力候補として表示されます。本 API で新規作成した取引先は常に true になります。</li>
-     *   <li>false: 使用停止。入力候補として表示されません（取引先自体は削除されず、取引作成 API で false の取引先を指定すれば利用可能）。</li>
-     * </ul>
-     */
     available: boolean;
-    /**
-     * ショートカット1 (255 文字以内)。取引先検索用の任意キーワード。Web 画面のショートカット入力で利用されます。
-     */
     shortcut1?: string | null;
-    /**
-     * ショートカット2 (255 文字以内)。shortcut1 に加えて指定できる補助的な検索キーワード。
-     */
     shortcut2?: string | null;
-    /**
-     * 事業所種別。
-     * <ul>
-     *   <li>null: 未設定</li>
-     *   <li>1: 法人</li>
-     *   <li>2: 個人</li>
-     * </ul>
-     *
-     */
     org_code?: number | null;
-    /**
-     * 地域。
-     * <ul>
-     *   <li>JP: 国内</li>
-     *   <li>ZZ: 国外</li>
-     * </ul>
-     *
-     */
     country_code?: string;
-    /**
-     * 正式名称（255 文字以内）。取引先の正式な法人・屋号名称。請求書などの帳票に印字される名称。
-     */
     long_name?: string | null;
-    /**
-     * カナ名称（255 文字以内）。取引先名の全角カナ表記。Web 画面のカナ検索で利用されます。
-     */
     name_kana?: string | null;
-    /**
-     * 敬称。請求書などで取引先名の後ろに付与される敬称。御中、様、(空白) の 3 つから選択します。
-     */
     default_title?: string | null;
-    /**
-     * 電話番号。取引先の連絡先電話番号。フォーマットの制約はありません。
-     */
     phone?: string | null;
-    /**
-     * 担当者 氏名。取引先窓口の担当者名。
-     */
     contact_name?: string | null;
-    /**
-     * 担当者 メールアドレス。取引先窓口の担当者メールアドレス。
-     */
     email?: string | null;
-    /**
-     * 振込元口座ID（一括振込ファイル用）。この取引先への振込元として設定されている口座 ID。未設定の場合は null。法人スタータープラン（および旧法人プロフェッショナルプラン）未満の事業所ではキー自体が返却されません。
-     */
     payer_walletable_id?: number | null;
-    /**
-     * 振込手数料負担（一括振込ファイル用）。振込手数料をどちらが負担するかを示します。法人スタータープラン（および旧法人プロフェッショナルプラン）未満の事業所ではキー自体が返却されません。
-     * <ul>
-     *   <li>payer: 振込元（当方）負担</li>
-     *   <li>payee: 振込先（先方）負担</li>
-     * </ul>
-     *
-     */
     transfer_fee_handling_side?: "payer" | "payee";
-    /**
-     * インボイス制度適格請求書発行事業者フラグ。
-     * <ul>
-     *   <li>true: 適格請求書発行事業者</li>
-     *   <li>false: 非対象事業者</li>
-     * </ul>
-     * <a target="_blank" href="https://www.invoice-kohyo.nta.go.jp/index.html">国税庁インボイス制度適格請求書発行事業者公表サイト</a>
-     *
-     */
     qualified_invoice_issuer?: boolean;
-    /**
-     * インボイス制度適格請求書発行事業者登録番号。先頭 T + 数字 13 桁の固定 14 文字。未登録の場合は null。
-     * <a target="_blank" href="https://www.invoice-kohyo.nta.go.jp/index.html">国税庁インボイス制度適格請求書発行事業者公表サイト</a>
-     *
-     */
     invoice_registration_number?: string | null;
-    /**
-     * 住所情報。取引先に住所が登録されていない場合はキー自体が返却されません。
-     */
     address_attributes?: {
-      /**
-       * 郵便番号（ハイフン含む可）。
-       */
       zipcode?: string | null;
-      /**
-       * 都道府県コード（-1: 設定しない、0:北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄）
-       */
       prefecture_code?: number | null;
-      /**
-       * 市区町村・番地。
-       */
       street_name1?: string | null;
-      /**
-       * 建物名・部屋番号など。
-       */
       street_name2?: string | null;
     };
-    /**
-     * 請求書送付設定。設定されていない場合はキー自体が返却されません。
-     */
     partner_doc_setting_attributes?: {
-      /**
-       * 請求書送付方法。null の場合は未設定。
-       * <ul>
-       *   <li>email: メール</li>
-       *   <li>posting: 郵送</li>
-       *   <li>email_and_posting: メールと郵送</li>
-       *   <li>pdf_delivery: メール（PDFファイル添付）</li>
-       *   <li>pdf_delivery_and_posting: メール（PDFファイル添付）と郵送</li>
-       * </ul>
-       *
-       */
       sending_method?:
         "email" | "posting" | "email_and_posting" | "pdf_delivery" | "pdf_delivery_and_posting";
     };
-    /**
-     * 銀行口座情報（この取引先の受取口座）。口座が登録されていない場合はキー自体が返却されません。
-     */
     partner_bank_account_attributes?: {
-      /**
-       * 銀行名。
-       */
       bank_name?: string | null;
-      /**
-       * 銀行名（カナ）。
-       */
       bank_name_kana?: string | null;
-      /**
-       * 銀行コード（4 桁の統一金融機関コード）。
-       */
       bank_code?: string | null;
-      /**
-       * 支店名。
-       */
       branch_name?: string | null;
-      /**
-       * 支店名（カナ）。
-       */
       branch_kana?: string | null;
-      /**
-       * 支店番号（3 桁）。
-       */
       branch_code?: string | null;
-      /**
-       * 口座種別。
-       * <ul>
-       *   <li>ordinary: 普通</li>
-       *   <li>checking: 当座</li>
-       *   <li>earmarked: 納税準備預金</li>
-       *   <li>savings: 貯蓄</li>
-       *   <li>other: その他</li>
-       * </ul>
-       *
-       */
       account_type?: "ordinary" | "checking" | "earmarked" | "savings" | "other";
-      /**
-       * 口座番号。
-       */
       account_number?: string | null;
-      /**
-       * 受取人名（カナ）。全銀フォーマットで送信する際に使用されます。
-       */
       account_name?: string | null;
-      /**
-       * 受取人名。振込先の受取人名。
-       */
       long_account_name?: string | null;
     };
   }>;
 };
 
-/**
- * 単一の取引先を包むレスポンス。取得・作成・更新 API で共通に返されます。
- */
 export type PartnerResponse = {
   partner: {
-    /**
-     * 取引先ID。事業所内でユニークな取引先の識別子。取引・請求書などで参照するためのキーになります。
-     */
     id: number;
-    /**
-     * 取引先コード。事業所設定で「取引先コードの利用」が有効な場合のみ実際の値が返り、無効な場合は null が返ります。取引先マスタを外部システムのコードと突合する用途で利用します。
-     */
     code: string | null;
-    /**
-     * 事業所ID。取引先が属する事業所の識別子。
-     */
     company_id: number;
-    /**
-     * 取引先名。事業所内で重複しない一意の名称。取引・請求書などで表示・検索に使われます。
-     */
     name: string;
-    /**
-     * 更新日 (yyyy-mm-dd, JST)。取引先情報が最後に更新された日付。start_update_date / end_update_date による絞り込みキーになります。
-     */
     update_date: string;
-    /**
-     * 使用可能フラグ。取引先が入力候補として表示可能かを示します。
-     * <ul>
-     *   <li>true: 使用可能。Web 画面の取引登録時などに入力候補として表示されます。本 API で新規作成した取引先は常に true になります。</li>
-     *   <li>false: 使用停止。入力候補として表示されません（取引先自体は削除されず、取引作成 API で false の取引先を指定すれば利用可能）。</li>
-     * </ul>
-     */
     available: boolean;
-    /**
-     * ショートカット1 (255 文字以内)。取引先検索用の任意キーワード。Web 画面のショートカット入力で利用されます。
-     */
     shortcut1?: string | null;
-    /**
-     * ショートカット2 (255 文字以内)。shortcut1 に加えて指定できる補助的な検索キーワード。
-     */
     shortcut2?: string | null;
-    /**
-     * 事業所種別。
-     * <ul>
-     *   <li>null: 未設定</li>
-     *   <li>1: 法人</li>
-     *   <li>2: 個人</li>
-     * </ul>
-     *
-     */
     org_code?: number | null;
-    /**
-     * 地域。
-     * <ul>
-     *   <li>JP: 国内</li>
-     *   <li>ZZ: 国外</li>
-     * </ul>
-     *
-     */
     country_code?: string;
-    /**
-     * 正式名称（255 文字以内）。取引先の正式な法人・屋号名称。請求書などの帳票に印字される名称。
-     */
     long_name?: string | null;
-    /**
-     * カナ名称（255 文字以内）。取引先名の全角カナ表記。Web 画面のカナ検索で利用されます。
-     */
     name_kana?: string | null;
-    /**
-     * 敬称。請求書などで取引先名の後ろに付与される敬称。御中、様、(空白) の 3 つから選択します。
-     */
     default_title?: string | null;
-    /**
-     * 電話番号。取引先の連絡先電話番号。フォーマットの制約はありません。
-     */
     phone?: string | null;
-    /**
-     * 担当者 氏名。取引先窓口の担当者名。
-     */
     contact_name?: string | null;
-    /**
-     * 担当者 メールアドレス。取引先窓口の担当者メールアドレス。
-     */
     email?: string | null;
-    /**
-     * 振込元口座ID（一括振込ファイル用）。この取引先への振込元として設定されている口座 ID。未設定の場合は null。法人スタータープラン（および旧法人プロフェッショナルプラン）未満の事業所ではキー自体が返却されません。
-     */
     payer_walletable_id?: number | null;
-    /**
-     * 振込手数料負担（一括振込ファイル用）。振込手数料をどちらが負担するかを示します。法人スタータープラン（および旧法人プロフェッショナルプラン）未満の事業所ではキー自体が返却されません。
-     * <ul>
-     *   <li>payer: 振込元（当方）負担</li>
-     *   <li>payee: 振込先（先方）負担</li>
-     * </ul>
-     *
-     */
     transfer_fee_handling_side?: "payer" | "payee";
-    /**
-     * インボイス制度適格請求書発行事業者フラグ。
-     * <ul>
-     *   <li>true: 適格請求書発行事業者</li>
-     *   <li>false: 非対象事業者</li>
-     * </ul>
-     * <a target="_blank" href="https://www.invoice-kohyo.nta.go.jp/index.html">国税庁インボイス制度適格請求書発行事業者公表サイト</a>
-     *
-     */
     qualified_invoice_issuer?: boolean;
-    /**
-     * インボイス制度適格請求書発行事業者登録番号。先頭 T + 数字 13 桁の固定 14 文字。未登録の場合は null。
-     * <a target="_blank" href="https://www.invoice-kohyo.nta.go.jp/index.html">国税庁インボイス制度適格請求書発行事業者公表サイト</a>
-     *
-     */
     invoice_registration_number?: string | null;
-    /**
-     * 住所情報。取引先に住所が登録されていない場合はキー自体が返却されません。
-     */
     address_attributes?: {
-      /**
-       * 郵便番号（ハイフン含む可）。
-       */
       zipcode?: string | null;
-      /**
-       * 都道府県コード（-1: 設定しない、0:北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄）
-       */
       prefecture_code?: number | null;
-      /**
-       * 市区町村・番地。
-       */
       street_name1?: string | null;
-      /**
-       * 建物名・部屋番号など。
-       */
       street_name2?: string | null;
     };
-    /**
-     * 請求書送付設定。設定されていない場合はキー自体が返却されません。
-     */
     partner_doc_setting_attributes?: {
-      /**
-       * 請求書送付方法。null の場合は未設定。
-       * <ul>
-       *   <li>email: メール</li>
-       *   <li>posting: 郵送</li>
-       *   <li>email_and_posting: メールと郵送</li>
-       *   <li>pdf_delivery: メール（PDFファイル添付）</li>
-       *   <li>pdf_delivery_and_posting: メール（PDFファイル添付）と郵送</li>
-       * </ul>
-       *
-       */
       sending_method?:
         "email" | "posting" | "email_and_posting" | "pdf_delivery" | "pdf_delivery_and_posting";
     };
-    /**
-     * 銀行口座情報（この取引先の受取口座）。口座が登録されていない場合はキー自体が返却されません。
-     */
     partner_bank_account_attributes?: {
-      /**
-       * 銀行名。
-       */
       bank_name?: string | null;
-      /**
-       * 銀行名（カナ）。
-       */
       bank_name_kana?: string | null;
-      /**
-       * 銀行コード（4 桁の統一金融機関コード）。
-       */
       bank_code?: string | null;
-      /**
-       * 支店名。
-       */
       branch_name?: string | null;
-      /**
-       * 支店名（カナ）。
-       */
       branch_kana?: string | null;
-      /**
-       * 支店番号（3 桁）。
-       */
       branch_code?: string | null;
-      /**
-       * 口座種別。
-       * <ul>
-       *   <li>ordinary: 普通</li>
-       *   <li>checking: 当座</li>
-       *   <li>earmarked: 納税準備預金</li>
-       *   <li>savings: 貯蓄</li>
-       *   <li>other: その他</li>
-       * </ul>
-       *
-       */
       account_type?: "ordinary" | "checking" | "earmarked" | "savings" | "other";
-      /**
-       * 口座番号。
-       */
       account_number?: string | null;
-      /**
-       * 受取人名（カナ）。全銀フォーマットで送信する際に使用されます。
-       */
       account_name?: string | null;
-      /**
-       * 受取人名。振込先の受取人名。
-       */
       long_account_name?: string | null;
     };
-    /**
-     * 支払期日設定。取引先への支払日を締め日基準で計算するための設定。法人スタータープラン（および旧法人プロフェッショナルプラン）未満、または期日設定が登録されていない場合はキー自体が返却されません。
-     */
     payment_term_attributes?: {
-      /**
-       * 締め日。1〜31 の日付を指定します。29, 30, 31 日の末日を指定する場合は 32 を使います。
-       */
       cutoff_day?: number | null;
-      /**
-       * 支払月。締め日から数えて何ヶ月後に支払うか。当月を指定する場合は 0。
-       */
       additional_months?: number | null;
-      /**
-       * 支払日。1〜31 の日付を指定します。29, 30, 31 日の末日を指定する場合は 32 を使います。
-       */
       fixed_day?: number | null;
     };
-    /**
-     * 請求の入金期日設定。取引先からの入金日を締め日基準で計算するための設定。法人スタータープラン（および旧法人プロフェッショナルプラン）未満、または期日設定が登録されていない場合はキー自体が返却されません。
-     */
     invoice_payment_term_attributes?: {
-      /**
-       * 締め日。1〜31 の日付を指定します。29, 30, 31 日の末日を指定する場合は 32 を使います。
-       */
       cutoff_day?: number | null;
-      /**
-       * 入金月。締め日から数えて何ヶ月後に入金されるか。当月を指定する場合は 0。
-       */
       additional_months?: number | null;
-      /**
-       * 入金日。1〜31 の日付を指定します。29, 30, 31 日の末日を指定する場合は 32 を使います。
-       */
       fixed_day?: number | null;
     };
   };
 };
 
 export type Tax = {
-  /**
-   * 税区分コード。取引の作成（POST /api/1/deals）や振替伝票の作成（POST /api/1/manual_journals）などで税区分を指定する際に tax_code として利用します。
-   */
   code: number;
-  /**
-   * 税区分名（システム識別名）
-   */
   name: string;
-  /**
-   * 税区分名（日本語表示用）。freee会計の画面上で表示される名称です。
-   */
   name_ja: string;
 };
 
@@ -11205,141 +3189,39 @@ export type TaxResponse = {
 };
 
 export type Walletable = {
-  /**
-   * 口座ID。取引の作成（POST /api/1/deals）や口座振替（POST /api/1/transfers）などで from_walletable_type / to_walletable_type と併せて指定します。
-   */
   id: number;
-  /**
-   * 口座名（255文字以内）
-   */
   name: string;
-  /**
-   * 連携サービスID。銀行やクレジットカード等のサービス種別を表します。/api/1/banks（連携サービス一覧の取得）で取得できます。type が wallet で連携サービスに紐づかない口座（現金など）の場合は null になります。
-   */
   bank_id: number | null;
-  /**
-   * 口座種別。
-   * * `bank_account` - 銀行口座
-   * * `credit_card` - クレジットカード
-   * * `wallet` - その他の決済口座（現金・電子マネー・売掛/買掛など）
-   */
   type: "bank_account" | "credit_card" | "wallet";
-  /**
-   * 最終同期成功日時（ISO 8601 形式）。リクエスト時に with_last_synced_at=true を指定した場合のみ返却されます。同期成功実績がない場合や、同期に対応しない口座の場合は null になります。
-   */
   last_synced_at?: string | null;
-  /**
-   * 口座の同期ステータス。リクエスト時に with_sync_status=true を指定した場合のみ返却されます。
-   * * `success` - 同期成功
-   * * `disabled` - 同期設定なし
-   * * `syncing` - 同期中
-   * * `token_refresh_error` - トークンリフレッシュエラー
-   * * `unsupported` - 同期非対応
-   * * `other_error` - その他のエラー（詳細はfreee会計画面上でご確認ください）
-   */
   sync_status?:
     "success" | "disabled" | "syncing" | "token_refresh_error" | "unsupported" | "other_error";
-  /**
-   * 同期残高（円）。連携サービスから同期した残高です。リクエスト時に with_balance=true を指定した場合のみ返却されます。
-   */
   last_balance?: number;
-  /**
-   * 登録残高（円）。freee会計上の取引から計算される、借方を正とする残高です。リクエスト時に with_balance=true を指定した場合のみ返却されます。
-   */
   walletable_balance?: number;
-  /**
-   * 口座設定の最終更新日（yyyy-mm-dd、JST）
-   */
   update_date: string;
 };
 
 export type WalletableCreateResponse = {
-  /**
-   * 作成された口座
-   */
   walletable: {
-    /**
-     * 口座ID
-     */
     id: number;
-    /**
-     * 口座名（255文字以内）
-     */
     name: string;
-    /**
-     * 連携サービスID。type が wallet で bank_id を省略して作成した場合は null になります。
-     */
     bank_id: number | null;
-    /**
-     * 口座種別。
-     * * `bank_account` - 銀行口座
-     * * `credit_card` - クレジットカード
-     * * `wallet` - その他の決済口座（現金・電子マネー・売掛/買掛など）
-     */
     type: "bank_account" | "credit_card" | "wallet";
   };
 };
 
 export type WalletTxn = {
-  /**
-   * 明細ID
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 取引日 (yyyy-mm-dd)
-   */
   date: string;
-  /**
-   * 取引金額（単位: 円）。入金・出金の区別は entry_side で表されます。
-   */
   amount: number;
-  /**
-   * 取引登録待ち金額（単位: 円）。明細に対してまだ取引が登録されていない金額を表します。取引が未登録（status が 1）の場合は取引金額と同額になり、取引登録が完了する（status が 2 になる）と 0 になります。
-   */
   due_amount: number;
-  /**
-   * 残高（単位: 円）。銀行口座等の残高が入ります。Webで残高未設定で登録した場合や、口座明細の作成APIで balance を指定せずに登録した場合などは null になります。
-   */
   balance: number | null;
-  /**
-   * 入金・出金の区分
-   * * `income` - 入金
-   * * `expense` - 出金
-   */
   entry_side: "income" | "expense";
-  /**
-   * 口座区分
-   * * `bank_account` - 銀行口座
-   * * `credit_card` - クレジットカード
-   * * `wallet` - 現金・その他の決済口座
-   */
   walletable_type: "bank_account" | "credit_card" | "wallet";
-  /**
-   * 口座ID（walletable_type で示される口座のID）。口座の詳細は口座一覧の取得API（GET /api/1/walletables）で確認できます。
-   */
   walletable_id: number;
-  /**
-   * 取引内容（銀行やクレジットカードの明細に記載された摘要等）。未設定の場合は空文字列になります。
-   */
   description: string;
-  /**
-   * 明細のステータス
-   * * `1` - 消込待ち（明細に対する取引が未登録の状態）
-   * * `2` - 消込済み（明細に対する取引の登録が完了した状態）
-   * * `3` - 無視（取引を登録せず明細を無視した状態）
-   * * `4` - 消込中（明細の一部の金額のみ取引登録された状態）
-   * * `6` - 対象外（取引登録の対象外の明細）
-   */
   status: number;
-  /**
-   * 登録時に<a href="https://support.freee.co.jp/hc/ja/articles/202848350-明細の自動登録ルールを設定する" target="_blank">自動登録ルールの設定</a>が適用され、登録処理が実行された場合、
-   * trueになります。〜を推測する、〜の消込をするの条件の場合は一致してもfalseになります。
-   *
-   */
   rule_matched: boolean;
 };
 
@@ -11348,182 +3230,45 @@ export type WalletTxnResponse = {
 };
 
 export type Transfer = {
-  /**
-   * 取引(振替)ID
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 振替金額（円）。振替先が複数ある場合は全行の合計金額を返します。支払手数料が設定されている場合は、支払手数料分を加算した金額を返します。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesの各行amountを利用してください。
-   *
-   * @deprecated
-   */
   amount: number;
-  /**
-   * 振替日 (yyyy-mm-dd)
-   */
   date: string;
-  /**
-   * 振替元口座の口座区分
-   * * `bank_account` - 銀行口座
-   * * `credit_card` - クレジットカード
-   * * `wallet` - その他の決済口座（現金・電子マネー・売掛/買掛など）
-   */
   from_walletable_type: "bank_account" | "wallet" | "credit_card";
-  /**
-   * 振替元口座ID。口座一覧の取得（GET /api/1/walletables）で取得できるIDです。
-   */
   from_walletable_id: number;
-  /**
-   * 振替元口座行の取引先ID。取引先が設定されていない場合は0を返します。
-   */
   from_partner_id: number;
-  /**
-   * 振替元口座行の取引先コード。事業所の設定で取引先コードの利用が無効の場合、または取引先が設定されていない場合はnullを返します。
-   */
   from_partner_code: string | null;
-  /**
-   * 振替元口座行の部門ID。部門が設定されていない場合はnullを返します。
-   */
   from_section_id: number | null;
-  /**
-   * 振替元口座行の部門コード。事業所の設定で部門コードの利用が無効の場合、または部門が設定されていない場合はnullを返します。
-   */
   from_section_code: string | null;
-  /**
-   * 振替元口座行の品目ID。品目が設定されていない場合はnullを返します。
-   */
   from_item_id: number | null;
-  /**
-   * 振替元口座行の品目コード。事業所の設定で品目コードの利用が無効の場合、または品目が設定されていない場合はnullを返します。
-   */
   from_item_code: string | null;
-  /**
-   * 振替元口座行のメモタグID
-   */
   from_tag_ids: Array<number>;
-  /**
-   * 振替元口座行のセグメント１タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント１タグが設定されていない場合はnullを返します。
-   */
   from_segment_1_tag_id?: number | null;
-  /**
-   * 振替元口座行のセグメント１タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント１タグが設定されていない場合はnullを返します。
-   */
   from_segment_1_tag_code?: string | null;
-  /**
-   * 振替元口座行のセグメント２タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント２タグが設定されていない場合はnullを返します。
-   */
   from_segment_2_tag_id?: number | null;
-  /**
-   * 振替元口座行のセグメント２タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント２タグが設定されていない場合はnullを返します。
-   */
   from_segment_2_tag_code?: string | null;
-  /**
-   * 振替元口座行のセグメント３タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント３タグが設定されていない場合はnullを返します。
-   */
   from_segment_3_tag_id?: number | null;
-  /**
-   * 振替元口座行のセグメント３タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント３タグが設定されていない場合はnullを返します。
-   */
   from_segment_3_tag_code?: string | null;
-  /**
-   * 振替先口座の口座区分。振替先が複数ある場合は金額が最大の行の値を返します。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesを利用してください。
-   * * `bank_account` - 銀行口座
-   * * `credit_card` - クレジットカード
-   * * `wallet` - その他の決済口座（現金・電子マネー・売掛/買掛など）
-   *
-   * @deprecated
-   */
   to_walletable_type: "bank_account" | "wallet" | "credit_card";
-  /**
-   * 振替先口座ID。振替先が複数ある場合は金額が最大の行の値を返します。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesを利用してください。
-   *
-   * @deprecated
-   */
   to_walletable_id: number;
-  /**
-   * 備考。振替先が複数ある場合は各行の備考を「, 」（カンマと半角スペース）で結合した文字列を返します。備考が未設定の場合はnullを返します。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesの各行descriptionを利用してください。
-   *
-   * @deprecated
-   */
   description: string | null;
-  /**
-   * 振替先口座行（複数）。各行に振替先口座・金額・備考を持つ。
-   */
   to_walletables: Array<{
-    /**
-     * 振替先口座の口座区分
-     * * `bank_account` - 銀行口座
-     * * `credit_card` - クレジットカード
-     * * `wallet` - その他の決済口座（現金・電子マネー・売掛/買掛など）
-     */
     type: "bank_account" | "wallet" | "credit_card";
-    /**
-     * 振替先口座ID。口座一覧の取得（GET /api/1/walletables）で取得できるIDです。
-     */
     id: number;
-    /**
-     * 振替先口座への振替金額（円）
-     */
     amount: number;
-    /**
-     * 備考。振替先の複数指定に対応する以前に作成された取引（振替）では、行の備考が未設定の場合に取引（振替）全体の備考を返します。備考が未設定の場合はnullを返します。
-     */
     description: string | null;
-    /**
-     * 振替先口座行の取引先ID。取引先が設定されていない場合は0を返します。
-     */
     partner_id: number;
-    /**
-     * 振替先口座行の取引先コード。事業所の設定で取引先コードの利用が無効の場合、または取引先が設定されていない場合はnullを返します。
-     */
     partner_code: string | null;
-    /**
-     * 振替先口座行の部門ID。部門が設定されていない場合はnullを返します。
-     */
     section_id: number | null;
-    /**
-     * 振替先口座行の部門コード。事業所の設定で部門コードの利用が無効の場合、または部門が設定されていない場合はnullを返します。
-     */
     section_code: string | null;
-    /**
-     * 振替先口座行の品目ID。品目が設定されていない場合はnullを返します。
-     */
     item_id: number | null;
-    /**
-     * 振替先口座行の品目コード。事業所の設定で品目コードの利用が無効の場合、または品目が設定されていない場合はnullを返します。
-     */
     item_code: string | null;
-    /**
-     * 振替先口座行のメモタグID
-     */
     tag_ids: Array<number>;
-    /**
-     * 振替先口座行のセグメント１タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント１タグが設定されていない場合はnullを返します。
-     */
     segment_1_tag_id?: number | null;
-    /**
-     * 振替先口座行のセグメント１タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント１タグが設定されていない場合はnullを返します。
-     */
     segment_1_tag_code?: string | null;
-    /**
-     * 振替先口座行のセグメント２タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント２タグが設定されていない場合はnullを返します。
-     */
     segment_2_tag_id?: number | null;
-    /**
-     * 振替先口座行のセグメント２タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント２タグが設定されていない場合はnullを返します。
-     */
     segment_2_tag_code?: string | null;
-    /**
-     * 振替先口座行のセグメント３タグID。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。セグメント３タグが設定されていない場合はnullを返します。
-     */
     segment_3_tag_id?: number | null;
-    /**
-     * 振替先口座行のセグメント３タグコード。セグメントタグが利用できないプランの場合、キー自体がレスポンスに含まれません。事業所の設定でセグメントタグコードの利用が無効の場合、またはセグメント３タグが設定されていない場合はnullを返します。
-     */
     segment_3_tag_code?: string | null;
   }>;
 };
@@ -11533,56 +3278,20 @@ export type TransferResponse = {
 };
 
 export type UserParams = {
-  /**
-   * 表示名 (20文字以内)。キーを省略した場合は更新されません。空文字を指定すると未設定になります。
-   */
   display_name?: string;
-  /**
-   * 氏名（名） (20文字以内)。キーを省略した場合は更新されません。空文字を指定すると未設定になります。
-   */
   first_name?: string;
-  /**
-   * 氏名（姓） (20文字以内)。キーを省略した場合は更新されません。空文字を指定すると未設定になります。
-   */
   last_name?: string;
-  /**
-   * 氏名（カナ・名） (20文字以内)。キーを省略した場合は更新されません。空文字を指定すると未設定になります。
-   */
   first_name_kana?: string;
-  /**
-   * 氏名（カナ・姓） (20文字以内)。キーを省略した場合は更新されません。空文字を指定すると未設定になります。
-   */
   last_name_kana?: string;
 };
 
 export type User = {
-  /**
-   * ユーザーID
-   */
   id: number;
-  /**
-   * メールアドレス
-   */
   email: string;
-  /**
-   * 表示名。未設定の場合はnullになります。
-   */
   display_name: string | null;
-  /**
-   * 氏名（名）。未設定の場合はnullになります。
-   */
   first_name: string | null;
-  /**
-   * 氏名（姓）。未設定の場合はnullになります。
-   */
   last_name: string | null;
-  /**
-   * 氏名（カナ・名）。未設定の場合はnullになります。
-   */
   first_name_kana: string | null;
-  /**
-   * 氏名（カナ・姓）。未設定の場合はnullになります。
-   */
   last_name_kana: string | null;
 };
 
@@ -11592,58 +3301,16 @@ export type UserResponse = {
 
 export type MeResponse = {
   user: {
-    /**
-     * ユーザーID
-     */
     id: number;
-    /**
-     * メールアドレス
-     */
     email: string;
-    /**
-     * 表示名。未設定の場合はnullになります。
-     */
     display_name: string | null;
-    /**
-     * 氏名（名）。未設定の場合はnullになります。
-     */
     first_name: string | null;
-    /**
-     * 氏名（姓）。未設定の場合はnullになります。
-     */
     last_name: string | null;
-    /**
-     * 氏名（カナ・名）。未設定の場合はnullになります。
-     */
     first_name_kana: string | null;
-    /**
-     * 氏名（カナ・姓）。未設定の場合はnullになります。
-     */
     last_name_kana: string | null;
-    /**
-     * ユーザーが所属する事業所の一覧。リクエストでcompanies=trueを指定した場合のみ返ります。
-     */
     companies?: Array<{
-      /**
-       * 事業所ID
-       */
       id: number;
-      /**
-       * 事業所の表示名
-       */
       display_name: string;
-      /**
-       * ユーザーの権限
-       * <ul>
-       * <li>admin: 管理者</li>
-       * <li>simple_accounting: 一般（経理）</li>
-       * <li>self_only: 取引登録のみ</li>
-       * <li>read_only: 閲覧のみ</li>
-       * <li>workflow: 申請・承認</li>
-       * <li>product_linkage: 一般（経理以外）</li>
-       * </ul>
-       * カスタム権限を使用している場合は、複製元となったプリセット権限の値が返ります。カスタム権限かどうかはuse_custom_roleで判定できます。
-       */
       role:
         | "admin"
         | "simple_accounting"
@@ -11661,234 +3328,97 @@ export type MeResponse = {
         | "voucher_mgt_report"
         | "bank_accountant"
         | "bank_accountant_report";
-      /**
-       * カスタム権限（true: 使用する、false: 使用しない）
-       */
       use_custom_role: boolean;
-      /**
-       * アドバイザープロファイルID。リクエストでcompanies=trueとadvisor=trueを両方指定した場合のみ返ります。アドバイザー事業所でない場合はnullになります。
-       */
       advisor_id?: number | null;
     }>;
   };
 };
 
 export type UserCapability = {
-  /**
-   * 閲覧
-   */
   read?: boolean;
-  /**
-   * 作成
-   */
   create?: boolean;
-  /**
-   * 更新
-   */
   update?: boolean;
-  /**
-   * 削除
-   */
   destroy?: boolean;
 };
 
 export type UserCapabilityJustConfirm = {
-  /**
-   * 操作
-   */
   confirm?: boolean;
 };
 
 export type UserCapabilityJustCreate = {
-  /**
-   * 作成
-   */
   create?: boolean;
 };
 
 export type UserCapabilityJustCreateRead = {
-  /**
-   * 作成
-   */
   create?: boolean;
-  /**
-   * 閲覧
-   */
   read?: boolean;
 };
 
 export type UserCapabilityJustRead = {
-  /**
-   * 閲覧
-   */
   read?: boolean;
 };
 
 export type UserCapabilityJustReadUpdate = {
-  /**
-   * 閲覧
-   */
   read?: boolean;
-  /**
-   * 更新
-   */
   update?: boolean;
 };
 
 export type UserCapabilityJustReadUpdateDestroy = {
-  /**
-   * 閲覧
-   */
   read?: boolean;
-  /**
-   * 更新
-   */
   update?: boolean;
-  /**
-   * 削除
-   */
   destroy?: boolean;
 };
 
 export type UserCapabilityJustReadWrite = {
-  /**
-   * 閲覧
-   */
   read?: boolean;
-  /**
-   * 操作
-   */
   write?: boolean;
 };
 
 export type UserCapabilityJustUpdate = {
-  /**
-   * 更新
-   */
   update?: boolean;
 };
 
 export type UserCapabilityJustWrite = {
-  /**
-   * 操作
-   */
   write?: boolean;
 };
 
 export type UserCapabilityWithSelfOnly = {
-  /**
-   * 閲覧
-   */
   read?: boolean;
-  /**
-   * 作成
-   */
   create?: boolean;
-  /**
-   * 更新
-   */
   update?: boolean;
-  /**
-   * 削除
-   */
   destroy?: boolean;
-  /**
-   * 「自分のみ」がonになっている場合はself_only、offになっている場合はallになります。
-   */
   allowed_target?: "self_only" | "all";
 };
 
 export type UserCapabilityWithConfirm = {
-  /**
-   * 「自動で経理」の操作
-   */
   confirm?: boolean;
-  /**
-   * 「取得した明細」の閲覧
-   */
   read?: boolean;
-  /**
-   * 「取得した明細」の作成
-   */
   create?: boolean;
-  /**
-   * 「取得した明細」の更新
-   */
   update?: boolean;
-  /**
-   * 「取得した明細」の削除
-   */
   destroy?: boolean;
 };
 
 export type UserCapabilityWithSync = {
-  /**
-   * 「口座」の閲覧
-   */
   read?: boolean;
-  /**
-   * 「口座」の作成
-   */
   create?: boolean;
-  /**
-   * 「口座」の更新
-   */
   update?: boolean;
-  /**
-   * 「口座」の削除
-   */
   destroy?: boolean;
-  /**
-   * 「口座の同期」の実行（廃止予定）
-   *
-   * @deprecated
-   */
   sync?: boolean;
 };
 
 export type UserCapabilityWithWrite = {
-  /**
-   * 閲覧
-   */
   read?: boolean;
-  /**
-   * 作成
-   */
   create?: boolean;
-  /**
-   * 更新
-   */
   update?: boolean;
-  /**
-   * 削除
-   */
   destroy?: boolean;
-  /**
-   * 操作
-   */
   write?: boolean;
 };
 
 export type Receipt = {
-  /**
-   * ファイルボックス（証憑ファイル）ID
-   */
   id: number;
-  /**
-   * ステータス（confirmed:確認済み, deleted:削除済み, ignored:無視）
-   */
   status: "confirmed" | "deleted" | "ignored";
-  /**
-   * メモ。未設定の場合は空文字を返します。
-   */
   description?: string;
-  /**
-   * ファイルのMIMEタイプ（例：image/png, image/jpeg, application/pdf）。ダウンロードAPIのレスポンスのContent-Typeもこの値になります。
-   */
   mime_type: string;
-  /**
-   * アップロード元種別
-   */
   origin:
     | "unknown"
     | "web"
@@ -11900,58 +3430,19 @@ export type Receipt = {
     | "mail"
     | "safety_contact_file"
     | "public_api";
-  /**
-   * アップロード日時（ISO8601形式）
-   */
   created_at: string;
-  /**
-   * ファイルをアップロードしたユーザー
-   */
   user: {
-    /**
-     * ユーザーID
-     */
     id: number;
-    /**
-     * メールアドレス
-     */
     email: string;
-    /**
-     * 表示名
-     */
     display_name?: string | null;
   } | null;
-  /**
-   * 電子帳簿保存法の検索要件に対応するメタデータ（発行元・発行日・金額）
-   */
   receipt_metadatum?: {
-    /**
-     * 発行元
-     */
     partner_name?: string | null;
-    /**
-     * 発行日 (yyyy-mm-dd)
-     */
     issue_date?: string | null;
-    /**
-     * 金額（円）
-     */
     amount?: number | null;
   } | null;
-  /**
-   * 適格請求書等（qualified: 該当する、not_qualified: 該当しない、unselected: 未選択、null: OCR解析結果が保存されておらず、ユーザーによる手動保存もされていない場合）
-   */
   qualified_invoice?: "qualified" | "not_qualified" | "unselected";
-  /**
-   * インボイス制度適格請求書発行事業者登録番号（null: OCR解析結果が保存されておらず、ユーザーによる手動保存もされていない場合）
-   * - 先頭T数字13桁の固定14桁の文字列
-   * <a target="_blank" href="https://www.invoice-kohyo.nta.go.jp/index.html">国税庁インボイス制度適格請求書発行事業者公表サイト</a>
-   *
-   */
   invoice_registration_number?: string | null;
-  /**
-   * 書類の種類（receipt: 領収書、invoice: 請求書、other: その他、null: OCR解析結果が保存されておらず、ユーザーによる手動保存もされていない場合）
-   */
   document_type?: "receipt" | "invoice" | "other";
 };
 
@@ -11960,384 +3451,107 @@ export type ReceiptResponse = {
 };
 
 export type FiscalYears = {
-  /**
-   * 会計年度ID
-   */
   id: number;
-  /**
-   * 製造業向け機能（true: 使用する、false: 使用しない）
-   */
   use_industry_template: boolean;
-  /**
-   * 固定資産の控除法（true: 間接控除法、false: 直接控除法）
-   */
   indirect_write_off_method: boolean;
-  /**
-   * 期首日 (yyyy-mm-dd)
-   */
   start_date: string;
-  /**
-   * 期末日 (yyyy-mm-dd)
-   */
   end_date: string;
-  /**
-   * 月次償却（0: しない、1: する）
-   */
   depreciation_record_method: number;
-  /**
-   * 課税区分（0: 免税、1: 簡易課税、2: 本則課税（個別対応方式）、3: 本則課税（一括比例配分方式）、4: 本則課税（全額控除））
-   */
   tax_method: number;
-  /**
-   * 簡易課税用事業区分（0: 第一種：卸売業、1: 第二種：小売業、2: 第三種：農林水産業、工業、建設業、製造業など、3: 第四種：飲食店業など、4: 第五種：金融・保険業、運輸通信業、サービス業など、5: 第六種：不動産業など
-   */
   sales_tax_business_code: number;
-  /**
-   * 消費税端数処理方法（0: 切り捨て、1: 切り上げ、2: 四捨五入）
-   */
   tax_fraction: number;
-  /**
-   * 消費税経理処理方法（0: 税込経理、1: 旧税抜経理、2: 税抜経理）
-   */
   tax_account_method: number;
-  /**
-   * 不動産所得使用区分（0: 一般、3: 一般/不動産） ※個人事業主のみ設定可能
-   */
   return_code: number;
-  /**
-   * 年度締め済みか（true: 年度締め済み、false: 未締め）
-   */
   is_closed: boolean;
-  /**
-   * 本締め日 (yyyy-mm-dd)。締めが未設定の場合は null
-   */
   month_end_date: string | null;
-  /**
-   * 仮締め日 (yyyy-mm-dd)。仮締めが未設定の場合は null
-   */
   temp_month_end_date: string | null;
 };
 
 export type ExpenseApplicationsIndexResponse = {
   expense_applications: Array<{
-    /**
-     * 経費申請ID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請タイトル
-     */
     title: string;
-    /**
-     * 申請日 (yyyy-mm-dd)
-     */
     issue_date: string;
-    /**
-     * 備考
-     */
     description?: string;
-    /**
-     * 合計金額
-     */
     total_amount?: number;
-    /**
-     * 申請ステータス(draft:下書き, in_progress:申請中, approved:承認済, rejected:却下, feedback:差戻し)
-     */
     status: "draft" | "in_progress" | "approved" | "rejected" | "feedback";
-    /**
-     * 部門ID
-     */
     section_id?: number | null;
-    /**
-     * メモタグID
-     */
     tag_ids?: Array<number>;
-    /**
-     * 経費申請の申請行一覧（配列）
-     */
     purchase_lines?: Array<{
-      /**
-       * 経費申請の申請行ID
-       */
       id: number;
-      /**
-       * 発生日 (yyyy-mm-dd)
-       */
       transaction_date?: string | null;
-      /**
-       * ファイルボックス（証憑ファイル）ID
-       */
       receipt_id?: number | null;
-      /**
-       * 補足資料（配列）
-       *   receipt_id（証憑ファイル）を指定してください。
-       */
       sub_receipt_ids?: Array<number>;
-      /**
-       * 外貨を利用しているか
-       */
       use_currency?: boolean;
-      /**
-       * 申請行の通貨情報。外貨を利用していない場合はnullになります。
-       */
       expense_application_purchase_line_currency?: {
-        /**
-         * 通貨ID
-         */
         currency_id?: number;
-        /**
-         * 通貨コード（ISO 4217）
-         */
         currency_code?: string;
-        /**
-         * 為替レート（小数文字列）。未設定の場合はnullになります。
-         */
         exchange_rate?: string | null;
       } | null;
-      /**
-       * 明細行一覧（配列）
-       */
       expense_application_lines?: Array<{
-        /**
-         * 明細行ID
-         */
         id: number;
-        /**
-         * 内容
-         */
         description?: string | null;
-        /**
-         * 金額
-         */
         amount?: number;
-        /**
-         * 経費科目ID
-         */
         expense_application_line_template_id?: number | null;
-        /**
-         * 明細行の外貨額。外貨を利用していない場合はnullになります。
-         */
         expense_application_line_currency_amount?: {
-          /**
-           * 外貨額（小数文字列）。未設定の場合はnullになります。
-           */
           currency_amount?: string | null;
-          /**
-           * 外貨額と為替レートからシステムが計算した円換算額（参考値）。amountとは別に保存され、amountを指定した場合でもamountとは連動しません。
-           */
           system_calc_amount?: number;
         } | null;
-        /**
-         * 明細行の部門・メモタグ・セグメントの付与先
-         * * `application` - 申請全体に付与（画面の「申請全体に合わせる」）
-         * * `line` - 明細に個別付与（画面の「個別付与」）
-         */
         tag_assignment?: "application" | "line";
-        /**
-         * 明細行の部門ID
-         * tag_assignmentがapplicationの場合は申請全体のsection_idと同じ値を返します。部門が設定されていない場合はnullになります。
-         */
         section_id?: number | null;
-        /**
-         * 明細行のメモタグID
-         * tag_assignmentがapplicationの場合は申請全体のtag_idsと同じ値を返します。
-         */
         tag_ids?: Array<number>;
-        /**
-         * 明細行のセグメント１タグID
-         * tag_assignmentがapplicationの場合は申請全体のsegment_1_tag_idと同じ値を返します。タグが設定されていない場合はnullになります。
-         */
         segment_1_tag_id?: number | null;
-        /**
-         * 明細行のセグメント２タグID
-         * tag_assignmentがapplicationの場合は申請全体のsegment_2_tag_idと同じ値を返します。タグが設定されていない場合はnullになります。
-         */
         segment_2_tag_id?: number | null;
-        /**
-         * 明細行のセグメント３タグID
-         * tag_assignmentがapplicationの場合は申請全体のsegment_3_tag_idと同じ値を返します。タグが設定されていない場合はnullになります。
-         */
         segment_3_tag_id?: number | null;
       }>;
     }>;
-    /**
-     * 取引ID (申請ステータス:statusがapprovedで、取引が存在する時のみdeal_idが表示されます)
-     */
     deal_id: number | null;
-    /**
-     * 取引ステータス (申請ステータス:statusがapprovedで、取引が存在する時のみdeal_statusが表示されます settled:精算済み, unsettled:清算待ち)
-     */
     deal_status: "settled" | "unsettled";
-    /**
-     * 申請者のユーザーID
-     */
     applicant_id: number;
-    /**
-     * 代理申請者のユーザーID。
-     * 他のユーザーが申請者に代わって申請した場合に、その代理申請者のユーザーIDが入る。
-     * 代理申請ではない場合は null。
-     */
     proxy_applicant_id?: number | null;
-    /**
-     * 申請No.
-     */
     application_number: string;
-    /**
-     * 現在承認ステップID
-     */
     current_step_id?: number | null;
-    /**
-     * 現在のround。差し戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。
-     */
     current_round?: number;
-    /**
-     * セグメント１タグID
-     */
     segment_1_tag_id?: number | null;
-    /**
-     * セグメント２タグID
-     */
     segment_2_tag_id?: number | null;
-    /**
-     * セグメント３タグID
-     */
     segment_3_tag_id?: number | null;
   }>;
 };
 
 export type ExpenseApplicationResponse = {
   expense_application: {
-    /**
-     * 経費申請ID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請タイトル
-     */
     title: string;
-    /**
-     * 申請日 (yyyy-mm-dd)
-     */
     issue_date: string;
-    /**
-     * 備考
-     */
     description?: string | null;
-    /**
-     * 合計金額
-     */
     total_amount?: number;
-    /**
-     * 申請ステータス(draft:下書き, in_progress:申請中, approved:承認済, rejected:却下, feedback:差戻し)
-     */
     status: "draft" | "in_progress" | "approved" | "rejected" | "feedback";
-    /**
-     * 部門ID
-     */
     section_id?: number | null;
-    /**
-     * メモタグID
-     */
     tag_ids?: Array<number>;
-    /**
-     * 経費申請の申請行一覧（配列）
-     */
     purchase_lines?: Array<{
-      /**
-       * 経費申請の申請行ID
-       */
       id: number;
-      /**
-       * 発生日(yyyy-mm-dd)
-       */
       transaction_date?: string | null;
-      /**
-       * ファイルボックス（証憑ファイル）ID
-       */
       receipt_id?: number | null;
-      /**
-       * 補足資料（配列）
-       *   receipt_id（証憑ファイル）を指定してください。
-       */
       sub_receipt_ids?: Array<number>;
-      /**
-       * 外貨を利用しているか
-       */
       use_currency?: boolean;
-      /**
-       * 申請行の通貨情報。外貨を利用していない場合はnullになります。
-       */
       expense_application_purchase_line_currency?: {
-        /**
-         * 通貨ID
-         */
         currency_id?: number;
-        /**
-         * 通貨コード（ISO 4217）
-         */
         currency_code?: string;
-        /**
-         * 為替レート（小数文字列）。未設定の場合はnullになります。
-         */
         exchange_rate?: string | null;
       } | null;
-      /**
-       * 明細行一覧（配列）
-       */
       expense_application_lines?: Array<{
-        /**
-         * 明細行ID
-         */
         id: number;
-        /**
-         * 内容
-         */
         description?: string | null;
-        /**
-         * 金額
-         */
         amount?: number;
-        /**
-         * 経費科目ID
-         */
         expense_application_line_template_id?: number | null;
-        /**
-         * 明細行の外貨額。外貨を利用していない場合はnullになります。
-         */
         expense_application_line_currency_amount?: {
-          /**
-           * 外貨額（小数文字列）。未設定の場合はnullになります。
-           */
           currency_amount?: string | null;
-          /**
-           * 外貨額と為替レートからシステムが計算した円換算額（参考値）。amountとは別に保存され、amountを指定した場合でもamountとは連動しません。
-           */
           system_calc_amount?: number;
         } | null;
-        /**
-         * カスタム申請項目の入力値（配列）
-         * 経費科目に設定されたカスタム申請項目のうち、値が登録されているものを返します。
-         */
         custom_values?: Array<{
-          /**
-           * カスタム申請項目のキー。経費科目API のカスタム申請項目が返すkeyと同じ値です。
-           * 経費科目の中で一意で、経費申請の作成時にも同じキーで指定します。
-           */
           key: string;
-          /**
-           * カスタム申請項目の入力形式
-           * (single_line_string: 一行文字列, multi_line_string: 複数行文字列, date: 日付,
-           * date_range: 期間, datetime: 日時, pulldown: プルダウン, radio_button: ラジオボタン,
-           * checkbox: チェックボックス, number: 数値)
-           */
           type:
             | "single_line_string"
             | "multi_line_string"
@@ -12348,149 +3562,36 @@ export type ExpenseApplicationResponse = {
             | "radio_button"
             | "checkbox"
             | "number";
-          /**
-           * 入力値。形式はtypeによって決まります。
-           * single_line_string, multi_line_string, pulldown, radio_button: 文字列
-           * date: 日付の文字列 (yyyy-mm-dd)
-           * datetime: 日時の文字列 (yyyy-mm-dd hh:mm)
-           * date_range: start_date（開始日, yyyy-mm-dd）とend_date（終了日, yyyy-mm-dd）を持つオブジェクト
-           * checkbox: 選択された選択肢の文字列（配列）
-           * number: 数値
-           * 未入力の場合はnullになります。
-           */
           value: unknown;
         }>;
-        /**
-         * 金額計算方法による計算結果
-         * 経費科目に金額計算方法が設定されている明細行のみ値が入ります。設定されていない場合はnullになります。
-         */
         amount_calculate_result?: {
-          /**
-           * 計算式によって算出された金額
-           */
           calculated_amount: number;
-          /**
-           * 適用された金額計算ルール。
-           * 経費科目APIのamount_calculation_setting.rulesと同じ構造なので、
-           * どのルールが適用されたかを突き合わせられます。
-           */
           applied_rule: {
             condition: ExpenseApplicationLineTemplateAmountCalculationCondition;
-            /**
-             * 適用された金額計算式。カスタム申請項目の参照は{key}で表します。
-             * 経費科目APIのamount_calculation_setting.rules[].formulaと同じ公開文法です。
-             */
             formula: string;
           };
-          /**
-           * 金額計算の条件判定に用いた申請者の所属情報
-           */
           evaluated_as: {
-            /**
-             * 申請者の所属部門ID。未設定の場合はnull
-             */
             group_id: number | null;
-            /**
-             * 申請者の役職ID。未設定の場合はnull
-             */
             position_id: number | null;
           };
         } | null;
-        /**
-         * 明細行の部門・メモタグ・セグメントの付与先
-         * * `application` - 申請全体に付与（画面の「申請全体に合わせる」）
-         * * `line` - 明細に個別付与（画面の「個別付与」）
-         */
         tag_assignment?: "application" | "line";
-        /**
-         * 明細行の部門ID
-         * tag_assignmentがapplicationの場合は申請全体のsection_idと同じ値を返します。部門が設定されていない場合はnullになります。
-         */
         section_id?: number | null;
-        /**
-         * 明細行のメモタグID
-         * tag_assignmentがapplicationの場合は申請全体のtag_idsと同じ値を返します。
-         */
         tag_ids?: Array<number>;
-        /**
-         * 明細行のセグメント１タグID
-         * tag_assignmentがapplicationの場合は申請全体のsegment_1_tag_idと同じ値を返します。タグが設定されていない場合はnullになります。
-         */
         segment_1_tag_id?: number | null;
-        /**
-         * 明細行のセグメント２タグID
-         * tag_assignmentがapplicationの場合は申請全体のsegment_2_tag_idと同じ値を返します。タグが設定されていない場合はnullになります。
-         */
         segment_2_tag_id?: number | null;
-        /**
-         * 明細行のセグメント３タグID
-         * tag_assignmentがapplicationの場合は申請全体のsegment_3_tag_idと同じ値を返します。タグが設定されていない場合はnullになります。
-         */
         segment_3_tag_id?: number | null;
       }>;
     }>;
-    /**
-     * 取引ID (申請ステータス:statusがapprovedで、取引が存在する時のみdeal_idが表示されます)
-     */
     deal_id: number | null;
-    /**
-     * 取引ステータス (申請ステータス:statusがapprovedで、取引が存在する時のみdeal_statusが表示されます settled:精算済み, unsettled:清算待ち)
-     */
     deal_status: "settled" | "unsettled";
-    /**
-     * 申請者のユーザーID
-     */
     applicant_id: number;
-    /**
-     * 代理申請者のユーザーID。
-     * 他のユーザーが申請者に代わって申請した場合に、その代理申請者のユーザーIDが入る。
-     * 代理申請ではない場合は null。
-     */
     proxy_applicant_id?: number | null;
-    /**
-     * 承認者（配列）
-     *   承認ステップのresource_typeがunspecified (指定なし)の場合はapproversはレスポンスに含まれません。
-     *   しかし、resource_typeがunspecifiedの承認ステップにおいて誰かが承認・却下・差し戻しのいずれかのアクションを取った後は、
-     *   approversはレスポンスに含まれるようになります。
-     *   その場合approversにはアクションを行ったステップのIDとアクションを行ったユーザーのIDが含まれます。
-     */
     approvers: Array<{
-      /**
-       * 承認ステップID
-       */
       step_id: number;
-      /**
-       * 承認者のユーザーID
-       * 下記の場合はnullになります。
-       * <ul>
-       *   <li>resource_type:selected_userの場合で承認者未指定時</li>
-       *   <li>resource_type:or_positionで前stepで部門未指定の場合</li>
-       * </ul>
-       */
       user_id: number | null;
-      /**
-       * 承認者の承認状態
-       * * `initial` - 初期状態
-       * * `approved` - 承認済
-       * * `rejected` - 却下
-       * * `feedback` - 差戻し
-       */
       status: "initial" | "approved" | "rejected" | "feedback";
-      /**
-       * 特権承認済みかどうか
-       */
       is_force_action: boolean;
-      /**
-       * 承認ステップの承認方法
-       * * `predefined_user` - メンバー指定 (1人)
-       * * `selected_user` - 申請時にメンバー指定
-       * * `unspecified` - 指定なし
-       * * `and_resource` - メンバー指定 (複数、全員の承認)
-       * * `or_resource` - メンバー指定 (複数、1人の承認)
-       * * `and_position` - 役職指定 (複数、全員の承認)
-       * * `or_position` - 役職指定 (複数、1人の承認)
-       * * `switchable` - 経路分岐
-       */
       resource_type:
         | "predefined_user"
         | "selected_user"
@@ -12501,138 +3602,41 @@ export type ExpenseApplicationResponse = {
         | "or_position"
         | "switchable";
     }>;
-    /**
-     * 申請No.
-     */
     application_number: string;
-    /**
-     * 申請経路ID
-     */
     approval_flow_route_id: number;
-    /**
-     * 経費申請のコメント一覧（配列）
-     */
     comments: Array<{
-      /**
-       * コメント内容
-       */
       comment: string;
-      /**
-       * ユーザーID
-       */
       user_id: number;
-      /**
-       * コメント日時(ISO8601形式)
-       */
       posted_at: string;
     }>;
-    /**
-     * 経費申請の承認履歴（配列）
-     */
     approval_flow_logs: Array<{
-      /**
-       * 操作(apply: 申請, approve: 承認, force_approve: 特権承認, cancel: 取消, reject: 却下, feedback: 差戻し)
-       */
       action: "apply" | "approve" | "force_approve" | "cancel" | "reject" | "feedback";
-      /**
-       * ユーザーID
-       */
       user_id: number;
-      /**
-       * 更新日時(ISO8601形式)
-       */
       updated_at: string;
     }>;
-    /**
-     * 現在承認ステップID
-     */
     current_step_id: number | null;
-    /**
-     * 現在のround。差し戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。
-     */
     current_round: number;
-    /**
-     * 親申請ID。
-     * 各種申請または購買申請が使用可能なプランの事業所でのみレスポンスに含まれる（キー自体が存在しない場合がある）。
-     * 関連付けが解除されている場合や親申請が未設定の場合は null。
-     */
     parent_id?: number | null;
-    /**
-     * 親申請の種別。parent_id とペアで返却される。
-     * * `ApprovalRequest` - 各種申請
-     * * `PurchaseRequest` - 購買申請
-     *
-     * 各種申請または購買申請が使用可能なプランの事業所でのみレスポンスに含まれる（キー自体が存在しない場合がある）。
-     * 関連付けが解除されている場合や親申請が未設定の場合は null。
-     */
     parent_type?: "ApprovalRequest" | "PurchaseRequest";
-    /**
-     * セグメント１タグID
-     */
     segment_1_tag_id?: number | null;
-    /**
-     * セグメント２タグID
-     */
     segment_2_tag_id?: number | null;
-    /**
-     * セグメント３タグID
-     */
     segment_3_tag_id?: number | null;
   };
 };
 
 export type ExpenseApplicationLineTemplate = {
-  /**
-   * 経費科目ID
-   */
   id: number;
-  /**
-   * 経費科目の元となるテンプレートを識別するID。経費科目の設定（名前や勘定科目など）を変更しても変わらない固定値
-   */
   source_line_template_id: number;
-  /**
-   * 経費科目名
-   */
   name: string;
-  /**
-   * 経費科目に紐づく勘定科目のID
-   */
   account_item_id: number;
-  /**
-   * 経費科目に紐づく勘定科目の名前
-   */
   account_item_name: string;
-  /**
-   * 経費科目に紐づく税区分コード
-   */
   tax_code: number;
-  /**
-   * 経費科目に紐づく税区分の名前
-   */
   tax_name: string;
-  /**
-   * 経費科目の説明。未設定の場合はnull
-   */
   description: string | null;
-  /**
-   * 内容の補足。経費申請の作成時に内容欄へ何を入力すべきかを申請者に案内する文言。未設定の場合はnull
-   */
   line_description: string | null;
-  /**
-   * 添付ファイルの必須/任意（true: 経費申請の作成時に領収書などのファイル添付が必須, false: ファイル添付は任意）
-   */
   required_receipt: boolean;
-  /**
-   * 内容の入力設定（optional: 経費申請の作成時に内容欄の入力が任意, required: 内容欄の入力が必須, disable: 内容欄を表示しない）
-   */
   line_content_setting?: "optional" | "required" | "disable";
-  /**
-   * カスタム申請項目。表示順に並びます。定義はリクエストと共通で、取得した内容をそのまま作成・更新へ送り返せます
-   */
   custom_form_parts?: Array<ExpenseApplicationLineTemplateCustomFormPart>;
-  /**
-   * 金額計算設定。定義はリクエストと共通で、取得した内容をそのまま作成・更新へ送り返せます
-   */
   amount_calculation_setting?: ExpenseApplicationLineTemplateAmountCalculationSetting;
 };
 
@@ -12641,28 +3645,9 @@ export type ExpenseApplicationLineTemplateResponse = {
 };
 
 export type ExpenseApplicationLineTemplateCustomFormPart = {
-  /**
-   * カスタム申請項目ID。サーバーが採番し、レスポンスでは常に返します。
-   * 更新時に既存の項目を指す場合だけ指定し、新規に追加する項目では省略します。
-   * 作成時は指定しても無視され、新しいIDが採番されます。取得した経費科目の内容をそのまま送ると、その内容をコピーした経費科目を作成できます。
-   * 経費科目の更新で経費科目が作り直されると振り直されるため、項目を安定して識別する用途にはkeyを使ってください。
-   */
   id?: number;
-  /**
-   * カスタム申請項目を識別する永続キー。英小文字で始まる1〜64文字の半角英小文字・数字・アンダースコアで、経費科目内で一意です。
-   * 金額計算式からはこのキーを {key} の形式で参照します。
-   * Web版freee会計で作成した項目など、キーが未設定の項目にはシステムが custom_field_ の後ろにカスタム申請項目IDを付けたキー (例: custom_field_12) を補って返します。
-   * custom_field_ で始まるキーはシステム採番に予約されているため、新しい項目には指定できません。既存の項目には取得した値をそのまま送り返せます。
-   */
   key: string;
-  /**
-   * カスタム申請項目名 (255文字以内)
-   */
   name: string;
-  /**
-   * カスタム申請項目の入力形式 (single_line_string: 一行文字列, multi_line_string: 複数行文字列, date: 日付, date_range: 期間, datetime: 日時, number: 数値, pulldown: プルダウン, checkbox: チェックボックス, radio_button: ラジオボタン)。
-   * 金額計算式から参照できるのは number (入力された数値)、pulldown (選択された選択肢の calculation_value)、date_range (開始日から終了日までの日数) の項目です。
-   */
   type:
     | "single_line_string"
     | "multi_line_string"
@@ -12673,311 +3658,83 @@ export type ExpenseApplicationLineTemplateCustomFormPart = {
     | "pulldown"
     | "checkbox"
     | "radio_button";
-  /**
-   * 経費申請の作成時にこの項目の入力を必須にするかどうか (true: 必須, false: 任意)
-   */
   required: boolean;
-  /**
-   * カスタム申請項目の補足説明。未設定の場合はnull
-   */
   annotation: string | null;
-  /**
-   * カスタム申請項目の初期値。typeに応じた値で指定します (single_line_string: 255文字以内の文字列, multi_line_string: 10000文字以内の文字列, number: 整数部10桁・小数部3桁以内の数値)。
-   * それ以外のtypeでは初期値を持てないためnullを指定します。未設定の場合はnull
-   */
   default_value: string | null | number;
-  /**
-   * 数値の単位 (255文字以内)。typeがnumberの場合だけ指定できます。未設定の場合はnull
-   */
   unit: string | null;
-  /**
-   * 選択肢。typeがpulldown、checkbox、radio_buttonの場合に1件以上指定し、それ以外のtypeでは空配列を指定します。
-   * calculation_valueはpulldownの選択肢を金額計算式から参照するときの評価値で、計算に使わない場合はすべての選択肢でnullにします。calculation_valueを指定する場合はすべての選択肢に指定します。
-   */
   options: Array<{
-    /**
-     * 選択肢の表示値
-     */
     value: string;
-    /**
-     * 金額計算式から参照されたときの評価値。計算に使わない選択肢はnull
-     */
     calculation_value: number | null;
   }>;
 };
 
-/**
- * 金額計算設定。methodの値によって指定できるフィールドが変わります。
- * - none: 金額設定なし (申請者が金額を入力します)。他のフィールドは持ちません
- * - fixed: 固定金額。fixed_amountを持ちます
- * - formula: 計算式から算出。rounding、rules、default_formulaを持ちます
- */
 export type ExpenseApplicationLineTemplateAmountCalculationSetting =
   | {
-      /**
-       * 金額設定 (none: 金額設定なし)
-       */
       method: "none";
     }
   | {
-      /**
-       * 金額設定 (fixed: 固定金額)
-       */
       method: "fixed";
-      /**
-       * 固定金額 (1以上の整数)
-       */
       fixed_amount: number;
     }
   | {
-      /**
-       * 金額設定 (formula: 計算式から算出)
-       */
       method: "formula";
-      /**
-       * 計算結果の端数処理 (omit: 切り捨て, round_up: 切り上げ, round: 四捨五入)。申請フォーム設定のauto_calculation_amount_fractionと同じ語彙です
-       */
       rounding: "omit" | "round_up" | "round";
-      /**
-       * 条件付きの金額計算ルール (50件以内)。配列の並び順に評価し、最初に条件へ一致したルールの計算式を適用します
-       */
       rules: Array<{
-        /**
-         * ルールの適用条件。typeで条件の種類を表します。
-         * - applicant_position: 申請者の役職による条件。match と position_ids を持ちます
-         * - unsupported: 本APIで表現できない条件 (Web版freee会計の旧設定で作成された条件式)。レスポンス専用で、リクエストには指定できません。条件を変更する場合は applicant_position の条件で送り直してください
-         */
         condition:
           | {
-              /**
-               * 条件の種類 (applicant_position: 申請者の役職による条件)
-               */
               type: "applicant_position";
-              /**
-               * 役職の比較方法 (any_of: いずれかに一致, none_of: いずれにも一致しない)
-               */
               match: "any_of" | "none_of";
-              /**
-               * 条件に使用する役職IDの配列 (1件以上)。役職IDは人事労務の役職から取得します
-               */
               position_ids: Array<number>;
             }
           | {
-              /**
-               * 条件の種類 (unsupported: 本APIで表現できない条件)
-               */
               type: "unsupported";
             };
-        /**
-         * 条件に一致した場合の金額計算式。次の文法 (EBNF) で表記します。
-         * <pre>
-         * formula  = expr ;
-         * expr     = term { ( "+" | "-" ) term } ;
-         * term     = factor { ( "*" | "/" ) factor } ;
-         * factor   = number | variable | "(" expr ")" ;
-         * variable = "{" key "}" ;             key はカスタム申請項目の key
-         * number   = digit+ [ "." digit{1,3} ] ;  整数部10桁まで、負数は不可
-         * </pre>
-         * 四則演算・括弧・符号なし数値・{key} 以外は指定できません。トークンの間の空白は無視し、レスポンスでは空白を除いた式を返します。
-         * 参照できるカスタム申請項目と評価値は次のとおりです。
-         * - number: 入力された数値
-         * - pulldown: 選択された選択肢のcalculation_value (calculation_valueがnullの選択肢を持つ項目は参照できません)
-         * - date_range: 開始日から終了日までの日数
-         * - それ以外のtypeの項目は参照できません
-         * 評価結果はroundingの指定で整数円に丸めます。
-         * 式が文法に合わない場合は400エラーになり、エラーメッセージにエラーコード・原因のトークン・位置 (先頭を0とした文字位置) を含めます。
-         * 除数が{key}を含まず定数として0になる式 ({amount}/0、{amount}/(1-1) など) も、同じ形式の400エラー (エラーコード division_by_zero、位置は該当する「/」) になります。除数に{key}を含む式は保存でき、申請時に0で割ることになった場合は経費申請の作成・更新が400エラーになります。
-         */
         formula: string;
       }>;
-      /**
-       * どのルールにも一致しない場合に適用する金額計算式。ルールを持たない場合はこの式で金額を算出します。
-       * 式の文法は rules[].formula と同じです。既定の式を持たない場合はnull
-       */
       default_formula: string | null;
     };
 
-/**
- * ルールの適用条件。typeで条件の種類を表します。
- * - applicant_position: 申請者の役職による条件。match と position_ids を持ちます
- * - unsupported: 本APIで表現できない条件 (Web版freee会計の旧設定で作成された条件式)。レスポンス専用で、リクエストには指定できません。条件を変更する場合は applicant_position の条件で送り直してください
- */
 export type ExpenseApplicationLineTemplateAmountCalculationCondition =
   | {
-      /**
-       * 条件の種類 (applicant_position: 申請者の役職による条件)
-       */
       type: "applicant_position";
-      /**
-       * 役職の比較方法 (any_of: いずれかに一致, none_of: いずれにも一致しない)
-       */
       match: "any_of" | "none_of";
-      /**
-       * 条件に使用する役職IDの配列 (1件以上)。役職IDは人事労務の役職から取得します
-       */
       position_ids: Array<number>;
     }
   | {
-      /**
-       * 条件の種類 (unsupported: 本APIで表現できない条件)
-       */
       type: "unsupported";
     };
 
 export type PaymentRequestResponse = {
   payment_request: {
-    /**
-     * 支払依頼ID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請タイトル
-     */
     title: string;
-    /**
-     * 申請日 (yyyy-mm-dd)
-     */
     application_date: string;
-    /**
-     * 備考。未入力の場合は空文字列になります。
-     */
     description: string;
-    /**
-     * 合計金額（円、税込）
-     * 通常取引行 (deal_line) の合計金額から控除・マイナス行 (negative_line) と源泉所得税行 (withholding_tax) の合計金額を差し引いた値です。
-     */
     total_amount: number;
-    /**
-     * 申請ステータス
-     * * `draft` - 下書き
-     * * `in_progress` - 申請中
-     * * `approved` - 承認済
-     * * `rejected` - 却下
-     * * `feedback` - 差戻し
-     */
     status: "draft" | "in_progress" | "approved" | "rejected" | "feedback";
-    /**
-     * 支払依頼の項目行一覧（配列）
-     */
     payment_request_lines: Array<{
-      /**
-       * 支払依頼の項目行ID
-       */
       id: number;
-      /**
-       * 行の種類
-       * * `deal_line` - 支払依頼の通常取引行
-       * * `negative_line` - 支払依頼の控除・マイナス行
-       * * `withholding_tax` - 源泉所得税行
-       */
       line_type: "deal_line" | "negative_line" | "withholding_tax";
-      /**
-       * 内容
-       */
       description: string;
-      /**
-       * 金額
-       */
       amount: number;
-      /**
-       * 勘定科目ID
-       */
       account_item_id: number | null;
-      /**
-       * 税区分コード
-       */
       tax_code: number | null;
-      /**
-       * 品目ID
-       */
       item_id: number | null;
-      /**
-       * 部門ID
-       */
       section_id: number | null;
-      /**
-       * メモタグID
-       */
       tag_ids: Array<number>;
-      /**
-       * セグメント１タグID
-       */
       segment_1_tag_id?: number | null;
-      /**
-       * セグメント２タグID
-       */
       segment_2_tag_id?: number | null;
-      /**
-       * セグメント３タグID
-       */
       segment_3_tag_id?: number | null;
     }>;
-    /**
-     * 取引ID
-     * 申請ステータス (status) が `approved` (承認済) で、支払依頼から作成された取引が存在する場合のみ値が入ります。
-     * それ以外の場合は null になります。
-     */
     deal_id: number | null;
-    /**
-     * 取引ステータス
-     * * `settled` - 支払済み
-     * * `unsettled` - 支払待ち
-     *
-     * 申請ステータス (status) が `approved` (承認済) で、支払依頼から作成された取引が存在する場合のみ値が入ります。
-     * それ以外の場合は null になります。
-     */
     deal_status: "settled" | "unsettled";
-    /**
-     * 申請者のユーザーID（`/api/1/users` のレスポンス id と同じ値）
-     */
     applicant_id: number;
-    /**
-     * 承認者（配列）
-     *   承認ステップのresource_typeがunspecified (指定なし)の場合はapproversはレスポンスに含まれません。
-     *   しかし、resource_typeがunspecifiedの承認ステップにおいて誰かが承認・却下・差し戻しのいずれかのアクションを取った後は、
-     *   approversはレスポンスに含まれるようになります。
-     *   その場合approversにはアクションを行ったステップのIDとアクションを行ったユーザーのIDが含まれます。
-     */
     approvers: Array<{
-      /**
-       * 承認ステップID
-       */
       step_id: number;
-      /**
-       * 承認者のユーザーID
-       * 下記の場合はnullになります。
-       * <ul>
-       *   <li>resource_type:selected_userの場合で承認者未指定時</li>
-       *   <li>resource_type:or_positionで前stepで部門未指定の場合</li>
-       * </ul>
-       */
       user_id: number | null;
-      /**
-       * 承認者の承認状態
-       * * `initial` - 初期状態
-       * * `approved` - 承認済
-       * * `rejected` - 却下
-       * * `feedback` - 差戻し
-       */
       status: "initial" | "approved" | "rejected" | "feedback";
-      /**
-       * 特権承認済みかどうか（true の場合、特権承認によって承認されたことを示します）
-       */
       is_force_action: boolean;
-      /**
-       * 承認ステップの承認方法
-       * * `predefined_user` - メンバー指定 (1人)
-       * * `selected_user` - 申請時にメンバー指定
-       * * `unspecified` - 指定なし
-       * * `and_resource` - メンバー指定 (複数、全員の承認)
-       * * `or_resource` - メンバー指定 (複数、1人の承認)
-       * * `and_position` - 役職指定 (複数、全員の承認)
-       * * `or_position` - 役職指定 (複数、1人の承認)
-       */
       resource_type:
         | "predefined_user"
         | "selected_user"
@@ -12987,273 +3744,64 @@ export type PaymentRequestResponse = {
         | "and_position"
         | "or_position";
     }>;
-    /**
-     * 申請No.（事業所内で申請単位に自動採番される番号）
-     */
     application_number: string;
-    /**
-     * 申請経路ID（`/api/1/approval_flow_routes` のレスポンス id と同じ値）
-     */
     approval_flow_route_id: number;
-    /**
-     * 支払依頼のコメント一覧（配列）。コメントが登録された順に並びます。
-     */
     comments: Array<{
-      /**
-       * コメント内容
-       */
       comment: string;
-      /**
-       * ユーザーID
-       */
       user_id: number;
-      /**
-       * コメント日時(ISO8601形式)
-       */
       posted_at: string;
     }>;
-    /**
-     * 支払依頼の承認履歴（配列）。承認操作が行われた順に並びます。
-     */
     approval_flow_logs: Array<{
-      /**
-       * 操作
-       * * `apply` - 申請
-       * * `approve` - 承認
-       * * `force_approve` - 特権承認
-       * * `cancel` - 取消
-       * * `reject` - 却下
-       * * `feedback` - 差戻し
-       */
       action: "apply" | "approve" | "force_approve" | "cancel" | "reject" | "feedback";
-      /**
-       * ユーザーID
-       */
       user_id: number;
-      /**
-       * 更新日時(ISO8601形式)
-       */
       updated_at: string;
     }>;
-    /**
-     * 現在の承認ステップID（承認操作 API `POST /api/1/payment_requests/{id}/actions` の target_step_id に指定します）
-     * 下書き・差戻し状態の場合は null になります。
-     */
     current_step_id: number | null;
-    /**
-     * 現在の round（承認操作 API `POST /api/1/payment_requests/{id}/actions` の target_round に指定します）
-     * 差戻し等により申請が step の最初からやり直しになると round の値が増えます。
-     */
     current_round: number;
-    /**
-     * 親申請ID。
-     * 各種申請または購買申請が使用可能なプランの事業所でのみレスポンスに含まれる（キー自体が存在しない場合がある）。
-     * 関連付けが解除されている場合や親申請が未設定の場合は null。
-     */
     parent_id?: number | null;
-    /**
-     * 親申請の種別。parent_id とペアで返却される。
-     * * `ApprovalRequest` - 各種申請
-     * * `PurchaseRequest` - 購買申請
-     *
-     * 各種申請または購買申請が使用可能なプランの事業所でのみレスポンスに含まれる（キー自体が存在しない場合がある）。
-     * 関連付けが解除されている場合や親申請が未設定の場合は null。
-     */
     parent_type?: "ApprovalRequest" | "PurchaseRequest";
-    /**
-     * 請求書番号。未設定の場合は空文字列になります。
-     */
     document_code: string;
-    /**
-     * ファイルボックス（証憑ファイル）ID の配列
-     * 添付されているファイルボックスの ID を返します。添付が無い場合は空配列になります。
-     */
     receipt_ids: Array<number>;
-    /**
-     * 発生日 (yyyy-mm-dd)
-     */
     issue_date: string;
-    /**
-     * 支払期限 (yyyy-mm-dd)。指定されていない場合は null になります。
-     */
     payment_date: string | null;
-    /**
-     * 支払方法
-     * * `none` - 指定なし
-     * * `domestic_bank_transfer` - 国内振込
-     * * `abroad_bank_transfer` - 国外振込
-     * * `account_transfer` - 口座振替
-     * * `credit_card` - クレジットカード
-     */
     payment_method:
       | "none"
       | "domestic_bank_transfer"
       | "abroad_bank_transfer"
       | "account_transfer"
       | "credit_card";
-    /**
-     * 取引先ID（取引先が指定されていない支払依頼の場合は null になります）
-     */
     partner_id: number | null;
-    /**
-     * 取引先コード
-     * 取引先コードが設定されていない場合、および事業所が取引先コードを利用していない場合は null になります。
-     */
     partner_code?: string | null;
-    /**
-     * 取引先名（取引先が指定されていない支払依頼の場合は null になります）
-     */
     partner_name: string | null;
-    /**
-     * 銀行名。支払先の取引先が指定されている場合は取引先の振込先口座から引用されます。未設定の場合は空文字列になります。
-     */
     bank_name: string;
-    /**
-     * 銀行名（カナ）。支払先の取引先が指定されている場合は取引先の振込先口座から引用されます。未設定の場合は空文字列になります。
-     */
     bank_name_kana: string;
-    /**
-     * 銀行コード。支払先の取引先が指定されている場合は取引先の振込先口座から引用されます。未設定の場合は空文字列になります。
-     */
     bank_code: string;
-    /**
-     * 支店名。支払先の取引先が指定されている場合は取引先の振込先口座から引用されます。未設定の場合は空文字列になります。
-     */
     branch_name: string;
-    /**
-     * 支店名（カナ）。支払先の取引先が指定されている場合は取引先の振込先口座から引用されます。未設定の場合は空文字列になります。
-     */
     branch_kana: string;
-    /**
-     * 支店番号。支払先の取引先が指定されている場合は取引先の振込先口座から引用されます。未設定の場合は空文字列になります。
-     */
     branch_code: string;
-    /**
-     * 口座種別
-     * * `ordinary` - 普通
-     * * `checking` - 当座
-     * * `earmarked` - 納税準備預金
-     * * `savings` - 貯蓄
-     * * `other` - その他
-     */
     account_type: "ordinary" | "checking" | "earmarked" | "savings" | "other";
-    /**
-     * 口座番号。支払先の取引先が指定されている場合は取引先の振込先口座から引用されます。未設定の場合は空文字列になります。
-     */
     account_number: string;
-    /**
-     * 受取人名（カナ）。支払先の取引先が指定されている場合は取引先の振込先口座から引用されます。未設定の場合は空文字列になります。
-     */
     account_name: string;
-    /**
-     * 適格請求書発行事業者の区分
-     * * `qualified` - 該当する
-     * * `not_qualified` - 該当しない
-     * * `unspecified` - 未選択
-     *
-     * 支払依頼をインボイス要件をみたす申請として扱うかどうかを表します。
-     */
     qualified_invoice_status?: "qualified" | "not_qualified" | "unspecified";
   };
 };
 
 export type PaymentRequestsIndexResponse = {
-  /**
-   * 支払依頼の一覧。詳細フィールド（description / payment_request_lines / approval_flow_route_id / comments / approval_flow_logs / receipt_ids / 振込先口座情報）は含まれません。詳細は `/api/1/payment_requests/{id}` で取得してください。
-   */
   payment_requests: Array<{
-    /**
-     * 支払依頼ID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請タイトル
-     */
     title: string;
-    /**
-     * 申請日 (yyyy-mm-dd)
-     */
     application_date: string;
-    /**
-     * 合計金額（円、税込）
-     * 通常取引行 (deal_line) の合計金額から控除・マイナス行 (negative_line) と源泉所得税行 (withholding_tax) の合計金額を差し引いた値です。
-     */
     total_amount: number;
-    /**
-     * 申請ステータス
-     * * `draft` - 下書き
-     * * `in_progress` - 申請中
-     * * `approved` - 承認済
-     * * `rejected` - 却下
-     * * `feedback` - 差戻し
-     */
     status: "draft" | "in_progress" | "approved" | "rejected" | "feedback";
-    /**
-     * 取引ID
-     * 申請ステータス (status) が `approved` (承認済) で、支払依頼から作成された取引が存在する場合のみ値が入ります。
-     * それ以外の場合は null になります。
-     */
     deal_id?: number | null;
-    /**
-     * 取引ステータス
-     * * `settled` - 支払済み
-     * * `unsettled` - 支払待ち
-     *
-     * 申請ステータス (status) が `approved` (承認済) で、支払依頼から作成された取引が存在する場合のみ値が入ります。
-     * それ以外の場合は null になります。
-     */
     deal_status?: "settled" | "unsettled";
-    /**
-     * 申請者のユーザーID（`/api/1/users` のレスポンス id と同じ値）
-     */
     applicant_id: number;
-    /**
-     * 承認者（配列）
-     *   承認ステップのresource_typeがunspecified (指定なし)の場合はapproversはレスポンスに含まれません。
-     *   しかし、resource_typeがunspecifiedの承認ステップにおいて誰かが承認・却下・差し戻しのいずれかのアクションを取った後は、
-     *   approversはレスポンスに含まれるようになります。
-     *   その場合approversにはアクションを行ったステップのIDとアクションを行ったユーザーのIDが含まれます。
-     */
     approvers: Array<{
-      /**
-       * 承認ステップID
-       */
       step_id: number;
-      /**
-       * 承認者のユーザーID
-       * 下記の場合はnullになります。
-       * <ul>
-       *   <li>resource_type:selected_userの場合で承認者未指定時</li>
-       *   <li>resource_type:or_positionで前stepで部門未指定の場合</li>
-       * </ul>
-       */
       user_id: number | null;
-      /**
-       * 承認者の承認状態
-       * * `initial` - 初期状態
-       * * `approved` - 承認済
-       * * `rejected` - 却下
-       * * `feedback` - 差戻し
-       */
       status: "initial" | "approved" | "rejected" | "feedback";
-      /**
-       * 特権承認済みかどうか（true の場合、特権承認によって承認されたことを示します）
-       */
       is_force_action: boolean;
-      /**
-       * 承認ステップの承認方法
-       * * `predefined_user` - メンバー指定 (1人)
-       * * `selected_user` - 申請時にメンバー指定
-       * * `unspecified` - 指定なし
-       * * `and_resource` - メンバー指定 (複数、全員の承認)
-       * * `or_resource` - メンバー指定 (複数、1人の承認)
-       * * `and_position` - 役職指定 (複数、全員の承認)
-       * * `or_position` - 役職指定 (複数、1人の承認)
-       */
       resource_type:
         | "predefined_user"
         | "selected_user"
@@ -13263,178 +3811,48 @@ export type PaymentRequestsIndexResponse = {
         | "and_position"
         | "or_position";
     }>;
-    /**
-     * 申請No.（事業所内で申請単位に自動採番される番号）
-     */
     application_number: string;
-    /**
-     * 現在の承認ステップID（承認操作 API `POST /api/1/payment_requests/{id}/actions` の target_step_id に指定します）
-     * 下書き・差戻し状態の場合は null になります。
-     */
     current_step_id: number | null;
-    /**
-     * 現在の round（承認操作 API `POST /api/1/payment_requests/{id}/actions` の target_round に指定します）
-     * 差戻し等により申請が step の最初からやり直しになると round の値が増えます。
-     */
     current_round: number;
-    /**
-     * 請求書番号。未設定の場合は空文字列になります。
-     */
     document_code: string;
-    /**
-     * 発生日 (yyyy-mm-dd)
-     */
     issue_date: string;
-    /**
-     * 支払期限 (yyyy-mm-dd)。指定されていない場合は null になります。
-     */
     payment_date: string | null;
-    /**
-     * 支払方法
-     * * `none` - 指定なし
-     * * `domestic_bank_transfer` - 国内振込
-     * * `abroad_bank_transfer` - 国外振込
-     * * `account_transfer` - 口座振替
-     * * `credit_card` - クレジットカード
-     */
     payment_method:
       | "none"
       | "domestic_bank_transfer"
       | "abroad_bank_transfer"
       | "account_transfer"
       | "credit_card";
-    /**
-     * 取引先ID（取引先が指定されていない支払依頼の場合は null になります）
-     */
     partner_id: number | null;
-    /**
-     * 取引先コード
-     * 取引先コードが設定されていない場合、および事業所が取引先コードを利用していない場合は null になります。
-     */
     partner_code: string | null;
-    /**
-     * 取引先名（取引先が指定されていない支払依頼の場合は null になります）
-     */
     partner_name: string | null;
-    /**
-     * 適格請求書発行事業者の区分
-     * * `qualified` - 該当する
-     * * `not_qualified` - 該当しない
-     * * `unspecified` - 未選択
-     *
-     * 支払依頼をインボイス要件をみたす申請として扱うかどうかを表します。
-     */
     qualified_invoice_status?: "qualified" | "not_qualified" | "unspecified";
-    /**
-     * 内税/外税の区分
-     * * `inclusive` - 内税
-     * * `exclusive` - 外税
-     *
-     * 外税の支払依頼は他のエンドポイント（`GET /api/1/payment_requests/{id}` / `PUT` / `DELETE`）で利用できないため、Web 画面からご確認ください。
-     */
     input_mode?: "inclusive" | "exclusive";
   }>;
 };
 
 export type PaymentRequestActionCreateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 承認操作
-   * * `approve` - 承認する
-   * * `force_approve` - 特権承認する
-   * * `cancel` - 申請を取り消す
-   * * `reject` - 却下する
-   * * `feedback` - 申請者へ差し戻す
-   * * `force_feedback` - 承認済み・却下済みを取り消す
-   *
-   * 承認操作は申請ステータスが `in_progress` (申請中) / `approved` (承認済) / `rejected` (却下) のもののみが対象です。
-   */
   approval_action:
     "approve" | "force_approve" | "cancel" | "reject" | "feedback" | "force_feedback";
-  /**
-   * 対象承認ステップID。支払依頼の取得API (`GET /api/1/payment_requests/{id}`) のレスポンス current_step_id を送信してください。
-   */
   target_step_id: number;
-  /**
-   * 対象 round。支払依頼の取得API (`GET /api/1/payment_requests/{id}`) のレスポンス current_round を送信してください。
-   * 差し戻し等により申請が step の最初からやり直しになると round の値が増えます。
-   */
   target_round: number;
-  /**
-   * 次ステップの承認者のユーザーID
-   * 次の承認ステップが「申請時にメンバー指定」(resource_type: `selected_user`) の場合に、承認させるユーザーを指定してください。
-   * 該当しない場合は null を指定するか省略できます。
-   */
   next_approver_id?: number | null;
-  /**
-   * 次ステップの承認部門ID<br>
-   * 次の承認ステップが部門選択型の場合に、承認させる部門を指定してください。
-   *
-   */
   next_group_id?: number | null;
 };
 
 export type ApprovalRequestCreateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 申請日 (yyyy-mm-dd)<br>
-   * 指定しない場合は当日の日付が登録されます。
-   *
-   */
   application_date?: string;
-  /**
-   * 申請経路ID
-   */
   approval_flow_route_id: number;
-  /**
-   * 申請フォームID
-   */
   form_id: number;
-  /**
-   * 承認者のユーザーID
-   */
   approver_id?: number;
-  /**
-   * 申請者の所属部門ID<br>
-   * 「部門役職」の承認ステップを含む申請経路で、申請者がどの所属部門として申請するかを指定します。<br>
-   * <ul>
-   *   <li>申請者が複数の部門に所属している場合は必須です。省略すると400エラーになります。</li>
-   *   <li>申請者の所属部門が1つだけの場合は、省略するとその部門が採用されます。</li>
-   * </ul>
-   *
-   */
   applicant_group_id?: number | null;
-  /**
-   * 申請経路の承認部門ID<br>
-   * 1段階目の承認ステップが部門選択型の場合に、承認させる部門を指定してください。
-   *
-   */
   approval_flow_group_id?: number | null;
-  /**
-   * 各種申請のステータス<br>
-   * falseを指定した時は申請中（in_progress）で各種申請を作成します。<br>
-   * trueを指定した時は下書き（draft）で各種申請を作成します。
-   *
-   */
   draft: boolean;
-  /**
-   * 親申請ID(既存各種申請IDのみ指定可能です。)
-   */
   parent_id?: number;
   request_items: Array<{
-    /**
-     * 項目ID
-     */
     id?: number;
-    /**
-     * 項目タイプ(title: 申請タイトル, single_line: 自由記述形式 1行, multi_line: 自由記述形式 複数行, select: プルダウン, checkbox: 複数選択, date: 日付, amount: 金額, receipt: 添付ファイル, section: 部門ID, partner: 取引先ID)
-     */
     type?:
       | "title"
       | "single_line"
@@ -13446,63 +3864,20 @@ export type ApprovalRequestCreateParams = {
       | "receipt"
       | "section"
       | "partner";
-    /**
-     * 項目の値
-     */
     value?: string;
   }>;
 };
 
 export type ApprovalRequestUpdateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 申請日 (yyyy-mm-dd)<br>
-   * 指定しない場合は当日の日付が登録されます。
-   *
-   */
   application_date?: string;
-  /**
-   * 申請経路ID
-   */
   approval_flow_route_id: number;
-  /**
-   * 承認者のユーザーID
-   */
   approver_id?: number;
-  /**
-   * 申請者の所属部門ID<br>
-   * 「部門役職」の承認ステップを含む申請経路で、申請者がどの所属部門として申請するかを指定します。<br>
-   * <ul>
-   *   <li>申請者が複数の部門に所属している場合は必須です。省略すると400エラーになります。</li>
-   *   <li>申請者の所属部門が1つだけの場合は、省略するとその部門が採用されます。</li>
-   * </ul>
-   *
-   */
   applicant_group_id?: number | null;
-  /**
-   * 申請経路の承認部門ID<br>
-   * 1段階目の承認ステップが部門選択型の場合に、承認させる部門を指定してください。
-   *
-   */
   approval_flow_group_id?: number | null;
-  /**
-   * 各種申請のステータス<br>
-   * falseを指定した時は申請中（in_progress）で各種申請を更新します。<br>
-   * trueを指定した時は下書き（draft）で各種申請を更新します。
-   *
-   */
   draft: boolean;
   request_items: Array<{
-    /**
-     * 項目ID
-     */
     id?: number;
-    /**
-     * 項目タイプ(title: 申請タイトル, single_line: 自由記述形式 1行, multi_line: 自由記述形式 複数行, select: プルダウン, checkbox: 複数選択, date: 日付, amount: 金額, receipt: 添付ファイル, section: 部門ID, partner: 取引先ID)
-     */
     type?:
       | "title"
       | "single_line"
@@ -13514,750 +3889,224 @@ export type ApprovalRequestUpdateParams = {
       | "receipt"
       | "section"
       | "partner";
-    /**
-     * 項目の値
-     */
     value?: string;
   }>;
 };
 
 export type ApprovalRequestActionCreateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 操作(approve: 承認する、force_approve: 特権承認する、cancel: 申請を取り消す、reject: 却下する、feedback: 申請者へ差し戻す、force_feedback: 承認済み・却下済みを取り消す)
-   */
   approval_action:
     "approve" | "force_approve" | "cancel" | "reject" | "feedback" | "force_feedback";
-  /**
-   * 対象承認ステップID 各種申請の取得APIレスポンス.current_step_idを送信してください。
-   */
   target_step_id: number;
-  /**
-   * 対象round。差し戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。各種申請の取得APIレスポンス.current_roundを送信してください。
-   */
   target_round: number;
-  /**
-   * 次ステップの承認者のユーザーID
-   */
   next_approver_id?: number | null;
-  /**
-   * 次ステップの承認部門ID<br>
-   * 次の承認ステップが部門選択型の場合に、承認させる部門を指定してください。
-   *
-   */
   next_group_id?: number | null;
 };
 
 export type RenewCreateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 更新日 (yyyy-mm-dd)
-   */
   update_date: string;
-  /**
-   * +更新対象行ID (details(取引の明細行), accruals(債権債務行), renewsのdetails(+更新の明細行)のIDを指定)
-   */
   renew_target_id: number;
-  /**
-   * +更新の明細行
-   */
   details: Array<{
-    /**
-     * 勘定科目ID
-     */
     account_item_id: number;
-    /**
-     * 税区分コード
-     */
     tax_code: number;
-    /**
-     * 取引金額（円・税込で指定してください）<br>
-     * マイナスの値を指定した場合、控除・マイナス行として登録されます。<br>
-     * 上記以外の値を指定した場合、通常行として登録されます。
-     *
-     */
     amount: number;
-    /**
-     * 消費税額（円。指定しない場合は自動で計算されます）
-     */
     vat?: number;
-    /**
-     * 品目ID
-     */
     item_id?: number;
-    /**
-     * 部門ID
-     */
     section_id?: number;
-    /**
-     * 取引先ID
-     */
     partner_id?: number | null;
-    /**
-     * メモタグID
-     */
     tag_ids?: Array<number>;
-    /**
-     * セグメント１タグID
-     */
     segment_1_tag_id?: number;
-    /**
-     * セグメント２タグID
-     */
     segment_2_tag_id?: number;
-    /**
-     * セグメント３タグID
-     */
     segment_3_tag_id?: number;
-    /**
-     * 備考
-     */
     description?: string;
   }>;
 };
 
 export type RenewUpdateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 更新日 (yyyy-mm-dd)
-   */
   update_date: string;
-  /**
-   * +更新の明細行
-   */
   details: Array<{
-    /**
-     * 勘定科目ID
-     */
     account_item_id: number;
-    /**
-     * 税区分コード
-     */
     tax_code: number;
-    /**
-     * 取引金額（円・税込で指定してください）<br>
-     * マイナスの値を指定した場合、控除・マイナス行として登録されます。<br>
-     * 上記以外の値を指定した場合、通常行として登録されます。
-     *
-     */
     amount: number;
-    /**
-     * 消費税額（円。指定しない場合は自動で計算されます）
-     */
     vat?: number;
-    /**
-     * 品目ID
-     */
     item_id?: number;
-    /**
-     * 部門ID
-     */
     section_id?: number;
-    /**
-     * 取引先ID
-     */
     partner_id?: number | null;
-    /**
-     * メモタグID
-     */
     tag_ids?: Array<number>;
-    /**
-     * セグメント１タグID
-     */
     segment_1_tag_id?: number;
-    /**
-     * セグメント２タグID
-     */
     segment_2_tag_id?: number;
-    /**
-     * セグメント３タグID
-     */
     segment_3_tag_id?: number;
-    /**
-     * 備考
-     */
     description?: string;
   }>;
 };
 
 export type ExpenseApplicationLineTemplateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 経費科目名 (1000文字以内)
-   */
   name: string;
-  /**
-   * 経費科目に紐付ける勘定科目のID。指定した事業所に存在する勘定科目のIDのみ指定可能です（存在しない場合は400エラー）。勘定科目IDは /account_items のAPIから取得可能です。
-   */
   account_item_id: number;
-  /**
-   * 経費科目に紐付ける品目のID。指定した事業所に存在する品目のIDのみ指定可能です（存在しない場合は400エラー）。勘定科目と品目の紐付けが設定されている事業所では、指定した勘定科目に紐付く品目のみ指定可能です。品目IDは /items のAPIから取得可能です。なお、レスポンスに品目IDは含まれません。
-   */
   item_id?: number;
-  /**
-   * 経費科目に紐付ける税区分コード（税区分のdisplay_categoryがtax_5: 5%表示の税区分, tax_r8: 軽減税率8%表示の税区分に該当するtax_codeのみ利用可能です。それ以外のtax_codeを指定した場合は400エラーになります。税区分のdisplay_categoryは /taxes/companies/{company_id}のAPIから取得可能です。）
-   */
   tax_code: number;
-  /**
-   * 経費科目の説明 (1000文字以内)
-   */
   description?: string;
-  /**
-   * 内容の補足 (1000文字以内)。経費申請の作成時に内容欄へ何を入力すべきかを申請者に案内する文言
-   */
   line_description?: string;
-  /**
-   * 添付ファイルの必須/任意<br>
-   * falseを指定した時は申請時の領収書の添付を任意とします。<br>
-   * trueを指定した時は申請時の領収書の添付を必須とします。<br>
-   * 未指定の時は申請時の領収書の添付を任意とします。
-   */
   required_receipt?: boolean;
-  /**
-   * 内容の入力設定（optional: 経費申請の作成時に内容欄の入力が任意, required: 内容欄の入力が必須, disable: 内容欄を表示しない）<br>
-   * 作成時に未指定の場合はrequiredになります。<br>
-   * 更新時に省略した場合は変更しません（他の基本項目と異なり全置換の対象外です）。
-   */
   line_content_setting?: "optional" | "required" | "disable";
-  /**
-   * 利用可能な部門IDの配列。経費申請の部門が指定した部門のいずれかの場合に、この経費科目を選択できます（申請者の所属部門ではなく、経費申請で指定した部門で判定します）。<br>
-   * available_user_idsと両方を設定した場合は、どちらかの設定に該当すれば選択できます。両方が空の場合は制限なしとなり、全従業員が選択できます。<br>
-   * 空配列を指定すると部門による制限を解除します。更新時に省略した場合は変更しません。
-   */
   available_section_ids?: Array<number>;
-  /**
-   * 利用可能な事業所メンバー (ユーザー) IDの配列。経費申請の申請者が指定したメンバーのいずれかの場合に、経費申請の部門に関わらずこの経費科目を選択できます。<br>
-   * available_section_idsと両方を設定した場合は、どちらかの設定に該当すれば選択できます。両方が空の場合は制限なしとなり、全従業員が選択できます。<br>
-   * 空配列を指定するとメンバーによる制限を解除します。更新時に省略した場合は変更しません。
-   */
   available_user_ids?: Array<number>;
-  /**
-   * カスタム申請項目 (20件以内)。配列の並び順が経費申請の作成時の表示順になります。定義はレスポンスと共通で、取得した内容をそのまま送り返せます。
-   * 作成時はidを指定しても無視され、すべて新しい項目として作成されます。
-   * 更新時は指定した内容でカスタム申請項目を全置換します。既存の項目を残す場合はidとkeyを、新しく追加する項目はidを省略してkeyを指定します。
-   * 更新時に省略した場合は変更しません。空配列を指定した場合はカスタム申請項目をすべて削除します。
-   */
   custom_form_parts?: Array<ExpenseApplicationLineTemplateCustomFormPart>;
-  /**
-   * 金額計算設定。定義はレスポンスと共通で、取得した内容をそのまま送り返せます。
-   * 計算式はカスタム申請項目のkeyを {key} の形式で参照します。同じリクエストのcustom_form_partsで指定したkeyを参照できます。
-   * 更新時は指定した内容で金額計算設定を全置換します。更新時に省略した場合は変更しません。
-   */
   amount_calculation_setting?: ExpenseApplicationLineTemplateAmountCalculationSetting;
 };
 
 export type ExpenseApplicationCurrency = {
-  /**
-   * 外貨ID
-   */
   id: number;
-  /**
-   * 外貨名 (30文字以内)
-   */
   name: string;
-  /**
-   * 通貨コード (半角英大文字3文字)
-   */
   code: string;
-  /**
-   * 備考
-   */
   description: string | null;
-  /**
-   * 利用状態 (usable: 利用可能, unusable: 利用不可)
-   */
   search_status: "usable" | "unusable";
-  /**
-   * 更新日時 (ISO8601形式)
-   */
   updated_at: string;
 };
 
 export type ExpenseApplicationCurrencyParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 外貨名 (30文字以内、前後の空白を除去した上で事業所内で重複不可)
-   */
   name: string;
-  /**
-   * 通貨コード (半角英大文字3文字)
-   */
   code: string;
-  /**
-   * 利用状態 (usable: 利用可能, unusable: 利用不可)
-   */
   search_status: "usable" | "unusable";
-  /**
-   * 備考
-   */
   description?: string | null;
 };
 
 export type ExpenseApplicationCurrenciesIndexResponse = {
-  /**
-   * 外貨一覧
-   */
   data: Array<ExpenseApplicationCurrency>;
 };
 
 export type ExpenseApplicationForm = {
-  /**
-   * 部門の入力設定 (optional: 任意入力, required: 必須入力)
-   */
   section_setting: "optional" | "required";
-  /**
-   * メモタグの入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
-   */
   tag_setting: "optional" | "required" | "disable";
-  /**
-   * 経費科目の入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)。経費科目は `/api/1/expense_application_line_templates` で取得できます。
-   */
   line_template_setting: "optional" | "required" | "disable";
-  /**
-   * セグメント1タグの入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
-   */
   segment_1_tag_setting: "optional" | "required" | "disable";
-  /**
-   * セグメント2タグの入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
-   */
   segment_2_tag_setting: "optional" | "required" | "disable";
-  /**
-   * セグメント3タグの入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
-   */
   segment_3_tag_setting: "optional" | "required" | "disable";
-  /**
-   * 備考の入力設定 (optional: 任意入力, required: 必須入力)
-   */
   description_setting: "optional" | "required";
-  /**
-   * 定期券区間控除の利用設定 (disable: 利用しない, enable: 利用する)
-   */
   commuter_pass_deduction: "disable" | "enable";
-  /**
-   * デフォルトで選択する申請経路のID (未設定の場合は null)。申請経路一覧の取得API (`/api/1/approval_flow_routes`) のレスポンス id と同じ値です。
-   */
   default_flow_route_src_id: number | null;
-  /**
-   * 交通経路・交通系ICカードから作成した明細にデフォルトで選択する経費科目の source_line_template_id (未設定の場合は null)。経費科目一覧の取得API (`/api/1/expense_application_line_templates`) のレスポンス source_line_template_id と同じ値です。削除済みの経費科目を指していることがあります。更新では null と 0 のどちらも未設定に戻す指示になります。更新で省略した場合は現在の設定を変更しません。ただし更新で line_template_setting に disable を指定した場合は、省略しても未設定に戻します。
-   */
   traffic_line_template_src_id?: number | null;
-  /**
-   * 承認者以外の閲覧者追加の利用設定 (disable: 利用しない, enable: 利用する)
-   */
   observer_addition: "disable" | "enable";
-  /**
-   * 支払先の入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
-   */
   receipt_partner_name_setting: "optional" | "required" | "disable";
-  /**
-   * 申請タイトルの初期値 (255文字以内)
-   */
   default_title: string;
-  /**
-   * 外貨の利用設定
-   */
   use_currency: boolean;
-  /**
-   * 金額の自動計算結果の端数処理 (omit: 切り捨て, round_up: 切り上げ, round: 四捨五入)
-   */
   auto_calculation_amount_fraction: "omit" | "round_up" | "round";
-  /**
-   * 申請者による親申請の変更を許可するか
-   */
   allow_modify_parent_application_by_applicant: boolean;
-  /**
-   * 承認者による親申請の変更を許可するか
-   */
   allow_modify_parent_application_by_approver: boolean;
-  /**
-   * 管理者による親申請の変更を許可するか
-   */
   allow_modify_parent_application_by_admin: boolean;
-  /**
-   * 親となる購買申請を必須にするか
-   */
   require_parent_purchase_request: boolean;
-  /**
-   * 承認中の申請の変更を許可するか
-   */
   allow_modify_on_approval: boolean;
 };
 
 export type ExpenseApplicationFormParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 部門の入力設定 (optional: 任意入力, required: 必須入力)
-   */
   section_setting: "optional" | "required";
-  /**
-   * メモタグの入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
-   */
   tag_setting: "optional" | "required" | "disable";
-  /**
-   * 経費科目の入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)。経費科目は `/api/1/expense_application_line_templates` で取得できます。
-   */
   line_template_setting: "optional" | "required" | "disable";
-  /**
-   * セグメント1タグの入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
-   */
   segment_1_tag_setting: "optional" | "required" | "disable";
-  /**
-   * セグメント2タグの入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
-   */
   segment_2_tag_setting: "optional" | "required" | "disable";
-  /**
-   * セグメント3タグの入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
-   */
   segment_3_tag_setting: "optional" | "required" | "disable";
-  /**
-   * 備考の入力設定 (optional: 任意入力, required: 必須入力)
-   */
   description_setting: "optional" | "required";
-  /**
-   * 定期券区間控除の利用設定 (disable: 利用しない, enable: 利用する)
-   */
   commuter_pass_deduction: "disable" | "enable";
-  /**
-   * デフォルトで選択する申請経路のID (未設定の場合は null)。申請経路一覧の取得API (`/api/1/approval_flow_routes`) のレスポンス id と同じ値です。
-   */
   default_flow_route_src_id: number | null;
-  /**
-   * 交通経路・交通系ICカードから作成した明細にデフォルトで選択する経費科目の source_line_template_id (未設定の場合は null)。経費科目一覧の取得API (`/api/1/expense_application_line_templates`) のレスポンス source_line_template_id と同じ値です。削除済みの経費科目を指していることがあります。更新では null と 0 のどちらも未設定に戻す指示になります。更新で省略した場合は現在の設定を変更しません。ただし更新で line_template_setting に disable を指定した場合は、省略しても未設定に戻します。
-   */
   traffic_line_template_src_id?: number | null;
-  /**
-   * 承認者以外の閲覧者追加の利用設定 (disable: 利用しない, enable: 利用する)
-   */
   observer_addition: "disable" | "enable";
-  /**
-   * 支払先の入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
-   */
   receipt_partner_name_setting: "optional" | "required" | "disable";
-  /**
-   * 申請タイトルの初期値 (255文字以内)
-   */
   default_title: string;
-  /**
-   * 外貨の利用設定
-   */
   use_currency: boolean;
-  /**
-   * 金額の自動計算結果の端数処理 (omit: 切り捨て, round_up: 切り上げ, round: 四捨五入)
-   */
   auto_calculation_amount_fraction: "omit" | "round_up" | "round";
-  /**
-   * 申請者による親申請の変更を許可するか
-   */
   allow_modify_parent_application_by_applicant: boolean;
-  /**
-   * 承認者による親申請の変更を許可するか
-   */
   allow_modify_parent_application_by_approver: boolean;
-  /**
-   * 管理者による親申請の変更を許可するか
-   */
   allow_modify_parent_application_by_admin: boolean;
-  /**
-   * 親となる購買申請を必須にするか
-   */
   require_parent_purchase_request: boolean;
-  /**
-   * 承認中の申請の変更を許可するか
-   */
   allow_modify_on_approval: boolean;
 };
 
-/**
- * 金額の自動計算リクエスト
- */
 export type ExpenseApplicationAmountCalculationCreateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 金額計算設定を持つ経費科目のID
-   */
   expense_application_line_template_id: number;
-  /**
-   * カスタム申請項目の入力値
-   */
   custom_values: Array<
     | {
-        /**
-         * カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、
-         * 経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が
-         * custom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが
-         * custom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、
-         * その値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。
-         */
         key: string;
-        /**
-         * 入力値の種別
-         */
         type: "single_line_string";
-        /**
-         * 入力値 (255文字以内)
-         */
         value: string | null;
       }
     | {
-        /**
-         * カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、
-         * 経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が
-         * custom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが
-         * custom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、
-         * その値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。
-         */
         key: string;
-        /**
-         * 入力値の種別
-         */
         type: "multi_line_string";
-        /**
-         * 入力値 (10000文字以内)
-         */
         value: string | null;
       }
     | {
-        /**
-         * カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、
-         * 経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が
-         * custom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが
-         * custom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、
-         * その値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。
-         */
         key: string;
-        /**
-         * 入力値の種別
-         */
         type: "date";
-        /**
-         * 入力値 (YYYY-MM-DD)
-         */
         value: string | null;
       }
     | {
-        /**
-         * カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、
-         * 経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が
-         * custom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが
-         * custom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、
-         * その値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。
-         */
         key: string;
-        /**
-         * 入力値の種別
-         */
         type: "date_range";
-        /**
-         * 期間
-         */
         value: {
-          /**
-           * 開始日 (YYYY-MM-DD)
-           */
           start_date: string | null;
-          /**
-           * 終了日 (YYYY-MM-DD)
-           */
           end_date: string | null;
         } | null;
       }
     | {
-        /**
-         * カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、
-         * 経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が
-         * custom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが
-         * custom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、
-         * その値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。
-         */
         key: string;
-        /**
-         * 入力値の種別
-         */
         type: "datetime";
-        /**
-         * 入力値 (YYYY-MM-DD hh:mm)
-         */
         value: string | null;
       }
     | {
-        /**
-         * カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、
-         * 経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が
-         * custom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが
-         * custom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、
-         * その値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。
-         */
         key: string;
-        /**
-         * 入力値の種別
-         */
         type: "number";
-        /**
-         * 入力値 (整数部 10 桁以内、小数 3 桁まで)
-         */
         value: number | null;
       }
     | {
-        /**
-         * カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、
-         * 経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が
-         * custom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが
-         * custom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、
-         * その値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。
-         */
         key: string;
-        /**
-         * 入力値の種別
-         */
         type: "pulldown";
-        /**
-         * 入力値 (選択肢のいずれか)
-         */
         value: string | null;
       }
     | {
-        /**
-         * カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、
-         * 経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が
-         * custom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが
-         * custom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、
-         * その値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。
-         */
         key: string;
-        /**
-         * 入力値の種別
-         */
         type: "radio_button";
-        /**
-         * 入力値 (選択肢のいずれか)
-         */
         value: string | null;
       }
     | {
-        /**
-         * カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、
-         * 経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が
-         * custom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが
-         * custom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、
-         * その値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。
-         */
         key: string;
-        /**
-         * 入力値の種別
-         */
         type: "checkbox";
-        /**
-         * 入力値 (選択肢のうち選択したもの)
-         */
         value: Array<string> | null;
       }
   >;
-  /**
-   * 計算対象の申請者。申請者はアクセストークンのユーザーに固定され、指定できるのは所属部門だけです。所属部門と役職が金額計算ルールの条件判定に使われます
-   */
   applicant: {
-    /**
-     * 申請者 (アクセストークンのユーザー) の所属部門ID (部門に所属しない場合は null)。申請者が所属していない部門を指定した場合は 400 になります
-     */
     group_id: number | null;
   };
 };
 
-/**
- * 金額の自動計算結果
- */
 export type ExpenseApplicationAmountCalculationResponse = {
-  /**
-   * 計算式によって算出された金額
-   */
   calculated_amount: number;
-  /**
-   * 適用された金額計算ルール。経費科目APIの amount_calculation_setting と同じ語彙です
-   */
   applied_rule: {
     condition: ExpenseApplicationLineTemplateAmountCalculationCondition;
-    /**
-     * 適用された金額計算式。カスタム申請項目の参照は {key} で表します。経費科目APIの amount_calculation_setting.rules[].formula と同じ公開文法です
-     */
     formula: string;
   };
-  /**
-   * 金額計算の条件判定に用いた申請者の所属情報
-   */
   evaluated_as: {
-    /**
-     * 申請者の所属部門ID (リクエストで部門を指定しなかった場合は null)
-     */
     group_id: number | null;
-    /**
-     * 申請者の役職ID (役職が設定されていない場合は null)
-     */
     position_id: number | null;
   };
 };
 
 export type ApprovalRequestsIndexResponse = {
   approval_requests: Array<{
-    /**
-     * 各種申請ID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請日 (yyyy-mm-dd)
-     */
     application_date: string;
-    /**
-     * 申請タイトル
-     */
     title: string;
-    /**
-     * 申請者のユーザーID
-     */
     applicant_id: number;
-    /**
-     * 申請No.
-     */
     application_number: string;
-    /**
-     * 申請ステータス(draft:下書き, in_progress:申請中, approved:承認済, rejected:却下, feedback:差戻し)
-     */
     status: "draft" | "in_progress" | "approved" | "rejected" | "feedback";
-    /**
-     * 各種申請の項目一覧（配列）
-     */
     request_items: Array<{
-      /**
-       * 項目ID
-       */
       id: number;
-      /**
-       * 項目タイプ(title: 申請タイトル, single_line: 自由記述形式 1行, multi_line: 自由記述形式 複数行, select: プルダウン, checkbox: 複数選択, date: 日付, amount: 金額, receipt: 添付ファイル, section: 部門ID, partner: 取引先ID, ninja_sign_document: 契約書（freeeサイン連携・旧方式）, freee_sign_document: 契約書（freeeサイン連携）)
-       */
       type:
         | "title"
         | "single_line"
@@ -14271,106 +4120,29 @@ export type ApprovalRequestsIndexResponse = {
         | "partner"
         | "ninja_sign_document"
         | "freee_sign_document";
-      /**
-       * 項目の値
-       */
       value: string;
     }>;
-    /**
-     * 申請フォームID
-     */
     form_id: number;
-    /**
-     * 現在承認ステップID
-     */
     current_step_id: number | null;
-    /**
-     * 現在のround。差し戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。
-     */
     current_round: number;
-    /**
-     * 取引ID (申請ステータス:statusがapprovedで、取引が存在する時のみdeal_idが表示されます)
-     */
     deal_id: number | null;
-    /**
-     * 振替伝票のID (申請ステータス:statusがapprovedで、関連する振替伝票が存在する時のみmanual_journal_idが表示されます)
-     *
-     * <a href="https://support.freee.co.jp/hc/ja/articles/115003827683-#5" target="_blank">承認された各種申請から支払依頼等を作成する</a>
-     *
-     */
     manual_journal_id: number | null;
-    /**
-     * 取引ステータス (申請ステータス:statusがapprovedで、取引が存在する時のみdeal_statusが表示されます settled:決済済み, unsettled:未決済)
-     */
     deal_status: "settled" | "unsettled";
   }>;
 };
 
 export type ApprovalRequestResponse = {
   approval_request: {
-    /**
-     * 各種申請ID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請日 (yyyy-mm-dd)
-     */
     application_date: string;
-    /**
-     * 申請タイトル
-     */
     title: string;
-    /**
-     * 申請者のユーザーID
-     */
     applicant_id: number;
-    /**
-     * 承認者（配列）
-     *   承認ステップのresource_typeがunspecified (指定なし)の場合はapproversはレスポンスに含まれません。
-     *   しかし、resource_typeがunspecifiedの承認ステップにおいて誰かが承認・却下・差し戻しのいずれかのアクションを取った後は、
-     *   approversはレスポンスに含まれるようになります。
-     *   その場合approversにはアクションを行ったステップのIDとアクションを行ったユーザーのIDが含まれます。
-     */
     approvers: Array<{
-      /**
-       * 承認ステップID
-       */
       step_id: number;
-      /**
-       * 承認者のユーザーID
-       * 下記の場合はnullになります。
-       * <ul>
-       *   <li>resource_type:selected_userの場合で承認者未指定時</li>
-       *   <li>resource_type:or_positionで前stepで部門未指定の場合</li>
-       * </ul>
-       */
       user_id: number | null;
-      /**
-       * 承認者の承認状態
-       * * `initial` - 初期状態
-       * * `approved` - 承認済
-       * * `rejected` - 却下
-       * * `feedback` - 差戻し
-       */
       status: "initial" | "approved" | "rejected" | "feedback";
-      /**
-       * 特権承認済みかどうか
-       */
       is_force_action: boolean;
-      /**
-       * 承認ステップの承認方法
-       * * ` predefined_user` - メンバー指定 (1人),
-       * * ` selected_user` - 申請時にメンバー指定
-       * * ` unspecified` - 指定なし
-       * * ` and_resource` - メンバー指定 (複数、全員の承認),
-       * * ` or_resource` - メンバー指定 (複数、1人の承認)
-       * * ` and_position` - 役職指定 (複数、全員の承認)
-       * * ` or_position` - 役職指定 (複数、1人の承認)
-       */
       resource_type:
         | "predefined_user"
         | "selected_user"
@@ -14380,25 +4152,10 @@ export type ApprovalRequestResponse = {
         | "and_position"
         | "or_position";
     }>;
-    /**
-     * 申請No.
-     */
     application_number: string;
-    /**
-     * 申請ステータス(draft:下書き, in_progress:申請中, approved:承認済, rejected:却下, feedback:差戻し)
-     */
     status: "draft" | "in_progress" | "approved" | "rejected" | "feedback";
-    /**
-     * 各種申請の項目一覧（配列）
-     */
     request_items: Array<{
-      /**
-       * 項目ID
-       */
       id: number;
-      /**
-       * 項目タイプ(title: 申請タイトル, single_line: 自由記述形式 1行, multi_line: 自由記述形式 複数行, select: プルダウン, checkbox: 複数選択, date: 日付, amount: 金額, receipt: 添付ファイル, section: 部門ID, partner: 取引先ID, ninja_sign_document: 契約書（freeeサイン連携・旧方式）, freee_sign_document: 契約書（freeeサイン連携）)
-       */
       type:
         | "title"
         | "single_line"
@@ -14412,77 +4169,26 @@ export type ApprovalRequestResponse = {
         | "partner"
         | "ninja_sign_document"
         | "freee_sign_document";
-      /**
-       * 項目の値
-       */
       value: string;
     }>;
-    /**
-     * 申請フォームID
-     */
     form_id: number;
-    /**
-     * 申請経路ID
-     */
     approval_flow_route_id: number;
-    /**
-     * 各種申請のコメント一覧（配列）
-     */
     comments: Array<{
-      /**
-       * コメント内容
-       */
       comment: string;
-      /**
-       * ユーザーID
-       */
       user_id: number;
-      /**
-       * コメント日時(ISO8601形式)
-       */
       posted_at: string;
     }>;
-    /**
-     * 各種申請の承認履歴（配列）
-     */
     approval_flow_logs: Array<{
-      /**
-       * 操作(apply: 申請, approve: 承認, force_approve: 特権承認, cancel: 取消, reject: 却下, feedback: 差戻し)
-       */
       action: "apply" | "approve" | "force_approve" | "cancel" | "reject" | "feedback";
-      /**
-       * ユーザーID
-       */
       user_id: number;
-      /**
-       * 更新日時(ISO8601形式)
-       */
       updated_at: string;
     }>;
-    /**
-     * 現在承認ステップID
-     */
     current_step_id: number | null;
-    /**
-     * 現在のround。差し戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。
-     */
     current_round: number;
     approval_request_form: {
-      /**
-       * 申請フォームの項目
-       */
       parts: Array<{
-        /**
-         * 項目ID
-         */
         id: number;
-        /**
-         * 順序
-         */
         order?: number;
-        /**
-         * 項目種別 (title: 申請タイトル, single_line: 自由記述形式 1行, multi_line: 自由記述形式 複数行, select: プルダウン, checkbox: 複数選択, date: 日付, amount: 金額, receipt: 添付ファイル, section: 部門ID, partner: 取引先ID, ninja_sign_document: 契約書（freeeサイン連携・旧方式）, freee_sign_document: 契約書（freeeサイン連携）)
-         */
         type?:
           | "title"
           | "single_line"
@@ -14496,141 +4202,48 @@ export type ApprovalRequestResponse = {
           | "partner"
           | "ninja_sign_document"
           | "freee_sign_document";
-        /**
-         * 項目名
-         */
         label?: string;
-        /**
-         * 追加説明
-         */
         annotation?: string | null;
-        /**
-         * 必須かどうか
-         */
         required?: boolean | null;
-        /**
-         * 選択項目
-         */
         values?: Array<{
-          /**
-           * 選択項目名
-           */
           name: string;
-          /**
-           * 順序
-           */
           order: number;
         }> | null;
-        /**
-         * 上限金額
-         */
         max_amount?: number | null;
-        /**
-         * 下限金額
-         */
         min_amount?: number | null;
       }>;
     };
-    /**
-     * 取引ID (申請ステータス:statusがapprovedで、取引が存在する時のみdeal_idが表示されます)
-     */
     deal_id: number | null;
-    /**
-     * 振替伝票のID (申請ステータス:statusがapprovedで、関連する振替伝票が存在する時のみmanual_journal_idが表示されます)
-     *
-     * <a href="https://support.freee.co.jp/hc/ja/articles/115003827683-#5" target="_blank">承認された各種申請から支払依頼等を作成する</a>
-     *
-     */
     manual_journal_id: number | null;
-    /**
-     * 取引ステータス (申請ステータス:statusがapprovedで、取引が存在する時のみdeal_statusが表示されます settled:決済済み, unsettled:未決済)
-     */
     deal_status: "settled" | "unsettled";
   };
 };
 
 export type ApprovalRequestFormIndexResponse = {
   approval_request_forms: Array<{
-    /**
-     * 申請フォームID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請フォームの名前
-     */
     name: string;
-    /**
-     * 申請フォームの説明
-     */
     description: string;
-    /**
-     * ステータス(draft: 申請で使用しない、active: 申請で使用する)
-     */
     status: "draft" | "active";
-    /**
-     * 作成日時
-     */
     created_date: string;
-    /**
-     * 表示順（申請者が選択する申請フォームの表示順を設定できます。小さい数ほど上位に表示されます。（0を除く整数のみ。マイナス不可）未入力の場合、表示順が後ろになります。同じ数字が入力された場合、登録順で表示されます。）
-     */
     form_order: number | null;
-    /**
-     * 適用された経路数（ユーザーが利用できない経路を除く）
-     */
     route_setting_count: number;
   }>;
 };
 
 export type ApprovalRequestFormResponse = {
   approval_request_form: {
-    /**
-     * 申請フォームID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請フォームの名前
-     */
     name: string;
-    /**
-     * 申請フォームの説明
-     */
     description: string;
-    /**
-     * ステータス(draft: 申請で使用しない、active: 申請で使用する)
-     */
     status: "draft" | "active";
-    /**
-     * 作成日時
-     */
     created_date: string;
-    /**
-     * 表示順（申請者が選択する申請フォームの表示順を設定できます。小さい数ほど上位に表示されます。（0を除く整数のみ。マイナス不可）未入力の場合、表示順が後ろになります。同じ数字が入力された場合、登録順で表示されます。）
-     */
     form_order: number | null;
-    /**
-     * 申請フォームの項目
-     */
     parts?: Array<{
-      /**
-       * 項目ID
-       */
       id: number;
-      /**
-       * 順序
-       */
       order?: number;
-      /**
-       * 項目種別 (title: 申請タイトル, single_line: 自由記述形式 1行, multi_line: 自由記述形式 複数行, select: プルダウン, checkbox: 複数選択, date: 日付, amount: 金額, receipt: 添付ファイル, section: 部門ID, partner: 取引先ID, ninja_sign_document: 契約書（freeeサイン連携・旧方式）, freee_sign_document: 契約書（freeeサイン連携）)
-       */
       type?:
         | "title"
         | "single_line"
@@ -14644,566 +4257,192 @@ export type ApprovalRequestFormResponse = {
         | "partner"
         | "ninja_sign_document"
         | "freee_sign_document";
-      /**
-       * 項目名
-       */
       label?: string;
-      /**
-       * 追加説明
-       */
       annotation?: string | null;
-      /**
-       * 必須かどうか
-       */
       required?: boolean | null;
-      /**
-       * 選択項目
-       */
       values?: Array<{
-        /**
-         * 選択項目名
-         */
         name: string;
-        /**
-         * 順序
-         */
         order: number;
       }> | null;
-      /**
-       * 上限金額
-       */
       max_amount?: number | null;
-      /**
-       * 下限金額
-       */
       min_amount?: number | null;
     }>;
-    /**
-     * 適用された経路数（ユーザーが利用できない経路を除く）
-     */
     route_setting_count: number;
   };
 };
 
 export type PurchaseRequestsIndexResponse = {
   purchase_requests: Array<{
-    /**
-     * 購買申請ID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請日 (yyyy-mm-dd)
-     */
     application_date: string;
-    /**
-     * 申請タイトル
-     */
     title: string;
-    /**
-     * 申請者のユーザーID
-     */
     applicant_id: number;
-    /**
-     * 申請No.
-     */
     application_number: string;
-    /**
-     * 申請ステータス(draft:下書き, in_progress:申請中, approved:承認済, rejected:却下, feedback:差戻し)
-     */
     status: "draft" | "in_progress" | "approved" | "rejected" | "feedback";
-    /**
-     * 申請フォームID
-     */
     form_id: number;
-    /**
-     * 金額（非推奨。budget_amount を使用してください）
-     *
-     * @deprecated
-     */
     amount: number;
-    /**
-     * 金額
-     */
     budget_amount: number;
     applicant?: {
-      /**
-       * 申請者のユーザーID
-       */
       id: number;
-      /**
-       * 申請者のユーザー名
-       */
       user_name?: string;
     } | null;
   }>;
-  /**
-   * 検索結果の総件数
-   */
   total_count?: number;
 };
 
 export type PurchaseRequestDetailResponse = {
   purchase_request: {
-    /**
-     * 購買申請ID
-     */
     id: number;
-    /**
-     * 申請者のユーザーID
-     */
     user_id: number;
-    /**
-     * 申請タイトル
-     */
     title: string;
-    /**
-     * 申請日 (yyyy-mm-dd)
-     */
     application_date: string;
-    /**
-     * 発生開始日 (yyyy-mm-dd)
-     */
     occurrence_start_date?: string | null;
-    /**
-     * 発生終了日 (yyyy-mm-dd)
-     */
     occurrence_end_date?: string | null;
-    /**
-     * 申請No.
-     */
     purchase_request_code: string;
-    /**
-     * 申請の説明
-     */
     description?: string | null;
-    /**
-     * 金額
-     */
     budget_amount?: number | null;
-    /**
-     * 現在の承認ステップID
-     */
     current_step_id?: number | null;
-    /**
-     * 申請ステータス(draft:下書き, in_progress:申請中, approved:承認済, rejected:却下, feedback:差戻し)
-     */
     status: "draft" | "in_progress" | "approved" | "rejected" | "feedback";
-    /**
-     * 現在のユーザーが承認操作可能か
-     */
     approvable: boolean;
-    /**
-     * デフォルト申請経路のsrc ID
-     */
     default_route_src_id?: number | null;
-    /**
-     * 再決裁元の購買申請ID
-     */
     from_resubmission_purchase_request_id?: number | null;
-    /**
-     * 再決裁先の購買申請ID
-     */
     to_resubmission_purchase_request_id?: number | null;
-    /**
-     * 購買申請明細行
-     */
     purchase_request_lines: Array<{
-      /**
-       * 明細行ID
-       */
       id: number;
-      /**
-       * 購買申請ID
-       */
       purchase_request_id: number;
-      /**
-       * 行番号
-       */
       line_order: number;
-      /**
-       * 金額
-       */
       amount?: number | null;
-      /**
-       * 選択された支払方法
-       */
       selected_payment_methods?: Array<string> | null;
-      /**
-       * 内容
-       */
       content?: string | null;
-      /**
-       * 購入予定日 (yyyy-mm-dd)
-       */
       scheduled_purchase_date?: string | null;
-      /**
-       * 購入予定終了日 (yyyy-mm-dd)
-       */
       scheduled_purchase_end_date?: string | null;
-      /**
-       * 部門タグ
-       */
       section?: {
         id?: number;
         name?: string;
         category_name?: string;
       } | null;
-      /**
-       * 取引先タグ
-       */
       partner?: {
         id?: number;
         name?: string;
         category_name?: string;
       } | null;
-      /**
-       * 品目タグ
-       */
       item?: {
         id?: number;
         name?: string;
         category_name?: string;
       } | null;
-      /**
-       * セグメント1タグ
-       */
       segment_1_tag?: {
         id?: number;
         name?: string;
         category_name?: string;
       } | null;
-      /**
-       * セグメント2タグ
-       */
       segment_2_tag?: {
         id?: number;
         name?: string;
         category_name?: string;
       } | null;
-      /**
-       * セグメント3タグ
-       */
       segment_3_tag?: {
         id?: number;
         name?: string;
         category_name?: string;
       } | null;
-      /**
-       * メモタグ
-       */
       tags?: Array<{
         id?: number;
         name?: string;
         category_name?: string;
       }>;
     }>;
-    /**
-     * カスタム項目の値
-     */
     purchase_request_custom_values: Array<{
-      /**
-       * カスタム項目値ID
-       */
       id: number;
-      /**
-       * 購買申請ID
-       */
       purchase_request_id: number;
-      /**
-       * カスタムフォームID
-       */
       custom_form_id: number;
-      /**
-       * カスタムフォーム項目ID
-       */
       custom_form_part_id: number;
-      /**
-       * カスタム項目の値(項目種別により形式が異なる)
-       */
       json_value?: unknown;
     }>;
-    /**
-     * 承認フローの承認者
-     */
     approval_flow_approvers: Array<{
-      /**
-       * 承認ステップID
-       */
       step_id?: number | null;
-      /**
-       * 承認者のユーザーID
-       */
       user_id?: number;
-      /**
-       * 強制承認かどうか
-       */
       is_force_action?: boolean;
-      /**
-       * 承認者の承認ステータス
-       */
       status?: string;
     }>;
   };
 };
 
 export type PurchaseRequestFormIndexResponse = {
-  /**
-   * 検索条件に合致する申請フォームの総数（limit / offset による絞り込みの影響を受けません）
-   */
   total_count: number;
   purchase_request_forms: Array<{
-    /**
-     * 申請フォームID
-     */
     id: number;
-    /**
-     * 申請フォームの名前
-     */
     name: string;
-    /**
-     * 申請フォームの説明
-     */
     description: string | null;
-    /**
-     * ステータス(draft: 申請で使用しない、active: 申請で使用する、deleted: 削除済み)
-     */
     status: "draft" | "active" | "deleted";
-    /**
-     * 表示順（申請者が選択する申請フォームの表示順を設定できます。小さい数ほど上位に表示されます。（0を除く整数のみ。マイナス不可）未入力の場合、表示順が後ろになります。同じ数字が入力された場合、登録順で表示されます。）
-     */
     form_order: number | null;
   }>;
 };
 
 export type PurchaseRequestFormDetailResponse = {
-  /**
-   * フォーム種別
-   */
   type: string;
-  /**
-   * 申請フォームの設定
-   */
   purchase_request_setting: {
-    /**
-     * 申請フォームID
-     */
     id?: number | null;
-    /**
-     * ステータス(draft: 申請で使用しない、active: 申請で使用する)
-     */
     status?: string;
-    /**
-     * 表示順
-     */
     form_order?: number | null;
-    /**
-     * デフォルトの承認経路ID
-     */
     default_flow_route_src_id?: number | null;
-    /**
-     * デフォルトのタイトル
-     */
     default_title?: string | null;
-    /**
-     * デフォルトの内容
-     */
     default_content?: string | null;
-    /**
-     * 申請フォームの名前
-     */
     name?: string;
-    /**
-     * タイトルの注釈
-     */
     title_annotation?: string | null;
-    /**
-     * 申請フォームの説明
-     */
     description?: string | null;
-    /**
-     * 説明の入力設定
-     */
     description_setting?: string;
-    /**
-     * 内容の入力設定
-     */
     content_setting?: string;
-    /**
-     * 支払方法の入力設定
-     */
     payment_method_setting?: string;
-    /**
-     * 証憑の入力設定
-     */
     receipt_setting?: string;
-    /**
-     * 部門の入力設定
-     */
     section_setting?: string;
-    /**
-     * 部門の注釈
-     */
     section_annotation?: string | null;
-    /**
-     * 取引先の入力設定
-     */
     partner_setting?: string;
-    /**
-     * 取引先の注釈
-     */
     partner_annotation?: string | null;
-    /**
-     * 品目の入力設定
-     */
     item_setting?: string;
-    /**
-     * 品目の注釈
-     */
     item_annotation?: string | null;
-    /**
-     * メモタグの入力設定
-     */
     tag_setting?: string;
-    /**
-     * メモタグの注釈
-     */
     tag_annotation?: string | null;
-    /**
-     * セグメント1の入力設定
-     */
     segment_1_tag_setting?: string;
-    /**
-     * セグメント1の注釈
-     */
     segment_1_tag_annotation?: string | null;
-    /**
-     * セグメント2の入力設定
-     */
     segment_2_tag_setting?: string;
-    /**
-     * セグメント2の注釈
-     */
     segment_2_tag_annotation?: string | null;
-    /**
-     * セグメント3の入力設定
-     */
     segment_3_tag_setting?: string;
-    /**
-     * セグメント3の注釈
-     */
     segment_3_tag_annotation?: string | null;
-    /**
-     * 購入予定日の入力設定
-     */
     scheduled_purchase_date_setting?: string;
-    /**
-     * 観察者の追加設定
-     */
     observer_addition?: string;
-    /**
-     * 内容の表示名
-     */
     content_display_name?: string;
-    /**
-     * 内容の注釈
-     */
     content_annotation?: string | null;
-    /**
-     * 購入予定日の表示名
-     */
     scheduled_purchase_date_display_name?: string;
-    /**
-     * 購入予定日の注釈
-     */
     scheduled_purchase_date_annotation?: string | null;
-    /**
-     * 購入予定日を期間で入力できるか
-     */
     enable_scheduled_purchase_date_range?: boolean;
-    /**
-     * 指定された支払方法
-     */
     specified_payment_methods?: Array<string> | null;
-    /**
-     * 支払方法の表示名
-     */
     payment_method_display_name?: string;
-    /**
-     * 支払方法の注釈
-     */
     payment_method_annotation?: string | null;
-    /**
-     * 証憑の表示名
-     */
     receipt_display_name?: string;
-    /**
-     * 証憑の注釈
-     */
     receipt_annotation?: string | null;
-    /**
-     * 説明の注釈
-     */
     description_annotation?: string | null;
-    /**
-     * 金額の表示名
-     */
     amount_display_name?: string;
-    /**
-     * 金額の注釈
-     */
     amount_annotation?: string | null;
-    /**
-     * 発生日の入力設定
-     */
     occurrence_date_setting?: string;
-    /**
-     * 発生日の表示名
-     */
     occurrence_date_display_name?: string;
-    /**
-     * 発生日の注釈
-     */
     occurrence_date_annotation?: string | null;
-    /**
-     * 発生日を期間で入力できるか
-     */
     enable_occurrence_date_range?: boolean;
-    /**
-     * 証憑フィールドの設定
-     */
     receipt_fields?: Array<{
       id?: number | null;
       display_name?: string;
       annotation?: string | null;
       line_order?: number;
-      /**
-       * optional または required
-       */
       setting?: string;
     }> | null;
-    /**
-     * 税抜経理の設定
-     */
     tax_exclusive_setting?: string;
-    /**
-     * freeeカード発行の設定
-     */
     freee_card_issue_setting?: string;
-    /**
-     * デフォルトの観察者
-     */
     default_observers?: Array<{
       user_id?: number | null;
       user_name?: string;
       user_deleted?: boolean;
     }>;
-    /**
-     * バーチャルカード発行設定
-     */
     virtual_card_issuance_setting?: {
       card_name_annotation?: string | null;
       amount_limit_setting?: string;
@@ -15220,511 +4459,154 @@ export type PurchaseRequestFormDetailResponse = {
       use_usage_report?: boolean;
     } | null;
   };
-  /**
-   * カスタムフォーム（フォーム項目の定義）
-   */
   custom_form: {
     id?: number | null;
-    /**
-     * カスタムフォームの項目
-     */
     parts?: Array<{
       id?: number | null;
       display_name?: string;
-      /**
-       * optional または required
-       */
       setting?: string;
-      /**
-       * single_line_string, multi_line_string, number, single_date, date_range, pulldown, checkbox, radio_button のいずれか
-       */
       type_name?: string;
-      /**
-       * 項目の初期値（type_name により構造が異なる）
-       */
       default_value?: {
         [key: string]: unknown;
       } | null;
       unit?: string | null;
       annotation?: string | null;
       line_order?: number;
-      /**
-       * 選択肢（pulldown/checkbox/radio_button のとき）
-       */
       selectable_value?: Array<string> | null;
     }>;
   } | null;
-  /**
-   * 利用可能な承認経路（詳細は `/api/1/approval_flow_routes` を参照。同 API のレスポンス id は本レスポンスの src_id に対応）
-   */
   flow_routes: Array<{
-    /**
-     * 承認経路ID（購買申請作成時の approval_flow_route_id に指定する値）
-     */
     id?: number;
-    /**
-     * 承認経路の元ID（`/api/1/approval_flow_routes` のレスポンス id と同じ値）
-     */
     src_id?: number;
-    /**
-     * 承認経路名
-     */
     name?: string;
   }>;
 };
 
 export type PurchaseRequestActionCreateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 操作(apply: 申請する、approve: 承認する、reject: 却下する、feedback: 申請者へ差し戻す)
-   */
   do_action: "apply" | "approve" | "reject" | "feedback";
-  /**
-   * 次の承認ステップの承認者のユーザーID
-   */
   next_approver_id?: number | null;
-  /**
-   * 次の承認ステップの承認グループID
-   */
   next_group_id?: number | null;
 };
 
 export type PurchaseRequestCreateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 購買申請の申請フォームID
-   */
   purchase_request_form_id: number;
-  /**
-   * 申請ステータス<br>
-   * draft を指定した時は下書きで購買申請を作成します。<br>
-   * in_progress を指定した時は申請中で購買申請を作成します。
-   *
-   */
   status: "draft" | "in_progress";
-  /**
-   * 申請者グループID
-   */
   applicant_group_id?: number | null;
-  /**
-   * 申請タイトル
-   */
   title?: string | null;
-  /**
-   * 申請の説明
-   */
   description?: string | null;
-  /**
-   * 発生開始日 (yyyy-mm-dd)
-   */
   occurrence_start_date?: string | null;
-  /**
-   * 発生終了日 (yyyy-mm-dd)
-   */
   occurrence_end_date?: string | null;
-  /**
-   * 申請経路ID（申請フォーム詳細の取得APIのレスポンスの flow_routes の id を指定してください。申請経路一覧の取得API /api/1/approval_flow_routes のレスポンスの id とは異なる値です）
-   */
   approval_flow_route_id?: number | null;
-  /**
-   * 申請経路の承認者ユーザーID
-   */
   approval_flow_approver_id?: number | null;
-  /**
-   * 申請経路の承認グループID
-   */
   approval_flow_group_id?: number | null;
-  /**
-   * 閲覧者のユーザーID
-   */
   observer_user_ids?: Array<number>;
-  /**
-   * 親申請ID
-   */
   parent_id?: number | null;
-  /**
-   * 親申請の種別
-   */
   parent_type?: string | null;
-  /**
-   * 再決裁元の購買申請ID
-   */
   resubmission_from_purchase_request_id?: number | null;
-  /**
-   * 購買申請の項目行一覧（配列）
-   */
   purchase_request_lines?: Array<{
-    /**
-     * 行番号
-     */
     line_order?: number;
-    /**
-     * 金額
-     */
     amount: number;
-    /**
-     * 内容
-     */
     content?: string;
-    /**
-     * 選択された支払方法
-     */
     selected_payment_methods?: Array<string>;
-    /**
-     * ファイルボックス（証憑ファイル）ID（配列）
-     */
     receipt_ids?: Array<number>;
-    /**
-     * ファイル添付項目の値一覧（配列）
-     */
     receipt_field_values?: Array<{
-      /**
-       * ファイル添付項目ID
-       */
       field_id: number;
-      /**
-       * ファイルボックス（証憑ファイル）ID（配列）
-       */
       receipt_ids?: Array<number>;
     }>;
-    /**
-     * 部門ID
-     */
     section_id?: number | null;
-    /**
-     * 取引先ID
-     */
     partner_id?: number | null;
-    /**
-     * 品目ID
-     */
     item_id?: number | null;
-    /**
-     * メモタグID（配列）
-     */
     tag_ids?: Array<number>;
-    /**
-     * セグメント1タグID
-     */
     segment_1_tag_id?: number | null;
-    /**
-     * セグメント2タグID
-     */
     segment_2_tag_id?: number | null;
-    /**
-     * セグメント3タグID
-     */
     segment_3_tag_id?: number | null;
-    /**
-     * 購入予定日 (yyyy-mm-dd)
-     */
     scheduled_purchase_date?: string | null;
-    /**
-     * 購入予定終了日 (yyyy-mm-dd)
-     */
     scheduled_purchase_end_date?: string | null;
   }>;
-  /**
-   * カスタム項目の値一覧（配列）
-   */
   purchase_request_custom_values?: Array<{
-    /**
-     * カスタム項目値ID
-     */
     id?: number;
-    /**
-     * カスタムフォーム項目ID
-     */
     custom_form_part_id: number;
-    /**
-     * カスタム項目の値(項目種別により形式が異なる)
-     */
     json_value?: {
-      /**
-       * 1行テキスト
-       */
       single_line_string?: string | null;
-      /**
-       * 複数行テキスト
-       */
       multi_line_string?: string | null;
-      /**
-       * 日付 (yyyy-mm-dd)
-       */
       single_date?: string | null;
-      /**
-       * 日付期間
-       */
       date_range?: {
-        /**
-         * 開始日 (yyyy-mm-dd)
-         */
         start_date?: string | null;
-        /**
-         * 終了日 (yyyy-mm-dd)
-         */
         end_date?: string | null;
       } | null;
-      /**
-       * 数値
-       */
       number?: number | null;
-      /**
-       * プルダウン値
-       */
       pulldown?: string | null;
-      /**
-       * チェックボックス値（配列）
-       */
       checkbox?: Array<string>;
-      /**
-       * ラジオボタン値
-       */
       radio_button?: string | null;
     };
   }>;
 };
 
 export type PurchaseRequestUpdateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 購買申請の申請フォームID
-   */
   purchase_request_form_id: number;
-  /**
-   * 申請ステータス<br>
-   * draft を指定した時は下書きで購買申請を更新します。<br>
-   * in_progress を指定した時は申請中で購買申請を更新します。
-   *
-   */
   status: "draft" | "in_progress";
-  /**
-   * 申請者グループID
-   */
   applicant_group_id?: number | null;
-  /**
-   * 申請タイトル
-   */
   title?: string;
-  /**
-   * 申請の説明
-   */
   description?: string | null;
-  /**
-   * 発生開始日 (yyyy-mm-dd)
-   */
   occurrence_start_date?: string | null;
-  /**
-   * 発生終了日 (yyyy-mm-dd)
-   */
   occurrence_end_date?: string | null;
-  /**
-   * 申請経路ID（申請フォーム詳細の取得APIのレスポンスの flow_routes の id を指定してください。申請経路一覧の取得API /api/1/approval_flow_routes のレスポンスの id とは異なる値です）
-   */
   approval_flow_route_id?: number | null;
-  /**
-   * 申請経路の承認者ユーザーID
-   */
   approval_flow_approver_id?: number | null;
-  /**
-   * 申請経路の承認グループID
-   */
   approval_flow_group_id?: number | null;
-  /**
-   * 購買申請の項目行一覧（配列）
-   */
   purchase_request_lines?: Array<{
-    /**
-     * 購買申請の項目行ID（新規行の場合は指定しない）
-     */
     id?: number;
-    /**
-     * 行番号
-     */
     line_order?: number;
-    /**
-     * 金額
-     */
     amount: number;
-    /**
-     * 内容
-     */
     content?: string;
-    /**
-     * 選択された支払方法
-     */
     selected_payment_methods?: Array<string>;
-    /**
-     * ファイルボックス（証憑ファイル）ID（配列）
-     */
     receipt_ids?: Array<number>;
-    /**
-     * ファイル添付項目の値一覧（配列）
-     */
     receipt_field_values?: Array<{
-      /**
-       * ファイル添付項目ID
-       */
       field_id: number;
-      /**
-       * ファイルボックス（証憑ファイル）ID（配列）
-       */
       receipt_ids?: Array<number>;
     }>;
-    /**
-     * 部門ID
-     */
     section_id?: number | null;
-    /**
-     * 取引先ID
-     */
     partner_id?: number | null;
-    /**
-     * 品目ID
-     */
     item_id?: number | null;
-    /**
-     * メモタグID（配列）
-     */
     tag_ids?: Array<number>;
-    /**
-     * セグメント1タグID
-     */
     segment_1_tag_id?: number | null;
-    /**
-     * セグメント2タグID
-     */
     segment_2_tag_id?: number | null;
-    /**
-     * セグメント3タグID
-     */
     segment_3_tag_id?: number | null;
-    /**
-     * 購入予定日 (yyyy-mm-dd)
-     */
     scheduled_purchase_date?: string | null;
-    /**
-     * 購入予定終了日 (yyyy-mm-dd)
-     */
     scheduled_purchase_end_date?: string | null;
   }>;
-  /**
-   * カスタム項目の値一覧（配列）
-   */
   purchase_request_custom_values?: Array<{
-    /**
-     * カスタム項目値ID
-     */
     id?: number;
-    /**
-     * カスタムフォーム項目ID
-     */
     custom_form_part_id: number;
-    /**
-     * カスタム項目の値(項目種別により形式が異なる)
-     */
     json_value?: {
-      /**
-       * 1行テキスト
-       */
       single_line_string?: string | null;
-      /**
-       * 複数行テキスト
-       */
       multi_line_string?: string | null;
-      /**
-       * 日付 (yyyy-mm-dd)
-       */
       single_date?: string | null;
-      /**
-       * 日付期間
-       */
       date_range?: {
-        /**
-         * 開始日 (yyyy-mm-dd)
-         */
         start_date?: string | null;
-        /**
-         * 終了日 (yyyy-mm-dd)
-         */
         end_date?: string | null;
       } | null;
-      /**
-       * 数値
-       */
       number?: number | null;
-      /**
-       * プルダウン値
-       */
       pulldown?: string | null;
-      /**
-       * チェックボックス値（配列）
-       */
       checkbox?: Array<string>;
-      /**
-       * ラジオボタン値
-       */
       radio_button?: string | null;
     };
   }>;
 };
 
-/**
- * 購買申請に対する購買予算、および予算消化
- */
 export type PurchaseRequestPurchaseBudgetResponse = {
-  /**
-   * 予算追跡状態 (in_progress: 申請中, approved: 承認済み, not_tracked: 追跡対象外)
-   */
   tracking_status: "in_progress" | "approved" | "not_tracked";
-  /**
-   * 対象の購買申請ID
-   */
   purchase_request_id: number;
-  /**
-   * 購買予算ID。tracking_status が not_tracked の場合は null です
-   */
   purchase_budget_id: number | null;
-  /**
-   * 購買予算額（円）。tracking_status が not_tracked の場合は null です
-   */
   budget_amount: number | null;
-  /**
-   * 購買予算全体の税込消化額（円）。tracking_status が not_tracked の場合は null です
-   */
   consumed_amount: number | null;
-  /**
-   * 購買予算全体の税抜消化額（円）。tracking_status が not_tracked の場合は null です
-   */
   consumed_tax_excluded_amount: number | null;
-  /**
-   * 購買予算全体の消費税額（円）。tracking_status が not_tracked の場合は null です
-   */
   consumed_tax_amount: number | null;
-  /**
-   * 予算消化。tracking_status が not_tracked の場合は空配列です
-   */
   budget_consumptions: Array<{
-    /**
-     * 税込消化額（円）。取消や調整により負数になり得ます
-     */
     amount: number;
-    /**
-     * 予算を消化した業務リソースの参照情報。表示名と状態は予算消化時点のスナップショットです
-     */
     source: {
-      /**
-       * 消化元リソースの種別 (expense_application: 経費申請, payment_request: 支払依頼, freee_card_statement_line: freeeカード明細, sweeep_document: sweeep v2 の支払依頼, sweeep_invoice: sweeep v2 の請求書, deal: 取引)
-       */
       type:
         | "expense_application"
         | "payment_request"
@@ -15732,60 +4614,21 @@ export type PurchaseRequestPurchaseBudgetResponse = {
         | "sweeep_document"
         | "sweeep_invoice"
         | "deal";
-      /**
-       * 消化元サービスにおけるリソースID。リソース間で型が異なるため文字列で返します。取得できない場合は null です
-       */
       id: string | null;
-      /**
-       * 消化元を人が識別するための表示名。取得できない場合は null です
-       */
       display_name: string | null;
-      /**
-       * ワークフローを持つ消化元の状態 (in_progress: 申請中, approved: 承認済み, feedback: 差戻し)。対象外または取得できない場合は null です
-       */
       workflow_status: "in_progress" | "approved" | "feedback";
     };
   }>;
 };
 
 export type ApprovalFlowRoutesIndexResponse = {
-  /**
-   * 申請経路の一覧
-   */
   approval_flow_routes: Array<{
-    /**
-     * 申請経路ID
-     */
     id: number;
-    /**
-     * 申請経路名
-     */
     name: string;
-    /**
-     * 申請経路の説明（未設定の場合は空文字列になります）
-     */
     description: string;
-    /**
-     * 申請経路を作成したユーザーのユーザーID（削除済みのユーザーでもIDは返ります。作成ユーザーが記録されていない場合は null になります）
-     */
     user_id: number | null;
-    /**
-     * システムにより自動作成された申請経路かどうか（true の場合、freee が自動作成した申請経路であることを示します）
-     */
     definition_system: boolean;
-    /**
-     * 最初の承認ステップのID
-     */
     first_step_id: number;
-    /**
-     * 申請種別（申請経路を使用できる申請種別を示します。例えば、ApprovalRequest の場合は、各種申請で使用できる申請経路です。）
-     * * `TxnApproval` - 仕訳承認
-     * * `ExpenseApplication` - 経費精算
-     * * `PaymentRequest` - 支払依頼
-     * * `ApprovalRequest` - 各種申請
-     * * `DocApproval` - 請求書等 (見積書・納品書・請求書・発注書)
-     * * `PurchaseRequest` - 購買申請
-     */
     usages: Array<
       | "TxnApproval"
       | "ExpenseApplication"
@@ -15794,61 +4637,19 @@ export type ApprovalFlowRoutesIndexResponse = {
       | "DocApproval"
       | "PurchaseRequest"
     >;
-    /**
-     * 申請経路で利用できる申請フォームID配列（無効化・削除された申請フォームは含まれません）
-     */
     request_form_ids: Array<number>;
-    /**
-     * 基本経路として設定されているかどうか<br><br>
-     * リクエストパラメータusageに下記のいずれかが指定され、かつ、基本経路の場合はtrueになります。
-     * * `TxnApproval` - 仕訳承認
-     * * `ExpenseApplication` - 経費精算
-     * * `PaymentRequest` - 支払依頼
-     * * `ApprovalRequest`(リクエストパラメータrequest_form_idを同時に指定) - 各種申請
-     * * `DocApproval` - 請求書等 (見積書・納品書・請求書・発注書)
-     *
-     * <a href="https://support.freee.co.jp/hc/ja/articles/900000507963" target="_blank">申請フォームの基本経路設定</a>
-     *
-     */
     default_route: boolean;
   }>;
 };
 
 export type ApprovalFlowRouteResponse = {
   approval_flow_route: {
-    /**
-     * 申請経路ID
-     */
     id: number;
-    /**
-     * 申請経路名
-     */
     name: string;
-    /**
-     * 申請経路の説明（未設定の場合は空文字列になります）
-     */
     description: string;
-    /**
-     * 申請経路を作成したユーザーのユーザーID（削除済みのユーザーでもIDは返ります。作成ユーザーが記録されていない場合は null になります）
-     */
     user_id: number | null;
-    /**
-     * システムにより自動作成された申請経路かどうか（true の場合、freee が自動作成した申請経路であることを示します）
-     */
     definition_system: boolean;
-    /**
-     * 最初の承認ステップのID（steps に含まれる先頭の承認ステップのIDと一致します）
-     */
     first_step_id: number;
-    /**
-     * 申請種別（申請経路を使用できる申請種別を示します。例えば、ApprovalRequest の場合は、各種申請で使用できる申請経路です。）
-     * * `TxnApproval` - 仕訳承認
-     * * `ExpenseApplication` - 経費精算
-     * * `PaymentRequest` - 支払依頼
-     * * `ApprovalRequest` - 各種申請
-     * * `DocApproval` - 請求書等 (見積書・納品書・請求書・発注書)
-     * * `PurchaseRequest` - 購買申請
-     */
     usages: Array<
       | "TxnApproval"
       | "ExpenseApplication"
@@ -15857,33 +4658,10 @@ export type ApprovalFlowRouteResponse = {
       | "DocApproval"
       | "PurchaseRequest"
     >;
-    /**
-     * 申請経路で利用できる申請フォームID配列（無効化・削除された申請フォームは含まれません）
-     */
     request_form_ids: Array<number>;
-    /**
-     * 承認ステップ（配列）。承認順に並びます。
-     */
     steps: Array<{
-      /**
-       * 承認ステップID
-       */
       id: number;
-      /**
-       * 次の承認ステップID（最後の承認ステップの場合は null になります）
-       */
       next_step_id: number | null;
-      /**
-       * 承認方法
-       * * `predefined_user` - メンバー指定 (1人)
-       * * `selected_user` - 申請時にメンバー指定
-       * * `unspecified` - 指定なし
-       * * `and_resource` - メンバー指定 (複数、全員の承認)
-       * * `or_resource` - メンバー指定 (複数、1人の承認)
-       * * `and_position` - 役職指定 (複数、全員の承認)
-       * * `or_position` - 役職指定 (複数、1人の承認)
-       * * `switchable` - 条件分岐（金額・役職などの評価値で承認ステップが分岐する）
-       */
       resource_type:
         | "predefined_user"
         | "selected_user"
@@ -15893,74 +4671,23 @@ export type ApprovalFlowRouteResponse = {
         | "and_position"
         | "or_position"
         | "switchable";
-      /**
-       * 承認者のユーザーID (配列)。resource_type が predefined_user / and_resource / or_resource の場合に承認者のユーザーIDが入ります。申請経路上で承認者となるメンバーが確定しない resource_type（selected_user / unspecified / and_position / or_position / switchable）の場合は空の配列になります。
-       */
       users_ids: Array<number>;
-      /**
-       * 承認者の決定方法。役職指定（申請者の所属部門）の承認ステップの場合のみ設定され、それ以外はnullになります。
-       * * `applicant_group` - 申請者の所属部門に追従して承認者を決定する
-       */
       approver_determination_type?: "applicant_group";
-      /**
-       * 承認ステップの部門。役職指定（申請時に部門指定）または部門および役職指定の承認ステップで部門が指定されている場合のみ設定され、それ以外はnullになります。
-       */
       group?: {
-        /**
-         * 部門ID
-         */
         id: number;
-        /**
-         * 部門名。削除済みの部門の場合は「削除済み部門」になります。
-         */
         name: string;
       } | null;
-      /**
-       * 承認ステップの役職 (配列)。承認ステップのresource_typeがand_position、or_positionの場合に設定され、それ以外は空の配列になります。
-       */
       position_types?: Array<{
-        /**
-         * 役職ID
-         */
         id: number;
-        /**
-         * 役職名。削除済みの役職の場合は「削除済み役職」になります。
-         */
         name: string;
       }>;
-      /**
-       * 分岐ルール (配列)。承認ステップのresource_typeがswitchableの場合に設定され、それ以外は空の配列になります。先頭から順に評価され、conditionsをすべて満たした最初のルールのnext_step_idへ分岐します。どのルールも満たさない場合は分岐せず、次の承認ステップ（next_step_id）に進みます。
-       */
       switching_rules?: Array<{
-        /**
-         * 条件を満たした場合に分岐する承認ステップID
-         */
         next_step_id: number;
-        /**
-         * 分岐条件 (配列)。すべての条件を満たした場合に分岐します。
-         */
         conditions: Array<{
-          /**
-           * 判定対象
-           * * `total_amount_jpy` - 申請金額 (円)
-           * * `applicant_position_type` - 申請者の役職 (valuesには役職IDが入ります。役職なしの場合はno_position)
-           * * `no_approver_present` - 承認者が不在かどうか
-           */
           switch_evaluation_key?:
             "total_amount_jpy" | "applicant_position_type" | "no_approver_present";
-          /**
-           * 判定対象とvaluesを比較する演算子
-           * * `greater_than_or_equal` - valuesの値以上
-           * * `less_than_or_equal` - valuesの値以下
-           * * `contains` - valuesの値のいずれかに一致する
-           * * `not_contains` - valuesの値のいずれにも一致しない
-           * * `of` - valuesの値と一致する
-           */
           operator:
             "greater_than_or_equal" | "less_than_or_equal" | "contains" | "not_contains" | "of";
-          /**
-           * 判定値 (配列)
-           */
           values: Array<string>;
         }>;
       }>;
@@ -15969,33 +4696,12 @@ export type ApprovalFlowRouteResponse = {
 };
 
 export type SegmentTag = {
-  /**
-   * セグメントタグID。更新・削除APIのパスパラメータや、取引・振替伝票の明細に指定します。
-   */
   id: number;
-  /**
-   * セグメントタグ名 (100文字以内)。事業所内の同じセグメント区分で重複しません。
-   */
   name: string;
-  /**
-   * 備考 (30文字以内)。未設定の場合は null が返ります。
-   */
   description: string | null;
-  /**
-   * ショートカット1 (20文字以内)。Web画面などでセグメントタグを検索する際のキーワードとして使用します。未設定の場合は null が返ります。
-   */
   shortcut1: string | null;
-  /**
-   * ショートカット2 (20文字以内)。Web画面などでセグメントタグを検索する際のキーワードとして使用します。未設定の場合は null が返ります。
-   */
   shortcut2: string | null;
-  /**
-   * セグメントタグコード (20文字以内)。事業所の設定でセグメントタグコードを使用する設定にしている場合のみレスポンスに含まれます。コードが未設定の場合は null が返ります。
-   */
   code?: string | null;
-  /**
-   * セグメントタグの最終更新日 (yyyy-mm-dd, JST)。一覧取得APIの start_update_date / end_update_date による絞り込みの対象です。
-   */
   update_date: string;
 };
 
@@ -16004,118 +4710,37 @@ export type SegmentTagResponse = {
 };
 
 export type SegmentTagParams = {
-  /**
-   * セグメントタグを作成・更新する対象の事業所ID
-   */
   company_id: number;
-  /**
-   * セグメントタグ名 (100文字以内)。事業所内の同じセグメント区分で重複できません。
-   */
   name: string;
-  /**
-   * 備考 (30文字以内)。省略した場合は未設定（null）になります。
-   */
   description?: string | null;
-  /**
-   * ショートカット1 (20文字以内)。Web画面などでセグメントタグを検索する際のキーワードとして使用します。省略した場合は未設定（null）になります。
-   */
   shortcut1?: string | null;
-  /**
-   * ショートカット2 (20文字以内)。Web画面などでセグメントタグを検索する際のキーワードとして使用します。省略した場合は未設定（null）になります。
-   */
   shortcut2?: string | null;
-  /**
-   * セグメントタグコード (20文字以内、半角英数字・ハイフン・アンダースコアのみ)。事業所内の同じセグメント区分で重複できません。事業所の設定でセグメントタグコードを使用する設定にしている場合のみ保存され、設定が無効の場合は指定しても保存されません。省略した場合は未設定（null）になります。
-   */
   code?: string | null;
 };
 
 export type InvoiceIndexResponse = {
   invoices: Array<{
-    /**
-     * 請求書ID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 請求日 (yyyy-mm-dd)
-     */
     issue_date: string;
-    /**
-     * 取引先ID
-     */
     partner_id: number | null;
-    /**
-     * 取引先コード（事業所で取引先コードの利用設定が有効な場合のみ値が入ります）
-     */
     partner_code: string | null;
-    /**
-     * 請求書番号
-     */
     invoice_number: string;
-    /**
-     * タイトル
-     */
     title: string | null;
-    /**
-     * 期日 (yyyy-mm-dd)
-     */
     due_date: string | null;
-    /**
-     * 合計金額
-     */
     total_amount: number;
-    /**
-     * 消費税
-     */
     total_vat: number;
-    /**
-     * 小計
-     */
     sub_total: number;
-    /**
-     * 売上計上日
-     */
     booking_date: string | null;
-    /**
-     * 概要
-     */
     description: string | null;
-    /**
-     * 請求書ステータス  (draft: 下書き, applying: 申請中, remanded: 差し戻し, rejected: 却下, approved: 承認済み, submitted: 送付済み, unsubmitted: 請求書の承認フローが無効の場合のみ、unsubmitted（送付待ち）の値をとります)
-     */
     invoice_status:
       "draft" | "applying" | "remanded" | "rejected" | "approved" | "submitted" | "unsubmitted";
-    /**
-     * 入金ステータス  (unsettled: 入金待ち, settled: 入金済み)
-     */
     payment_status: "" | "unsettled" | "settled";
-    /**
-     * 入金日 (yyyy-mm-dd)。入金ステータス(payment_status)が settled の場合のみ日付が入ります
-     */
     payment_date: string | null;
-    /**
-     * Web共有日時(最新)
-     */
     web_published_at: string | null;
-    /**
-     * Web共有ダウンロード日時(最新)
-     */
     web_downloaded_at: string | null;
-    /**
-     * Web共有取引先確認日時(最新)
-     */
     web_confirmed_at: string | null;
-    /**
-     * メール送信日時(最新)
-     */
     mail_sent_at: string | null;
-    /**
-     * 郵送ステータス(unrequested: リクエスト前, preview_registered: プレビュー登録, preview_failed: プレビュー登録失敗, ordered: 注文中, order_failed: 注文失敗, printing: 印刷中, canceled: キャンセル, posted: 投函済み, cancel: 注文前キャンセル, ordering: 注文処理中, bounced: 郵送不達)
-     */
     posting_status:
       | ""
       | "unrequested"
@@ -16129,104 +4754,26 @@ export type InvoiceIndexResponse = {
       | "cancel"
       | "ordering"
       | "bounced";
-    /**
-     * 取引先名
-     */
     partner_name: string | null;
-    /**
-     * 請求書に表示する取引先名
-     */
     partner_display_name: string | null;
-    /**
-     * 敬称（御中、様、(空白)の3つから選択）
-     */
     partner_title: string | null;
-    /**
-     * 郵便番号
-     */
     partner_zipcode: string | null;
-    /**
-     * 都道府県コード（-1: 設定しない、0:北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄
-     */
     partner_prefecture_code: number | null;
-    /**
-     * 都道府県
-     */
     partner_prefecture_name: string | null;
-    /**
-     * 市区町村・番地
-     */
     partner_address1: string | null;
-    /**
-     * 建物名・部屋番号など
-     */
     partner_address2: string | null;
-    /**
-     * 取引先担当者名
-     */
     partner_contact_info: string | null;
-    /**
-     * 事業所名
-     */
     company_name: string;
-    /**
-     * 郵便番号
-     */
     company_zipcode: string | null;
-    /**
-     * 都道府県コード（-1: 設定しない、0:北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄
-     */
     company_prefecture_code: number | null;
-    /**
-     * 都道府県
-     */
     company_prefecture_name: string | null;
-    /**
-     * 市区町村・番地
-     */
     company_address1: string | null;
-    /**
-     * 建物名・部屋番号など
-     */
     company_address2: string | null;
-    /**
-     * 事業所担当者名
-     */
     company_contact_info: string | null;
-    /**
-     * 支払方法 (振込: transfer, 引き落とし: direct_debit)
-     */
     payment_type: "" | "transfer" | "direct_debit";
-    /**
-     * 支払口座
-     */
     payment_bank_info: string | null;
-    /**
-     * メッセージ
-     */
     message: string | null;
-    /**
-     * 備考
-     */
     notes: string | null;
-    /**
-     * 請求書レイアウト
-     * * `default_classic` - レイアウト１/クラシック (デフォルト)
-     *
-     * * `standard_classic` - レイアウト２/クラシック
-     *
-     * * `envelope_classic` - 封筒１/クラシック
-     *
-     * * `carried_forward_standard_classic` - レイアウト３（繰越金額欄あり）/クラシック
-     *
-     * * `carried_forward_envelope_classic` - 封筒２（繰越金額欄あり）/クラシック
-     *
-     * * `default_modern` - レイアウト１/モダン
-     *
-     * * `standard_modern` - レイアウト２/モダン
-     *
-     * * `envelope_modern` - 封筒/モダン
-     */
     invoice_layout:
       | "default_classic"
       | "standard_classic"
@@ -16236,142 +4783,39 @@ export type InvoiceIndexResponse = {
       | "default_modern"
       | "standard_modern"
       | "envelope_modern";
-    /**
-     * 請求書の消費税計算方法(inclusive: 内税, exclusive: 外税)
-     */
     tax_entry_method: "" | "inclusive" | "exclusive";
-    /**
-     * 取引ID (invoice_statusがsubmitted, unsubmittedの時IDが表示されます)
-     */
     deal_id: number | null;
-    /**
-     * 請求内容
-     */
     invoice_contents: Array<{
-      /**
-       * 請求内容ID
-       */
       id: number;
-      /**
-       * 順序
-       */
       order: number | null;
-      /**
-       * 行の種類
-       */
       type: "normal" | "discount" | "text";
-      /**
-       * 数量
-       */
       qty: number;
-      /**
-       * 単位
-       */
       unit: string | null;
-      /**
-       * 単価
-       */
       unit_price: number;
-      /**
-       * 内税/外税の判別とamountの税込み、税抜きについて
-       * <ul>
-       * <li>tax_entry_methodがexclusive (外税)の場合</li>
-       * <ul>
-       * <li>amount: 消費税抜きの金額</li>
-       * <li>vat: 消費税の金額</li>
-       * </ul>
-       * <li>tax_entry_methodがinclusive (内税)の場合</li>
-       * <ul>
-       * <li>amount: 消費税込みの金額</li>
-       * <li>vat: 消費税の金額</li>
-       * </ul>
-       * </ul>
-       *
-       */
       amount: number;
-      /**
-       * 消費税額
-       */
       vat: number;
-      /**
-       * 軽減税率税区分（true: 対象、false: 対象外）
-       */
       reduced_vat: boolean;
-      /**
-       * 備考
-       */
       description: string | null;
-      /**
-       * 勘定科目ID
-       */
       account_item_id: number | null;
-      /**
-       * 勘定科目名
-       */
       account_item_name: string | null;
-      /**
-       * 税区分コード
-       */
       tax_code: number | null;
-      /**
-       * 品目ID
-       */
       item_id: number | null;
-      /**
-       * 品目
-       */
       item_name: string | null;
-      /**
-       * 部門ID
-       */
       section_id: number | null;
-      /**
-       * 部門
-       */
       section_name: string | null;
       tag_ids: Array<number>;
       tag_names: Array<string>;
-      /**
-       * セグメント１タグID
-       */
       segment_1_tag_id?: number | null;
-      /**
-       * セグメント１タグ名
-       */
       segment_1_tag_name?: string | null;
-      /**
-       * セグメント２タグID
-       */
       segment_2_tag_id?: number | null;
-      /**
-       * セグメント２タグ名
-       */
       segment_2_tag_name?: string | null;
-      /**
-       * セグメント３タグID
-       */
       segment_3_tag_id?: number | null;
-      /**
-       * セグメント３タグ名
-       */
       segment_3_tag_name?: string | null;
     }>;
     total_amount_per_vat_rate: {
-      /**
-       * 税率5%の税込み金額合計
-       */
       vat_5: number;
-      /**
-       * 税率8%の税込み金額合計
-       */
       vat_8: number;
-      /**
-       * 軽減税率8%の税込み金額合計
-       */
       reduced_vat_8: number;
-      /**
-       * 税率10%の税込み金額合計
-       */
       vat_10: number;
     };
   }>;
@@ -16379,90 +4823,27 @@ export type InvoiceIndexResponse = {
 
 export type InvoiceResponse = {
   invoice: {
-    /**
-     * 請求書ID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 請求日 (yyyy-mm-dd)
-     */
     issue_date: string;
-    /**
-     * 取引先ID
-     */
     partner_id: number | null;
-    /**
-     * 取引先コード（事業所で取引先コードの利用設定が有効な場合のみ値が入ります）
-     */
     partner_code: string | null;
-    /**
-     * 請求書番号
-     */
     invoice_number: string;
-    /**
-     * タイトル
-     */
     title: string | null;
-    /**
-     * 期日 (yyyy-mm-dd)
-     */
     due_date: string | null;
-    /**
-     * 合計金額
-     */
     total_amount: number;
-    /**
-     * 消費税
-     */
     total_vat: number;
-    /**
-     * 小計
-     */
     sub_total: number;
-    /**
-     * 売上計上日
-     */
     booking_date: string | null;
-    /**
-     * 概要
-     */
     description: string | null;
-    /**
-     * 請求書ステータス  (draft: 下書き, applying: 申請中, remanded: 差し戻し, rejected: 却下, approved: 承認済み, submitted: 送付済み, unsubmitted: 請求書の承認フローが無効の場合のみ、unsubmitted（送付待ち）の値をとります)
-     */
     invoice_status:
       "draft" | "applying" | "remanded" | "rejected" | "approved" | "submitted" | "unsubmitted";
-    /**
-     * 入金ステータス  (unsettled: 入金待ち, settled: 入金済み)
-     */
     payment_status: "" | "unsettled" | "settled";
-    /**
-     * 入金日 (yyyy-mm-dd)。入金ステータス(payment_status)が settled の場合のみ日付が入ります
-     */
     payment_date: string | null;
-    /**
-     * Web共有日時(最新)
-     */
     web_published_at: string | null;
-    /**
-     * Web共有ダウンロード日時(最新)
-     */
     web_downloaded_at: string | null;
-    /**
-     * Web共有取引先確認日時(最新)
-     */
     web_confirmed_at: string | null;
-    /**
-     * メール送信日時(最新)
-     */
     mail_sent_at: string | null;
-    /**
-     * 郵送ステータス(unrequested: リクエスト前, preview_registered: プレビュー登録, preview_failed: プレビュー登録失敗, ordered: 注文中, order_failed: 注文失敗, printing: 印刷中, canceled: キャンセル, posted: 投函済み, cancel: 注文前キャンセル, ordering: 注文処理中, bounced: 郵送不達)
-     */
     posting_status:
       | ""
       | "unrequested"
@@ -16476,104 +4857,26 @@ export type InvoiceResponse = {
       | "cancel"
       | "ordering"
       | "bounced";
-    /**
-     * 取引先名
-     */
     partner_name: string | null;
-    /**
-     * 請求書に表示する取引先名
-     */
     partner_display_name: string | null;
-    /**
-     * 敬称（御中、様、(空白)の3つから選択）
-     */
     partner_title: string | null;
-    /**
-     * 郵便番号
-     */
     partner_zipcode: string | null;
-    /**
-     * 都道府県コード（-1: 設定しない、0:北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄
-     */
     partner_prefecture_code: number | null;
-    /**
-     * 都道府県
-     */
     partner_prefecture_name: string | null;
-    /**
-     * 市区町村・番地
-     */
     partner_address1: string | null;
-    /**
-     * 建物名・部屋番号など
-     */
     partner_address2: string | null;
-    /**
-     * 取引先担当者名
-     */
     partner_contact_info: string | null;
-    /**
-     * 事業所名
-     */
     company_name: string;
-    /**
-     * 郵便番号
-     */
     company_zipcode: string | null;
-    /**
-     * 都道府県コード（-1: 設定しない、0:北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄
-     */
     company_prefecture_code: number | null;
-    /**
-     * 都道府県
-     */
     company_prefecture_name: string | null;
-    /**
-     * 市区町村・番地
-     */
     company_address1: string | null;
-    /**
-     * 建物名・部屋番号など
-     */
     company_address2: string | null;
-    /**
-     * 事業所担当者名
-     */
     company_contact_info: string | null;
-    /**
-     * 支払方法 (振込: transfer, 引き落とし: direct_debit)
-     */
     payment_type: "" | "transfer" | "direct_debit";
-    /**
-     * 支払口座
-     */
     payment_bank_info: string | null;
-    /**
-     * メッセージ
-     */
     message: string | null;
-    /**
-     * 備考
-     */
     notes: string | null;
-    /**
-     * 請求書レイアウト
-     * * `default_classic` - レイアウト１/クラシック (デフォルト)
-     *
-     * * `standard_classic` - レイアウト２/クラシック
-     *
-     * * `envelope_classic` - 封筒１/クラシック
-     *
-     * * `carried_forward_standard_classic` - レイアウト３（繰越金額欄あり）/クラシック
-     *
-     * * `carried_forward_envelope_classic` - 封筒２（繰越金額欄あり）/クラシック
-     *
-     * * `default_modern` - レイアウト１/モダン
-     *
-     * * `standard_modern` - レイアウト２/モダン
-     *
-     * * `envelope_modern` - 封筒/モダン
-     */
     invoice_layout:
       | "default_classic"
       | "standard_classic"
@@ -16583,308 +4886,81 @@ export type InvoiceResponse = {
       | "default_modern"
       | "standard_modern"
       | "envelope_modern";
-    /**
-     * 請求書の消費税計算方法(inclusive: 内税, exclusive: 外税)
-     */
     tax_entry_method: "" | "inclusive" | "exclusive";
-    /**
-     * 取引ID (invoice_statusがsubmitted, unsubmittedの時IDが表示されます)
-     */
     deal_id: number | null;
-    /**
-     * 請求内容
-     */
     invoice_contents: Array<{
-      /**
-       * 請求内容ID
-       */
       id: number;
-      /**
-       * 順序
-       */
       order: number | null;
-      /**
-       * 行の種類
-       */
       type: "normal" | "discount" | "text";
-      /**
-       * 数量
-       */
       qty: number;
-      /**
-       * 単位
-       */
       unit: string | null;
-      /**
-       * 単価
-       */
       unit_price: number;
-      /**
-       * 内税/外税の判別とamountの税込み、税抜きについて
-       * <ul>
-       * <li>tax_entry_methodがexclusive (外税)の場合</li>
-       * <ul>
-       * <li>amount: 消費税抜きの金額</li>
-       * <li>vat: 消費税の金額</li>
-       * </ul>
-       * <li>tax_entry_methodがinclusive (内税)の場合</li>
-       * <ul>
-       * <li>amount: 消費税込みの金額</li>
-       * <li>vat: 消費税の金額</li>
-       * </ul>
-       * </ul>
-       *
-       */
       amount: number;
-      /**
-       * 消費税額
-       */
       vat: number;
-      /**
-       * 軽減税率税区分（true: 対象、false: 対象外）
-       */
       reduced_vat: boolean;
-      /**
-       * 備考
-       */
       description: string | null;
-      /**
-       * 勘定科目ID
-       */
       account_item_id: number | null;
-      /**
-       * 勘定科目名
-       */
       account_item_name: string | null;
-      /**
-       * 税区分コード
-       */
       tax_code: number | null;
-      /**
-       * 品目ID
-       */
       item_id: number | null;
-      /**
-       * 品目
-       */
       item_name: string | null;
-      /**
-       * 部門ID
-       */
       section_id: number | null;
-      /**
-       * 部門
-       */
       section_name: string | null;
       tag_ids: Array<number>;
       tag_names: Array<string>;
-      /**
-       * セグメント１タグID
-       */
       segment_1_tag_id?: number | null;
-      /**
-       * セグメント１タグ名
-       */
       segment_1_tag_name?: string | null;
-      /**
-       * セグメント２タグID
-       */
       segment_2_tag_id?: number | null;
-      /**
-       * セグメント２タグ名
-       */
       segment_2_tag_name?: string | null;
-      /**
-       * セグメント３タグID
-       */
       segment_3_tag_id?: number | null;
-      /**
-       * セグメント３タグ名
-       */
       segment_3_tag_name?: string | null;
     }>;
     total_amount_per_vat_rate: {
-      /**
-       * 税率5%の税込み金額合計
-       */
       vat_5: number;
-      /**
-       * 税率8%の税込み金額合計
-       */
       vat_8: number;
-      /**
-       * 軽減税率8%の税込み金額合計
-       */
       reduced_vat_8: number;
-      /**
-       * 税率10%の税込み金額合計
-       */
       vat_10: number;
     };
-    /**
-     * 関連する見積書ID(配列)<br>
-     * 下記で作成したものが該当します。
-     *
-     * <a href="https://support.freee.co.jp/hc/ja/articles/203318410#1-2" target="_blank">見積書・納品書を納品書・請求書に変換する</a><br>
-     * <a href="https://support.freee.co.jp/hc/ja/articles/209076226" target="_blank">複数の見積書・納品書から合算請求書を作成する</a><br>
-     *
-     */
     related_quotation_ids: Array<number>;
   };
 };
 
 export type QuotationIndexResponse = {
   quotations: Array<{
-    /**
-     * 見積書ID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 見積日 (yyyy-mm-dd)
-     */
     issue_date: string;
-    /**
-     * 取引先ID
-     */
     partner_id: number | null;
-    /**
-     * 取引先コード（事業所で取引先コードの利用設定が有効な場合のみ値が入ります）
-     */
     partner_code: string | null;
-    /**
-     * 見積書番号
-     */
     quotation_number: string;
-    /**
-     * タイトル
-     */
     title: string | null;
-    /**
-     * 合計金額
-     */
     total_amount: number;
-    /**
-     * 消費税
-     */
     total_vat: number;
-    /**
-     * 小計
-     */
     sub_total: number;
-    /**
-     * 概要
-     */
     description: string | null;
-    /**
-     * 見積書ステータス  (unsubmitted: 送付待ち, submitted: 送付済み)
-     */
     quotation_status: "unsubmitted" | "submitted";
-    /**
-     * Web共有日時(最新)
-     */
     web_published_at: string | null;
-    /**
-     * Web共有ダウンロード日時(最新)
-     */
     web_downloaded_at: string | null;
-    /**
-     * Web共有取引先確認日時(最新)
-     */
     web_confirmed_at: string | null;
-    /**
-     * メール送信日時(最新)
-     */
     mail_sent_at: string | null;
-    /**
-     * 取引先名
-     */
     partner_name: string | null;
-    /**
-     * 見積書に表示する取引先名
-     */
     partner_display_name: string | null;
-    /**
-     * 敬称（御中、様、(空白)の3つから選択）
-     */
     partner_title: string | null;
-    /**
-     * 郵便番号
-     */
     partner_zipcode: string | null;
-    /**
-     * 都道府県コード（-1: 設定しない、0:北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄
-     */
     partner_prefecture_code: number | null;
-    /**
-     * 都道府県
-     */
     partner_prefecture_name: string | null;
-    /**
-     * 市区町村・番地
-     */
     partner_address1: string | null;
-    /**
-     * 建物名・部屋番号など
-     */
     partner_address2: string | null;
-    /**
-     * 取引先担当者名
-     */
     partner_contact_info: string | null;
-    /**
-     * 事業所名
-     */
     company_name: string;
-    /**
-     * 郵便番号
-     */
     company_zipcode: string | null;
-    /**
-     * 都道府県コード（-1: 設定しない、0:北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄
-     */
     company_prefecture_code: number | null;
-    /**
-     * 都道府県
-     */
     company_prefecture_name: string | null;
-    /**
-     * 市区町村・番地
-     */
     company_address1: string | null;
-    /**
-     * 建物名・部屋番号など
-     */
     company_address2: string | null;
-    /**
-     * 事業所担当者名
-     */
     company_contact_info: string | null;
-    /**
-     * メッセージ
-     */
     message: string | null;
-    /**
-     * 備考
-     */
     notes: string | null;
-    /**
-     * 見積書レイアウト
-     * * `default_classic` - レイアウト１/クラシック (デフォルト)
-     *
-     * * `standard_classic` - レイアウト２/クラシック
-     *
-     * * `envelope_classic` - 封筒１/クラシック
-     *
-     * * `default_modern` - レイアウト１/モダン
-     *
-     * * `standard_modern` - レイアウト２/モダン
-     *
-     * * `envelope_modern` - 封筒/モダン
-     */
     quotation_layout:
       | "default_classic"
       | "standard_classic"
@@ -16892,138 +4968,38 @@ export type QuotationIndexResponse = {
       | "default_modern"
       | "standard_modern"
       | "envelope_modern";
-    /**
-     * 見積書の消費税計算方法(inclusive: 内税, exclusive: 外税)
-     */
     tax_entry_method: "" | "inclusive" | "exclusive";
-    /**
-     * 見積内容
-     */
     quotation_contents: Array<{
-      /**
-       * 見積内容ID
-       */
       id: number;
-      /**
-       * 順序
-       */
       order: number;
-      /**
-       * 行の種類
-       */
       type: "normal" | "discount" | "text";
-      /**
-       * 数量
-       */
       qty: number;
-      /**
-       * 単位
-       */
       unit: string | null;
-      /**
-       * 単価
-       */
       unit_price: number;
-      /**
-       * 内税/外税の判別とamountの税込み、税抜きについて
-       * <ul>
-       * <li>tax_entry_methodがexclusive (外税)の場合</li>
-       * <ul>
-       * <li>amount: 消費税抜きの金額</li>
-       * <li>vat: 消費税の金額</li>
-       * </ul>
-       * <li>tax_entry_methodがinclusive (内税)の場合</li>
-       * <ul>
-       * <li>amount: 消費税込みの金額</li>
-       * <li>vat: 消費税の金額</li>
-       * </ul>
-       * </ul>
-       *
-       */
       amount: number;
-      /**
-       * 消費税額
-       */
       vat: number;
-      /**
-       * 軽減税率税区分（true: 対象、false: 対象外）
-       */
       reduced_vat: boolean;
-      /**
-       * 備考
-       */
       description: string | null;
-      /**
-       * 勘定科目ID
-       */
       account_item_id: number | null;
-      /**
-       * 勘定科目名
-       */
       account_item_name: string | null;
-      /**
-       * 税区分コード
-       */
       tax_code: number | null;
-      /**
-       * 品目ID
-       */
       item_id: number | null;
-      /**
-       * 品目
-       */
       item_name: string | null;
-      /**
-       * 部門ID
-       */
       section_id: number | null;
-      /**
-       * 部門
-       */
       section_name: string | null;
       tag_ids: Array<number>;
       tag_names: Array<string>;
-      /**
-       * セグメント１タグID
-       */
       segment_1_tag_id?: number | null;
-      /**
-       * セグメント１タグ名
-       */
       segment_1_tag_name?: string | null;
-      /**
-       * セグメント２タグID
-       */
       segment_2_tag_id?: number | null;
-      /**
-       * セグメント２タグ名
-       */
       segment_2_tag_name?: string | null;
-      /**
-       * セグメント３タグID
-       */
       segment_3_tag_id?: number | null;
-      /**
-       * セグメント３タグ名
-       */
       segment_3_tag_name?: string | null;
     }>;
     total_amount_per_vat_rate: {
-      /**
-       * 税率5%の税込み金額合計
-       */
       vat_5: number;
-      /**
-       * 税率8%の税込み金額合計
-       */
       vat_8: number;
-      /**
-       * 軽減税率8%の税込み金額合計
-       */
       reduced_vat_8: number;
-      /**
-       * 税率10%の税込み金額合計
-       */
       vat_10: number;
     };
   }>;
@@ -17031,156 +5007,40 @@ export type QuotationIndexResponse = {
 
 export type QuotationResponse = {
   quotation: {
-    /**
-     * 見積書ID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 見積日 (yyyy-mm-dd)
-     */
     issue_date: string;
-    /**
-     * 取引先ID
-     */
     partner_id: number | null;
-    /**
-     * 取引先コード（事業所で取引先コードの利用設定が有効な場合のみ値が入ります）
-     */
     partner_code: string | null;
-    /**
-     * 見積書番号
-     */
     quotation_number: string;
-    /**
-     * タイトル
-     */
     title: string | null;
-    /**
-     * 合計金額
-     */
     total_amount: number;
-    /**
-     * 消費税
-     */
     total_vat: number;
-    /**
-     * 小計
-     */
     sub_total: number;
-    /**
-     * 概要
-     */
     description: string | null;
-    /**
-     * 見積書ステータス  (unsubmitted: 送付待ち, submitted: 送付済み)
-     */
     quotation_status: "unsubmitted" | "submitted";
-    /**
-     * Web共有日時(最新)
-     */
     web_published_at: string | null;
-    /**
-     * Web共有ダウンロード日時(最新)
-     */
     web_downloaded_at: string | null;
-    /**
-     * Web共有取引先確認日時(最新)
-     */
     web_confirmed_at: string | null;
-    /**
-     * メール送信日時(最新)
-     */
     mail_sent_at: string | null;
-    /**
-     * 取引先名
-     */
     partner_name: string | null;
-    /**
-     * 見積書に表示する取引先名
-     */
     partner_display_name: string | null;
-    /**
-     * 敬称（御中、様、(空白)の3つから選択）
-     */
     partner_title: string | null;
-    /**
-     * 郵便番号
-     */
     partner_zipcode: string | null;
-    /**
-     * 都道府県コード（-1: 設定しない、0:北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄
-     */
     partner_prefecture_code: number | null;
-    /**
-     * 都道府県
-     */
     partner_prefecture_name: string | null;
-    /**
-     * 市区町村・番地
-     */
     partner_address1: string | null;
-    /**
-     * 建物名・部屋番号など
-     */
     partner_address2: string | null;
-    /**
-     * 取引先担当者名
-     */
     partner_contact_info: string | null;
-    /**
-     * 事業所名
-     */
     company_name: string;
-    /**
-     * 郵便番号
-     */
     company_zipcode: string | null;
-    /**
-     * 都道府県コード（-1: 設定しない、0:北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄
-     */
     company_prefecture_code: number | null;
-    /**
-     * 都道府県
-     */
     company_prefecture_name: string | null;
-    /**
-     * 市区町村・番地
-     */
     company_address1: string | null;
-    /**
-     * 建物名・部屋番号など
-     */
     company_address2: string | null;
-    /**
-     * 事業所担当者名
-     */
     company_contact_info: string | null;
-    /**
-     * メッセージ
-     */
     message: string | null;
-    /**
-     * 備考
-     */
     notes: string | null;
-    /**
-     * 見積書レイアウト
-     * * `default_classic` - レイアウト１/クラシック (デフォルト)
-     *
-     * * `standard_classic` - レイアウト２/クラシック
-     *
-     * * `envelope_classic` - 封筒１/クラシック
-     *
-     * * `default_modern` - レイアウト１/モダン
-     *
-     * * `standard_modern` - レイアウト２/モダン
-     *
-     * * `envelope_modern` - 封筒/モダン
-     */
     quotation_layout:
       | "default_classic"
       | "standard_classic"
@@ -17188,197 +5048,54 @@ export type QuotationResponse = {
       | "default_modern"
       | "standard_modern"
       | "envelope_modern";
-    /**
-     * 見積書の消費税計算方法(inclusive: 内税, exclusive: 外税)
-     */
     tax_entry_method: "" | "inclusive" | "exclusive";
-    /**
-     * 見積内容
-     */
     quotation_contents: Array<{
-      /**
-       * 見積内容ID
-       */
       id: number;
-      /**
-       * 順序
-       */
       order: number;
-      /**
-       * 行の種類
-       */
       type: "normal" | "discount" | "text";
-      /**
-       * 数量
-       */
       qty: number;
-      /**
-       * 単位
-       */
       unit: string | null;
-      /**
-       * 単価
-       */
       unit_price: number;
-      /**
-       * 内税/外税の判別とamountの税込み、税抜きについて
-       * <ul>
-       * <li>tax_entry_methodがexclusive (外税)の場合</li>
-       * <ul>
-       * <li>amount: 消費税抜きの金額</li>
-       * <li>vat: 消費税の金額</li>
-       * </ul>
-       * <li>tax_entry_methodがinclusive (内税)の場合</li>
-       * <ul>
-       * <li>amount: 消費税込みの金額</li>
-       * <li>vat: 消費税の金額</li>
-       * </ul>
-       * </ul>
-       *
-       */
       amount: number;
-      /**
-       * 消費税額
-       */
       vat: number;
-      /**
-       * 軽減税率税区分（true: 対象、false: 対象外）
-       */
       reduced_vat: boolean;
-      /**
-       * 備考
-       */
       description: string | null;
-      /**
-       * 勘定科目ID
-       */
       account_item_id: number | null;
-      /**
-       * 勘定科目名
-       */
       account_item_name: string | null;
-      /**
-       * 税区分コード
-       */
       tax_code: number | null;
-      /**
-       * 品目ID
-       */
       item_id: number | null;
-      /**
-       * 品目
-       */
       item_name: string | null;
-      /**
-       * 部門ID
-       */
       section_id: number | null;
-      /**
-       * 部門
-       */
       section_name: string | null;
       tag_ids: Array<number>;
       tag_names: Array<string>;
-      /**
-       * セグメント１タグID
-       */
       segment_1_tag_id?: number | null;
-      /**
-       * セグメント１タグ名
-       */
       segment_1_tag_name?: string | null;
-      /**
-       * セグメント２タグID
-       */
       segment_2_tag_id?: number | null;
-      /**
-       * セグメント２タグ名
-       */
       segment_2_tag_name?: string | null;
-      /**
-       * セグメント３タグID
-       */
       segment_3_tag_id?: number | null;
-      /**
-       * セグメント３タグ名
-       */
       segment_3_tag_name?: string | null;
     }>;
     total_amount_per_vat_rate: {
-      /**
-       * 税率5%の税込み金額合計
-       */
       vat_5: number;
-      /**
-       * 税率8%の税込み金額合計
-       */
       vat_8: number;
-      /**
-       * 軽減税率8%の税込み金額合計
-       */
       reduced_vat_8: number;
-      /**
-       * 税率10%の税込み金額合計
-       */
       vat_10: number;
     };
-    /**
-     * 関連する請求書ID<br>
-     * 下記で作成したものが該当します。
-     *
-     * <a href="https://support.freee.co.jp/hc/ja/articles/203318410#1-2" target="_blank">見積書・納品書を納品書・請求書に変換する</a><br>
-     * <a href="https://support.freee.co.jp/hc/ja/articles/209076226" target="_blank">複数の見積書・納品書から合算請求書を作成する</a><br>
-     *
-     */
     related_invoice_id: number | null;
-    /**
-     * 関連する見積書ID(配列)<br>
-     * 下記で作成したものが該当します。
-     *
-     * <a href="https://support.freee.co.jp/hc/ja/articles/203318410#1-2" target="_blank">見積書・納品書を納品書・請求書に変換する</a><br>
-     * <a href="https://support.freee.co.jp/hc/ja/articles/209076226" target="_blank">複数の見積書・納品書から合算請求書を作成する</a><br>
-     *
-     */
     related_quotation_ids: Array<number>;
   };
 };
 
 export type FixedAssetResponse = {
-  /**
-   * 固定資産の一覧（固定資産IDの昇順）。指定した会計期間に償却データが存在する固定資産のみが含まれます
-   */
   fixed_assets: Array<{
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 固定資産ID
-     */
     id: number;
-    /**
-     * 固定資産名
-     */
     name: string;
-    /**
-     * 管理番号。事業所内で固定資産を識別するためにユーザーが任意に付与する番号です（未設定の場合はnull）
-     */
     management_number: string | null;
-    /**
-     * 勘定科目ID。固定資産の取得を計上している勘定科目です
-     */
     account_item_id: number;
-    /**
-     * 部門ID（未設定の場合はnull）
-     */
     section_id: number | null;
-    /**
-     * 品目ID（未設定の場合はnull）
-     */
     item_id: number | null;
-    /**
-     * 償却方法 (少額償却: small_sum_method, 一括償却: lump_sum_method, 定額法: straight_line_method, 定率法: multiple_method, 旧定率法: old_multiple_method, 旧定額法: old_straight_line_method, 償却なし: non_depreciate_method, 任意償却: voluntary_method, 即時償却: immediate_method, 均等償却: equal_method)
-     */
     depreciation_method:
       | "small_sum_method"
       | "lump_sum_method"
@@ -17390,171 +5107,57 @@ export type FixedAssetResponse = {
       | "voluntary_method"
       | "immediate_method"
       | "equal_method";
-    /**
-     * 減価償却費の計上に使う勘定科目ID（未設定の場合は0）
-     */
     depreciation_account_item_id: number;
-    /**
-     * 償却資産税の申告先の都道府県コード（未設定の場合はnull）。0:北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄
-     */
     prefecture_code: number | null;
-    /**
-     * 償却資産税の申告先市区町村（未設定の場合はnull）
-     */
     city_name: string | null;
-    /**
-     * 本年分の償却費合計（円）。普通償却額と特別償却費の合計です
-     */
     depreciation_amount: number;
-    /**
-     * 取得価額（円）
-     */
     acquisition_cost: number;
-    /**
-     * 期首残高（円）。取得日が指定した会計期間に含まれる場合は0になります
-     */
     opening_balance: number;
-    /**
-     * 未償却残高（円）。土地など償却しない固定資産の場合はnullになります
-     */
     undepreciated_balance: number | null;
-    /**
-     * 期首減価償却累計額（円）
-     */
     opening_accumulated_depreciation: number;
-    /**
-     * 期末減価償却累計額（円）
-     */
     closing_accumulated_depreciation: number;
-    /**
-     * 耐用年数（年）（未設定の場合はnull）
-     */
     life_years: number | null;
-    /**
-     * 取得日 (yyyy-mm-dd)
-     */
     acquisition_date: string;
-    /**
-     * 固定資産をfreeeに登録した日時（ISO8601形式）
-     */
     created_at: string;
-    /**
-     * 固定資産の状態 (売却済: sold, 除却済: retired, 償却済: depreciated, 償却中: depreciation, 償却なし: non_depreciation)
-     */
     depreciation_status: "sold" | "retired" | "depreciated" | "depreciation" | "non_depreciation";
-    /**
-     * 除却日、もしくは売却日 (yyyy-mm-dd)。除却・売却されていない場合はnull
-     */
     retire_date: string | null;
   }>;
-  /**
-   * target_dateで指定した日付が含まれる会計期間。fixed_assetsの償却費や残高はこの会計期間で集計されています
-   */
   fiscal_year: {
-    /**
-     * 会計期間の開始日 (yyyy-mm-dd)
-     */
     start_date: string;
-    /**
-     * 会計期間の終了日 (yyyy-mm-dd)
-     */
     end_date: string;
   };
-  /**
-   * 集計結果が最新かどうか。falseの場合は残高の集計が完了していないため、時間を空けて再度取得してください
-   */
   up_to_date: boolean;
-  /**
-   * 集計が最新でない場合（up_to_dateがfalseの場合）の要因情報。最新の場合は空配列になります
-   */
   up_to_date_reasons: Array<{
-    /**
-     * 要因コード (償却の作成処理が実行中: depreciation_creating, 償却の作成処理がエラー終了: depreciation_create_error)
-     */
     code: "depreciation_creating" | "depreciation_create_error";
-    /**
-     * 集計が最新でない理由の説明
-     */
     message: string;
   }>;
 };
 
 export type GeneralLedgersResponse = {
   general_ledgers: Array<{
-    /**
-     * 勘定科目ID
-     */
     account_item_id?: number;
-    /**
-     * 勘定科目名
-     */
     account_item_name?: string;
-    /**
-     * 発生額累計
-     */
     total_amount?: number;
-    /**
-     * 残高
-     */
     final_balance?: number;
-    /**
-     * 借方発生額累計
-     */
     debit_amount?: number;
-    /**
-     * 貸方発生額累計
-     */
     credit_amount?: number;
   }>;
 };
 
 export type AccountGroupCreateParams = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 決算書表示名 (20文字以内)。同一年度内で一意である必要があります。末尾に半角スペースは指定できません。
-   */
   name: string;
-  /**
-   * 勘定科目カテゴリーID。決算書表示名を配下に作成できる勘定科目カテゴリーのみ指定できます。指定可能な値はSelectablesフォーム用選択項目情報エンドポイント(account_groups.account_category_id)で取得可能です。指定できないIDの場合は400エラーになります。
-   */
   account_category_id: number;
-  /**
-   * 表示順 (同一勘定科目カテゴリー内の挿入位置、0始まり)。指定した位置に挿入され、同一勘定科目カテゴリー内の他の決算書表示名の表示順は自動で振り直されます。未指定の場合や既存の決算書表示名の数を超える値を指定した場合は末尾に追加されます。
-   */
   index?: number;
 };
 
 export type AccountGroupCreateResponse = {
-  /**
-   * 作成された決算書表示名（小カテゴリー）
-   */
   account_group: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 決算書表示名(小カテゴリー)ID
-     */
     id: number;
-    /**
-     * 決算書表示名
-     */
     name: string;
-    /**
-     * 年度ID
-     */
     account_structure_id: number;
-    /**
-     * 勘定科目カテゴリーID
-     */
     account_category_id: number;
-    /**
-     * 表示順 (同一勘定科目カテゴリー内、0始まり)
-     */
     index: number;
   };
 };
@@ -17563,66 +5166,26 @@ export type GetPartnersData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID。取得対象の事業所を指定します。
-     */
     company_id: number;
-    /**
-     * 更新日で絞り込む開始日 (yyyy-mm-dd, JST)。指定日以降に更新された取引先を対象にします。
-     */
     start_update_date?: string;
-    /**
-     * 更新日で絞り込む終了日 (yyyy-mm-dd, JST)。指定日以前に更新された取引先を対象にします。
-     */
     end_update_date?: string;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)。ページング用に、スキップする件数を指定します。
-     */
     offset?: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 3000)。1 回のリクエストで取得する上限件数を指定します。
-     */
     limit?: number;
-    /**
-     * 検索キーワード。取引先コード・取引先名・正式名称・カナ名称・ショートカットキー1・2 のいずれかに対する部分一致で絞り込みます。
-     * 以下のいずれかで区切って複数キーワードを指定した場合は AND 検索になります。
-     * <ul>
-     * <li>半角スペース</li>
-     * <li>全角スペース</li>
-     * <li>タブ</li>
-     * </ul>
-     *
-     */
     keyword?: string;
   };
   url: "/api/1/partners";
 };
 
 export type GetPartnersErrors = {
-  /**
-   * リクエストパラメータが不正です。日付形式や範囲などを確認してください。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または取引先マスタへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type GetPartnersError = GetPartnersErrors[keyof GetPartnersErrors];
 
 export type GetPartnersResponses = {
-  /**
-   * 取引先一覧の取得に成功しました。
-   */
   200: PartnersResponse;
 };
 
@@ -17636,30 +5199,15 @@ export type CreatePartnerData = {
 };
 
 export type CreatePartnerErrors = {
-  /**
-   * バリデーションエラー。取引先名の重複、code の指定漏れ・重複、期日設定の値不正などを確認してください。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または取引先マスタへの書き込み権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type CreatePartnerError = CreatePartnerErrors[keyof CreatePartnerErrors];
 
 export type CreatePartnerResponses = {
-  /**
-   * 取引先の作成に成功しました。作成された取引先が返ります。
-   */
   201: PartnerResponse;
 };
 
@@ -17668,49 +5216,25 @@ export type CreatePartnerResponse = CreatePartnerResponses[keyof CreatePartnerRe
 export type DestroyPartnerData = {
   body?: never;
   path: {
-    /**
-     * 取引先ID。削除対象の取引先を指定します。
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID。取引先が属する事業所を指定します。
-     */
     company_id: number;
   };
   url: "/api/1/partners/{id}";
 };
 
 export type DestroyPartnerErrors = {
-  /**
-   * 削除に失敗しました。取引での参照が残っている、アーカイブ済み取引先が指定されているなどが考えられます。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または取引先マスタへの書き込み権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * 指定した取引先が存在しません。既に削除されているか、事業所内に存在しない ID が指定された可能性があります。
-   */
   404: BadRequestNotFoundError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type DestroyPartnerError = DestroyPartnerErrors[keyof DestroyPartnerErrors];
 
 export type DestroyPartnerResponses = {
-  /**
-   * 取引先の削除に成功しました。レスポンスボディはありません。
-   */
   204: void;
 };
 
@@ -17719,49 +5243,25 @@ export type DestroyPartnerResponse = DestroyPartnerResponses[keyof DestroyPartne
 export type GetPartnerData = {
   body?: never;
   path: {
-    /**
-     * 取引先ID。取得対象の取引先を指定します。
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID。取引先が属する事業所を指定します。
-     */
     company_id: number;
   };
   url: "/api/1/partners/{id}";
 };
 
 export type GetPartnerErrors = {
-  /**
-   * リクエストパラメータが不正です。company_id や id を確認してください。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または取引先マスタへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * 指定した取引先が存在しません。既に削除されているか、事業所内に存在しない ID が指定された可能性があります。
-   */
   404: BadRequestNotFoundError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type GetPartnerError = GetPartnerErrors[keyof GetPartnerErrors];
 
 export type GetPartnerResponses = {
-  /**
-   * 取引先の取得に成功しました。
-   */
   200: PartnerResponse;
 };
 
@@ -17770,9 +5270,6 @@ export type GetPartnerResponse = GetPartnerResponses[keyof GetPartnerResponses];
 export type UpdatePartnerData = {
   body: PartnerUpdateParams;
   path: {
-    /**
-     * 取引先ID。更新対象の取引先を指定します。
-     */
     id: number;
   };
   query?: never;
@@ -17780,34 +5277,16 @@ export type UpdatePartnerData = {
 };
 
 export type UpdatePartnerErrors = {
-  /**
-   * バリデーションエラー。取引先名の重複、code の指定不可、期日設定の値不正、アーカイブ済み取引先への操作などを確認してください。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または取引先マスタへの書き込み権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * 指定した取引先が存在しません。既に削除されているか、事業所内に存在しない ID が指定された可能性があります。
-   */
   404: BadRequestNotFoundError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type UpdatePartnerError = UpdatePartnerErrors[keyof UpdatePartnerErrors];
 
 export type UpdatePartnerResponses = {
-  /**
-   * 取引先の更新に成功しました。更新後の取引先が返ります。
-   */
   200: PartnerResponse;
 };
 
@@ -17816,9 +5295,6 @@ export type UpdatePartnerResponse = UpdatePartnerResponses[keyof UpdatePartnerRe
 export type UpdatePartnerByCodeData = {
   body: PartnerUpdateParams;
   path: {
-    /**
-     * 取引先コード。更新対象の取引先を特定するキー。日本語・記号を含む場合は URL エンコードして指定してください。
-     */
     code: string;
   };
   query?: never;
@@ -17826,34 +5302,16 @@ export type UpdatePartnerByCodeData = {
 };
 
 export type UpdatePartnerByCodeErrors = {
-  /**
-   * バリデーションエラー。取引先コードの利用が無効、id 指定不可、取引先名の重複、期日設定の値不正などを確認してください。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または取引先マスタへの書き込み権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * 指定した取引先コードに該当する取引先が存在しません。存在しない場合に作成もしたい場合は <code>PUT /api/1/partners/upsert_by_code</code> を利用してください。
-   */
   404: BadRequestNotFoundError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type UpdatePartnerByCodeError = UpdatePartnerByCodeErrors[keyof UpdatePartnerByCodeErrors];
 
 export type UpdatePartnerByCodeResponses = {
-  /**
-   * 取引先の更新に成功しました。更新後の取引先が返ります。
-   */
   200: PartnerResponse;
 };
 
@@ -17861,239 +5319,56 @@ export type UpdatePartnerByCodeResponse =
   UpdatePartnerByCodeResponses[keyof UpdatePartnerByCodeResponses];
 
 export type ApiV1PartnersUpsertByCodeData = {
-  /**
-   * 取引先 upsert のリクエストパラメータ。PUT /api/1/partners/upsert_by_code のリクエストボディ。code をキーに既存レコードを更新し、存在しない場合は新規作成します。partner オブジェクト内で code を指定することはできず、URL 直下の code のみが有効です。
-   */
   body: {
-    /**
-     * 取引先コード。upsert のキーになります。事業所内で重複不可。事業所設定で「取引先コードの利用」が有効になっている必要があります。
-     */
     code: string;
-    /**
-     * 事業所ID。upsert 先の事業所を指定します。
-     */
     company_id: number;
-    /**
-     * 取引先の属性。更新経路では PATCH 相当の挙動で、指定した属性のみ既存値を上書きします（payment_term_attributes / invoice_payment_term_attributes のみ null 指定で未設定に戻せます）。作成経路（該当 code が存在しない場合）では、name 以外の属性は省略時にデフォルト値になります。
-     */
     partner: {
-      /**
-       * 取引先名 (255 文字以内、事業所内で重複不可)。
-       */
       name: string;
-      /**
-       * 使用可能フラグ。更新経路でのみ有効。
-       * <ul>
-       *   <li>true: 使用可能</li>
-       *   <li>false: 使用停止</li>
-       * </ul>
-       *
-       */
       available?: boolean;
-      /**
-       * ショートカット1 (255 文字以内)。取引先検索用の任意キーワード。
-       */
       shortcut1?: string;
-      /**
-       * ショートカット2 (255 文字以内)。shortcut1 と併用可能な補助キーワード。
-       */
       shortcut2?: string;
-      /**
-       * 事業所種別。null を指定すると未設定になります。
-       * <ul>
-       *   <li>null: 未設定</li>
-       *   <li>1: 法人</li>
-       *   <li>2: 個人</li>
-       * </ul>
-       *
-       */
       org_code?: 1 | 2;
-      /**
-       * 地域。指定しない場合は JP になります。
-       * <ul>
-       *   <li>JP: 国内</li>
-       *   <li>ZZ: 国外</li>
-       * </ul>
-       *
-       */
       country_code?: "JP" | "ZZ";
-      /**
-       * 正式名称（255 文字以内）。取引先の正式な法人・屋号名称。
-       */
       long_name?: string;
-      /**
-       * カナ名称（255 文字以内）。取引先名の全角カナ表記。
-       */
       name_kana?: string;
-      /**
-       * 敬称。御中、様、(空白) の 3 つから選択します。
-       */
       default_title?: string;
-      /**
-       * 電話番号。フォーマット制約はありません。
-       */
       phone?: string;
-      /**
-       * 担当者 氏名 (255 文字以内)。
-       */
       contact_name?: string;
-      /**
-       * 担当者 メールアドレス (255 文字以内)。
-       */
       email?: string;
-      /**
-       * 振込元口座ID（一括振込ファイル用）。walletable の type が 'bank_account' の口座 ID のみ指定できます。未設定にする場合は null。法人スタータープラン（および旧法人プロフェッショナルプラン）以上でのみ設定可能。
-       */
       payer_walletable_id?: number | null;
-      /**
-       * 振込手数料負担（一括振込ファイル用）。指定しない場合は payer になります。法人スタータープラン（および旧法人プロフェッショナルプラン）以上でのみ設定可能。
-       * <ul>
-       *   <li>payer: 振込元（当方）負担</li>
-       *   <li>payee: 振込先（先方）負担</li>
-       * </ul>
-       *
-       */
       transfer_fee_handling_side?: "payer" | "payee";
-      /**
-       * インボイス制度適格請求書発行事業者フラグ。
-       * <ul>
-       *   <li>true: 適格請求書発行事業者</li>
-       *   <li>false: 非対象事業者</li>
-       * </ul>
-       * <a target="_blank" href="https://www.invoice-kohyo.nta.go.jp/index.html">国税庁インボイス制度適格請求書発行事業者公表サイト</a>
-       *
-       */
       qualified_invoice_issuer?: boolean;
-      /**
-       * インボイス制度適格請求書発行事業者登録番号。先頭 T + 数字 13 桁の固定 14 文字（先頭 T なしの数字 13 桁も許容）。
-       * <a target="_blank" href="https://www.invoice-kohyo.nta.go.jp/index.html">国税庁インボイス制度適格請求書発行事業者公表サイト</a>
-       *
-       */
       invoice_registration_number?: string | null;
-      /**
-       * 住所情報。更新経路では指定した属性のみ上書きし、省略した属性は既存値を維持します。
-       */
       address_attributes?: {
-        /**
-         * 郵便番号（ハイフン含む可、8 文字以内）。
-         */
         zipcode?: string;
-        /**
-         * 都道府県コード（-1: 設定しない、0: 北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄）
-         */
         prefecture_code?: number;
-        /**
-         * 市区町村・番地（255 文字以内）。
-         */
         street_name1?: string;
-        /**
-         * 建物名・部屋番号など（255 文字以内）。
-         */
         street_name2?: string;
       };
-      /**
-       * 請求書送付方法の設定。
-       */
       partner_doc_setting_attributes?: {
-        /**
-         * 請求書送付方法。null を指定すると未設定になります。
-         * <ul>
-         *   <li>email: メール</li>
-         *   <li>posting: 郵送</li>
-         *   <li>email_and_posting: メールと郵送</li>
-         *   <li>pdf_delivery: メール（PDFファイル添付）</li>
-         *   <li>pdf_delivery_and_posting: メール（PDFファイル添付）と郵送</li>
-         * </ul>
-         *
-         */
         sending_method?:
           "email" | "posting" | "email_and_posting" | "pdf_delivery" | "pdf_delivery_and_posting";
       };
-      /**
-       * 銀行口座情報（この取引先の受取口座）。更新経路では指定した属性のみ上書きし、省略した属性は既存値を維持します。account_type に空文字を指定した場合は ordinary で置き換わる点に注意してください。
-       */
       partner_bank_account_attributes?: {
-        /**
-         * 銀行名。
-         */
         bank_name?: string;
-        /**
-         * 銀行名（カナ）。
-         */
         bank_name_kana?: string;
-        /**
-         * 銀行コード（4 桁の統一金融機関コード）。
-         */
         bank_code?: string;
-        /**
-         * 支店名。
-         */
         branch_name?: string;
-        /**
-         * 支店名（カナ）。
-         */
         branch_kana?: string;
-        /**
-         * 支店番号（3 桁）。
-         */
         branch_code?: string;
-        /**
-         * 口座種別。指定しない場合は ordinary になります（更新経路では既存値を維持、空文字は ordinary で置き換わり）。
-         * <ul>
-         *   <li>ordinary: 普通</li>
-         *   <li>checking: 当座</li>
-         *   <li>earmarked: 納税準備預金</li>
-         *   <li>savings: 貯蓄</li>
-         *   <li>other: その他</li>
-         * </ul>
-         *
-         */
         account_type?: "ordinary" | "checking" | "earmarked" | "savings" | "other";
-        /**
-         * 口座番号。
-         */
         account_number?: string;
-        /**
-         * 受取人名。
-         */
         long_account_name?: string;
-        /**
-         * 受取人名（カナ）。全銀フォーマットで送信する際に使用されます。
-         */
         account_name?: string;
       };
-      /**
-       * 支払期日設定。更新経路では null を指定すると期日設定を未設定に戻せます。法人スタータープラン（および旧法人プロフェッショナルプラン）以上でのみ設定可能。cutoff_day / additional_months / fixed_day はまとめて指定する必要があります。
-       */
       payment_term_attributes?: {
-        /**
-         * 締め日。1〜31 の日付を指定します。29, 30, 31 日の末日を指定する場合は 32 を指定してください。
-         */
         cutoff_day?: number;
-        /**
-         * 支払月。締め日から数えて何ヶ月後に支払うか。当月を指定する場合は 0 を指定してください。
-         */
         additional_months?: number;
-        /**
-         * 支払日。1〜31 の日付を指定します。29, 30, 31 日の末日を指定する場合は 32 を指定してください。
-         */
         fixed_day?: number;
       } | null;
-      /**
-       * 請求の入金期日設定。更新経路では null を指定すると期日設定を未設定に戻せます。法人スタータープラン（および旧法人プロフェッショナルプラン）以上でのみ設定可能。cutoff_day / additional_months / fixed_day はまとめて指定する必要があります。
-       */
       invoice_payment_term_attributes?: {
-        /**
-         * 締め日。1〜31 の日付を指定します。29, 30, 31 日の末日を指定する場合は 32 を指定してください。
-         */
         cutoff_day?: number;
-        /**
-         * 入金月。締め日から数えて何ヶ月後に入金されるか。当月を指定する場合は 0 を指定してください。
-         */
         additional_months?: number;
-        /**
-         * 入金日。1〜31 の日付を指定します。29, 30, 31 日の末日を指定する場合は 32 を指定してください。
-         */
         fixed_day?: number;
       } | null;
     };
@@ -18104,25 +5379,10 @@ export type ApiV1PartnersUpsertByCodeData = {
 };
 
 export type ApiV1PartnersUpsertByCodeErrors = {
-  /**
-   * バリデーションエラー。取引先コードの利用が無効、partner 内での code 指定、取引先名の重複、期日設定の値不正などを確認してください。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または取引先マスタへの書き込み権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * 更新経路でリソース解決に失敗した場合に返る可能性があります。通常は 200 / 201 のいずれかが返ります。
-   */
   404: BadRequestNotFoundError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
@@ -18130,13 +5390,7 @@ export type ApiV1PartnersUpsertByCodeError =
   ApiV1PartnersUpsertByCodeErrors[keyof ApiV1PartnersUpsertByCodeErrors];
 
 export type ApiV1PartnersUpsertByCodeResponses = {
-  /**
-   * 既存の取引先を更新しました。更新後の取引先が返ります。
-   */
   200: PartnerResponse;
-  /**
-   * 該当する取引先コードが存在しなかったため、新規作成しました。作成された取引先が返ります。
-   */
   201: PartnerResponse;
 };
 
@@ -18147,44 +5401,22 @@ export type GetFormsSelectablesData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 取得する選択項目
-     * * `account_item` - 勘定科目カテゴリー、勘定科目、デフォルト税区分、決算書表示名
-     */
     includes?: "account_item";
   };
   url: "/api/1/forms/selectables";
 };
 
 export type GetFormsSelectablesErrors = {
-  /**
-   * リクエストパラメータが不正
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが無効
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所へのアクセス権限がない
-   */
   403: ForbiddenError;
-  /**
-   * サーバー内部エラー
-   */
   500: InternalServerError;
 };
 
 export type GetFormsSelectablesError = GetFormsSelectablesErrors[keyof GetFormsSelectablesErrors];
 
 export type GetFormsSelectablesResponses = {
-  /**
-   * フォーム用選択項目情報の取得に成功
-   */
   200: SelectablesIndexResponse;
 };
 
@@ -18194,15 +5426,9 @@ export type GetFormsSelectablesResponse =
 export type DestroyAccountItemData = {
   body?: never;
   path: {
-    /**
-     * 勘定科目ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/account_items/{id}";
@@ -18227,15 +5453,9 @@ export type DestroyAccountItemResponse =
 export type GetAccountItemData = {
   body?: never;
   path: {
-    /**
-     * 勘定科目ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/account_items/{id}";
@@ -18260,9 +5480,6 @@ export type GetAccountItemResponse = GetAccountItemResponses[keyof GetAccountIte
 export type UpdateAccountItemData = {
   body: AccountItemUpdateParams;
   path: {
-    /**
-     * 勘定科目ID
-     */
     id: number;
   };
   query?: never;
@@ -18290,33 +5507,10 @@ export type GetAccountItemsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 基準日(yyyy-mm-dd)。指定した場合、勘定科目に紐づく税区分(default_tax_code)が、基準日の税率に基づいて返ります。指定しない場合はリクエスト日が基準日になります。
-     */
     base_date?: string;
-    /**
-     * 更新日で絞込：開始日(yyyy-mm-dd)。指定した日以降に更新された勘定科目を返します。
-     */
     start_update_date?: string;
-    /**
-     * 更新日で絞込：終了日(yyyy-mm-dd)。指定した日以前に更新された勘定科目を返します。
-     */
     end_update_date?: string;
-    /**
-     * 検索キーワード。勘定科目コード・勘定科目名・ショートカット1・2 のいずれかに対する部分一致で絞り込みます。
-     * 未指定または空文字の場合は絞り込みません。
-     * 以下のいずれかで区切って複数キーワードを指定した場合は AND 検索になります。
-     * <ul>
-     * <li>半角スペース</li>
-     * <li>全角スペース</li>
-     * <li>タブ</li>
-     * </ul>
-     *
-     */
     keyword?: string;
   };
   url: "/api/1/account_items";
@@ -18362,74 +5556,23 @@ export type CreateAccountItemResponse =
 
 export type ApiV1AccountItemsUpsertByCodeData = {
   body: {
-    /**
-     * 勘定科目コード (20文字以内)。半角英数字・ハイフン・アンダースコアのみ利用できます。このコードをキーに勘定科目を検索し、一致する勘定科目が存在すれば更新、存在しなければ作成します。
-     */
     code: string;
-    /**
-     * 事業所ID
-     */
     company_id: number;
     account_item: {
-      /**
-       * 勘定科目名 (30文字以内)
-       * 口座に紐付かない勘定科目の更新時は必須です。
-       * 口座に紐付く勘定科目の更新時は指定することができません。
-       *
-       */
       name?: string;
-      /**
-       * ショートカット1 (20文字以内)
-       */
       shortcut?: string;
-      /**
-       * ショートカット2 (20文字以内)
-       */
       shortcut_num?: string;
-      /**
-       * 税区分コード 指定できるコードは本APIの注意点をご確認ください。
-       */
       tax_code: number;
-      /**
-       * 決算書表示名（小カテゴリー） Selectablesフォーム用選択項目情報エンドポイント(account_groups.name)で取得可能です
-       */
       group_name: string;
-      /**
-       * 勘定科目カテゴリーID Selectablesフォーム用選択項目情報エンドポイント(account_groups.account_category_id)で取得可能です
-       */
       account_category_id: number;
-      /**
-       * 収入取引相手勘定科目ID
-       */
       corresponding_income_id: number;
-      /**
-       * 支出取引相手勘定科目ID
-       */
       corresponding_expense_id: number;
-      /**
-       * 減価償却累計額勘定科目ID（法人のみ利用可能）
-       */
       accumulated_dep_account_item_id?: number;
-      /**
-       * 検索可能:2, 検索不可：3(登録時未指定の場合は2で登録されます。更新時未指定の場合はsearchableは変更されません。)
-       */
       searchable?: number;
-      /**
-       * 勘定科目に紐付ける品目の一覧
-       */
       items?: Array<{
-        /**
-         * 品目ID
-         */
         id?: number;
       }>;
-      /**
-       * 勘定科目に紐付ける取引先の一覧
-       */
       partners?: Array<{
-        /**
-         * 取引先ID
-         */
         id?: number;
       }>;
     };
@@ -18451,13 +5594,7 @@ export type ApiV1AccountItemsUpsertByCodeError =
   ApiV1AccountItemsUpsertByCodeErrors[keyof ApiV1AccountItemsUpsertByCodeErrors];
 
 export type ApiV1AccountItemsUpsertByCodeResponses = {
-  /**
-   * 既存の勘定科目を更新した場合
-   */
   200: AccountItemResponse;
-  /**
-   * 勘定科目を新規に作成した場合
-   */
   201: AccountItemResponse;
 };
 
@@ -18468,59 +5605,26 @@ export type GetTagsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID。取得対象の事業所を指定します。
-     */
     company_id: number;
-    /**
-     * 更新日で絞り込む開始日 (yyyy-mm-dd, JST)。指定日を含む、それ以降に更新されたメモタグを対象にします。
-     */
     start_update_date?: string;
-    /**
-     * 更新日で絞り込む終了日 (yyyy-mm-dd, JST)。指定日を含む、それ以前に更新されたメモタグを対象にします。
-     */
     end_update_date?: string;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)。ページング用に、スキップする件数を指定します。
-     */
     offset?: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 3000)。1 回のリクエストで取得する上限件数を指定します。
-     */
     limit?: number;
   };
   url: "/api/1/tags";
 };
 
 export type GetTagsErrors = {
-  /**
-   * リクエストパラメータが不正です。日付形式や範囲などを確認してください。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所またはメモタグへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type GetTagsError = GetTagsErrors[keyof GetTagsErrors];
 
 export type GetTagsResponses = {
-  /**
-   * メモタグ一覧の取得に成功しました。
-   */
   200: {
-    /**
-     * メモタグの一覧
-     */
     tags: Array<Tag>;
   };
 };
@@ -18535,30 +5639,15 @@ export type CreateTagData = {
 };
 
 export type CreateTagErrors = {
-  /**
-   * リクエストパラメータが不正です。メモタグ名の重複や文字数制限などを確認してください。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所またはメモタグへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type CreateTagError = CreateTagErrors[keyof CreateTagErrors];
 
 export type CreateTagResponses = {
-  /**
-   * メモタグの作成に成功しました。作成されたメモタグを返します。
-   */
   201: TagResponse;
 };
 
@@ -18567,49 +5656,25 @@ export type CreateTagResponse = CreateTagResponses[keyof CreateTagResponses];
 export type DestroyTagData = {
   body?: never;
   path: {
-    /**
-     * メモタグID。メモタグ一覧の取得 API のレスポンスに含まれる id を指定します。
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID。削除対象のメモタグが属する事業所を指定します。
-     */
     company_id: number;
   };
   url: "/api/1/tags/{id}";
 };
 
 export type DestroyTagErrors = {
-  /**
-   * リクエストパラメータが不正、または取引や配賦基準で使用中のメモタグのため削除できません。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所またはメモタグへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * 指定したメモタグIDに該当するメモタグが存在しないか、既に削除されています。
-   */
   404: BadRequestNotFoundError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type DestroyTagError = DestroyTagErrors[keyof DestroyTagErrors];
 
 export type DestroyTagResponses = {
-  /**
-   * メモタグの削除に成功しました。レスポンスボディはありません。
-   */
   204: void;
 };
 
@@ -18618,49 +5683,25 @@ export type DestroyTagResponse = DestroyTagResponses[keyof DestroyTagResponses];
 export type GetTagData = {
   body?: never;
   path: {
-    /**
-     * メモタグID。メモタグ一覧の取得 API のレスポンスに含まれる id を指定します。
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID。取得対象の事業所を指定します。
-     */
     company_id: number;
   };
   url: "/api/1/tags/{id}";
 };
 
 export type GetTagErrors = {
-  /**
-   * リクエストパラメータが不正です。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所またはメモタグへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * 指定したメモタグIDに該当するメモタグが存在しないか、既に削除されています。
-   */
   404: BadRequestNotFoundError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type GetTagError = GetTagErrors[keyof GetTagErrors];
 
 export type GetTagResponses = {
-  /**
-   * メモタグの取得に成功しました。
-   */
   200: TagResponse;
 };
 
@@ -18669,9 +5710,6 @@ export type GetTagResponse = GetTagResponses[keyof GetTagResponses];
 export type UpdateTagData = {
   body?: TagParams;
   path: {
-    /**
-     * メモタグID。メモタグ一覧の取得 API のレスポンスに含まれる id を指定します。
-     */
     id: number;
   };
   query?: never;
@@ -18679,34 +5717,16 @@ export type UpdateTagData = {
 };
 
 export type UpdateTagErrors = {
-  /**
-   * リクエストパラメータが不正です。メモタグ名の重複や文字数制限などを確認してください。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所またはメモタグへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * 指定したメモタグIDに該当するメモタグが存在しないか、既に削除されています。
-   */
   404: BadRequestNotFoundError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type UpdateTagError = UpdateTagErrors[keyof UpdateTagErrors];
 
 export type UpdateTagResponses = {
-  /**
-   * メモタグの更新に成功しました。更新後のメモタグを返します。
-   */
   200: TagResponse;
 };
 
@@ -18716,51 +5736,24 @@ export type GetSectionsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID。取得対象の事業所を指定します。
-     */
     company_id: number;
-    /**
-     * 更新日で絞り込む開始日 (yyyy-mm-dd, JST)。指定日を含む、それ以降に更新された部門を対象にします。
-     */
     start_update_date?: string;
-    /**
-     * 更新日で絞り込む終了日 (yyyy-mm-dd, JST)。指定日を含む、それ以前に更新された部門を対象にします。
-     */
     end_update_date?: string;
   };
   url: "/api/1/sections";
 };
 
 export type GetSectionsErrors = {
-  /**
-   * リクエストパラメータが不正です。日付形式などを確認してください。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または部門マスタへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type GetSectionsError = GetSectionsErrors[keyof GetSectionsErrors];
 
 export type GetSectionsResponses = {
-  /**
-   * 部門一覧の取得に成功しました。
-   */
   200: {
-    /**
-     * 部門の一覧
-     */
     sections: Array<Section>;
   };
 };
@@ -18775,34 +5768,16 @@ export type CreateSectionData = {
 };
 
 export type CreateSectionErrors = {
-  /**
-   * リクエストパラメータが不正です。部門名・部門コードの重複や文字数制限などを確認してください。
-   */
   400: BadRequestError | MessagesError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または部門マスタへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * 指定した親部門が存在しないか、既に削除されています。部門一覧を再取得してIDを確認してください。
-   */
   404: BadRequestNotFoundError | MessagesError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type CreateSectionError = CreateSectionErrors[keyof CreateSectionErrors];
 
 export type CreateSectionResponses = {
-  /**
-   * 部門の作成に成功しました。作成された部門を返します。
-   */
   201: SectionResponse;
 };
 
@@ -18811,49 +5786,25 @@ export type CreateSectionResponse = CreateSectionResponses[keyof CreateSectionRe
 export type DestroySectionData = {
   body?: never;
   path: {
-    /**
-     * 部門ID。部門一覧の取得APIのレスポンスに含まれる id を指定します。
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID。削除対象の部門が属する事業所を指定します。
-     */
     company_id: number;
   };
   url: "/api/1/sections/{id}";
 };
 
 export type DestroySectionErrors = {
-  /**
-   * 部門が取引明細や設定などで使用されているため削除できません。エラーメッセージで利用箇所を確認してください。
-   */
   400: BadRequestError | MessagesError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を更新する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または部門マスタへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * 指定した部門が存在しないか、既に削除されています。部門一覧を再取得してIDを確認してください。
-   */
   404: BadRequestNotFoundError | MessagesError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type DestroySectionError = DestroySectionErrors[keyof DestroySectionErrors];
 
 export type DestroySectionResponses = {
-  /**
-   * 部門の削除に成功しました。レスポンスボディはありません。
-   */
   204: void;
 };
 
@@ -18862,49 +5813,25 @@ export type DestroySectionResponse = DestroySectionResponses[keyof DestroySectio
 export type GetSectionData = {
   body?: never;
   path: {
-    /**
-     * 部門ID。部門一覧の取得APIのレスポンスに含まれる id を指定します。
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID。取得対象の事業所を指定します。
-     */
     company_id: number;
   };
   url: "/api/1/sections/{id}";
 };
 
 export type GetSectionErrors = {
-  /**
-   * リクエストパラメータが不正です。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または部門マスタへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * 指定した部門が存在しないか、既に削除されています。部門一覧を再取得してIDを確認してください。
-   */
   404: BadRequestNotFoundError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type GetSectionError = GetSectionErrors[keyof GetSectionErrors];
 
 export type GetSectionResponses = {
-  /**
-   * 部門の取得に成功しました。
-   */
   200: SectionResponse;
 };
 
@@ -18913,9 +5840,6 @@ export type GetSectionResponse = GetSectionResponses[keyof GetSectionResponses];
 export type UpdateSectionData = {
   body?: SectionParams;
   path: {
-    /**
-     * 部門ID。部門一覧の取得APIのレスポンスに含まれる id を指定します。
-     */
     id: number;
   };
   query?: never;
@@ -18923,35 +5847,16 @@ export type UpdateSectionData = {
 };
 
 export type UpdateSectionErrors = {
-  /**
-   * リクエストパラメータが不正です。部門名・部門コードの重複や文字数制限などを確認してください。
-   */
   400: BadRequestError | MessagesError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を更新する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または部門マスタへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * 指定した部門が存在しないか、既に削除されています。部門一覧を再取得してIDを確認してください。
-   * parent_id で指定した親部門が存在しないか、既に削除されている場合もこのエラーになります。
-   */
   404: BadRequestNotFoundError | MessagesError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type UpdateSectionError = UpdateSectionErrors[keyof UpdateSectionErrors];
 
 export type UpdateSectionResponses = {
-  /**
-   * 部門の更新に成功しました。更新後の部門を返します。
-   */
   200: SectionResponse;
 };
 
@@ -18959,37 +5864,13 @@ export type UpdateSectionResponse = UpdateSectionResponses[keyof UpdateSectionRe
 
 export type ApiV1SectionsUpsertByCodeData = {
   body: {
-    /**
-     * 事業所ID。部門を更新・作成する対象の事業所を指定します。
-     */
     company_id: number;
-    /**
-     * 部門コード (20文字以内、半角英数字・ハイフン・アンダースコアのみ)。更新・作成対象の部門を特定するキーです。このコードを持つ部門が存在する場合は更新し、存在しない場合は新規作成します。
-     */
     code: string;
-    /**
-     * 部門に設定する内容。code（部門コード）はこのオブジェクト内には指定できません（部門コードは変更不可のため、指定すると 400 エラーになります）。
-     */
     section: {
-      /**
-       * 部門名 (30文字以内)。事業所内で重複できません。既に同名の部門が存在する場合は 400 エラーになります。
-       */
       name: string;
-      /**
-       * 部門の正式名称 (255文字以内)。更新時に省略した場合は現在の値を維持し、null を指定した場合は未設定に更新します。
-       */
       long_name?: string | null;
-      /**
-       * ショートカット1 (20文字以内)。Web画面などで部門を検索する際のキーワードとして使用します。更新時に省略または null を指定した場合は未設定（null）に更新されます。
-       */
       shortcut1?: string | null;
-      /**
-       * ショートカット2 (20文字以内)。Web画面などで部門を検索する際のキーワードとして使用します。更新時に省略または null を指定した場合は未設定（null）に更新されます。
-       */
       shortcut2?: string | null;
-      /**
-       * 親部門コード。部門階層を利用できるプランでのみ反映されます。更新時に省略した場合は現在の親子関係を維持し、null を指定した場合は親部門との関係を解除します。
-       */
       parent_code?: string | null;
     };
   };
@@ -18999,22 +5880,9 @@ export type ApiV1SectionsUpsertByCodeData = {
 };
 
 export type ApiV1SectionsUpsertByCodeErrors = {
-  /**
-   * リクエストパラメータが不正です。部門コードを使用する設定、部門名の重複、文字数制限などを確認してください。
-   * parent_code で指定した親部門が存在しない場合もこのエラーになります。
-   */
   400: BadRequestError | MessagesError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を更新する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または部門マスタへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
@@ -19022,13 +5890,7 @@ export type ApiV1SectionsUpsertByCodeError =
   ApiV1SectionsUpsertByCodeErrors[keyof ApiV1SectionsUpsertByCodeErrors];
 
 export type ApiV1SectionsUpsertByCodeResponses = {
-  /**
-   * 部門の更新に成功しました。更新後の部門を返します。
-   */
   200: SectionResponse;
-  /**
-   * 指定した部門コードの部門が存在しなかったため、部門を新規作成しました。作成された部門を返します。
-   */
   201: SectionResponse;
 };
 
@@ -19039,58 +5901,19 @@ export type GetInvoicesData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 取引先IDで絞込（partner_code と同時に指定することはできません）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所で取引先コードの利用設定が有効な場合のみ利用できます。partner_id と同時に指定することはできません）
-     */
     partner_code?: string;
-    /**
-     * 請求日の開始日(yyyy-mm-dd)
-     */
     start_issue_date?: string;
-    /**
-     * 請求日の終了日(yyyy-mm-dd)
-     */
     end_issue_date?: string;
-    /**
-     * 期日の開始日(yyyy-mm-dd)
-     */
     start_due_date?: string;
-    /**
-     * 期日の終了日(yyyy-mm-dd)
-     */
     end_due_date?: string;
-    /**
-     * 請求書番号
-     */
     invoice_number?: string;
-    /**
-     * 概要
-     */
     description?: string;
-    /**
-     * 請求書ステータス  (draft: 下書き, applying: 申請中, remanded: 差し戻し, rejected: 却下, approved: 承認済み, unsubmitted: 送付待ち, submitted: 送付済み)
-     */
     invoice_status?:
       "draft" | "applying" | "remanded" | "rejected" | "approved" | "unsubmitted" | "submitted";
-    /**
-     * 入金ステータス  (unsettled: 入金待ち, settled: 入金済み)
-     */
     payment_status?: "unsettled" | "settled";
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 20, 最大: 100)
-     */
     limit?: number;
   };
   url: "/api/1/invoices";
@@ -19115,15 +5938,9 @@ export type GetInvoicesResponse = GetInvoicesResponses[keyof GetInvoicesResponse
 export type GetInvoiceData = {
   body?: never;
   path: {
-    /**
-     * 請求書ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/invoices/{id}";
@@ -19149,45 +5966,15 @@ export type GetQuotationsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 取引先IDで絞込（partner_code と同時に指定することはできません）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所で取引先コードの利用設定が有効な場合のみ利用できます。partner_id と同時に指定することはできません）
-     */
     partner_code?: string;
-    /**
-     * 見積日の開始日(yyyy-mm-dd)
-     */
     start_issue_date?: string;
-    /**
-     * 見積日の終了日(yyyy-mm-dd)
-     */
     end_issue_date?: string;
-    /**
-     * 見積書番号
-     */
     quotation_number?: string;
-    /**
-     * 概要
-     */
     description?: string;
-    /**
-     * 見積書ステータス  (unsubmitted: 送付待ち, submitted: 送付済み, all: 全て)
-     */
     quotation_status?: "all" | "unsubmitted" | "submitted";
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 20, 最大: 100)
-     */
     limit?: number;
   };
   url: "/api/1/quotations";
@@ -19212,15 +5999,9 @@ export type GetQuotationsResponse = GetQuotationsResponses[keyof GetQuotationsRe
 export type GetQuotationData = {
   body?: never;
   path: {
-    /**
-     * 見積書ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/quotations/{id}";
@@ -19246,69 +6027,21 @@ export type GetDealsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 取引先IDで絞込
-     */
     partner_id?: number;
-    /**
-     * 勘定科目IDで絞込
-     */
     account_item_id?: number;
-    /**
-     * 取引先コードで絞込
-     */
     partner_code?: string;
-    /**
-     * 決済状況で絞込 (未決済: unsettled, 完了: settled)
-     */
     status?: "unsettled" | "settled";
-    /**
-     * 収支区分 (収入: income, 支出: expense)
-     */
     type?: "income" | "expense";
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_issue_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_issue_date?: string;
-    /**
-     * 支払期日で絞込：開始日(yyyy-mm-dd)
-     */
     start_due_date?: string;
-    /**
-     * 支払期日で絞込：終了日(yyyy-mm-dd)
-     */
     end_due_date?: string;
-    /**
-     * +更新日で絞込：開始日(yyyy-mm-dd)
-     */
     start_renew_date?: string;
-    /**
-     * +更新日で絞込：終了日(yyyy-mm-dd)
-     */
     end_renew_date?: string;
-    /**
-     * 支払残額（due_amount、未決済残高）の下限値（円）で絞込。指定した金額以上の支払残額を持つ取引のみを返します。支払残額がマイナスの取引（赤伝）は本条件で除外されます。
-     */
     min_due_amount?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 20, 最大: 100)
-     */
     limit?: number;
-    /**
-     * 取引の債権債務行の表示（without: 表示しない(デフォルト), with: 表示する）。withを指定した場合、債権債務行が存在する取引のレスポンスにaccrualsが含まれます。
-     */
     accruals?: "without" | "with";
   };
   url: "/api/1/deals";
@@ -19328,9 +6061,6 @@ export type GetDealsResponses = {
   200: {
     deals: Array<Deal>;
     meta: {
-      /**
-       * 検索条件に合致する取引の総数
-       */
       total_count: number;
     };
   };
@@ -19364,15 +6094,9 @@ export type CreateDealResponse = CreateDealResponses[keyof CreateDealResponses];
 export type DestroyDealData = {
   body?: never;
   path: {
-    /**
-     * 取引ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/deals/{id}";
@@ -19397,19 +6121,10 @@ export type DestroyDealResponse = DestroyDealResponses[keyof DestroyDealResponse
 export type GetDealData = {
   body?: never;
   path: {
-    /**
-     * 取引ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 取引の債権債務行の表示（without: 表示しない(デフォルト), with: 表示する）。withを指定した場合、債権債務行が存在する取引のレスポンスにaccrualsが含まれます。
-     */
     accruals?: "without" | "with";
   };
   url: "/api/1/deals/{id}";
@@ -19434,9 +6149,6 @@ export type GetDealResponse = GetDealResponses[keyof GetDealResponses];
 export type UpdateDealData = {
   body?: DealUpdateParams;
   path: {
-    /**
-     * 取引ID
-     */
     id: number;
   };
   query?: never;
@@ -19462,9 +6174,6 @@ export type UpdateDealResponse = UpdateDealResponses[keyof UpdateDealResponses];
 export type CreateDealRenewData = {
   body: RenewCreateParams;
   path: {
-    /**
-     * 取引ID
-     */
     id: number;
   };
   query?: never;
@@ -19490,19 +6199,10 @@ export type CreateDealRenewResponse = CreateDealRenewResponses[keyof CreateDealR
 export type DeleteDealRenewData = {
   body?: never;
   path: {
-    /**
-     * 取引ID
-     */
     id: number;
-    /**
-     * +更新ID
-     */
     renew_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/deals/{id}/renews/{renew_id}";
@@ -19527,13 +6227,7 @@ export type DeleteDealRenewResponse = DeleteDealRenewResponses[keyof DeleteDealR
 export type UpdateDealRenewData = {
   body: RenewUpdateParams;
   path: {
-    /**
-     * 取引ID
-     */
     id: number;
-    /**
-     * +更新ID
-     */
     renew_id: number;
   };
   query?: never;
@@ -19559,9 +6253,6 @@ export type UpdateDealRenewResponse = UpdateDealRenewResponses[keyof UpdateDealR
 export type CreateDealPaymentData = {
   body: PaymentParams;
   path: {
-    /**
-     * 取引ID
-     */
     id: number;
   };
   query?: never;
@@ -19588,19 +6279,10 @@ export type CreateDealPaymentResponse =
 export type DestroyDealPaymentData = {
   body?: never;
   path: {
-    /**
-     * 取引ID
-     */
     id: number;
-    /**
-     * 支払行ID（取引のレスポンスのpayments配列のid）
-     */
     payment_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/deals/{id}/payments/{payment_id}";
@@ -19626,13 +6308,7 @@ export type DestroyDealPaymentResponse =
 export type UpdateDealPaymentData = {
   body: PaymentParams;
   path: {
-    /**
-     * 取引ID
-     */
     id: number;
-    /**
-     * 支払行ID（取引のレスポンスのpayments配列のid）
-     */
     payment_id: number;
   };
   query?: never;
@@ -19660,72 +6336,20 @@ export type GetManualJournalsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_issue_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_issue_date?: string;
-    /**
-     * 貸借区分で絞込（credit: 貸方、debit: 借方）
-     */
     entry_side?: "credit" | "debit";
-    /**
-     * 勘定科目IDで絞込
-     */
     account_item_id?: number;
-    /**
-     * 取引金額（税込・円）の下限で絞込
-     */
     min_amount?: number;
-    /**
-     * 取引金額（税込・円）の上限で絞込
-     */
     max_amount?: number;
-    /**
-     * 取引先IDで絞込（0を指定すると、取引先が未選択の貸借行を絞り込めます）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込
-     */
     partner_code?: string;
-    /**
-     * 品目IDで絞込（0を指定すると、品目が未選択の貸借行を絞り込めます）
-     */
     item_id?: number;
-    /**
-     * 部門IDで絞込（0を指定すると、部門が未選択の貸借行を絞り込めます）
-     */
     section_id?: number;
-    /**
-     * セグメント１タグIDで絞込（0を指定すると、セグメント１タグが未選択の貸借行を絞り込めます）
-     */
     segment_1_tag_id?: number;
-    /**
-     * セグメント２タグIDで絞込（0を指定すると、セグメント２タグが未選択の貸借行を絞り込めます）
-     */
     segment_2_tag_id?: number;
-    /**
-     * セグメント３タグIDで絞込（0を指定すると、セグメント３タグが未選択の貸借行を絞り込めます）
-     */
     segment_3_tag_id?: number;
-    /**
-     * コメント状態で絞込
-     * * `posted_with_mention` - 自分宛のコメントあり
-     * * `raised_with_mention` - 自分宛の未解決コメントあり
-     * * `resolved_with_mention` - 自分宛の解決済みコメントあり
-     * * `posted` - コメントあり
-     * * `raised` - 未解決コメントあり
-     * * `resolved` - 解決済みコメントあり
-     * * `none` - コメントなし
-     */
     comment_status?:
       | "posted_with_mention"
       | "raised_with_mention"
@@ -19734,29 +6358,11 @@ export type GetManualJournalsData = {
       | "raised"
       | "resolved"
       | "none";
-    /**
-     * お気に入りコメント付きの振替伝票を絞込
-     */
     comment_important?: boolean;
-    /**
-     * 決算整理仕訳で絞込（only: 決算整理仕訳のみ、without: 日常仕訳のみ）
-     */
     adjustment?: "only" | "without";
-    /**
-     * 仕訳番号で絞込（事業所の仕訳番号形式が有効な場合のみ）
-     */
     txn_number?: string;
-    /**
-     * 管理番号で絞込（前方一致）
-     */
     ref_number?: string;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 500)
-     */
     limit?: number;
   };
   url: "/api/1/manual_journals";
@@ -19772,9 +6378,6 @@ export type GetManualJournalsErrors = {
 export type GetManualJournalsError = GetManualJournalsErrors[keyof GetManualJournalsErrors];
 
 export type GetManualJournalsResponses = {
-  /**
-   * 振替伝票の一覧
-   */
   200: {
     manual_journals: Array<ManualJournal>;
   };
@@ -19801,9 +6404,6 @@ export type CreateManualJournalErrors = {
 export type CreateManualJournalError = CreateManualJournalErrors[keyof CreateManualJournalErrors];
 
 export type CreateManualJournalResponses = {
-  /**
-   * 作成した振替伝票
-   */
   201: ManualJournalResponse;
 };
 
@@ -19813,15 +6413,9 @@ export type CreateManualJournalResponse =
 export type DestroyManualJournalData = {
   body?: never;
   path: {
-    /**
-     * 振替伝票ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/manual_journals/{id}";
@@ -19839,9 +6433,6 @@ export type DestroyManualJournalError =
   DestroyManualJournalErrors[keyof DestroyManualJournalErrors];
 
 export type DestroyManualJournalResponses = {
-  /**
-   * 削除成功（レスポンスボディなし）
-   */
   204: void;
 };
 
@@ -19851,15 +6442,9 @@ export type DestroyManualJournalResponse =
 export type GetManualJournalData = {
   body?: never;
   path: {
-    /**
-     * 振替伝票ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/manual_journals/{id}";
@@ -19876,9 +6461,6 @@ export type GetManualJournalErrors = {
 export type GetManualJournalError = GetManualJournalErrors[keyof GetManualJournalErrors];
 
 export type GetManualJournalResponses = {
-  /**
-   * 指定した振替伝票
-   */
   200: ManualJournalResponse;
 };
 
@@ -19887,9 +6469,6 @@ export type GetManualJournalResponse = GetManualJournalResponses[keyof GetManual
 export type UpdateManualJournalData = {
   body?: ManualJournalUpdateParams;
   path: {
-    /**
-     * 振替伝票ID
-     */
     id: number;
   };
   query?: never;
@@ -19907,9 +6486,6 @@ export type UpdateManualJournalErrors = {
 export type UpdateManualJournalError = UpdateManualJournalErrors[keyof UpdateManualJournalErrors];
 
 export type UpdateManualJournalResponses = {
-  /**
-   * 更新した振替伝票
-   */
   200: ManualJournalResponse;
 };
 
@@ -19920,13 +6496,7 @@ export type GetUsersData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 3000)
-     */
     limit?: number;
   };
   url: "/api/1/users";
@@ -19954,13 +6524,7 @@ export type GetUsersMeData = {
   body?: never;
   path?: never;
   query?: {
-    /**
-     * ユーザーが所属する事業所一覧をレスポンスに含めるかどうか (true: 含める、未指定: 含めない)。指定有無で判定されるため、falseを指定した場合もtrueと同様に扱われます。
-     */
     companies?: true | false;
-    /**
-     * 事業所ごとのアドバイザープロファイルID (advisor_id) をレスポンスの事業所一覧に含めるかどうか (true: 含める、未指定: 含めない)。companiesと同時に指定してください。指定有無で判定されるため、falseを指定した場合もtrueと同様に扱われます。
-     */
     advisor?: true | false;
   };
   url: "/api/1/users/me";
@@ -20009,9 +6573,6 @@ export type GetUsersCapabilitiesData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/users/capabilities";
@@ -20029,353 +6590,6 @@ export type GetUsersCapabilitiesError =
   GetUsersCapabilitiesErrors[keyof GetUsersCapabilitiesErrors];
 
 export type GetUsersCapabilitiesResponses = {
-  /**
-   * <p>レスポンスの各キーは以下の項目と対応しています。</p>
-   * <p>詳細は <a href="https://support.freee.co.jp/hc/ja/articles/210265673">https://support.freee.co.jp/hc/ja/articles/210265673</a> を参照してください。</p>
-   * <table>
-   *   <thead>
-   *     <tr>
-   *       <th style="padding: 5px">キー</th>
-   *       <th style="padding: 5px">対応する項目</th>
-   *     </tr>
-   *   </thead>
-   *   <tbody>
-   *     <tr>
-   *       <td style="padding: 5px">wallet_txns</td>
-   *       <td style="padding: 5px">自動で経理 / 取得した明細</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">deals</td>
-   *       <td style="padding: 5px">取引</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">deal_linkage</td>
-   *       <td style="padding: 5px">取引連携（freee請求書など、freee会計以外から連携させる取引）</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">transfers</td>
-   *       <td style="padding: 5px">口座振替</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">docs</td>
-   *       <td style="padding: 5px">見積書・納品書・請求書・領収書・発注書</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">receipts</td>
-   *       <td style="padding: 5px">ファイルボックス</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">receipt_stream_editor</td>
-   *       <td style="padding: 5px">連続取引登録</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">spreadsheets</td>
-   *       <td style="padding: 5px">エクセルインポート</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">expense_applications</td>
-   *       <td style="padding: 5px">経費精算</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">expense_application_sync_payroll</td>
-   *       <td style="padding: 5px">経費精算の給与連携</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">manage_bulk_expense_application_approvals</td>
-   *       <td style="padding: 5px">経費精算の一括承認</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">payment_requests</td>
-   *       <td style="padding: 5px">支払依頼</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">payment_request_templates</td>
-   *       <td style="padding: 5px">支払テンプレート</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">approval_requests</td>
-   *       <td style="padding: 5px">各種申請</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">purchase_requests</td>
-   *       <td style="padding: 5px">購買申請</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">suspense_payments</td>
-   *       <td style="padding: 5px">仮払金</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">reports</td>
-   *       <td style="padding: 5px">収益 / 費用レポート</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">reports_income_expense</td>
-   *       <td style="padding: 5px">損益レポート</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">reports_receivables</td>
-   *       <td style="padding: 5px">入金管理レポート</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">reports_payables</td>
-   *       <td style="padding: 5px">支払管理レポート(一括振込ファイルを含む)</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">reports_purchase_budgets</td>
-   *       <td style="padding: 5px">購買進捗モニター</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">reports_cash_balance</td>
-   *       <td style="padding: 5px">現預金レポート/資金繰りレポート</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">reports_managements_planning</td>
-   *       <td style="padding: 5px">経営プランニング</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">reports_managements_navigation</td>
-   *       <td style="padding: 5px">経営ナビゲーション</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">reports_managements_introduction</td>
-   *       <td style="padding: 5px">経営プランニング・経営ナビゲーションの紹介ページ</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">reports_custom_reports_aggregate</td>
-   *       <td style="padding: 5px">カスタムレポート</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">reports_pl</td>
-   *       <td style="padding: 5px">損益計算書(月次推移/試算表)</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">reports_bs</td>
-   *       <td style="padding: 5px">貸借対照表(月次推移/試算表)</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">reports_general_ledgers</td>
-   *       <td style="padding: 5px">総勘定元帳</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">reports_journals</td>
-   *       <td style="padding: 5px">仕訳帳</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">manual_journals</td>
-   *       <td style="padding: 5px">振替伝票</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">fixed_assets</td>
-   *       <td style="padding: 5px">固定資産台帳</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">inventory_refreshes</td>
-   *       <td style="padding: 5px">在庫棚卸</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">biz_allocations</td>
-   *       <td style="padding: 5px">家事按分</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">payment_records</td>
-   *       <td style="padding: 5px">支払調書</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">annual_reports</td>
-   *       <td style="padding: 5px">決算書、確定申告書類</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">consolidation</td>
-   *       <td style="padding: 5px">連結会計</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">tax_reports</td>
-   *       <td style="padding: 5px">消費税区分別表・消費税集計表</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">consumption_entries</td>
-   *       <td style="padding: 5px">消費税申告書</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">tax_return</td>
-   *       <td style="padding: 5px">連携用データ</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">account_item_statements</td>
-   *       <td style="padding: 5px">勘定科目内訳明細書</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">month_end</td>
-   *       <td style="padding: 5px">月締め</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">year_end</td>
-   *       <td style="padding: 5px">年度締め</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">walletables</td>
-   *       <td style="padding: 5px">口座 / 口座の同期</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">companies</td>
-   *       <td style="padding: 5px">事業所の設定</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">invitations</td>
-   *       <td style="padding: 5px">メンバー招待</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">access_controls</td>
-   *       <td style="padding: 5px">権限管理</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">sign_in_logs</td>
-   *       <td style="padding: 5px">ログイン履歴</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">user_attribute_logs</td>
-   *       <td style="padding: 5px">ユーザー更新履歴</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">app_role_logs</td>
-   *       <td style="padding: 5px">権限変更履歴</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">txn_relationship_logs</td>
-   *       <td style="padding: 5px">仕訳関連履歴</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">backups</td>
-   *       <td style="padding: 5px">バックアップ</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">opening_balances</td>
-   *       <td style="padding: 5px">開始残高の設定</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">system_conversion</td>
-   *       <td style="padding: 5px">乗り換え設定</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">resets</td>
-   *       <td style="padding: 5px">リセット</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">partners</td>
-   *       <td style="padding: 5px">取引先</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">items</td>
-   *       <td style="padding: 5px">品目</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">sections</td>
-   *       <td style="padding: 5px">部門</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">tags</td>
-   *       <td style="padding: 5px">メモタグ</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">account_items</td>
-   *       <td style="padding: 5px">勘定科目</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">taxes</td>
-   *       <td style="padding: 5px">税区分</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">payroll_item_sets</td>
-   *       <td style="padding: 5px">給与連携の設定</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">user_matchers</td>
-   *       <td style="padding: 5px">自動登録ルール</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">deal_templates</td>
-   *       <td style="padding: 5px">取引テンプレート</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">manual_journal_templates</td>
-   *       <td style="padding: 5px">振替伝票テンプレート</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">cost_allocations</td>
-   *       <td style="padding: 5px">部門配賦</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">approval_flow_routes</td>
-   *       <td style="padding: 5px">承認経路</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">expense_application_templates</td>
-   *       <td style="padding: 5px">経費科目</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">request_forms</td>
-   *       <td style="padding: 5px">申請フォーム</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">system_messages_for_admin</td>
-   *       <td style="padding: 5px">管理者向けお知らせ</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">company_internal_announcements</td>
-   *       <td style="padding: 5px"><a href="https://support.freee.co.jp/hc/ja/articles/900002322383#:~:text=%E7%A4%BE%E5%86%85%E5%90%91%E3%81%91%E3%81%AE%E3%82%A2%E3%83%8A%E3%82%A6%E3%83%B3%E3%82%B9%E3%82%92%E6%8E%B2%E7%A4%BA%E3%81%A7%E3%81%8D%E3%82%8B%E6%A9%9F%E8%83%BD%E3%81%A7%E3%81%99%E3%80%82" target="_blank">アナウンス</a></td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">doc_change_logs</td>
-   *       <td style="padding: 5px">受発注書類変更履歴</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">entries_reviews</td>
-   *       <td style="padding: 5px">記帳レビュー</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">freee_cards_stream</td>
-   *       <td style="padding: 5px">freeeカードで経理</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">proxy_application_settings</td>
-   *       <td style="padding: 5px">代理申請の設定</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">workflows</td>
-   *       <td style="padding: 5px">仕訳承認</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">oauth_applications</td>
-   *       <td style="padding: 5px">アプリ利用</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">oauth_authorizations</td>
-   *       <td style="padding: 5px">アプリ認可</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">division_tag_1</td>
-   *       <td style="padding: 5px">セグメント1</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">division_tag_2</td>
-   *       <td style="padding: 5px">セグメント2</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">division_tag_3</td>
-   *       <td style="padding: 5px">セグメント3</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">currencies</td>
-   *       <td style="padding: 5px">外貨（通貨の設定）</td>
-   *     </tr>
-   *     <tr>
-   *       <td style="padding: 5px">bank_accountant_staff_users</td>
-   *       <td style="padding: 5px">アドバイザー事業所内でのメンバー管理</td>
-   *     </tr>
-   *   </tbody>
-   * </table>
-   *
-   */
   200: {
     wallet_txns: UserCapabilityWithConfirm;
     deals: UserCapabilityWithSelfOnly;
@@ -20492,43 +6706,16 @@ export type GetCompaniesResponse = GetCompaniesResponses[keyof GetCompaniesRespo
 export type GetCompanyData = {
   body?: never;
   path: {
-    /**
-     * 事業所ID。事業所一覧の取得（GET /api/1/companies）のレスポンスの id を指定する
-     */
     id: number;
   };
   query?: {
-    /**
-     * true を指定すると、レスポンスに勘定科目 (account_items)・税区分コード (tax_codes)・品目 (items)・取引先 (partners)・部門 (sections)・メモタグ (tags)・口座 (walletables) の一覧をまとめて含める。一覧を含めない場合はパラメータ自体を省略する
-     */
     details?: true;
-    /**
-     * true を指定すると、レスポンスに勘定科目一覧 (account_items) を含める
-     */
     account_items?: true;
-    /**
-     * true を指定すると、レスポンスに税区分コード一覧 (tax_codes) を含める
-     */
     taxes?: true;
-    /**
-     * true を指定すると、レスポンスに品目一覧 (items) を含める
-     */
     items?: true;
-    /**
-     * true を指定すると、レスポンスに取引先一覧 (partners) を含める
-     */
     partners?: true;
-    /**
-     * true を指定すると、レスポンスに部門一覧 (sections) を含める
-     */
     sections?: true;
-    /**
-     * true を指定すると、レスポンスにメモタグ一覧 (tags) を含める
-     */
     tags?: true;
-    /**
-     * true を指定すると、レスポンスに口座一覧 (walletables) を含める
-     */
     walletables?: true;
   };
   url: "/api/1/companies/{id}";
@@ -20553,59 +6740,26 @@ export type GetItemsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID。取得対象の事業所を指定します。
-     */
     company_id: number;
-    /**
-     * 更新日で絞り込む開始日 (yyyy-mm-dd, JST)。指定日を含む、それ以降に更新された品目を対象にします。
-     */
     start_update_date?: string;
-    /**
-     * 更新日で絞り込む終了日 (yyyy-mm-dd, JST)。指定日を含む、それ以前に更新された品目を対象にします。
-     */
     end_update_date?: string;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)。ページング用に、スキップする件数を指定します。
-     */
     offset?: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 3000)。1 回のリクエストで取得する上限件数を指定します。
-     */
     limit?: number;
   };
   url: "/api/1/items";
 };
 
 export type GetItemsErrors = {
-  /**
-   * リクエストパラメータが不正です。日付形式や範囲などを確認してください。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または品目マスタへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type GetItemsError = GetItemsErrors[keyof GetItemsErrors];
 
 export type GetItemsResponses = {
-  /**
-   * 品目一覧の取得に成功しました。
-   */
   200: {
-    /**
-     * 品目の一覧
-     */
     items: Array<Item>;
   };
 };
@@ -20620,30 +6774,15 @@ export type CreateItemData = {
 };
 
 export type CreateItemErrors = {
-  /**
-   * リクエストパラメータが不正です。品目名の重複や文字数制限などを確認してください。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または品目マスタへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type CreateItemError = CreateItemErrors[keyof CreateItemErrors];
 
 export type CreateItemResponses = {
-  /**
-   * 品目の作成に成功しました。作成された品目を返します。
-   */
   201: ItemResponse;
 };
 
@@ -20652,49 +6791,25 @@ export type CreateItemResponse = CreateItemResponses[keyof CreateItemResponses];
 export type DestroyItemData = {
   body?: never;
   path: {
-    /**
-     * 品目ID。品目一覧の取得 API のレスポンスに含まれる id を指定します。
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID。削除対象の品目が属する事業所を指定します。
-     */
     company_id: number;
   };
   url: "/api/1/items/{id}";
 };
 
 export type DestroyItemErrors = {
-  /**
-   * リクエストパラメータが不正、または取引などで使用中の品目のため削除できません。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または品目マスタへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * 指定した品目IDに該当する品目が存在しないか、既に削除されています。
-   */
   404: BadRequestNotFoundError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type DestroyItemError = DestroyItemErrors[keyof DestroyItemErrors];
 
 export type DestroyItemResponses = {
-  /**
-   * 品目の削除に成功しました。レスポンスボディはありません。
-   */
   204: void;
 };
 
@@ -20703,49 +6818,25 @@ export type DestroyItemResponse = DestroyItemResponses[keyof DestroyItemResponse
 export type GetItemData = {
   body?: never;
   path: {
-    /**
-     * 品目ID。品目一覧の取得 API のレスポンスに含まれる id を指定します。
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID。取得対象の事業所を指定します。
-     */
     company_id: number;
   };
   url: "/api/1/items/{id}";
 };
 
 export type GetItemErrors = {
-  /**
-   * リクエストパラメータが不正です。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または品目マスタへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * 指定した品目IDに該当する品目が存在しないか、既に削除されています。
-   */
   404: BadRequestNotFoundError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type GetItemError = GetItemErrors[keyof GetItemErrors];
 
 export type GetItemResponses = {
-  /**
-   * 品目の取得に成功しました。
-   */
   200: ItemResponse;
 };
 
@@ -20754,9 +6845,6 @@ export type GetItemResponse = GetItemResponses[keyof GetItemResponses];
 export type UpdateItemData = {
   body?: ItemParams;
   path: {
-    /**
-     * 品目ID。品目一覧の取得 API のレスポンスに含まれる id を指定します。
-     */
     id: number;
   };
   query?: never;
@@ -20764,30 +6852,15 @@ export type UpdateItemData = {
 };
 
 export type UpdateItemErrors = {
-  /**
-   * リクエストパラメータが不正です。品目名の重複や文字数制限などを確認してください。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または品目マスタへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
 export type UpdateItemError = UpdateItemErrors[keyof UpdateItemErrors];
 
 export type UpdateItemResponses = {
-  /**
-   * 品目の更新に成功しました。更新後の品目を返します。
-   */
   200: ItemResponse;
 };
 
@@ -20795,29 +6868,11 @@ export type UpdateItemResponse = UpdateItemResponses[keyof UpdateItemResponses];
 
 export type ApiV1ItemsUpsertByCodeData = {
   body?: {
-    /**
-     * 品目コード (20文字以内、半角英数字・ハイフン・アンダースコアのみ)。更新・作成対象の品目を特定するキーです。このコードを持つ品目が存在する場合は更新し、存在しない場合は新規作成します。
-     */
     code: string;
-    /**
-     * 事業所ID。品目を更新・作成する対象の事業所を指定します。
-     */
     company_id: number;
-    /**
-     * 品目に設定する内容。code（品目コード）はこのオブジェクト内には指定できません（品目コードは変更不可のため、指定すると 400 エラーになります）。
-     */
     item: {
-      /**
-       * 品目名 (30文字以内)。事業所内で重複できません。既に同名の品目が存在する場合は 400 エラーになります。
-       */
       name: string;
-      /**
-       * ショートカット１ (20文字以内)。Web画面などで品目を検索する際のキーワードとして使用します。更新時に省略した場合は未設定（null）に更新されます。
-       */
       shortcut1?: string;
-      /**
-       * ショートカット２ (20文字以内)。Web画面などで品目を検索する際のキーワードとして使用します。更新時に省略した場合は未設定（null）に更新されます。
-       */
       shortcut2?: string;
     };
   };
@@ -20827,21 +6882,9 @@ export type ApiV1ItemsUpsertByCodeData = {
 };
 
 export type ApiV1ItemsUpsertByCodeErrors = {
-  /**
-   * リクエストパラメータが不正です。品目コードを使用する設定が無効、item 内での code 指定、品目名の重複などを確認してください。
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが不正、期限切れ、または対象事業所を参照する権限がありません。
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所または品目マスタへのアクセス権限がありません。
-   */
   403: ForbiddenError;
-  /**
-   * サーバ内部エラー。時間を空けて再試行してください。
-   */
   500: InternalServerError;
 };
 
@@ -20849,49 +6892,16 @@ export type ApiV1ItemsUpsertByCodeError =
   ApiV1ItemsUpsertByCodeErrors[keyof ApiV1ItemsUpsertByCodeErrors];
 
 export type ApiV1ItemsUpsertByCodeResponses = {
-  /**
-   * 品目の更新に成功しました。更新後の品目を返します。
-   */
   200: ItemResponse;
-  /**
-   * 指定した品目コードの品目が存在しなかったため、品目を新規作成しました。作成された品目を返します。
-   */
   201: ItemResponse;
 };
 
 export type ApiV1ItemsUpsertByCodeResponse =
   ApiV1ItemsUpsertByCodeResponses[keyof ApiV1ItemsUpsertByCodeResponses];
 
-export type GetTaxCodesData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/api/1/taxes/codes";
-};
-
-export type GetTaxCodesErrors = {
-  400: BadRequestError;
-  401: UnauthorizedError;
-  403: ForbiddenError;
-  500: InternalServerError;
-};
-
-export type GetTaxCodesError = GetTaxCodesErrors[keyof GetTaxCodesErrors];
-
-export type GetTaxCodesResponses = {
-  200: {
-    taxes: Array<Tax>;
-  };
-};
-
-export type GetTaxCodesResponse = GetTaxCodesResponses[keyof GetTaxCodesResponses];
-
 export type GetTaxCodeData = {
   body?: never;
   path: {
-    /**
-     * 税区分コード。/api/1/taxes/codes（税区分一覧の取得）または /api/1/taxes/companies/{company_id}（指定した事業所の税区分一覧の取得）で取得できる code を指定します。
-     */
     code: number;
   };
   query?: never;
@@ -20917,15 +6927,9 @@ export type GetTaxCodeResponse = GetTaxCodeResponses[keyof GetTaxCodeResponses];
 export type GetTaxesCompaniesData = {
   body?: never;
   path: {
-    /**
-     * 事業所ID。/api/1/companies（事業所一覧の取得）で取得できます。
-     */
     company_id: number;
   };
   query?: {
-    /**
-     * 指定した表示カテゴリの税区分のみに絞り込みます。未指定の場合は全ての税区分が返ります。税区分の表示カテゴリ（ tax_5: 5%表示の税区分、 tax_8: 8%表示の税区分、 tax_r8: 軽減税率8%表示の税区分、 tax_10: 10%表示の税区分、 tax_5_e80: インボイス経過措置5%表示80%控除の税区分、 tax_5_e70: インボイス経過措置5%表示70%控除の税区分、 tax_5_e50: インボイス経過措置5%表示50%控除の税区分、 tax_5_e30: インボイス経過措置5%表示30%控除の税区分、 tax_8_e80: インボイス経過措置8%表示80%控除の税区分、 tax_8_e70: インボイス経過措置8%表示70%控除の税区分、 tax_8_e50: インボイス経過措置8%表示50%控除の税区分、 tax_8_e30: インボイス経過措置8%表示30%控除の税区分、 tax_r8_e80: インボイス経過措置軽減税率8%表示80%控除の税区分、 tax_r8_e70: インボイス経過措置軽減税率8%表示70%控除の税区分、 tax_r8_e50: インボイス経過措置軽減税率8%表示50%控除の税区分、 tax_r8_e30: インボイス経過措置軽減税率8%表示30%控除の税区分、 tax_10_e80: インボイス経過措置10%表示80%控除の税区分、 tax_10_e70: インボイス経過措置10%表示70%控除の税区分、 tax_10_e50: インボイス経過措置10%表示50%控除の税区分、 tax_10_e30: インボイス経過措置10%表示30%控除の税区分）
-     */
     display_category?:
       | "tax_5"
       | "tax_8"
@@ -20947,9 +6951,6 @@ export type GetTaxesCompaniesData = {
       | "tax_10_e70"
       | "tax_10_e50"
       | "tax_10_e30";
-    /**
-     * 指定した使用設定の税区分のみに絞り込みます。未指定の場合は全ての税区分が返ります。税区分の使用設定（true: 使用する、false: 使用しない）
-     */
     available?: boolean;
   };
   url: "/api/1/taxes/companies/{company_id}";
@@ -20967,21 +6968,9 @@ export type GetTaxesCompaniesError = GetTaxesCompaniesErrors[keyof GetTaxesCompa
 export type GetTaxesCompaniesResponses = {
   200: {
     taxes: Array<{
-      /**
-       * 税区分コード。取引の作成（POST /api/1/deals）や振替伝票の作成（POST /api/1/manual_journals）などで税区分を指定する際に tax_code として利用します。
-       */
       code: number;
-      /**
-       * 税区分名（システム識別名）
-       */
       name: string;
-      /**
-       * 税区分名（日本語表示用）。freee会計の画面上で表示される名称です。
-       */
       name_ja: string;
-      /**
-       * 税区分の表示カテゴリ（ tax_5: 5%表示の税区分、 tax_8: 8%表示の税区分、 tax_r8: 軽減税率8%表示の税区分、 tax_10: 10%表示の税区分、 tax_5_e80: インボイス経過措置5%表示80%控除の税区分、 tax_5_e70: インボイス経過措置5%表示70%控除の税区分、 tax_5_e50: インボイス経過措置5%表示50%控除の税区分、 tax_5_e30: インボイス経過措置5%表示30%控除の税区分、 tax_8_e80: インボイス経過措置8%表示80%控除の税区分、 tax_8_e70: インボイス経過措置8%表示70%控除の税区分、 tax_8_e50: インボイス経過措置8%表示50%控除の税区分、 tax_8_e30: インボイス経過措置8%表示30%控除の税区分、 tax_r8_e80: インボイス経過措置軽減税率8%表示80%控除の税区分、 tax_r8_e70: インボイス経過措置軽減税率8%表示70%控除の税区分、 tax_r8_e50: インボイス経過措置軽減税率8%表示50%控除の税区分、 tax_r8_e30: インボイス経過措置軽減税率8%表示30%控除の税区分、 tax_10_e80: インボイス経過措置10%表示80%控除の税区分、 tax_10_e70: インボイス経過措置10%表示70%控除の税区分、 tax_10_e50: インボイス経過措置10%表示50%控除の税区分、 tax_10_e30: インボイス経過措置10%表示30%控除の税区分、 null: 税率未設定税区分）
-       */
       display_category:
         | "tax_5"
         | "tax_8"
@@ -21003,9 +6992,6 @@ export type GetTaxesCompaniesResponses = {
         | "tax_10_e70"
         | "tax_10_e50"
         | "tax_10_e30";
-      /**
-       * 税区分の使用設定（true: 使用する、false: 使用しない）。事業所の設定（税区分の使用設定および税率別の表示設定）を反映します。false の税区分はfreee会計の画面上の税区分の選択肢に表示されません。
-       */
       available: boolean;
     }>;
   };
@@ -21018,36 +7004,12 @@ export type GetWalletablesData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID。/api/1/companies（事業所一覧の取得）で取得できます。
-     */
     company_id: number;
-    /**
-     * 口座種別で絞り込みます。未指定の場合は全種別を返します。
-     * * `bank_account` - 銀行口座
-     * * `credit_card` - クレジットカード
-     * * `wallet` - その他の決済口座（現金・電子マネー・売掛/買掛など）
-     */
     type?: "bank_account" | "credit_card" | "wallet";
-    /**
-     * true を指定すると、レスポンスに walletable_balance（登録残高、円）と last_balance（同期残高、円）を含めます。デフォルトは false です。
-     */
     with_balance?: boolean;
-    /**
-     * true を指定すると、レスポンスに last_synced_at（最終同期成功日時、ISO 8601 形式）を含めます。同期成功実績がない場合は null になります。デフォルトは false です。
-     */
     with_last_synced_at?: boolean;
-    /**
-     * true を指定すると、レスポンスに sync_status（同期ステータス）を含めます。デフォルトは false です。
-     */
     with_sync_status?: boolean;
-    /**
-     * 更新日で絞込：開始日（yyyy-mm-dd、JST）。指定した日以降に更新された口座のみを返します。
-     */
     start_update_date?: string;
-    /**
-     * 更新日で絞込：終了日（yyyy-mm-dd、JST）。指定した日以前に更新された口座のみを返します。
-     */
     end_update_date?: string;
   };
   url: "/api/1/walletables";
@@ -21064,17 +7026,8 @@ export type GetWalletablesError = GetWalletablesErrors[keyof GetWalletablesError
 
 export type GetWalletablesResponses = {
   200: {
-    /**
-     * 口座一覧
-     */
     walletables: Array<Walletable>;
-    /**
-     * メタ情報
-     */
     meta?: {
-      /**
-       * 集計結果が最新かどうか。false の場合、直近の取引が残高計算に反映されていない可能性があります。
-       */
       up_to_date?: boolean;
     };
   };
@@ -21107,22 +7060,10 @@ export type CreateWalletableResponse = CreateWalletableResponses[keyof CreateWal
 export type DestroyWalletableData = {
   body?: never;
   path: {
-    /**
-     * 口座ID。/api/1/walletables（口座一覧の取得）で取得できます。
-     */
     id: number;
-    /**
-     * 口座種別。
-     * * `bank_account` - 銀行口座
-     * * `credit_card` - クレジットカード
-     * * `wallet` - その他の決済口座（現金・電子マネー・売掛/買掛など）
-     */
     type: "bank_account" | "credit_card" | "wallet";
   };
   query: {
-    /**
-     * 事業所ID。/api/1/companies（事業所一覧の取得）で取得できます。
-     */
     company_id: number;
   };
   url: "/api/1/walletables/{type}/{id}";
@@ -21148,30 +7089,12 @@ export type DestroyWalletableResponse =
 export type GetWalletableData = {
   body?: never;
   path: {
-    /**
-     * 口座ID。/api/1/walletables（口座一覧の取得）で取得できます。
-     */
     id: number;
-    /**
-     * 口座種別。
-     * * `bank_account` - 銀行口座
-     * * `credit_card` - クレジットカード
-     * * `wallet` - その他の決済口座（現金・電子マネー・売掛/買掛など）
-     */
     type: "bank_account" | "credit_card" | "wallet";
   };
   query: {
-    /**
-     * 事業所ID。/api/1/companies（事業所一覧の取得）で取得できます。
-     */
     company_id: number;
-    /**
-     * true を指定すると、レスポンスに last_synced_at（最終同期成功日時、ISO 8601 形式）を含めます。同期成功実績がない場合は null になります。デフォルトは false です。
-     */
     with_last_synced_at?: boolean;
-    /**
-     * true を指定すると、レスポンスに sync_status（同期ステータス）を含めます。デフォルトは false です。
-     */
     with_sync_status?: boolean;
   };
   url: "/api/1/walletables/{type}/{id}";
@@ -21190,13 +7113,7 @@ export type GetWalletableError = GetWalletableErrors[keyof GetWalletableErrors];
 export type GetWalletableResponses = {
   200: {
     walletable: Walletable;
-    /**
-     * メタ情報
-     */
     meta?: {
-      /**
-       * 集計結果が最新かどうか。false の場合、直近の取引が残高計算に反映されていない可能性があります。
-       */
       up_to_date?: boolean;
     };
   };
@@ -21207,16 +7124,7 @@ export type GetWalletableResponse = GetWalletableResponses[keyof GetWalletableRe
 export type UpdateWalletableData = {
   body?: WalletableUpdateParams;
   path: {
-    /**
-     * 口座ID。/api/1/walletables（口座一覧の取得）で取得できます。
-     */
     id: number;
-    /**
-     * 口座種別。
-     * * `bank_account` - 銀行口座
-     * * `credit_card` - クレジットカード
-     * * `wallet` - その他の決済口座（現金・電子マネー・売掛/買掛など）
-     */
     type: "bank_account" | "credit_card" | "wallet";
   };
   query?: never;
@@ -21236,13 +7144,7 @@ export type UpdateWalletableError = UpdateWalletableErrors[keyof UpdateWalletabl
 export type UpdateWalletableResponses = {
   200: {
     walletable: WalletableUpdateResponse;
-    /**
-     * メタ情報
-     */
     meta?: {
-      /**
-       * 集計結果が最新かどうか。false の場合、直近の取引が残高計算に反映されていない可能性があります。
-       */
       up_to_date?: boolean;
     };
   };
@@ -21254,22 +7156,8 @@ export type GetBanksData = {
   body?: never;
   path?: never;
   query?: {
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)。limitと組み合わせてページングに利用します。
-     */
     offset?: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 500)
-     */
     limit?: number;
-    /**
-     * 連携サービス種別
-     * * `bank_account` - 銀行口座
-     * * `credit_card` - クレジットカード
-     * * `wallet` - その他の決済口座
-     *
-     * このパラメータは指定必須です。未指定または上記以外の値を指定した場合は、ステータスコード400のエラーが返ります。
-     */
     type?: "bank_account" | "credit_card" | "wallet";
   };
   url: "/api/1/banks";
@@ -21295,9 +7183,6 @@ export type GetBanksResponse = GetBanksResponses[keyof GetBanksResponses];
 export type GetBankData = {
   body?: never;
   path: {
-    /**
-     * 連携サービスID。連携サービス一覧の取得（GET /api/1/banks）で取得したidを指定します。
-     */
     id: number;
   };
   query?: never;
@@ -21324,25 +7209,10 @@ export type GetTransfersData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 振替日で絞込：開始日 (yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 振替日で絞込：終了日 (yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)
-     */
     limit?: number;
   };
   url: "/api/1/transfers";
@@ -21359,9 +7229,6 @@ export type GetTransfersError = GetTransfersErrors[keyof GetTransfersErrors];
 
 export type GetTransfersResponses = {
   200: {
-    /**
-     * 取引（振替）の一覧
-     */
     transfers: Array<Transfer>;
   };
 };
@@ -21393,15 +7260,9 @@ export type CreateTransferResponse = CreateTransferResponses[keyof CreateTransfe
 export type DestroyTransferData = {
   body?: never;
   path: {
-    /**
-     * 取引(振替)ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/transfers/{id}";
@@ -21426,28 +7287,16 @@ export type DestroyTransferResponse = DestroyTransferResponses[keyof DestroyTran
 export type GetTransferData = {
   body?: never;
   path: {
-    /**
-     * 取引(振替)ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/transfers/{id}";
 };
 
 export type GetTransferErrors = {
-  /**
-   * Bad Request
-   */
   400: BadRequestError;
-  /**
-   * Unauthorized
-   */
   401: UnauthorizedError;
   403: ForbiddenError;
   404: BadRequestNotFoundError;
@@ -21465,9 +7314,6 @@ export type GetTransferResponse = GetTransferResponses[keyof GetTransferResponse
 export type UpdateTransferData = {
   body: TransferParams;
   path: {
-    /**
-     * 取引(振替)ID
-     */
     id: number;
   };
   query?: never;
@@ -21494,47 +7340,14 @@ export type GetWalletTxnsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 口座区分で絞り込みます。walletable_type と walletable_id は同時に指定が必要です（片方のみ指定した場合、この条件は無視されます）。
-     * * `bank_account` - 銀行口座
-     * * `credit_card` - クレジットカード
-     * * `wallet` - 現金・その他の決済口座
-     */
     walletable_type?: "bank_account" | "credit_card" | "wallet";
-    /**
-     * 口座IDで絞り込みます。walletable_type と walletable_id は同時に指定が必要です（片方のみ指定した場合、この条件は無視されます）。口座IDは口座一覧の取得API（GET /api/1/walletables）で確認できます。
-     */
     walletable_id?: number;
-    /**
-     * 取引日で絞込：開始日 (yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 取引日で絞込：終了日 (yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 入金・出金の区分で絞り込みます。
-     * * `income` - 入金
-     * * `expense` - 出金
-     */
     entry_side?: "income" | "expense";
-    /**
-     * 並び順の指定（未指定の場合は取引日の降順で返されます）
-     * * `created_at_desc` - 明細の作成日時の降順
-     */
     sort_type?: string;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)
-     */
     limit?: number;
   };
   url: "/api/1/wallet_txns";
@@ -21582,15 +7395,9 @@ export type CreateWalletTxnResponse = CreateWalletTxnResponses[keyof CreateWalle
 export type DestroyWalletTxnData = {
   body?: never;
   path: {
-    /**
-     * 明細ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/wallet_txns/{id}";
@@ -21615,15 +7422,9 @@ export type DestroyWalletTxnResponse = DestroyWalletTxnResponses[keyof DestroyWa
 export type GetWalletTxnData = {
   body?: never;
   path: {
-    /**
-     * 明細ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/wallet_txns/{id}";
@@ -21647,20 +7448,11 @@ export type GetWalletTxnResponse = GetWalletTxnResponses[keyof GetWalletTxnRespo
 
 export type ReconcileWalletTxnData = {
   body: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 紐づけ対象の取引のリスト
-     */
     deals: Array<WalletTxnReconcileDeal>;
     adjustment_deal?: WalletTxnReconcileAdjustmentDeal;
   };
   path: {
-    /**
-     * 明細ID
-     */
     id: number;
   };
   query?: never;
@@ -21668,50 +7460,20 @@ export type ReconcileWalletTxnData = {
 };
 
 export type ReconcileWalletTxnErrors = {
-  /**
-   * クライアントエラー
-   */
   400: BadRequestError;
-  /**
-   * 未認証
-   */
   401: UnauthorizedError;
-  /**
-   * 未認可
-   */
   403: ForbiddenError;
-  /**
-   * リソースが存在しない
-   */
   404: BadRequestNotFoundError;
-  /**
-   * リソース競合
-   */
   409: ConflictError;
-  /**
-   * サーバーエラー
-   */
   500: InternalServerError;
 };
 
 export type ReconcileWalletTxnError = ReconcileWalletTxnErrors[keyof ReconcileWalletTxnErrors];
 
 export type ReconcileWalletTxnResponses = {
-  /**
-   * 口座明細の消込レスポンス
-   */
   200: {
-    /**
-     * 明細ID
-     */
     wallet_txn_id: number;
-    /**
-     * リクエストで指定した既存取引のIDのリスト
-     */
     deal_ids: Array<number>;
-    /**
-     * adjustment_deal から新規作成された取引のID。adjustment_deal を指定しなかった場合は null になります。
-     */
     new_deal_id: number | null;
   };
 };
@@ -21721,31 +7483,13 @@ export type ReconcileWalletTxnResponse =
 
 export type CreateWalletTxnDealData = {
   body: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 取引発生日 (yyyy-mm-dd)。明細の取引日以前の日付を指定します。省略時は明細の取引日と同日になります。
-     */
     issue_date?: string;
-    /**
-     * 管理番号
-     */
     ref?: string;
-    /**
-     * 取引先ID
-     */
     partner_id?: number;
-    /**
-     * 取引の内訳行
-     */
     deal_lines: Array<WalletTxnDealLine>;
   };
   path: {
-    /**
-     * 明細ID
-     */
     id: number;
   };
   query?: never;
@@ -21753,38 +7497,17 @@ export type CreateWalletTxnDealData = {
 };
 
 export type CreateWalletTxnDealErrors = {
-  /**
-   * クライアントエラー
-   */
   400: BadRequestError;
-  /**
-   * 未認証
-   */
   401: UnauthorizedError;
-  /**
-   * 未認可
-   */
   403: ForbiddenError;
-  /**
-   * リソースが存在しない
-   */
   404: BadRequestNotFoundError;
-  /**
-   * サーバーエラー
-   */
   500: InternalServerError;
 };
 
 export type CreateWalletTxnDealError = CreateWalletTxnDealErrors[keyof CreateWalletTxnDealErrors];
 
 export type CreateWalletTxnDealResponses = {
-  /**
-   * 口座明細からの取引登録レスポンス
-   */
   200: {
-    /**
-     * 作成された取引のIDのリスト
-     */
     deal_ids: Array<number>;
   };
 };
@@ -21794,24 +7517,12 @@ export type CreateWalletTxnDealResponse =
 
 export type CreateWalletTxnTransferData = {
   body: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
     transfer_from_line: WalletTxnTransferFromLine;
-    /**
-     * 振替先。同一口座の重複は指定できません。
-     */
     transfer_to_lines: Array<WalletTxnTransferToLine>;
-    /**
-     * 手数料等の行。省略時は手数料等なしとして扱われます。
-     */
     charge_lines?: Array<WalletTxnTransferChargeLine>;
   };
   path: {
-    /**
-     * 明細ID
-     */
     id: number;
   };
   query?: never;
@@ -21819,29 +7530,11 @@ export type CreateWalletTxnTransferData = {
 };
 
 export type CreateWalletTxnTransferErrors = {
-  /**
-   * クライアントエラー
-   */
   400: BadRequestError;
-  /**
-   * 未認証
-   */
   401: UnauthorizedError;
-  /**
-   * 未認可
-   */
   403: ForbiddenError;
-  /**
-   * リソースが存在しない
-   */
   404: BadRequestNotFoundError;
-  /**
-   * リソース競合
-   */
   409: ConflictError;
-  /**
-   * サーバーエラー
-   */
   500: InternalServerError;
 };
 
@@ -21849,17 +7542,8 @@ export type CreateWalletTxnTransferError =
   CreateWalletTxnTransferErrors[keyof CreateWalletTxnTransferErrors];
 
 export type CreateWalletTxnTransferResponses = {
-  /**
-   * 口座明細からの口座振替登録レスポンス
-   */
   200: {
-    /**
-     * 口座振替として登録した明細のID
-     */
     wallet_txn_id: number;
-    /**
-     * 作成された口座振替のIDのリスト
-     */
     transfer_ids: Array<number>;
   };
 };
@@ -21869,15 +7553,9 @@ export type CreateWalletTxnTransferResponse =
 
 export type CreateWalletTxnPrivateDealData = {
   body: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   path: {
-    /**
-     * 明細ID
-     */
     id: number;
   };
   query?: never;
@@ -21885,25 +7563,10 @@ export type CreateWalletTxnPrivateDealData = {
 };
 
 export type CreateWalletTxnPrivateDealErrors = {
-  /**
-   * クライアントエラー
-   */
   400: BadRequestError;
-  /**
-   * 未認証
-   */
   401: UnauthorizedError;
-  /**
-   * 未認可
-   */
   403: ForbiddenError;
-  /**
-   * リソースが存在しない
-   */
   404: BadRequestNotFoundError;
-  /**
-   * サーバーエラー
-   */
   500: InternalServerError;
 };
 
@@ -21911,13 +7574,7 @@ export type CreateWalletTxnPrivateDealError =
   CreateWalletTxnPrivateDealErrors[keyof CreateWalletTxnPrivateDealErrors];
 
 export type CreateWalletTxnPrivateDealResponses = {
-  /**
-   * 口座明細のプライベート取引としての登録レスポンス
-   */
   200: {
-    /**
-     * 作成された取引のID
-     */
     deal_id: number;
   };
 };
@@ -21927,15 +7584,9 @@ export type CreateWalletTxnPrivateDealResponse =
 
 export type IgnoreWalletTxnData = {
   body: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   path: {
-    /**
-     * 明細ID
-     */
     id: number;
   };
   query?: never;
@@ -21943,48 +7594,24 @@ export type IgnoreWalletTxnData = {
 };
 
 export type IgnoreWalletTxnErrors = {
-  /**
-   * クライアントエラー
-   */
   400: BadRequestError;
-  /**
-   * 未認証
-   */
   401: UnauthorizedError;
-  /**
-   * 未認可
-   */
   403: ForbiddenError;
-  /**
-   * リソースが存在しない
-   */
   404: BadRequestNotFoundError;
-  /**
-   * サーバーエラー
-   */
   500: InternalServerError;
 };
 
 export type IgnoreWalletTxnError = IgnoreWalletTxnErrors[keyof IgnoreWalletTxnErrors];
 
 export type IgnoreWalletTxnResponses = {
-  /**
-   * 口座明細の無視レスポンス
-   */
   200: unknown;
 };
 
 export type ResetWalletTxnData = {
   body: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   path: {
-    /**
-     * 明細ID
-     */
     id: number;
   };
   query?: never;
@@ -21992,34 +7619,16 @@ export type ResetWalletTxnData = {
 };
 
 export type ResetWalletTxnErrors = {
-  /**
-   * クライアントエラー
-   */
   400: BadRequestError;
-  /**
-   * 未認証
-   */
   401: UnauthorizedError;
-  /**
-   * 未認可
-   */
   403: ForbiddenError;
-  /**
-   * リソースが存在しない
-   */
   404: BadRequestNotFoundError;
-  /**
-   * サーバーエラー
-   */
   500: InternalServerError;
 };
 
 export type ResetWalletTxnError = ResetWalletTxnErrors[keyof ResetWalletTxnErrors];
 
 export type ResetWalletTxnResponses = {
-  /**
-   * 口座明細の未消込への変更レスポンス
-   */
   200: unknown;
 };
 
@@ -22027,37 +7636,9 @@ export type GetJournalsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * ダウンロード形式
-     * * `generic` - 旧CSV形式
-     * * `generic_v2` - 新CSV形式（freee汎用形式）
-     * * `csv` - 弥生会計形式のCSV
-     * * `pdf` - PDF形式
-     */
     download_type: "generic" | "generic_v2" | "csv" | "pdf";
-    /**
-     * 出力ファイルの文字コード。download_type が generic・generic_v2 の場合のみ指定できます。未指定の場合は sjis になります。
-     * * `sjis` - Shift_JIS
-     * * `utf-8` - UTF-8
-     */
     encoding?: "sjis" | "utf-8";
-    /**
-     * 事業所ID。/api/1/companies（事業所一覧の取得）で取得できます。
-     */
     company_id: number;
-    /**
-     * 補助科目やコメントとして出力する項目。download_type が generic・csv・pdf の場合のみ指定できます。
-     * * `partner` - 取引先タグ
-     * * `item` - 品目タグ
-     * * `tag` - メモタグ
-     * * `section` - 部門タグ
-     * * `description` - 備考欄
-     * * `wallet_txn_description` - 明細の備考欄
-     * * `segment_1_tag` - セグメント１タグ（download_type:generic のみ）
-     * * `segment_2_tag` - セグメント２タグ（download_type:generic のみ）
-     * * `segment_3_tag` - セグメント３タグ（download_type:generic のみ）
-     * * `all` - セグメントタグを除く上記すべてを有効として扱います。セグメントが必要な場合は all ではなく segment_1_tag・segment_2_tag・segment_3_tag を個別に指定してください。
-     */
     "visible_tags[]"?: Array<
       | "partner"
       | "item"
@@ -22070,20 +7651,8 @@ export type GetJournalsData = {
       | "segment_3_tag"
       | "all"
     >;
-    /**
-     * 追加出力するID項目。download_type が generic の場合のみ指定できます。
-     * * `deal_id` - 取引ID
-     * * `transfer_id` - 取引（振替）ID
-     * * `manual_journal_id` - 振替伝票ID
-     */
     "visible_ids[]"?: Array<"deal_id" | "transfer_id" | "manual_journal_id">;
-    /**
-     * 取得開始日（yyyy-mm-dd）。未指定の場合は当期の会計年度の開始日になります。
-     */
     start_date?: string;
-    /**
-     * 取得終了日（yyyy-mm-dd）。未指定の場合は当期の会計年度の終了日になります。
-     */
     end_date?: string;
   };
   url: "/api/1/journals";
@@ -22107,15 +7676,9 @@ export type GetJournalsResponse = GetJournalsResponses[keyof GetJournalsResponse
 export type GetJournalStatusData = {
   body?: never;
   path: {
-    /**
-     * 受け付けID。仕訳帳のダウンロード要求（GET /api/1/journals）のレスポンスで返る id を指定します。
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID。/api/1/companies（事業所一覧の取得）で取得できます。
-     */
     company_id: number;
   };
   url: "/api/1/journals/reports/{id}/status";
@@ -22140,15 +7703,9 @@ export type GetJournalStatusResponse = GetJournalStatusResponses[keyof GetJourna
 export type DownloadJournalData = {
   body?: never;
   path: {
-    /**
-     * 受け付けID。仕訳帳のダウンロード要求（GET /api/1/journals）のレスポンスで返る id を指定します。
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID。/api/1/companies（事業所一覧の取得）で取得できます。
-     */
     company_id: number;
   };
   url: "/api/1/journals/reports/{id}/download";
@@ -22172,165 +7729,45 @@ export type DownloadJournalResponse = DownloadJournalResponses[keyof DownloadJou
 
 export type SearchReportJournalsData = {
   body: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 発生日 開始 (YYYY-MM-DD、両端含む)。deal_ids が指定されていない場合は必須。
-     */
     start_issue_date?: string;
-    /**
-     * 発生日 終了 (YYYY-MM-DD、両端含む)。deal_ids が指定されていない場合は必須。
-     */
     end_issue_date?: string;
-    /**
-     * 取引ID配列。最大 500 件で、超えた場合は 400。複数指定は OR。指定時は発生日範囲を省略可能。両方指定した場合は取引の仕訳のうち発生日範囲内のものだけが返る。
-     */
     deal_ids?: Array<number>;
-    /**
-     * 作成日 開始 (YYYY-MM-DD、両端含む)。仕訳の作成日時 (created_at) を日付単位で絞り込む。
-     */
     start_created_date?: string;
-    /**
-     * 作成日 終了 (YYYY-MM-DD、両端含む)。仕訳の作成日時 (created_at) を日付単位で絞り込む。
-     */
     end_created_date?: string;
-    /**
-     * 勘定科目ID (単数)。仕訳帳画面と同様に単数指定のみ。指定した勘定科目が仮払消費税等 / 仮受消費税等の場合、税抜経理の期間は消費税行の元になる明細行 (税額があるもの) も検索対象に含まれます。
-     */
     account_item_id?: number;
-    /**
-     * 取引先ID (単数)。
-     */
     partner_id?: number;
-    /**
-     * 品目ID (単数)。
-     */
     item_id?: number;
-    /**
-     * 部門ID (単数)。指定した部門が事業所に存在しない場合は 400。閲覧不可な部門を指定した場合は 0 件を返す。
-     */
     section_id?: number;
-    /**
-     * メモタグID (単数)。
-     */
     memo_tag_id?: number;
-    /**
-     * セグメント1タグID (単数)。事業所で当該セグメントが未契約の場合に指定すると 400。
-     */
     segment_tag_1_id?: number;
-    /**
-     * セグメント2タグID (単数)。事業所で当該セグメントが未契約の場合に指定すると 400。
-     */
     segment_tag_2_id?: number;
-    /**
-     * セグメント3タグID (単数)。事業所で当該セグメントが未契約の場合に指定すると 400。
-     */
     segment_tag_3_id?: number;
-    /**
-     * 税区分コード。仕訳内のいずれかの明細行がこの税区分に一致する仕訳を返す。
-     */
     tax_code?: number;
-    /**
-     * 明細金額の下限。基準は detail_amount_basis で指定。
-     */
     detail_amount_min?: number;
-    /**
-     * 明細金額の上限。基準は detail_amount_basis で指定。
-     */
     detail_amount_max?: number;
-    /**
-     * 明細金額絞り込みの基準。既定 auto。
-     */
     detail_amount_basis?: ReportJournalsDetailAmountBasis;
-    /**
-     * 決算整理仕訳による絞り込み。
-     */
     adjustment?: ReportJournalsAdjustmentOption;
-    /**
-     * 承認ステータスによる絞り込み。
-     */
     approval_status?: ReportJournalsApprovalStatus;
-    /**
-     * 証憑 (レシート) 添付有無による絞り込み。
-     */
     receipts?: ReportJournalsReceiptsOption;
-    /**
-     * 配賦仕訳による絞り込み。
-     */
     cost_allocation?: ReportJournalsCostAllocationOption;
-    /**
-     * 逆仕訳・元仕訳による絞り込み。
-     */
     reverse_journal?: ReportJournalsReverseJournalOption;
-    /**
-     * 作成者ユーザーID。
-     */
     create_user_id?: number;
-    /**
-     * 現在の承認待ちユーザーID (承認申請中のものが対象)。
-     */
     current_approver_user_id?: number;
-    /**
-     * 最終承認者ユーザーID (承認済みのものが対象)。
-     */
     last_approver_user_id?: number;
-    /**
-     * コメントステータスによる絞り込み。
-     */
     comment_status?: ReportJournalsCommentStatusOption;
-    /**
-     * 重要コメントで絞り込む。true のときのみ意味を持つ。false は指定なしと同義。
-     */
     comment_important?: boolean;
-    /**
-     * コメント本文の部分一致検索。
-     */
     comment_details?: string;
-    /**
-     * コメント投稿者ユーザーID。
-     */
     comment_poster_user_id?: number;
-    /**
-     * コメント宛先ユーザーID。
-     */
     comment_recipient_user_id?: number;
-    /**
-     * 証憑の発行元名で検索 (部分一致)。
-     */
     receipt_partner_name?: string;
-    /**
-     * 管理番号 (ref_number) による前方一致検索。
-     */
     ref_number?: string;
-    /**
-     * 仕訳番号 (txn_number) による完全一致検索。
-     */
     txn_number?: string;
-    /**
-     * 明細行の備考による部分一致検索。行単位ではなく仕訳単位で返る。
-     */
     description?: string;
-    /**
-     * 口座明細の取引内容による部分一致検索。口座明細から作られた仕訳のみが対象。
-     */
     wallet_txn_description?: string;
-    /**
-     * 並び順のキー。既定は txn_date。
-     */
     order_by?: ReportJournalsOrderByOption;
-    /**
-     * 並び順の方向。既定は asc。
-     */
     direction?: ReportJournalsDirectionOption;
-    /**
-     * 最大取得件数。既定 100、範囲 1〜1000。
-     */
     page_size?: number;
-    /**
-     * ページネーションのトークン。前レスポンスの next_page_token をそのまま渡す。不透明文字列。
-     */
     page_token?: string;
   };
   path?: never;
@@ -22339,25 +7776,10 @@ export type SearchReportJournalsData = {
 };
 
 export type SearchReportJournalsErrors = {
-  /**
-   * クライアントエラー
-   */
   400: BadRequestError;
-  /**
-   * 未認証
-   */
   401: UnauthorizedError;
-  /**
-   * 未認可
-   */
   403: ForbiddenError;
-  /**
-   * リソースが存在しない
-   */
   404: BadRequestNotFoundError;
-  /**
-   * サーバーエラー
-   */
   500: InternalServerError;
 };
 
@@ -22365,17 +7787,8 @@ export type SearchReportJournalsError =
   SearchReportJournalsErrors[keyof SearchReportJournalsErrors];
 
 export type SearchReportJournalsResponses = {
-  /**
-   * 仕訳帳の仕訳一覧取得レスポンス
-   */
   200: {
-    /**
-     * 仕訳のリスト。
-     */
     data: Array<ReportJournalsJournal>;
-    /**
-     * 次ページ取得のためのトークン。null の場合が最終ページ。
-     */
     next_page_token: string | null;
   };
 };
@@ -22387,50 +7800,13 @@ export type GetTrialBsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。指定されない場合、現在の会計年度の期首月が指定されます。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)(会計年度が10月始まりでstart_monthが11なら11, 12, 1, ... 9のいずれかを指定する)。指定されない場合、現在の会計年度の期末月が指定されます。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。指定されない場合、`account_item` が指定されます。
-     * * `account_item` - 勘定科目単位で表示
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。それぞれ各行の `balances[].partners` / `items` / `sections` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列を返す
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、決算書表示名行に続けて勘定科目行が同じ `balances[]` に展開される
-     * * 上記の組み合わせ以外（例: `account_item_display_type=group` かつ `partner` / `item` / `section` / `segment_*_tag`）は validation error になる
-     *
-     * 取引先、品目、部門、セグメント の各項目が単独で5,000以上登録されている場合は、breakdown_display_type で該当項目を指定するとエラーになります。
-     *
-     * 例）取引先の登録数が5,000以上、品目の登録数が4,999以下の場合
-     * * breakdown_display_type: 取引先を指定 → エラーになる
-     * * breakdown_display_type: 品目を指定 → エラーにならない
-     *
-     */
     breakdown_display_type?:
       | "partner"
       | "item"
@@ -22439,35 +7815,11 @@ export type GetTrialBsData = {
       | "segment_1_tag"
       | "segment_2_tag"
       | "segment_3_tag";
-    /**
-     * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所設定で取引先コードの利用を有効にしている場合のみ利用可能です）
-     */
     partner_code?: string;
-    /**
-     * 品目IDで絞込（0を指定すると、品目が未選択で絞り込めます）
-     */
     item_id?: number;
-    /**
-     * 部門IDで絞込（0を指定すると、部門が未選択で絞り込めます）
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。指定されない場合、決算整理仕訳を含む金額が返却されます。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。プレミアムプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で、かつ事業所の設定から仕訳承認フローの利用を有効にした場合に指定可能です。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
   };
   url: "/api/1/reports/trial_bs";
@@ -22493,49 +7845,13 @@ export type GetTrialBsTwoYearsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。指定されない場合、現在の会計年度の期首月が指定されます。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)(会計年度が10月始まりでstart_monthが11なら11, 12, 1, ... 9のいずれかを指定する)。指定されない場合、現在の会計年度の期末月が指定されます。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。指定されない場合、`account_item` が指定されます。
-     * * `account_item` - 勘定科目単位で表示
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。それぞれ各行の `balances[].partners` / `items` / `sections` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列を返す
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、決算書表示名行に続けて勘定科目行が同じ `balances[]` に展開される
-     * * 上記の組み合わせ以外（例: `account_item_display_type=group` かつ `partner` / `item` / `section` / `segment_*_tag`）は validation error になる
-     *
-     * 取引先、品目、部門、セグメント の各項目が単独で5,000以上登録されている場合は、breakdown_display_type で該当項目を指定するとエラーになります。
-     *
-     * 例）取引先の登録数が5,000以上、品目の登録数が4,999以下の場合
-     * * breakdown_display_type: 取引先を指定 → エラーになる
-     * * breakdown_display_type: 品目を指定 → エラーにならない
-     */
     breakdown_display_type?:
       | "partner"
       | "item"
@@ -22544,35 +7860,11 @@ export type GetTrialBsTwoYearsData = {
       | "segment_1_tag"
       | "segment_2_tag"
       | "segment_3_tag";
-    /**
-     * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所設定で取引先コードの利用を有効にしている場合のみ利用可能です）
-     */
     partner_code?: string;
-    /**
-     * 品目IDで絞込（0を指定すると、品目が未選択で絞り込めます）
-     */
     item_id?: number;
-    /**
-     * 部門IDで絞込（0を指定すると、部門が未選択で絞り込めます）
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。指定されない場合、決算整理仕訳を含む金額が返却されます。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。プレミアムプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で、かつ事業所の設定から仕訳承認フローの利用を有効にした場合に指定可能です。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
   };
   url: "/api/1/reports/trial_bs_two_years";
@@ -22599,49 +7891,13 @@ export type GetTrialBsThreeYearsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。指定されない場合、現在の会計年度の期首月が指定されます。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)(会計年度が10月始まりでstart_monthが11なら11, 12, 1, ... 9のいずれかを指定する)。指定されない場合、現在の会計年度の期末月が指定されます。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。指定されない場合、`account_item` が指定されます。
-     * * `account_item` - 勘定科目単位で表示
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。それぞれ各行の `balances[].partners` / `items` / `sections` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列を返す
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、決算書表示名行に続けて勘定科目行が同じ `balances[]` に展開される
-     * * 上記の組み合わせ以外（例: `account_item_display_type=group` かつ `partner` / `item` / `section` / `segment_*_tag`）は validation error になる
-     *
-     * 取引先、品目、部門、セグメント の各項目が単独で5,000以上登録されている場合は、breakdown_display_type で該当項目を指定するとエラーになります。
-     *
-     * 例）取引先の登録数が5,000以上、品目の登録数が4,999以下の場合
-     * * breakdown_display_type: 取引先を指定 → エラーになる
-     * * breakdown_display_type: 品目を指定 → エラーにならない
-     */
     breakdown_display_type?:
       | "partner"
       | "item"
@@ -22650,35 +7906,11 @@ export type GetTrialBsThreeYearsData = {
       | "segment_1_tag"
       | "segment_2_tag"
       | "segment_3_tag";
-    /**
-     * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所設定で取引先コードの利用を有効にしている場合のみ利用可能です）
-     */
     partner_code?: string;
-    /**
-     * 品目IDで絞込（0を指定すると、品目が未選択で絞り込めます）
-     */
     item_id?: number;
-    /**
-     * 部門IDで絞込（0を指定すると、部門が未選択で絞り込めます）
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。指定されない場合、決算整理仕訳を含む金額が返却されます。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。プレミアムプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で、かつ事業所の設定から仕訳承認フローの利用を有効にした場合に指定可能です。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
   };
   url: "/api/1/reports/trial_bs_three_years";
@@ -22706,50 +7938,13 @@ export type GetTrialPlData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。指定されない場合、現在の会計年度の期首月が指定されます。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)(会計年度が10月始まりでstart_monthが11なら11, 12, 1, ... 9のいずれかを指定する)。指定されない場合、現在の会計年度の期末月が指定されます。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。指定されない場合、`account_item` が指定されます。
-     * * `account_item` - 勘定科目単位で表示
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。それぞれ各行の `balances[].partners` / `items` / `sections` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列を返す
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、決算書表示名行に続けて勘定科目行が同じ `balances[]` に展開される
-     * * 上記の組み合わせ以外（例: `account_item_display_type=group` かつ `partner` / `item` / `section` / `segment_*_tag`）は validation error になる
-     *
-     * 取引先、品目、部門、セグメント の各項目が単独で5,000以上登録されている場合は、breakdown_display_type で該当項目を指定するとエラーになります。
-     *
-     * 例）取引先の登録数が5,000以上、品目の登録数が4,999以下の場合
-     * * breakdown_display_type: 取引先を指定 → エラーになる
-     * * breakdown_display_type: 品目を指定 → エラーにならない
-     *
-     */
     breakdown_display_type?:
       | "partner"
       | "item"
@@ -22758,42 +7953,12 @@ export type GetTrialPlData = {
       | "segment_1_tag"
       | "segment_2_tag"
       | "segment_3_tag";
-    /**
-     * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所設定で取引先コードの利用を有効にしている場合のみ利用可能です）
-     */
     partner_code?: string;
-    /**
-     * 品目IDで絞込（0を指定すると、品目が未選択で絞り込めます）
-     */
     item_id?: number;
-    /**
-     * 部門IDで絞込（0を指定すると、部門が未選択で絞り込めます）
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。指定されない場合、決算整理仕訳を含む金額が返却されます。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。指定されない場合、配賦仕訳を含む金額が返却されます。法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能で、利用できないプランで指定した場合はエラー（403）になります。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。プレミアムプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で、かつ事業所の設定から仕訳承認フローの利用を有効にした場合に指定可能です。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
   };
   url: "/api/1/reports/trial_pl";
@@ -22819,50 +7984,13 @@ export type GetTrialPlTwoYearsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。指定されない場合、現在の会計年度の期首月が指定されます。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)(会計年度が10月始まりでstart_monthが11なら11, 12, 1, ... 9のいずれかを指定する)。指定されない場合、現在の会計年度の期末月が指定されます。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。指定されない場合、`account_item` が指定されます。
-     * * `account_item` - 勘定科目単位で表示
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。それぞれ各行の `balances[].partners` / `items` / `sections` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列を返す
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、決算書表示名行に続けて勘定科目行が同じ `balances[]` に展開される
-     * * 上記の組み合わせ以外（例: `account_item_display_type=group` かつ `partner` / `item` / `section` / `segment_*_tag`）は validation error になる
-     *
-     * 取引先、品目、部門、セグメント の各項目が単独で5,000以上登録されている場合は、breakdown_display_type で該当項目を指定するとエラーになります。
-     *
-     * 例）取引先の登録数が5,000以上、品目の登録数が4,999以下の場合
-     * * breakdown_display_type: 取引先を指定 → エラーになる
-     * * breakdown_display_type: 品目を指定 → エラーにならない
-     *
-     */
     breakdown_display_type?:
       | "partner"
       | "item"
@@ -22871,42 +7999,12 @@ export type GetTrialPlTwoYearsData = {
       | "segment_1_tag"
       | "segment_2_tag"
       | "segment_3_tag";
-    /**
-     * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所設定で取引先コードの利用を有効にしている場合のみ利用可能です）
-     */
     partner_code?: string;
-    /**
-     * 品目IDで絞込（0を指定すると、品目が未選択で絞り込めます）
-     */
     item_id?: number;
-    /**
-     * 部門IDで絞込（0を指定すると、部門が未選択で絞り込めます）
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。指定されない場合、決算整理仕訳を含む金額が返却されます。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。指定されない場合、配賦仕訳を含む金額が返却されます。法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能で、利用できないプランで指定した場合はエラー（403）になります。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。プレミアムプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で、かつ事業所の設定から仕訳承認フローの利用を有効にした場合に指定可能です。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
   };
   url: "/api/1/reports/trial_pl_two_years";
@@ -22933,50 +8031,13 @@ export type GetTrialPlThreeYearsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。指定されない場合、現在の会計年度の期首月が指定されます。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)(会計年度が10月始まりでstart_monthが11なら11, 12, 1, ... 9のいずれかを指定する)。指定されない場合、現在の会計年度の期末月が指定されます。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。指定されない場合、`account_item` が指定されます。
-     * * `account_item` - 勘定科目単位で表示
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。それぞれ各行の `balances[].partners` / `items` / `sections` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列を返す
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、決算書表示名行に続けて勘定科目行が同じ `balances[]` に展開される
-     * * 上記の組み合わせ以外（例: `account_item_display_type=group` かつ `partner` / `item` / `section` / `segment_*_tag`）は validation error になる
-     *
-     * 取引先、品目、部門、セグメント の各項目が単独で5,000以上登録されている場合は、breakdown_display_type で該当項目を指定するとエラーになります。
-     *
-     * 例）取引先の登録数が5,000以上、品目の登録数が4,999以下の場合
-     * * breakdown_display_type: 取引先を指定 → エラーになる
-     * * breakdown_display_type: 品目を指定 → エラーにならない
-     *
-     */
     breakdown_display_type?:
       | "partner"
       | "item"
@@ -22985,42 +8046,12 @@ export type GetTrialPlThreeYearsData = {
       | "segment_1_tag"
       | "segment_2_tag"
       | "segment_3_tag";
-    /**
-     * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所設定で取引先コードの利用を有効にしている場合のみ利用可能です）
-     */
     partner_code?: string;
-    /**
-     * 品目IDで絞込（0を指定すると、品目が未選択で絞り込めます）
-     */
     item_id?: number;
-    /**
-     * 部門IDで絞込（0を指定すると、部門が未選択で絞り込めます）
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。指定されない場合、決算整理仕訳を含む金額が返却されます。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。指定されない場合、配賦仕訳を含む金額が返却されます。法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能で、利用できないプランで指定した場合はエラー（403）になります。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。プレミアムプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で、かつ事業所の設定から仕訳承認フローの利用を有効にした場合に指定可能です。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
   };
   url: "/api/1/reports/trial_pl_three_years";
@@ -23048,89 +8079,21 @@ export type GetTrialPlSectionsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 比較する部門IDの指定。半角数字のIDを半角カンマ区切り（スペースなし）で1〜5つ指定してください。同じIDを重複して指定することはできません。0を指定すると、未選択の部門で比較できます。
-     */
     section_ids: string;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。指定されない場合、現在の会計年度の期首月が指定されます。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)(会計年度が10月始まりでstart_monthが11なら11, 12, 1, ... 9のいずれかを指定する)。指定されない場合、現在の会計年度の期末月が指定されます。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。指定されない場合、`account_item` が指定されます。
-     * * `account_item` - 勘定科目単位で表示
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。`balances[].sections[]` の各部門要素配下の `partners` / `items` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列を返す
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、決算書表示名行に続けて勘定科目行が同じ `balances[]` に展開される
-     * * 部門比較では `section` は指定できない
-     * * 上記の組み合わせ以外は validation error になる
-     *
-     * 取引先、品目、セグメント の各項目が単独で5,000以上登録されている場合は、breakdown_display_type で該当項目を指定するとエラーになります。
-     *
-     * 例）取引先の登録数が5,000以上、品目の登録数が4,999以下の場合
-     * * breakdown_display_type: 取引先を指定 → エラーになる
-     * * breakdown_display_type: 品目を指定 → エラーにならない
-     *
-     */
     breakdown_display_type?:
       "partner" | "item" | "account_item" | "segment_1_tag" | "segment_2_tag" | "segment_3_tag";
-    /**
-     * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所設定で取引先コードの利用を有効にしている場合のみ利用可能です）
-     */
     partner_code?: string;
-    /**
-     * 品目IDで絞込（0を指定すると、品目が未選択で絞り込めます）
-     */
     item_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。指定されない場合、決算整理仕訳を含む金額が返却されます。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。指定されない場合、配賦仕訳を含む金額が返却されます。法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能で、利用できないプランで指定した場合はエラー（403）になります。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。プレミアムプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で、かつ事業所の設定から仕訳承認フローの利用を有効にした場合に指定可能です。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
   };
   url: "/api/1/reports/trial_pl_sections";
@@ -23157,91 +8120,21 @@ export type GetTrialPlSegment1TagsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 比較するセグメント1タグIDの指定。半角数字のIDを半角カンマ区切り（スペースなし）で1〜5つ指定してください。同じIDを重複して指定することはできません。0を指定すると、未選択のセグメント1タグで比較できます。
-     */
     segment_1_tag_ids: string;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。指定されない場合、現在の会計年度の期首月が指定されます。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)(会計年度が10月始まりでstart_monthが11なら11, 12, 1, ... 9のいずれかを指定する)。指定されない場合、現在の会計年度の期末月が指定されます。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。指定されない場合、`account_item` が指定されます。
-     * * `account_item` - 勘定科目単位で表示
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。`balances[].segment_1_tags[]` の各セグメント1タグ要素配下の `partners` / `items` / `sections` に内訳配列を返す
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、決算書表示名行に続けて勘定科目行が同じ `balances[]` に展開される
-     * * 上記の組み合わせ以外は validation error になる
-     *
-     * 取引先、品目、部門 の各項目が単独で5,000以上登録されている場合は、breakdown_display_type で該当項目を指定するとエラーになります。
-     *
-     * 例）取引先の登録数が5,000以上、品目の登録数が4,999以下の場合
-     * * breakdown_display_type: 取引先を指定 → エラーになる
-     * * breakdown_display_type: 品目を指定 → エラーにならない
-     *
-     */
     breakdown_display_type?: "partner" | "item" | "section" | "account_item";
-    /**
-     * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所設定で取引先コードの利用を有効にしている場合のみ利用可能です）
-     */
     partner_code?: string;
-    /**
-     * 品目IDで絞込（0を指定すると、品目が未選択で絞り込めます）
-     */
     item_id?: number;
-    /**
-     * 部門IDで絞込（0を指定すると、部門が未選択で絞り込めます）
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。指定されない場合、決算整理仕訳を含む金額が返却されます。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。指定されない場合、配賦仕訳を含む金額が返却されます。法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能で、利用できないプランで指定した場合はエラー（403）になります。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。プレミアムプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で、かつ事業所の設定から仕訳承認フローの利用を有効にした場合に指定可能です。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
   };
   url: "/api/1/reports/trial_pl_segment_1_tags";
@@ -23269,91 +8162,21 @@ export type GetTrialPlSegment2TagsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 比較するセグメント2タグIDの指定。半角数字のIDを半角カンマ区切り（スペースなし）で1〜5つ指定してください。同じIDを重複して指定することはできません。0を指定すると、未選択のセグメント2タグで比較できます。
-     */
     segment_2_tag_ids: string;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。指定されない場合、現在の会計年度の期首月が指定されます。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)(会計年度が10月始まりでstart_monthが11なら11, 12, 1, ... 9のいずれかを指定する)。指定されない場合、現在の会計年度の期末月が指定されます。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。指定されない場合、`account_item` が指定されます。
-     * * `account_item` - 勘定科目単位で表示
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。`balances[].segment_2_tags[]` の各セグメント2タグ要素配下の `partners` / `items` / `sections` に内訳配列を返す
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、決算書表示名行に続けて勘定科目行が同じ `balances[]` に展開される
-     * * 上記の組み合わせ以外は validation error になる
-     *
-     * 取引先、品目、部門 の各項目が単独で5,000以上登録されている場合は、breakdown_display_type で該当項目を指定するとエラーになります。
-     *
-     * 例）取引先の登録数が5,000以上、品目の登録数が4,999以下の場合
-     * * breakdown_display_type: 取引先を指定 → エラーになる
-     * * breakdown_display_type: 品目を指定 → エラーにならない
-     *
-     */
     breakdown_display_type?: "partner" | "item" | "section" | "account_item";
-    /**
-     * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所設定で取引先コードの利用を有効にしている場合のみ利用可能です）
-     */
     partner_code?: string;
-    /**
-     * 品目IDで絞込（0を指定すると、品目が未選択で絞り込めます）
-     */
     item_id?: number;
-    /**
-     * 部門IDで絞込（0を指定すると、部門が未選択で絞り込めます）
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。指定されない場合、決算整理仕訳を含む金額が返却されます。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。指定されない場合、配賦仕訳を含む金額が返却されます。法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能で、利用できないプランで指定した場合はエラー（403）になります。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。プレミアムプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で、かつ事業所の設定から仕訳承認フローの利用を有効にした場合に指定可能です。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
   };
   url: "/api/1/reports/trial_pl_segment_2_tags";
@@ -23381,91 +8204,21 @@ export type GetTrialPlSegment3TagsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 比較するセグメント3タグIDの指定。半角数字のIDを半角カンマ区切り（スペースなし）で1〜5つ指定してください。同じIDを重複して指定することはできません。0を指定すると、未選択のセグメント3タグで比較できます。
-     */
     segment_3_tag_ids: string;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。指定されない場合、現在の会計年度の期首月が指定されます。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)(会計年度が10月始まりでstart_monthが11なら11, 12, 1, ... 9のいずれかを指定する)。指定されない場合、現在の会計年度の期末月が指定されます。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。指定されない場合、`account_item` が指定されます。
-     * * `account_item` - 勘定科目単位で表示
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。`balances[].segment_3_tags[]` の各セグメント3タグ要素配下の `partners` / `items` / `sections` に内訳配列を返す
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、決算書表示名行に続けて勘定科目行が同じ `balances[]` に展開される
-     * * 上記の組み合わせ以外は validation error になる
-     *
-     * 取引先、品目、部門 の各項目が単独で5,000以上登録されている場合は、breakdown_display_type で該当項目を指定するとエラーになります。
-     *
-     * 例）取引先の登録数が5,000以上、品目の登録数が4,999以下の場合
-     * * breakdown_display_type: 取引先を指定 → エラーになる
-     * * breakdown_display_type: 品目を指定 → エラーにならない
-     *
-     */
     breakdown_display_type?: "partner" | "item" | "section" | "account_item";
-    /**
-     * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所設定で取引先コードの利用を有効にしている場合のみ利用可能です）
-     */
     partner_code?: string;
-    /**
-     * 品目IDで絞込（0を指定すると、品目が未選択で絞り込めます）
-     */
     item_id?: number;
-    /**
-     * 部門IDで絞込（0を指定すると、部門が未選択で絞り込めます）
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。指定されない場合、決算整理仕訳を含む金額が返却されます。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。指定されない場合、配賦仕訳を含む金額が返却されます。法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能で、利用できないプランで指定した場合はエラー（403）になります。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。プレミアムプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で、かつ事業所の設定から仕訳承認フローの利用を有効にした場合に指定可能です。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
   };
   url: "/api/1/reports/trial_pl_segment_3_tags";
@@ -23493,50 +8246,13 @@ export type GetTrialCrData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。指定されない場合、現在の会計年度の期首月が指定されます。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)(会計年度が10月始まりでstart_monthが11なら11, 12, 1, ... 9のいずれかを指定する)。指定されない場合、現在の会計年度の期末月が指定されます。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。指定されない場合、`account_item` が指定されます。
-     * * `account_item` - 勘定科目単位で表示
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。それぞれ各行の `balances[].partners` / `items` / `sections` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列を返す
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、決算書表示名行に続けて勘定科目行が同じ `balances[]` に展開される
-     * * 上記の組み合わせ以外（例: `account_item_display_type=group` かつ `partner` / `item` / `section` / `segment_*_tag`）は validation error になる
-     *
-     * 取引先、品目、部門、セグメント の各項目が単独で5,000以上登録されている場合は、breakdown_display_type で該当項目を指定するとエラーになります。
-     *
-     * 例）取引先の登録数が5,000以上、品目の登録数が4,999以下の場合
-     * * breakdown_display_type: 取引先を指定 → エラーになる
-     * * breakdown_display_type: 品目を指定 → エラーにならない
-     *
-     */
     breakdown_display_type?:
       | "partner"
       | "item"
@@ -23545,42 +8261,12 @@ export type GetTrialCrData = {
       | "segment_1_tag"
       | "segment_2_tag"
       | "segment_3_tag";
-    /**
-     * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所設定で取引先コードの利用を有効にしている場合のみ利用可能です）
-     */
     partner_code?: string;
-    /**
-     * 品目IDで絞込（0を指定すると、品目が未選択で絞り込めます）
-     */
     item_id?: number;
-    /**
-     * 部門IDで絞込（0を指定すると、部門が未選択で絞り込めます）
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。指定されない場合、決算整理仕訳を含む金額が返却されます。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。指定されない場合、配賦仕訳を含む金額が返却されます。法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能で、利用できないプランで指定した場合はエラー（403）になります。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。プレミアムプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で、かつ事業所の設定から仕訳承認フローの利用を有効にした場合に指定可能です。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
   };
   url: "/api/1/reports/trial_cr";
@@ -23606,50 +8292,13 @@ export type GetTrialCrTwoYearsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。指定されない場合、現在の会計年度の期首月が指定されます。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)(会計年度が10月始まりでstart_monthが11なら11, 12, 1, ... 9のいずれかを指定する)。指定されない場合、現在の会計年度の期末月が指定されます。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。指定されない場合、`account_item` が指定されます。
-     * * `account_item` - 勘定科目単位で表示
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。それぞれ各行の `balances[].partners` / `items` / `sections` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列を返す
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、決算書表示名行に続けて勘定科目行が同じ `balances[]` に展開される
-     * * 上記の組み合わせ以外（例: `account_item_display_type=group` かつ `partner` / `item` / `section` / `segment_*_tag`）は validation error になる
-     *
-     * 取引先、品目、部門、セグメント の各項目が単独で5,000以上登録されている場合は、breakdown_display_type で該当項目を指定するとエラーになります。
-     *
-     * 例）取引先の登録数が5,000以上、品目の登録数が4,999以下の場合
-     * * breakdown_display_type: 取引先を指定 → エラーになる
-     * * breakdown_display_type: 品目を指定 → エラーにならない
-     *
-     */
     breakdown_display_type?:
       | "partner"
       | "item"
@@ -23658,42 +8307,12 @@ export type GetTrialCrTwoYearsData = {
       | "segment_1_tag"
       | "segment_2_tag"
       | "segment_3_tag";
-    /**
-     * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所設定で取引先コードの利用を有効にしている場合のみ利用可能です）
-     */
     partner_code?: string;
-    /**
-     * 品目IDで絞込（0を指定すると、品目が未選択で絞り込めます）
-     */
     item_id?: number;
-    /**
-     * 部門IDで絞込（0を指定すると、部門が未選択で絞り込めます）
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。指定されない場合、決算整理仕訳を含む金額が返却されます。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。指定されない場合、配賦仕訳を含む金額が返却されます。法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能で、利用できないプランで指定した場合はエラー（403）になります。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。プレミアムプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で、かつ事業所の設定から仕訳承認フローの利用を有効にした場合に指定可能です。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
   };
   url: "/api/1/reports/trial_cr_two_years";
@@ -23720,50 +8339,13 @@ export type GetTrialCrThreeYearsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。指定されない場合、現在の会計年度の期首月が指定されます。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)(会計年度が10月始まりでstart_monthが11なら11, 12, 1, ... 9のいずれかを指定する)。指定されない場合、現在の会計年度の期末月が指定されます。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。指定されない場合、`account_item` が指定されます。
-     * * `account_item` - 勘定科目単位で表示
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。それぞれ各行の `balances[].partners` / `items` / `sections` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列を返す
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、決算書表示名行に続けて勘定科目行が同じ `balances[]` に展開される
-     * * 上記の組み合わせ以外（例: `account_item_display_type=group` かつ `partner` / `item` / `section` / `segment_*_tag`）は validation error になる
-     *
-     * 取引先、品目、部門、セグメント の各項目が単独で5,000以上登録されている場合は、breakdown_display_type で該当項目を指定するとエラーになります。
-     *
-     * 例）取引先の登録数が5,000以上、品目の登録数が4,999以下の場合
-     * * breakdown_display_type: 取引先を指定 → エラーになる
-     * * breakdown_display_type: 品目を指定 → エラーにならない
-     *
-     */
     breakdown_display_type?:
       | "partner"
       | "item"
@@ -23772,42 +8354,12 @@ export type GetTrialCrThreeYearsData = {
       | "segment_1_tag"
       | "segment_2_tag"
       | "segment_3_tag";
-    /**
-     * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所設定で取引先コードの利用を有効にしている場合のみ利用可能です）
-     */
     partner_code?: string;
-    /**
-     * 品目IDで絞込（0を指定すると、品目が未選択で絞り込めます）
-     */
     item_id?: number;
-    /**
-     * 部門IDで絞込（0を指定すると、部門が未選択で絞り込めます）
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。指定されない場合、決算整理仕訳を含む金額が返却されます。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。指定されない場合、配賦仕訳を含む金額が返却されます。法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能で、利用できないプランで指定した場合はエラー（403）になります。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。プレミアムプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で、かつ事業所の設定から仕訳承認フローの利用を有効にした場合に指定可能です。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
   };
   url: "/api/1/reports/trial_cr_three_years";
@@ -23835,89 +8387,21 @@ export type GetTrialCrSectionsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 比較する部門IDの指定。半角数字のIDを半角カンマ区切り（スペースなし）で1〜5つ指定してください。同じIDを重複して指定することはできません。0を指定すると、未選択の部門で比較できます。
-     */
     section_ids: string;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。指定されない場合、現在の会計年度の期首月が指定されます。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)(会計年度が10月始まりでstart_monthが11なら11, 12, 1, ... 9のいずれかを指定する)。指定されない場合、現在の会計年度の期末月が指定されます。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。指定されない場合、`account_item` が指定されます。
-     * * `account_item` - 勘定科目単位で表示
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `segment_1_tag` / `segment_2_tag` / `segment_3_tag` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。`balances[].sections[]` の各部門要素配下の `partners` / `items` / `segment_1_tags` / `segment_2_tags` / `segment_3_tags` に内訳配列を返す
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、決算書表示名行に続けて勘定科目行が同じ `balances[]` に展開される
-     * * 部門比較では `section` は指定できない
-     * * 上記の組み合わせ以外は validation error になる
-     *
-     * 取引先、品目、セグメント の各項目が単独で5,000以上登録されている場合は、breakdown_display_type で該当項目を指定するとエラーになります。
-     *
-     * 例）取引先の登録数が5,000以上、品目の登録数が4,999以下の場合
-     * * breakdown_display_type: 取引先を指定 → エラーになる
-     * * breakdown_display_type: 品目を指定 → エラーにならない
-     *
-     */
     breakdown_display_type?:
       "partner" | "item" | "account_item" | "segment_1_tag" | "segment_2_tag" | "segment_3_tag";
-    /**
-     * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所設定で取引先コードの利用を有効にしている場合のみ利用可能です）
-     */
     partner_code?: string;
-    /**
-     * 品目IDで絞込（0を指定すると、品目が未選択で絞り込めます）
-     */
     item_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。指定されない場合、決算整理仕訳を含む金額が返却されます。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。指定されない場合、配賦仕訳を含む金額が返却されます。法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能で、利用できないプランで指定した場合はエラー（403）になります。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。プレミアムプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で、かつ事業所の設定から仕訳承認フローの利用を有効にした場合に指定可能です。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
   };
   url: "/api/1/reports/trial_cr_sections";
@@ -23944,91 +8428,21 @@ export type GetTrialCrSegment1TagsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 比較するセグメント1タグIDの指定。半角数字のIDを半角カンマ区切り（スペースなし）で1〜5つ指定してください。同じIDを重複して指定することはできません。0を指定すると、未選択のセグメント1タグで比較できます。
-     */
     segment_1_tag_ids: string;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。指定されない場合、現在の会計年度の期首月が指定されます。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)(会計年度が10月始まりでstart_monthが11なら11, 12, 1, ... 9のいずれかを指定する)。指定されない場合、現在の会計年度の期末月が指定されます。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。指定されない場合、`account_item` が指定されます。
-     * * `account_item` - 勘定科目単位で表示
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。`balances[].segment_1_tags[]` の各セグメント1タグ要素配下の `partners` / `items` / `sections` に内訳配列を返す
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、決算書表示名行に続けて勘定科目行が同じ `balances[]` に展開される
-     * * 上記の組み合わせ以外は validation error になる
-     *
-     * 取引先、品目、部門 の各項目が単独で5,000以上登録されている場合は、breakdown_display_type で該当項目を指定するとエラーになります。
-     *
-     * 例）取引先の登録数が5,000以上、品目の登録数が4,999以下の場合
-     * * breakdown_display_type: 取引先を指定 → エラーになる
-     * * breakdown_display_type: 品目を指定 → エラーにならない
-     *
-     */
     breakdown_display_type?: "partner" | "item" | "section" | "account_item";
-    /**
-     * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所設定で取引先コードの利用を有効にしている場合のみ利用可能です）
-     */
     partner_code?: string;
-    /**
-     * 品目IDで絞込（0を指定すると、品目が未選択で絞り込めます）
-     */
     item_id?: number;
-    /**
-     * 部門IDで絞込（0を指定すると、部門が未選択で絞り込めます）
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。指定されない場合、決算整理仕訳を含む金額が返却されます。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。指定されない場合、配賦仕訳を含む金額が返却されます。法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能で、利用できないプランで指定した場合はエラー（403）になります。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。プレミアムプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で、かつ事業所の設定から仕訳承認フローの利用を有効にした場合に指定可能です。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
   };
   url: "/api/1/reports/trial_cr_segment_1_tags";
@@ -24056,91 +8470,21 @@ export type GetTrialCrSegment2TagsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 比較するセグメント2タグIDの指定。半角数字のIDを半角カンマ区切り（スペースなし）で1〜5つ指定してください。同じIDを重複して指定することはできません。0を指定すると、未選択のセグメント2タグで比較できます。
-     */
     segment_2_tag_ids: string;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。指定されない場合、現在の会計年度の期首月が指定されます。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)(会計年度が10月始まりでstart_monthが11なら11, 12, 1, ... 9のいずれかを指定する)。指定されない場合、現在の会計年度の期末月が指定されます。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。指定されない場合、`account_item` が指定されます。
-     * * `account_item` - 勘定科目単位で表示
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。`balances[].segment_2_tags[]` の各セグメント2タグ要素配下の `partners` / `items` / `sections` に内訳配列を返す
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、決算書表示名行に続けて勘定科目行が同じ `balances[]` に展開される
-     * * 上記の組み合わせ以外は validation error になる
-     *
-     * 取引先、品目、部門 の各項目が単独で5,000以上登録されている場合は、breakdown_display_type で該当項目を指定するとエラーになります。
-     *
-     * 例）取引先の登録数が5,000以上、品目の登録数が4,999以下の場合
-     * * breakdown_display_type: 取引先を指定 → エラーになる
-     * * breakdown_display_type: 品目を指定 → エラーにならない
-     *
-     */
     breakdown_display_type?: "partner" | "item" | "section" | "account_item";
-    /**
-     * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所設定で取引先コードの利用を有効にしている場合のみ利用可能です）
-     */
     partner_code?: string;
-    /**
-     * 品目IDで絞込（0を指定すると、品目が未選択で絞り込めます）
-     */
     item_id?: number;
-    /**
-     * 部門IDで絞込（0を指定すると、部門が未選択で絞り込めます）
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。指定されない場合、決算整理仕訳を含む金額が返却されます。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。指定されない場合、配賦仕訳を含む金額が返却されます。法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能で、利用できないプランで指定した場合はエラー（403）になります。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。プレミアムプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で、かつ事業所の設定から仕訳承認フローの利用を有効にした場合に指定可能です。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
   };
   url: "/api/1/reports/trial_cr_segment_2_tags";
@@ -24168,91 +8512,21 @@ export type GetTrialCrSegment3TagsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 比較するセグメント3タグIDの指定。半角数字のIDを半角カンマ区切り（スペースなし）で1〜5つ指定してください。同じIDを重複して指定することはできません。0を指定すると、未選択のセグメント3タグで比較できます。
-     */
     segment_3_tag_ids: string;
-    /**
-     * 会計年度（会計期間の開始日が属する年。例: 会計期間が 2019-04-01 開始なら 2019）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。
-     */
     fiscal_year?: number;
-    /**
-     * 発生月で絞込：開始会計月(1-12)。指定されない場合、現在の会計年度の期首月が指定されます。
-     */
     start_month?: number;
-    /**
-     * 発生月で絞込：終了会計月(1-12)(会計年度が10月始まりでstart_monthが11なら11, 12, 1, ... 9のいずれかを指定する)。指定されない場合、現在の会計年度の期末月が指定されます。
-     */
     end_month?: number;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_date?: string;
-    /**
-     * 勘定科目の表示。指定されない場合、`account_item` が指定されます。
-     * * `account_item` - 勘定科目単位で表示
-     * * `group` - 決算書表示単位で表示
-     *
-     */
     account_item_display_type?: "account_item" | "group";
-    /**
-     * 内訳の表示。`account_item_display_type` と組み合わせ制約がある。
-     * * `partner` / `item` / `section` は `account_item_display_type=account_item`（または省略）のときのみ指定可能。`balances[].segment_3_tags[]` の各セグメント3タグ要素配下の `partners` / `items` / `sections` に内訳配列を返す
-     * * `account_item` は `account_item_display_type=group` のときのみ指定可能。他の値と異なり内訳配列は返らず、決算書表示名行に続けて勘定科目行が同じ `balances[]` に展開される
-     * * 上記の組み合わせ以外は validation error になる
-     *
-     * 取引先、品目、部門 の各項目が単独で5,000以上登録されている場合は、breakdown_display_type で該当項目を指定するとエラーになります。
-     *
-     * 例）取引先の登録数が5,000以上、品目の登録数が4,999以下の場合
-     * * breakdown_display_type: 取引先を指定 → エラーになる
-     * * breakdown_display_type: 品目を指定 → エラーにならない
-     *
-     */
     breakdown_display_type?: "partner" | "item" | "section" | "account_item";
-    /**
-     * 取引先IDで絞込（0を指定すると、取引先が未選択で絞り込めます）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込（事業所設定で取引先コードの利用を有効にしている場合のみ利用可能です）
-     */
     partner_code?: string;
-    /**
-     * 品目IDで絞込（0を指定すると、品目が未選択で絞り込めます）
-     */
     item_id?: number;
-    /**
-     * 部門IDで絞込（0を指定すると、部門が未選択で絞り込めます）
-     */
     section_id?: number;
-    /**
-     * 決算整理仕訳の絞り込み条件。指定されない場合、決算整理仕訳を含む金額が返却されます。
-     * * `only` - 決算整理仕訳のみを集計
-     * * `without` - 決算整理仕訳を除外して集計
-     *
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳の絞り込み条件。指定されない場合、配賦仕訳を含む金額が返却されます。法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能で、利用できないプランで指定した場合はエラー（403）になります。
-     * * `only` - 配賦仕訳のみを集計
-     * * `without` - 配賦仕訳を除外して集計
-     *
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 承認ステータスの絞り込み条件。プレミアムプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で、かつ事業所の設定から仕訳承認フローの利用を有効にした場合に指定可能です。
-     * * `without_in_progress` - 未承認を除く（デフォルト）
-     * * `all` - 全ての承認ステータスを含む
-     *
-     */
     approval_flow_status?: "without_in_progress" | "all";
   };
   url: "/api/1/reports/trial_cr_segment_3_tags";
@@ -24280,25 +8554,10 @@ export type GetGeneralLedgersData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 期間で絞込：開始日 (yyyy-mm-dd)
-     */
     start_date: string;
-    /**
-     * 期間で絞込：終了日 (yyyy-mm-dd)
-     */
     end_date: string;
-    /**
-     * 勘定科目名で絞込
-     */
     account_item_name?: string;
-    /**
-     * 税区分名で絞込
-     */
     tax_name?:
       | "課税"
       | "対象外"
@@ -24352,9 +8611,6 @@ export type GetGeneralLedgersData = {
       | "課売返四"
       | "課売返五"
       | "課売返六";
-    /**
-     * 税率で絞込
-     */
     tax_rate?:
       | "tax_rate_5"
       | "tax_rate_8"
@@ -24376,50 +8632,15 @@ export type GetGeneralLedgersData = {
       | "tax_rate_r8_exempt_70"
       | "tax_rate_r8_exempt_50"
       | "tax_rate_r8_exempt_30";
-    /**
-     * 決算整理仕訳で絞込（決算整理仕訳のみ：only, 決算整理仕訳以外：without）。指定されない場合、決算整理仕訳を含む金額が返却されます。
-     */
     adjustment?: "only" | "without";
-    /**
-     * 配賦仕訳で絞込（配賦仕訳のみ：only,配賦仕訳以外：without）。指定されない場合、配賦仕訳を含む金額が返却されます。
-     */
     cost_allocation?: "only" | "without";
-    /**
-     * 取引先で絞込（未選択を指定すると、取引先が未選択で絞り込めます）
-     */
     partner_name?: string;
-    /**
-     * 品目で絞込（未選択を指定すると、品目が未選択で絞り込めます）
-     */
     item_name?: string;
-    /**
-     * 部門で絞込（未選択を指定すると、部門が未選択で絞り込めます）
-     */
     section_name?: string;
-    /**
-     * メモタグで絞込<br>
-     * 取引数が多すぎる場合はタイムアウトする場合があります。<br>
-     * その場合はWeb画面よりPDF/CSV出力をご利用ください。
-     *
-     */
     tag_name?: string;
-    /**
-     * セグメント１タグ名で絞込（未選択を指定すると、セグメント１タグが未選択で絞り込めます）
-     */
     segment_tag_1_name?: string;
-    /**
-     * セグメント２タグ名で絞込（未選択を指定すると、セグメント２タグが未選択で絞り込めます）
-     */
     segment_tag_2_name?: string;
-    /**
-     * セグメント３タグ名で絞込（未選択を指定すると、セグメント３タグが未選択で絞り込めます）
-     */
     segment_tag_3_name?: string;
-    /**
-     * 承認ステータスで絞込 (未承認を除く: without_in_progress (デフォルト)、全てのステータス: all)<br>
-     * 事業所の設定から仕訳承認フローの利用を有効にした場合に指定可能です。
-     *
-     */
     approval_flow_status?: "all" | "without_in_progress";
   };
   url: "/api/1/reports/general_ledgers";
@@ -24446,45 +8667,15 @@ export type GetReceiptsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * アップロード日で絞込：開始日 (yyyy-mm-dd)
-     */
     start_date: string;
-    /**
-     * アップロード日で絞込：終了日 (yyyy-mm-dd)
-     */
     end_date: string;
-    /**
-     * アップロードしたユーザーで絞込。ユーザーの表示名またはメールアドレスの部分一致で指定します。
-     */
     user_name?: string;
-    /**
-     * アップロードファイルNo（ファイルボックス上でファイルごとに表示される番号）で絞込
-     */
     number?: number;
-    /**
-     * ファイルに付けられたコメントの状態で絞込（posted:コメントあり, raised:未解決, resolved:解決済）
-     */
     comment_type?: "posted" | "raised" | "resolved";
-    /**
-     * trueを指定した場合、お気に入りコメントが付いたファイルのみが対象になります
-     */
     comment_important?: boolean;
-    /**
-     * ファイルの取引への登録状態で絞込（all:すべて, without_deal:未登録, with_expense_application_line:経費申請中, with_deal:登録済み, ignored:無視。デフォルト: all）
-     */
     category?: "all" | "without_deal" | "with_expense_application_line" | "with_deal" | "ignored";
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 3000)
-     */
     limit?: number;
   };
   url: "/api/1/receipts";
@@ -24532,15 +8723,9 @@ export type CreateReceiptResponse = CreateReceiptResponses[keyof CreateReceiptRe
 export type DestroyReceiptData = {
   body?: never;
   path: {
-    /**
-     * ファイルボックス（証憑ファイル）ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/receipts/{id}";
@@ -24565,15 +8750,9 @@ export type DestroyReceiptResponse = DestroyReceiptResponses[keyof DestroyReceip
 export type GetReceiptData = {
   body?: never;
   path: {
-    /**
-     * ファイルボックス（証憑ファイル）ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/receipts/{id}";
@@ -24598,9 +8777,6 @@ export type GetReceiptResponse = GetReceiptResponses[keyof GetReceiptResponses];
 export type UpdateReceiptData = {
   body: ReceiptUpdateParams;
   path: {
-    /**
-     * ファイルボックス（証憑ファイル）ID
-     */
     id: number;
   };
   query?: never;
@@ -24626,15 +8802,9 @@ export type UpdateReceiptResponse = UpdateReceiptResponses[keyof UpdateReceiptRe
 export type DownloadReceiptData = {
   body?: never;
   path: {
-    /**
-     * ファイルボックス（証憑ファイル）ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/receipts/{id}/download";
@@ -24660,66 +8830,21 @@ export type GetExpenseApplicationsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請ステータス(draft:下書き, in_progress:申請中, approved:承認済, rejected:却下, feedback:差戻し)、 取引ステータス(unsettled:清算待ち, settled:精算済み)
-     */
     status?:
       "draft" | "in_progress" | "approved" | "rejected" | "feedback" | "unsettled" | "settled";
-    /**
-     * true:給与連携あり、false:給与連携なし、未指定時:絞り込みなし
-     */
     payroll_attached?: boolean;
-    /**
-     * 発生日(経費申請項目の日付)で絞込：開始日(yyyy-mm-dd)
-     */
     start_transaction_date?: string;
-    /**
-     * 発生日(経費申請項目の日付)で絞込：終了日(yyyy-mm-dd)
-     */
     end_transaction_date?: string;
-    /**
-     * 申請No.
-     */
     application_number?: number;
-    /**
-     * 申請タイトル
-     */
     title?: string;
-    /**
-     * 申請日で絞込：開始日(yyyy-mm-dd)
-     */
     start_issue_date?: string;
-    /**
-     * 申請日で絞込：終了日(yyyy-mm-dd)
-     */
     end_issue_date?: string;
-    /**
-     * 申請者のユーザーID
-     */
     applicant_id?: number;
-    /**
-     * 承認者のユーザーID
-     */
     approver_id?: number;
-    /**
-     * 経費申請の合計金額で絞込：下限金額 (単位:円、以上)
-     */
     min_amount?: number;
-    /**
-     * 経費申請の合計金額で絞込：上限金額 (単位:円、以下)
-     */
     max_amount?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 500)
-     */
     limit?: number;
   };
   url: "/api/1/expense_applications";
@@ -24769,15 +8894,9 @@ export type CreateExpenseApplicationResponse =
 export type DestroyExpenseApplicationData = {
   body?: never;
   path: {
-    /**
-     * 経費申請ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/expense_applications/{id}";
@@ -24804,15 +8923,9 @@ export type DestroyExpenseApplicationResponse =
 export type GetExpenseApplicationData = {
   body?: never;
   path: {
-    /**
-     * 経費申請ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/expense_applications/{id}";
@@ -24839,9 +8952,6 @@ export type GetExpenseApplicationResponse =
 export type UpdateExpenseApplicationData = {
   body?: ExpenseApplicationUpdateParams;
   path: {
-    /**
-     * 経費申請ID
-     */
     id: number;
   };
   query?: never;
@@ -24869,9 +8979,6 @@ export type UpdateExpenseApplicationResponse =
 export type UpdateExpenseApplicationActionData = {
   body: ExpenseApplicationActionCreateParams;
   path: {
-    /**
-     * 経費申請ID
-     */
     id: number;
   };
   query?: never;
@@ -24899,9 +9006,6 @@ export type UpdateExpenseApplicationActionResponse =
 export type UpdateExpenseApplicationParentApprovableRequestsData = {
   body: ExpenseApplicationParentApprovableRequestUpdateParams;
   path: {
-    /**
-     * 経費申請ID
-     */
     id: number;
   };
   query?: never;
@@ -24930,13 +9034,7 @@ export type ListExpenseApplicationCurrenciesData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 利用状態での絞り込み (usable: 利用可能, unusable: 利用不可)
-     */
     search_status?: "usable" | "unusable";
   };
   url: "/api/1/expense_applications/currencies";
@@ -24986,15 +9084,9 @@ export type CreateExpenseApplicationCurrencyResponse =
 export type DeleteExpenseApplicationCurrencyData = {
   body?: never;
   path: {
-    /**
-     * 外貨ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/expense_applications/currencies/{id}";
@@ -25021,15 +9113,9 @@ export type DeleteExpenseApplicationCurrencyResponse =
 export type GetExpenseApplicationCurrencyData = {
   body?: never;
   path: {
-    /**
-     * 外貨ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/expense_applications/currencies/{id}";
@@ -25056,9 +9142,6 @@ export type GetExpenseApplicationCurrencyResponse =
 export type UpdateExpenseApplicationCurrencyData = {
   body: ExpenseApplicationCurrencyParams;
   path: {
-    /**
-     * 外貨ID
-     */
     id: number;
   };
   query?: never;
@@ -25087,9 +9170,6 @@ export type GetExpenseApplicationFormData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/expense_applications/form";
@@ -25166,21 +9246,9 @@ export type GetExpenseApplicationLineTemplatesData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)
-     */
     limit?: number;
-    /**
-     * 申請部門ID。指定した場合、指定部門と認証ユーザー（申請者）で利用可能な経費科目のみを返します。指定しない場合は利用可能範囲による絞り込みを行わず、従来どおりの経費科目を返します。
-     */
     "section_ids[]"?: Array<number>;
   };
   url: "/api/1/expense_application_line_templates";
@@ -25232,16 +9300,9 @@ export type CreateExpenseApplicationLineTemplateResponse =
 export type DestroyExpenseApplicationLineTemplateData = {
   body?: never;
   path: {
-    /**
-     * 経費科目ID、または経費科目のsource_line_template_id。
-     * 経費科目は設定内容を変更すると経費科目IDが変わることがあります。変更前に取得した経費科目IDと、設定を変更しても変わらないsource_line_template_idのどちらを指定しても、最新の経費科目を操作できます。
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/expense_application_line_templates/{id}";
@@ -25268,16 +9329,9 @@ export type DestroyExpenseApplicationLineTemplateResponse =
 export type GetExpenseApplicationLineTemplateData = {
   body?: never;
   path: {
-    /**
-     * 経費科目ID、または経費科目のsource_line_template_id。
-     * 経費科目は設定内容を変更すると経費科目IDが変わることがあります。変更前に取得した経費科目IDと、設定を変更しても変わらないsource_line_template_idのどちらを指定しても、最新の経費科目を操作できます。
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/expense_application_line_templates/{id}";
@@ -25304,10 +9358,6 @@ export type GetExpenseApplicationLineTemplateResponse =
 export type UpdateExpenseApplicationLineTemplateData = {
   body: ExpenseApplicationLineTemplateParams;
   path: {
-    /**
-     * 経費科目ID、または経費科目のsource_line_template_id。
-     * 経費科目は設定内容を変更すると経費科目IDが変わることがあります。変更前に取得した経費科目IDと、設定を変更しても変わらないsource_line_template_idのどちらを指定しても、最新の経費科目を操作できます。
-     */
     id: number;
   };
   query?: never;
@@ -25336,149 +9386,37 @@ export type GetPaymentRequestsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請ステータス、または取引ステータス
-     * 申請ステータス:
-     * * `draft` - 下書き
-     * * `in_progress` - 申請中
-     * * `approved` - 承認済
-     * * `rejected` - 却下
-     * * `feedback` - 差戻し
-     *
-     * 取引ステータス (status が `approved` の支払依頼に対して):
-     * * `unsettled` - 支払待ち
-     * * `settled` - 支払済み
-     *
-     * approver_id を指定した場合は無効です。
-     */
     status?:
       "draft" | "in_progress" | "approved" | "rejected" | "feedback" | "unsettled" | "settled";
-    /**
-     * 申請日で絞込：開始日(yyyy-mm-dd)
-     */
     start_application_date?: string;
-    /**
-     * 申請日で絞込：終了日(yyyy-mm-dd)
-     */
     end_application_date?: string;
-    /**
-     * 最新の承認日で絞込：開始日(yyyy-mm-dd)
-     * 最新の承認日は、支払依頼に対して行われた承認（特権承認を含む）のうち最も新しい承認の日付で、申請が承認済になった日とは限りません。そのため、承認済以外の支払依頼も対象になります。
-     * * 承認経路の途中のステップのみ承認された支払依頼は、そのステップの承認日
-     * * 承認後に差戻し・却下された支払依頼は、差戻し・却下前の承認日
-     * * 差戻し後に再度承認された支払依頼は、再承認日
-     * * 一度も承認されていない支払依頼は対象外
-     *
-     * 2026年10月20日以降に承認または更新された支払依頼のみが対象です。
-     */
     start_last_approval_date?: string;
-    /**
-     * 最新の承認日で絞込：終了日(yyyy-mm-dd)
-     * 最新の承認日は、支払依頼に対して行われた承認（特権承認を含む）のうち最も新しい承認の日付で、申請が承認済になった日とは限りません。そのため、承認済以外の支払依頼も対象になります。
-     * * 承認経路の途中のステップのみ承認された支払依頼は、そのステップの承認日
-     * * 承認後に差戻し・却下された支払依頼は、差戻し・却下前の承認日
-     * * 差戻し後に再度承認された支払依頼は、再承認日
-     * * 一度も承認されていない支払依頼は対象外
-     *
-     * 2026年10月20日以降に承認または更新された支払依頼のみが対象です。
-     */
     end_last_approval_date?: string;
-    /**
-     * 発生日で絞込：開始日(yyyy-mm-dd)
-     */
     start_issue_date?: string;
-    /**
-     * 発生日で絞込：終了日(yyyy-mm-dd)
-     */
     end_issue_date?: string;
-    /**
-     * 申請No.
-     */
     application_number?: number;
-    /**
-     * 申請タイトル
-     */
     title?: string;
-    /**
-     * 申請者のユーザーID
-     */
     applicant_id?: number;
-    /**
-     * 承認者のユーザーID (`/api/1/users` のレスポンス id と同じ値)
-     * approver_id を指定した場合は `in_progress` (申請中) の支払依頼のみを返します。
-     */
     approver_id?: number;
-    /**
-     * 金額で絞込 (下限金額)
-     */
     min_amount?: number;
-    /**
-     * 金額で絞込 (上限金額)
-     */
     max_amount?: number;
-    /**
-     * 取引先IDで絞込（`/api/1/partners` のレスポンス id と同じ値）
-     */
     partner_id?: number;
-    /**
-     * 取引先コードで絞込。事業所側で「取引先コードを利用する」設定が有効な場合に利用できます。
-     */
     partner_code?: string;
-    /**
-     * 支払方法で絞込
-     * * `none` - 指定なし
-     * * `domestic_bank_transfer` - 国内振込
-     * * `abroad_bank_transfer` - 国外振込
-     * * `account_transfer` - 口座振替
-     * * `credit_card` - クレジットカード
-     */
     payment_method?:
       | "none"
       | "domestic_bank_transfer"
       | "abroad_bank_transfer"
       | "account_transfer"
       | "credit_card";
-    /**
-     * 支払期限で絞込：開始日(yyyy-mm-dd)
-     */
     start_payment_date?: string;
-    /**
-     * 支払期限で絞込：終了日(yyyy-mm-dd)
-     */
     end_payment_date?: string;
-    /**
-     * 請求書番号で絞込
-     */
     document_code?: string;
-    /**
-     * 部門IDで絞込（`/api/1/sections` のレスポンス id と同じ値）
-     */
     section_id?: number;
-    /**
-     * 取引先名で絞込
-     */
     partner_name?: string;
-    /**
-     * 申請経路IDで絞込（`/api/1/approval_flow_routes` のレスポンス id と同じ値）
-     */
     approval_flow_route_id?: number;
-    /**
-     * 共有された申請の絞り込み
-     * * `ignore_observing` - 共有された申請を含めない
-     * * `only_observing` - 共有された申請のみ
-     */
     observing?: "ignore_observing" | "only_observing";
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 500)
-     */
     limit?: number;
   };
   url: "/api/1/payment_requests";
@@ -25527,15 +9465,9 @@ export type CreatePaymentRequestResponse =
 export type DestroyPaymentRequestData = {
   body?: never;
   path: {
-    /**
-     * 支払依頼ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/payment_requests/{id}";
@@ -25562,15 +9494,9 @@ export type DestroyPaymentRequestResponse =
 export type GetPaymentRequestData = {
   body?: never;
   path: {
-    /**
-     * 支払依頼ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/payment_requests/{id}";
@@ -25596,9 +9522,6 @@ export type GetPaymentRequestResponse =
 export type UpdatePaymentRequestData = {
   body?: PaymentRequestUpdateParams;
   path: {
-    /**
-     * 支払依頼ID
-     */
     id: number;
   };
   query?: never;
@@ -25626,9 +9549,6 @@ export type UpdatePaymentRequestResponse =
 export type UpdatePaymentRequestActionData = {
   body: PaymentRequestActionCreateParams;
   path: {
-    /**
-     * 支払依頼ID
-     */
     id: number;
   };
   query?: never;
@@ -25657,59 +9577,18 @@ export type GetApprovalRequestsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請ステータス(draft:下書き, in_progress:申請中, approved:承認済, rejected:却下, feedback:差戻し)
-     * 承認者指定時には無効です。
-     */
     status?: "draft" | "in_progress" | "approved" | "rejected" | "feedback";
-    /**
-     * 申請No.
-     */
     application_number?: number;
-    /**
-     * 申請タイトル
-     */
     title?: string;
-    /**
-     * 申請フォームID
-     */
     form_id?: number;
-    /**
-     * 申請日で絞込：開始日(yyyy-mm-dd)
-     */
     start_application_date?: string;
-    /**
-     * 申請日で絞込：終了日(yyyy-mm-dd)
-     */
     end_application_date?: string;
-    /**
-     * 申請者のユーザーID
-     */
     applicant_id?: number;
-    /**
-     * 金額で絞込：以上
-     */
     min_amount?: number;
-    /**
-     * 金額で絞込：以下
-     */
     max_amount?: number;
-    /**
-     * 承認者のユーザーID
-     * 承認者指定時には申請ステータスが申請中のものだけが取得可能です。
-     */
     approver_id?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 500)
-     */
     limit?: number;
   };
   url: "/api/1/approval_requests";
@@ -25760,15 +9639,9 @@ export type CreateApprovalRequestResponse =
 export type DestroyApprovalRequestData = {
   body?: never;
   path: {
-    /**
-     * 各種申請ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/approval_requests/{id}";
@@ -25795,15 +9668,9 @@ export type DestroyApprovalRequestResponse =
 export type GetApprovalRequestData = {
   body?: never;
   path: {
-    /**
-     * 各種申請ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/approval_requests/{id}";
@@ -25829,9 +9696,6 @@ export type GetApprovalRequestResponse =
 export type UpdateApprovalRequestData = {
   body: ApprovalRequestUpdateParams;
   path: {
-    /**
-     * 各種申請ID
-     */
     id: number;
   };
   query?: never;
@@ -25859,9 +9723,6 @@ export type UpdateApprovalRequestResponse =
 export type UpdateApprovalRequestActionData = {
   body: ApprovalRequestActionCreateParams;
   path: {
-    /**
-     * 各種申請ID
-     */
     id: number;
   };
   query?: never;
@@ -25890,9 +9751,6 @@ export type GetApprovalRequestFormsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/approval_requests/forms";
@@ -25919,15 +9777,9 @@ export type GetApprovalRequestFormsResponse =
 export type GetApprovalRequestFormData = {
   body?: never;
   path: {
-    /**
-     * 申請フォームID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/approval_requests/forms/{id}";
@@ -25955,17 +9807,8 @@ export type GetPurchaseRequestsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 1ページあたりの取得件数（20, 50, 100, 200, 500）
-     */
     limit?: number;
-    /**
-     * 取得開始位置（0から始まる）
-     */
     offset?: number;
   };
   url: "/api/1/purchase_requests";
@@ -26016,15 +9859,9 @@ export type CreatePurchaseRequestResponse =
 export type DestroyPurchaseRequestData = {
   body?: never;
   path: {
-    /**
-     * 購買申請ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/purchase_requests/{id}";
@@ -26051,15 +9888,9 @@ export type DestroyPurchaseRequestResponse =
 export type GetPurchaseRequestData = {
   body?: never;
   path: {
-    /**
-     * 購買申請ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/purchase_requests/{id}";
@@ -26085,9 +9916,6 @@ export type GetPurchaseRequestResponse =
 export type UpdatePurchaseRequestData = {
   body: PurchaseRequestUpdateParams;
   path: {
-    /**
-     * 購買申請ID
-     */
     id: number;
   };
   query?: never;
@@ -26116,21 +9944,9 @@ export type GetPurchaseRequestsFormsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * ステータス(draft: 申請で使用しない、active: 申請で使用する、deleted: 削除済み)。未指定の場合はすべてのステータスの申請フォームを返します。
-     */
     status?: "draft" | "active" | "deleted";
-    /**
-     * 1ページあたりの取得件数（1〜500）
-     */
     limit?: number;
-    /**
-     * 取得開始位置（0から始まる）
-     */
     offset?: number;
   };
   url: "/api/1/purchase_requests/forms";
@@ -26156,15 +9972,9 @@ export type GetPurchaseRequestsFormsResponse =
 export type GetPurchaseRequestsFormData = {
   body?: never;
   path: {
-    /**
-     * 申請フォームID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/purchase_requests/forms/{id}";
@@ -26191,9 +10001,6 @@ export type GetPurchaseRequestsFormResponse =
 export type CreatePurchaseRequestActionData = {
   body: PurchaseRequestActionCreateParams;
   path: {
-    /**
-     * 購買申請ID
-     */
     id: number;
   };
   query?: never;
@@ -26221,15 +10028,9 @@ export type CreatePurchaseRequestActionResponse =
 export type GetPurchaseRequestPurchaseBudgetData = {
   body?: never;
   path: {
-    /**
-     * 購買申請ID
-     */
     purchase_request_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/purchase_requests/{purchase_request_id}/purchase_budget";
@@ -26258,27 +10059,10 @@ export type GetApprovalFlowRoutesData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 経路に含まれるユーザーのユーザーID（指定したユーザーが承認ステップの承認者に含まれる申請経路に絞り込めます）
-     */
     included_user_id?: number;
-    /**
-     * 申請種別（各申請種別が使用できる申請経路に絞り込めます。例えば、ApprovalRequest を指定すると、各種申請が使用できる申請経路に絞り込めます。未指定の場合は全ての申請種別の申請経路が対象になります。）
-     * * `TxnApproval` - 仕訳承認
-     * * `ExpenseApplication` - 経費精算
-     * * `PaymentRequest` - 支払依頼
-     * * `ApprovalRequest` - 各種申請
-     * * `DocApproval` - 請求書等 (見積書・納品書・請求書・発注書)
-     */
     usage?:
       "TxnApproval" | "ExpenseApplication" | "PaymentRequest" | "ApprovalRequest" | "DocApproval";
-    /**
-     * 申請フォームID（指定した申請フォームが使用できる申請経路に絞り込めます。usage に ApprovalRequest を指定した場合のみ有効で、usage が ApprovalRequest 以外または未指定の場合、このパラメータは無視されます。指定した申請フォームが存在しない場合や無効な場合は空配列が返ります。）
-     */
     request_form_id?: number;
   };
   url: "/api/1/approval_flow_routes";
@@ -26305,15 +10089,9 @@ export type GetApprovalFlowRoutesResponse =
 export type GetApprovalFlowRouteData = {
   body?: never;
   path: {
-    /**
-     * 申請経路ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/approval_flow_routes/{id}";
@@ -26340,65 +10118,29 @@ export type GetApprovalFlowRouteResponse =
 export type GetSegmentTagsData = {
   body?: never;
   path: {
-    /**
-     * セグメント区分（1、2、3のいずれか）。利用できる区分は事業所の契約プランによって異なります。
-     */
     segment_id: number;
   };
   query: {
-    /**
-     * 取得対象の事業所ID
-     */
     company_id: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 500)
-     */
     limit?: number;
-    /**
-     * 更新日で絞り込む開始日 (yyyy-mm-dd, JST)。指定日を含む、それ以降に更新されたセグメントタグを対象にします。
-     */
     start_update_date?: string;
-    /**
-     * 更新日で絞り込む終了日 (yyyy-mm-dd, JST)。指定日を含む、それ以前に更新されたセグメントタグを対象にします。
-     */
     end_update_date?: string;
   };
   url: "/api/1/segments/{segment_id}/tags";
 };
 
 export type GetSegmentTagsErrors = {
-  /**
-   * リクエストパラメータが不正です
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが無効です
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所またはセグメント区分を利用する権限がありません
-   */
   403: ForbiddenError;
-  /**
-   * 内部エラーが発生しました
-   */
   500: InternalServerError;
 };
 
 export type GetSegmentTagsError = GetSegmentTagsErrors[keyof GetSegmentTagsErrors];
 
 export type GetSegmentTagsResponses = {
-  /**
-   * セグメントタグの一覧
-   */
   200: {
-    /**
-     * セグメントタグの一覧
-     */
     segment_tags: Array<SegmentTag>;
   };
 };
@@ -26406,14 +10148,8 @@ export type GetSegmentTagsResponses = {
 export type GetSegmentTagsResponse = GetSegmentTagsResponses[keyof GetSegmentTagsResponses];
 
 export type CreateSegmentTagData = {
-  /**
-   * 作成するセグメントタグの情報
-   */
   body: SegmentTagParams;
   path: {
-    /**
-     * セグメント区分（1、2、3のいずれか）。利用できる区分は事業所の契約プランによって異なります。
-     */
     segment_id: number;
   };
   query?: never;
@@ -26421,30 +10157,15 @@ export type CreateSegmentTagData = {
 };
 
 export type CreateSegmentTagErrors = {
-  /**
-   * リクエストパラメータが不正です
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが無効です
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所またはセグメント区分を利用する権限がありません
-   */
   403: ForbiddenError;
-  /**
-   * 内部エラーが発生しました
-   */
   500: InternalServerError;
 };
 
 export type CreateSegmentTagError = CreateSegmentTagErrors[keyof CreateSegmentTagErrors];
 
 export type CreateSegmentTagResponses = {
-  /**
-   * セグメントタグを作成しました
-   */
   201: SegmentTagResponse;
 };
 
@@ -26453,53 +10174,26 @@ export type CreateSegmentTagResponse = CreateSegmentTagResponses[keyof CreateSeg
 export type DestroySegmentsTagData = {
   body?: never;
   path: {
-    /**
-     * セグメント区分（1、2、3のいずれか）。利用できる区分は事業所の契約プランによって異なります。
-     */
     segment_id: number;
-    /**
-     * 削除対象のセグメントタグID。一覧取得APIのレスポンスに含まれる id を指定します。
-     */
     id: number;
   };
   query: {
-    /**
-     * 削除対象のセグメントタグが属する事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/segments/{segment_id}/tags/{id}";
 };
 
 export type DestroySegmentsTagErrors = {
-  /**
-   * 使用中のセグメントタグなど、削除できない対象が指定されました
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが無効です
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所またはセグメント区分を利用する権限がありません
-   */
   403: ForbiddenError;
-  /**
-   * 指定したセグメントタグIDに該当するタグが存在しないか、既に削除されています
-   */
   404: BadRequestNotFoundError;
-  /**
-   * 内部エラーが発生しました
-   */
   500: InternalServerError;
 };
 
 export type DestroySegmentsTagError = DestroySegmentsTagErrors[keyof DestroySegmentsTagErrors];
 
 export type DestroySegmentsTagResponses = {
-  /**
-   * セグメントタグを削除しました
-   */
   204: void;
 };
 
@@ -26507,18 +10201,9 @@ export type DestroySegmentsTagResponse =
   DestroySegmentsTagResponses[keyof DestroySegmentsTagResponses];
 
 export type UpdateSegmentTagData = {
-  /**
-   * 更新後のセグメントタグの情報
-   */
   body: SegmentTagParams;
   path: {
-    /**
-     * セグメント区分（1、2、3のいずれか）。利用できる区分は事業所の契約プランによって異なります。
-     */
     segment_id: number;
-    /**
-     * 更新対象のセグメントタグID。一覧取得APIのレスポンスに含まれる id を指定します。
-     */
     id: number;
   };
   query?: never;
@@ -26526,78 +10211,33 @@ export type UpdateSegmentTagData = {
 };
 
 export type UpdateSegmentTagErrors = {
-  /**
-   * リクエストパラメータが不正です
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが無効です
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所またはセグメント区分を利用する権限がありません
-   */
   403: ForbiddenError;
-  /**
-   * 指定したセグメントタグIDに該当するタグが存在しないか、既に削除されています
-   */
   404: BadRequestNotFoundError;
-  /**
-   * 内部エラーが発生しました
-   */
   500: InternalServerError;
 };
 
 export type UpdateSegmentTagError = UpdateSegmentTagErrors[keyof UpdateSegmentTagErrors];
 
 export type UpdateSegmentTagResponses = {
-  /**
-   * セグメントタグを更新しました
-   */
   200: SegmentTagResponse;
 };
 
 export type UpdateSegmentTagResponse = UpdateSegmentTagResponses[keyof UpdateSegmentTagResponses];
 
 export type UpsertSegmentTagData = {
-  /**
-   * 更新または作成するセグメントタグのコードと属性
-   */
   body: {
-    /**
-     * セグメントタグを更新・作成する対象の事業所ID
-     */
     company_id: number;
-    /**
-     * セグメントタグコード (20文字以内、半角英数字・ハイフン・アンダースコアのみ)。更新・作成対象を特定するキーであり、このコード自体は変更できません。
-     */
     code: string;
-    /**
-     * セグメントタグに設定する内容。code（セグメントタグコード）はこのオブジェクト内には指定できません。
-     */
     segment_tag: {
-      /**
-       * セグメントタグ名 (100文字以内)。事業所内の同じセグメント区分で重複できません。
-       */
       name: string;
-      /**
-       * 備考 (30文字以内)。省略した場合は未設定（null）になります。
-       */
       description?: string | null;
-      /**
-       * ショートカット1 (20文字以内)。Web画面などでセグメントタグを検索する際のキーワードとして使用します。省略した場合は未設定（null）になります。
-       */
       shortcut1?: string | null;
-      /**
-       * ショートカット2 (20文字以内)。Web画面などでセグメントタグを検索する際のキーワードとして使用します。省略した場合は未設定（null）になります。
-       */
       shortcut2?: string | null;
     };
   };
   path: {
-    /**
-     * セグメント区分（1、2、3のいずれか）。利用できる区分は事業所の契約プランによって異なります。
-     */
     segment_id: number;
   };
   query?: never;
@@ -26605,34 +10245,16 @@ export type UpsertSegmentTagData = {
 };
 
 export type UpsertSegmentTagErrors = {
-  /**
-   * リクエストパラメータが不正です
-   */
   400: BadRequestError;
-  /**
-   * アクセストークンが無効です
-   */
   401: UnauthorizedError;
-  /**
-   * 指定した事業所またはセグメント区分を利用する権限がありません
-   */
   403: ForbiddenError;
-  /**
-   * 内部エラーが発生しました
-   */
   500: InternalServerError;
 };
 
 export type UpsertSegmentTagError = UpsertSegmentTagErrors[keyof UpsertSegmentTagErrors];
 
 export type UpsertSegmentTagResponses = {
-  /**
-   * 既存のセグメントタグを更新しました
-   */
   200: SegmentTagResponse;
-  /**
-   * セグメントタグを作成しました
-   */
   201: SegmentTagResponse;
 };
 
@@ -26642,21 +10264,9 @@ export type GetFixedAssetsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 表示したい会計期間の開始年月日 (yyyy-mm-dd)。開始年月日以外を指定した場合は、その日付が含まれる会計期間が対象となります。
-     */
     target_date: string;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)。2ページ目以降を取得する場合に、先頭からスキップする件数を指定します
-     */
     offset?: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 200)
-     */
     limit?: number;
   };
   url: "/api/1/fixed_assets";
@@ -26705,94 +10315,23 @@ export type GetUserMatchersData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 30, 最大: 100)
-     */
     limit?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)。offsetはlimitの倍数である必要があります。
-     */
     offset?: number;
-    /**
-     * 口座名で絞込 (完全一致)。指定した名前の口座が事業所に存在しない場合は空の一覧が返ります。
-     */
     walletable?: string;
-    /**
-     * 説明文で絞込 (部分一致)
-     */
     description?: string;
-    /**
-     * 有効/無効/全てで絞込 (有効: active, 無効: inactive, 全て: all)。未指定の場合は有効なルールのみが返ります。
-     */
     active?: "active" | "inactive" | "all";
-    /**
-     * 登録タイプで絞込
-     * * 0: 取引を推測する(manual_standard)
-     * * 1: 取引を登録する(auto_standard)
-     * * 2: 振替を推測する(manual_transfer)
-     * * 3: 振替を登録する(auto_transfer)
-     * * 4: 無視する取引を登録する(auto_ignore)
-     * * 5: 取引テンプレートを推測する(manual_template)
-     * * 6: 未決済取引の消込を推測する(manual_scrub)
-     * * 7: 未決済取引の消込を登録する(auto_scrub)
-     * * 8: 一括振込ファイル消込を推測する(manual_output_zengin_scrub)
-     * * 9: 一括振込ファイル消込を登録する(auto_output_zengin_scrub)
-     * * 10: 無視する取引を推測する(manual_ignore)
-     * * 11: プライベート取引を推測する(manual_private)
-     * * 12: プライベート取引を登録する(auto_private)
-     *
-     */
     act?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
-    /**
-     * 作成経由で絞込
-     * * 0: ユーザーが作成(user)
-     * * 1: freeeが作成(freee)
-     *
-     */
     created_by?: 0 | 1;
-    /**
-     * 最小金額で絞込 (単位: 円)。ルールに設定された最小金額(min_amount)が指定値以上のルールを返します。
-     */
     min_amount?: number;
-    /**
-     * 最大金額で絞込 (単位: 円)。ルールに設定された最大金額(max_amount)が指定値以下のルールを返します。
-     */
     max_amount?: number;
-    /**
-     * 最小優先度で絞込。優先度(priority)が指定値以上のルールを返します。
-     */
     min_priority?: number;
-    /**
-     * 最大優先度で絞込。優先度(priority)が指定値以下のルールを返します。
-     */
     max_priority?: number;
-    /**
-     * 最小正答件数で絞込。適用明細数(corrected_wallet_txn_count)が指定値以上のルールを返します。
-     */
     min_corrected_wallet_txn_count?: number;
-    /**
-     * 最大正答件数で絞込。適用明細数(corrected_wallet_txn_count)が指定値以下のルールを返します。
-     */
     max_corrected_wallet_txn_count?: number;
-    /**
-     * 最小正答率で絞込 (単位: パーセント)。適用率(corrected_wallet_txn_count_percentage)が指定値以上のルールを返します。
-     */
     min_corrected_wallet_txn_count_percentage?: number;
-    /**
-     * 最大正答率で絞込 (単位: パーセント)。適用率(corrected_wallet_txn_count_percentage)が指定値以下のルールを返します。
-     */
     max_corrected_wallet_txn_count_percentage?: number;
-    /**
-     * カードラベルIDで絞込
-     */
     card_label_id?: number;
-    /**
-     * 入金/出金で絞込 (入金: income, 出金: expense)
-     */
     entry_side_str?: "income" | "expense";
   };
   url: "/api/1/user_matchers";
@@ -26811,184 +10350,35 @@ export type GetUserMatchersError = GetUserMatchersErrors[keyof GetUserMatchersEr
 export type GetUserMatchersResponses = {
   200: {
     data: Array<{
-      /**
-       * 自動登録ルールID
-       */
       id: number;
-      /**
-       * 入金/出金
-       * * income: 入金
-       * * expense: 出金
-       *
-       */
       entry_side_str: "income" | "expense";
-      /**
-       * 説明文。明細の取引内容とのマッチングに使用される文字列です。condition=4(指定なし)の場合は空文字列が返ります。
-       */
       description: string | null;
-      /**
-       * マッチ条件
-       * * 0: 部分一致(partial)
-       * * 1: 前方一致(forward)
-       * * 2: 後方一致(backward)
-       * * 3: 完全一致(exact)
-       * * 4: 指定なし(wildcard)
-       *
-       */
       condition: 0 | 1 | 2 | 3 | 4;
-      /**
-       * 優先度
-       */
       priority: number;
-      /**
-       * 登録タイプ
-       * * 0: 取引を推測する(manual_standard)
-       * * 1: 取引を登録する(auto_standard)
-       * * 2: 振替を推測する(manual_transfer)
-       * * 3: 振替を登録する(auto_transfer)
-       * * 4: 無視する取引を登録する(auto_ignore)
-       * * 5: 取引テンプレートを推測する(manual_template)
-       * * 6: 未決済取引の消込を推測する(manual_scrub)
-       * * 7: 未決済取引の消込を登録する(auto_scrub)
-       * * 8: 一括振込ファイル消込を推測する(manual_output_zengin_scrub)
-       * * 9: 一括振込ファイル消込を登録する(auto_output_zengin_scrub)
-       * * 10: 無視する取引を推測する(manual_ignore)
-       * * 11: プライベート取引を推測する(manual_private)
-       * * 12: プライベート取引を登録する(auto_private)
-       *
-       * actの種類により、返されるフィールド（tax_name、account_item_name、deal_description等）が異なります。
-       *
-       */
       act: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
-      /**
-       * 税区分名
-       * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-       *
-       */
       tax_name?: string | null;
-      /**
-       * 最小金額 (単位: 円)。ルールが未設定の場合はnullが返ります。
-       */
       min_amount?: number | null;
-      /**
-       * 最大金額 (単位: 円)。ルールが未設定の場合はnullが返ります。
-       */
       max_amount?: number | null;
-      /**
-       * 取引の備考
-       * act=0,1,2,3の場合のみ値が返ります。act=4,10,11,12では常にnullです。
-       *
-       */
       deal_description?: string | null;
-      /**
-       * 口座名
-       */
       walletable?: string | null;
-      /**
-       * 振替先口座名
-       * act=2,3(振替を推測/登録)の場合のみ値が返ります。
-       *
-       */
       transfer_walletable?: string | null;
-      /**
-       * 勘定科目名
-       * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-       *
-       */
       account_item_name?: string | null;
-      /**
-       * 取引先名
-       * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-       *
-       */
       partner_name?: string | null;
-      /**
-       * 品目名
-       * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-       *
-       */
       item_name?: string | null;
-      /**
-       * 部門名
-       * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-       *
-       */
       section_name?: string | null;
-      /**
-       * セグメント1タグ名
-       * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-       *
-       */
       division_tag_1_name?: string | null;
-      /**
-       * セグメント2タグ名
-       * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-       *
-       */
       division_tag_2_name?: string | null;
-      /**
-       * セグメント3タグ名
-       * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-       *
-       */
       division_tag_3_name?: string | null;
-      /**
-       * メモタグ名の配列
-       * act=0,1(取引を推測/登録)の場合のみ値が返ります。メモタグが1つも設定されていない場合はnullが返ります。
-       *
-       */
       default_tag_names?: Array<string> | null;
-      /**
-       * 最終更新ユーザーID
-       * * 0: freeeシステムによる更新
-       *
-       */
       last_updated_user_id?: number | null;
-      /**
-       * 最終更新ユーザー名。表示名が未設定の場合はメールアドレスが返ります。freeeシステムによる更新の場合は「freee」、ユーザー情報を取得できない場合は「-」が返ります。
-       */
       user_name?: string | null;
-      /**
-       * 更新日 (yyyy-mm-dd)
-       */
       updated_at?: string | null;
-      /**
-       * 適用明細数(正答件数)。統計情報が存在しない場合はnullが返ります。
-       */
       corrected_wallet_txn_count?: number | null;
-      /**
-       * 適用率(正答率、パーセント)。統計情報が存在しない場合はnullが返ります。
-       */
       corrected_wallet_txn_count_percentage?: number | null;
-      /**
-       * 適格請求書等
-       * * non_qualified: 該当しない
-       * * qualified: 該当する
-       * * depends_on_partner: 取引先情報に準拠
-       *
-       */
       qualified_invoice_setting?: "non_qualified" | "qualified" | "depends_on_partner";
-      /**
-       * 購入データ原本に準拠
-       * * true: 準拠する
-       * * false: 準拠しない
-       *
-       */
       suggest_tax_from_walletable_invoice?: boolean | null;
-      /**
-       * カードラベル
-       */
       card_label?: string | null;
-      /**
-       * カードラベルID
-       */
       card_label_id?: number | null;
-      /**
-       * 有効/無効
-       * * true: 有効
-       * * false: 無効
-       *
-       */
       active: boolean;
     }>;
   };
@@ -26998,171 +10388,33 @@ export type GetUserMatchersResponse = GetUserMatchersResponses[keyof GetUserMatc
 
 export type CreateUserMatcherData = {
   body: {
-    /**
-     * 登録タイプ
-     * * 0: 取引を推測する(manual_standard)
-     * * 1: 取引を登録する(auto_standard)
-     * * 2: 振替を推測する(manual_transfer)
-     * * 3: 振替を登録する(auto_transfer)
-     * * 4: 無視する取引を登録する(auto_ignore)
-     * * 10: 無視する取引を推測する(manual_ignore)
-     * * 11: プライベート取引を推測する(manual_private)
-     * * 12: プライベート取引を登録する(auto_private)
-     *
-     * このAPIでは以下のactは非対応です:
-     * 5(manual_template), 6(manual_scrub), 7(auto_scrub), 8(manual_output_zengin_scrub), 9(auto_output_zengin_scrub)
-     *
-     */
     act: 0 | 1 | 2 | 3 | 4 | 10 | 11 | 12;
-    /**
-     * 有効/無効
-     * * true: 有効
-     * * false: 無効
-     *
-     */
     active: boolean;
-    /**
-     * マッチ条件
-     * * 0: 部分一致(partial)
-     * * 1: 前方一致(forward)
-     * * 2: 後方一致(backward)
-     * * 3: 完全一致(exact)
-     * * 4: 指定なし(wildcard)
-     *
-     */
     condition: 0 | 1 | 2 | 3 | 4;
-    /**
-     * 説明文。明細の取引内容とマッチングする文字列を指定します。condition=4(指定なし)の場合は無視されます。
-     */
     description: string;
-    /**
-     * 入金/出金
-     * * income: 入金
-     * * expense: 出金
-     *
-     */
     entry_side_str: "income" | "expense";
-    /**
-     * 優先度
-     */
     priority: number;
-    /**
-     * 税区分名
-     * act=0,1(取引を推測/登録)の場合は必須。他のactでは指定しても無視されます。
-     *
-     */
     tax_name?: string | null;
-    /**
-     * 口座名。事業所に登録されている口座の名前を指定します。
-     */
     walletable?: string | null;
-    /**
-     * カードラベル
-     */
     card_label?: string | null;
-    /**
-     * カードラベルID
-     */
     card_label_id?: number | null;
-    /**
-     * 振替先口座名
-     * act=2,3(振替を推測/登録)の場合に使用。他のactでは指定しても無視されます。
-     *
-     */
     transfer_walletable?: string | null;
-    /**
-     * 最小金額 (単位: 円)
-     */
     min_amount?: number | null;
-    /**
-     * 最大金額 (単位: 円)
-     */
     max_amount?: number | null;
-    /**
-     * 取引の備考
-     * act=4,10,11,12(無視/プライベート)では指定しても無視されます。
-     *
-     */
     deal_description?: string | null;
-    /**
-     * 適格請求書等
-     * * non_qualified: 該当しない
-     * * qualified: 該当する
-     * * depends_on_partner: 取引先情報に準拠
-     * act=0,1(取引を推測/登録)の場合のみ使用可能。他のactでは指定しても無視されます。
-     * depends_on_partnerを指定する場合は、partner_nameの指定が必要です。
-     *
-     */
     qualified_invoice_setting?: "non_qualified" | "qualified" | "depends_on_partner";
-    /**
-     * 購入データ原本に準拠
-     * * true: 準拠する
-     * * false: 準拠しない
-     * act=0,1(取引を推測/登録)かつ購入データ原本に対応した口座を指定した場合のみ使用可能。それ以外では指定しても無視されます。
-     *
-     */
     suggest_tax_from_walletable_invoice?: boolean | null;
-    /**
-     * 勘定科目名
-     * act=0,1(取引を推測/登録)の場合は必須。他のactでは指定しても無視されます。
-     *
-     */
     account_item_name?: string | null;
-    /**
-     * 取引先名
-     * act=0,1(取引を推測/登録)の場合のみ使用可能。他のactでは指定しても無視されます。
-     * 指定した名前が登録されていない場合、新規にタグとして作成されます。
-     *
-     */
     partner_name?: string | null;
-    /**
-     * 品目名
-     * act=0,1(取引を推測/登録)の場合のみ使用可能。他のactでは指定しても無視されます。
-     * 指定した名前が登録されていない場合、新規にタグとして作成されます。
-     *
-     */
     item_name?: string | null;
-    /**
-     * 部門名
-     * act=0,1(取引を推測/登録)の場合のみ使用可能。他のactでは指定しても無視されます。
-     * 指定した名前が登録されていない場合、新規にタグとして作成されます。
-     *
-     */
     section_name?: string | null;
-    /**
-     * セグメント1タグ名
-     * act=0,1(取引を推測/登録)の場合のみ使用可能。他のactでは指定しても無視されます。
-     * 指定した名前が登録されていない場合、新規にタグとして作成されます。
-     *
-     */
     division_tag_1_name?: string | null;
-    /**
-     * セグメント2タグ名
-     * act=0,1(取引を推測/登録)の場合のみ使用可能。他のactでは指定しても無視されます。
-     * 指定した名前が登録されていない場合、新規にタグとして作成されます。
-     *
-     */
     division_tag_2_name?: string | null;
-    /**
-     * セグメント3タグ名
-     * act=0,1(取引を推測/登録)の場合のみ使用可能。他のactでは指定しても無視されます。
-     * 指定した名前が登録されていない場合、新規にタグとして作成されます。
-     *
-     */
     division_tag_3_name?: string | null;
-    /**
-     * メモタグ名の配列
-     * act=0,1(取引を推測/登録)の場合のみ使用可能。他のactでは指定しても無視されます。
-     * 指定した名前が登録されていない場合、新規にタグとして作成されます。
-     *
-     */
     default_tag_names?: Array<string> | null;
   };
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/user_matchers";
@@ -27180,202 +10432,40 @@ export type CreateUserMatcherError = CreateUserMatcherErrors[keyof CreateUserMat
 
 export type CreateUserMatcherResponses = {
   201: {
-    /**
-     * 自動登録ルールID
-     */
     id: number;
-    /**
-     * 入金/出金
-     * * income: 入金
-     * * expense: 出金
-     *
-     */
     entry_side_str: "income" | "expense";
-    /**
-     * 説明文。明細の取引内容とのマッチングに使用される文字列です。condition=4(指定なし)の場合は空文字列が返ります。
-     */
     description: string | null;
-    /**
-     * マッチ条件
-     * * 0: 部分一致(partial)
-     * * 1: 前方一致(forward)
-     * * 2: 後方一致(backward)
-     * * 3: 完全一致(exact)
-     * * 4: 指定なし(wildcard)
-     *
-     */
     condition: 0 | 1 | 2 | 3 | 4;
-    /**
-     * 優先度
-     */
     priority: number;
-    /**
-     * 登録タイプ
-     * * 0: 取引を推測する(manual_standard)
-     * * 1: 取引を登録する(auto_standard)
-     * * 2: 振替を推測する(manual_transfer)
-     * * 3: 振替を登録する(auto_transfer)
-     * * 4: 無視する取引を登録する(auto_ignore)
-     * * 10: 無視する取引を推測する(manual_ignore)
-     * * 11: プライベート取引を推測する(manual_private)
-     * * 12: プライベート取引を登録する(auto_private)
-     *
-     * このAPIでは以下のactは非対応です(show時は400エラー、create/update時は指定不可):
-     * 5(manual_template), 6(manual_scrub), 7(auto_scrub), 8(manual_output_zengin_scrub), 9(auto_output_zengin_scrub)
-     *
-     * actの種類により、返されるフィールド（tax_name、account_item_name、deal_description等）が異なります。
-     *
-     */
     act: 0 | 1 | 2 | 3 | 4 | 10 | 11 | 12;
-    /**
-     * 税区分名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     tax_name?: string | null;
-    /**
-     * 税区分コード。税区分名(tax_name)に対応するコードです。
-     */
     tax_code?: number | null;
-    /**
-     * 勘定科目の設定に基づいてシステムが推測した税区分名。画面には表示されません。
-     */
     suggested_tax_name?: string | null;
-    /**
-     * 最小金額 (単位: 円)。ルールが未設定の場合はnullが返ります。
-     */
     min_amount?: number | null;
-    /**
-     * 最大金額 (単位: 円)。ルールが未設定の場合はnullが返ります。
-     */
     max_amount?: number | null;
-    /**
-     * 取引の備考
-     * act=0,1,2,3の場合のみ値が返ります。act=4,10,11,12では常にnullです。
-     *
-     */
     deal_description?: string | null;
-    /**
-     * 口座名
-     */
     walletable?: string | null;
-    /**
-     * 振替先口座名
-     * act=2,3(振替を推測/登録)の場合のみ値が返ります。
-     *
-     */
     transfer_walletable?: string | null;
-    /**
-     * 元取引ID。このルールの作成元となった取引のIDです。freeeが自動作成したルールの場合のみ値が返ります。
-     */
     origin_deal_id?: number | null;
-    /**
-     * 元取引コード
-     */
     origin_deal_code?: number | null;
-    /**
-     * 最終更新ユーザーID
-     * * 0: freeeシステムによる更新
-     *
-     */
     last_updated_user_id: number | null;
-    /**
-     * 最終更新ユーザー名。表示名が未設定の場合はメールアドレスが返ります。freeeシステムによる更新の場合は「freee」、ユーザー情報を取得できない場合は「-」が返ります。
-     */
     user_name: string;
-    /**
-     * 更新日 (yyyy-mm-dd)
-     */
     updated_at?: string | null;
-    /**
-     * 適用明細数(正答件数)。統計情報が存在しない場合はnullが返ります。
-     */
     corrected_wallet_txn_count?: number | null;
-    /**
-     * 適用率(正答率、パーセント)。統計情報が存在しない場合はnullが返ります。
-     */
     corrected_wallet_txn_count_percentage?: number | null;
-    /**
-     * 適格請求書等
-     * * non_qualified: 該当しない
-     * * qualified: 該当する
-     * * depends_on_partner: 取引先情報に準拠
-     *
-     */
     qualified_invoice_setting: "non_qualified" | "qualified" | "depends_on_partner";
-    /**
-     * 購入データ原本に準拠
-     * * true: 準拠する
-     * * false: 準拠しない
-     *
-     */
     suggest_tax_from_walletable_invoice: boolean | null;
-    /**
-     * 口座の銀行名
-     */
     walletable_bank_name?: string | null;
-    /**
-     * カードラベル
-     */
     card_label?: string | null;
-    /**
-     * カードラベルID
-     */
     card_label_id?: number | null;
-    /**
-     * 勘定科目名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     account_item_name?: string | null;
-    /**
-     * 取引先名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     partner_name?: string | null;
-    /**
-     * 品目名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     item_name?: string | null;
-    /**
-     * 部門名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     section_name?: string | null;
-    /**
-     * セグメント1タグ名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     division_tag_1_name?: string | null;
-    /**
-     * セグメント2タグ名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     division_tag_2_name?: string | null;
-    /**
-     * セグメント3タグ名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     division_tag_3_name?: string | null;
-    /**
-     * メモタグ名の配列
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。メモタグが1つも設定されていない場合はnullが返ります。
-     *
-     */
     default_tag_names?: Array<string> | null;
-    /**
-     * 有効/無効
-     * * true: 有効
-     * * false: 無効
-     *
-     */
     active: boolean;
   };
 };
@@ -27386,15 +10476,9 @@ export type CreateUserMatcherResponse =
 export type DestroyUserMatcherData = {
   body?: never;
   path: {
-    /**
-     * 自動登録ルールID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/user_matchers/{id}";
@@ -27421,15 +10505,9 @@ export type DestroyUserMatcherResponse =
 export type GetUserMatcherData = {
   body?: never;
   path: {
-    /**
-     * 自動登録ルールID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/user_matchers/{id}";
@@ -27448,202 +10526,40 @@ export type GetUserMatcherError = GetUserMatcherErrors[keyof GetUserMatcherError
 
 export type GetUserMatcherResponses = {
   200: {
-    /**
-     * 自動登録ルールID
-     */
     id: number;
-    /**
-     * 入金/出金
-     * * income: 入金
-     * * expense: 出金
-     *
-     */
     entry_side_str: "income" | "expense";
-    /**
-     * 説明文。明細の取引内容とのマッチングに使用される文字列です。condition=4(指定なし)の場合は空文字列が返ります。
-     */
     description: string | null;
-    /**
-     * マッチ条件
-     * * 0: 部分一致(partial)
-     * * 1: 前方一致(forward)
-     * * 2: 後方一致(backward)
-     * * 3: 完全一致(exact)
-     * * 4: 指定なし(wildcard)
-     *
-     */
     condition: 0 | 1 | 2 | 3 | 4;
-    /**
-     * 優先度
-     */
     priority: number;
-    /**
-     * 登録タイプ
-     * * 0: 取引を推測する(manual_standard)
-     * * 1: 取引を登録する(auto_standard)
-     * * 2: 振替を推測する(manual_transfer)
-     * * 3: 振替を登録する(auto_transfer)
-     * * 4: 無視する取引を登録する(auto_ignore)
-     * * 10: 無視する取引を推測する(manual_ignore)
-     * * 11: プライベート取引を推測する(manual_private)
-     * * 12: プライベート取引を登録する(auto_private)
-     *
-     * このAPIでは以下のactは非対応です(show時は400エラー、create/update時は指定不可):
-     * 5(manual_template), 6(manual_scrub), 7(auto_scrub), 8(manual_output_zengin_scrub), 9(auto_output_zengin_scrub)
-     *
-     * actの種類により、返されるフィールド（tax_name、account_item_name、deal_description等）が異なります。
-     *
-     */
     act: 0 | 1 | 2 | 3 | 4 | 10 | 11 | 12;
-    /**
-     * 税区分名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     tax_name?: string | null;
-    /**
-     * 税区分コード。税区分名(tax_name)に対応するコードです。
-     */
     tax_code?: number | null;
-    /**
-     * 勘定科目の設定に基づいてシステムが推測した税区分名。画面には表示されません。
-     */
     suggested_tax_name?: string | null;
-    /**
-     * 最小金額 (単位: 円)。ルールが未設定の場合はnullが返ります。
-     */
     min_amount?: number | null;
-    /**
-     * 最大金額 (単位: 円)。ルールが未設定の場合はnullが返ります。
-     */
     max_amount?: number | null;
-    /**
-     * 取引の備考
-     * act=0,1,2,3の場合のみ値が返ります。act=4,10,11,12では常にnullです。
-     *
-     */
     deal_description?: string | null;
-    /**
-     * 口座名
-     */
     walletable?: string | null;
-    /**
-     * 振替先口座名
-     * act=2,3(振替を推測/登録)の場合のみ値が返ります。
-     *
-     */
     transfer_walletable?: string | null;
-    /**
-     * 元取引ID。このルールの作成元となった取引のIDです。freeeが自動作成したルールの場合のみ値が返ります。
-     */
     origin_deal_id?: number | null;
-    /**
-     * 元取引コード
-     */
     origin_deal_code?: number | null;
-    /**
-     * 最終更新ユーザーID
-     * * 0: freeeシステムによる更新
-     *
-     */
     last_updated_user_id: number | null;
-    /**
-     * 最終更新ユーザー名。表示名が未設定の場合はメールアドレスが返ります。freeeシステムによる更新の場合は「freee」、ユーザー情報を取得できない場合は「-」が返ります。
-     */
     user_name: string;
-    /**
-     * 更新日 (yyyy-mm-dd)
-     */
     updated_at?: string | null;
-    /**
-     * 適用明細数(正答件数)。統計情報が存在しない場合はnullが返ります。
-     */
     corrected_wallet_txn_count?: number | null;
-    /**
-     * 適用率(正答率、パーセント)。統計情報が存在しない場合はnullが返ります。
-     */
     corrected_wallet_txn_count_percentage?: number | null;
-    /**
-     * 適格請求書等
-     * * non_qualified: 該当しない
-     * * qualified: 該当する
-     * * depends_on_partner: 取引先情報に準拠
-     *
-     */
     qualified_invoice_setting: "non_qualified" | "qualified" | "depends_on_partner";
-    /**
-     * 購入データ原本に準拠
-     * * true: 準拠する
-     * * false: 準拠しない
-     *
-     */
     suggest_tax_from_walletable_invoice: boolean | null;
-    /**
-     * 口座の銀行名
-     */
     walletable_bank_name?: string | null;
-    /**
-     * カードラベル
-     */
     card_label?: string | null;
-    /**
-     * カードラベルID
-     */
     card_label_id?: number | null;
-    /**
-     * 勘定科目名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     account_item_name?: string | null;
-    /**
-     * 取引先名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     partner_name?: string | null;
-    /**
-     * 品目名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     item_name?: string | null;
-    /**
-     * 部門名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     section_name?: string | null;
-    /**
-     * セグメント1タグ名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     division_tag_1_name?: string | null;
-    /**
-     * セグメント2タグ名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     division_tag_2_name?: string | null;
-    /**
-     * セグメント3タグ名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     division_tag_3_name?: string | null;
-    /**
-     * メモタグ名の配列
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。メモタグが1つも設定されていない場合はnullが返ります。
-     *
-     */
     default_tag_names?: Array<string> | null;
-    /**
-     * 有効/無効
-     * * true: 有効
-     * * false: 無効
-     *
-     */
     active: boolean;
   };
 };
@@ -27652,176 +10568,35 @@ export type GetUserMatcherResponse = GetUserMatcherResponses[keyof GetUserMatche
 
 export type UpdateUserMatcherData = {
   body: {
-    /**
-     * 登録タイプ
-     * * 0: 取引を推測する(manual_standard)
-     * * 1: 取引を登録する(auto_standard)
-     * * 2: 振替を推測する(manual_transfer)
-     * * 3: 振替を登録する(auto_transfer)
-     * * 4: 無視する取引を登録する(auto_ignore)
-     * * 10: 無視する取引を推測する(manual_ignore)
-     * * 11: プライベート取引を推測する(manual_private)
-     * * 12: プライベート取引を登録する(auto_private)
-     *
-     * このAPIでは以下のactは非対応です:
-     * 5(manual_template), 6(manual_scrub), 7(auto_scrub), 8(manual_output_zengin_scrub), 9(auto_output_zengin_scrub)
-     *
-     */
     act: 0 | 1 | 2 | 3 | 4 | 10 | 11 | 12;
-    /**
-     * 有効/無効
-     * * true: 有効
-     * * false: 無効
-     *
-     */
     active: boolean;
-    /**
-     * マッチ条件
-     * * 0: 部分一致(partial)
-     * * 1: 前方一致(forward)
-     * * 2: 後方一致(backward)
-     * * 3: 完全一致(exact)
-     * * 4: 指定なし(wildcard)
-     *
-     */
     condition: 0 | 1 | 2 | 3 | 4;
-    /**
-     * 説明文。明細の取引内容とマッチングする文字列を指定します。condition=4(指定なし)の場合は無視されます。
-     */
     description: string;
-    /**
-     * 入金/出金
-     * * income: 入金
-     * * expense: 出金
-     *
-     */
     entry_side_str: "income" | "expense";
-    /**
-     * 優先度
-     */
     priority: number;
-    /**
-     * 税区分名
-     * act=0,1(取引を推測/登録)の場合は必須。他のactでは指定しても無視されます。
-     *
-     */
     tax_name?: string | null;
-    /**
-     * 口座名。事業所に登録されている口座の名前を指定します。
-     */
     walletable?: string | null;
-    /**
-     * カードラベル
-     */
     card_label?: string | null;
-    /**
-     * カードラベルID
-     */
     card_label_id?: number | null;
-    /**
-     * 振替先口座名
-     * act=2,3(振替を推測/登録)の場合に使用。他のactでは指定しても無視されます。
-     *
-     */
     transfer_walletable?: string | null;
-    /**
-     * 最小金額 (単位: 円)
-     */
     min_amount?: number | null;
-    /**
-     * 最大金額 (単位: 円)
-     */
     max_amount?: number | null;
-    /**
-     * 取引の備考
-     * act=4,10,11,12(無視/プライベート)では指定しても無視されます。
-     *
-     */
     deal_description?: string | null;
-    /**
-     * 適格請求書等
-     * * non_qualified: 該当しない
-     * * qualified: 該当する
-     * * depends_on_partner: 取引先情報に準拠
-     * act=0,1(取引を推測/登録)の場合のみ使用可能。他のactでは指定しても無視されます。
-     * depends_on_partnerを指定する場合は、partner_nameの指定が必要です。
-     *
-     */
     qualified_invoice_setting?: "non_qualified" | "qualified" | "depends_on_partner" | null;
-    /**
-     * 購入データ原本に準拠
-     * * true: 準拠する
-     * * false: 準拠しない
-     * act=0,1(取引を推測/登録)かつ購入データ原本に対応した口座を指定した場合のみ使用可能。それ以外では指定しても無視されます。
-     *
-     */
     suggest_tax_from_walletable_invoice?: boolean | null;
-    /**
-     * 勘定科目名
-     * act=0,1(取引を推測/登録)の場合は必須。他のactでは指定しても無視されます。
-     *
-     */
     account_item_name?: string | null;
-    /**
-     * 取引先名
-     * act=0,1(取引を推測/登録)の場合のみ使用可能。他のactでは指定しても無視されます。
-     * 指定した名前が登録されていない場合、新規にタグとして作成されます。
-     *
-     */
     partner_name?: string | null;
-    /**
-     * 品目名
-     * act=0,1(取引を推測/登録)の場合のみ使用可能。他のactでは指定しても無視されます。
-     * 指定した名前が登録されていない場合、新規にタグとして作成されます。
-     *
-     */
     item_name?: string | null;
-    /**
-     * 部門名
-     * act=0,1(取引を推測/登録)の場合のみ使用可能。他のactでは指定しても無視されます。
-     * 指定した名前が登録されていない場合、新規にタグとして作成されます。
-     *
-     */
     section_name?: string | null;
-    /**
-     * セグメント1タグ名
-     * act=0,1(取引を推測/登録)の場合のみ使用可能。他のactでは指定しても無視されます。
-     * 指定した名前が登録されていない場合、新規にタグとして作成されます。
-     *
-     */
     division_tag_1_name?: string | null;
-    /**
-     * セグメント2タグ名
-     * act=0,1(取引を推測/登録)の場合のみ使用可能。他のactでは指定しても無視されます。
-     * 指定した名前が登録されていない場合、新規にタグとして作成されます。
-     *
-     */
     division_tag_2_name?: string | null;
-    /**
-     * セグメント3タグ名
-     * act=0,1(取引を推測/登録)の場合のみ使用可能。他のactでは指定しても無視されます。
-     * 指定した名前が登録されていない場合、新規にタグとして作成されます。
-     *
-     */
     division_tag_3_name?: string | null;
-    /**
-     * メモタグ名の配列
-     * act=0,1(取引を推測/登録)の場合のみ使用可能。他のactでは指定しても無視されます。
-     * 指定した名前が登録されていない場合、新規にタグとして作成されます。
-     *
-     */
     default_tag_names?: Array<string> | null;
   };
   path: {
-    /**
-     * 自動登録ルールID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/1/user_matchers/{id}";
@@ -27840,202 +10615,40 @@ export type UpdateUserMatcherError = UpdateUserMatcherErrors[keyof UpdateUserMat
 
 export type UpdateUserMatcherResponses = {
   200: {
-    /**
-     * 自動登録ルールID
-     */
     id: number;
-    /**
-     * 入金/出金
-     * * income: 入金
-     * * expense: 出金
-     *
-     */
     entry_side_str: "income" | "expense";
-    /**
-     * 説明文。明細の取引内容とのマッチングに使用される文字列です。condition=4(指定なし)の場合は空文字列が返ります。
-     */
     description: string | null;
-    /**
-     * マッチ条件
-     * * 0: 部分一致(partial)
-     * * 1: 前方一致(forward)
-     * * 2: 後方一致(backward)
-     * * 3: 完全一致(exact)
-     * * 4: 指定なし(wildcard)
-     *
-     */
     condition: 0 | 1 | 2 | 3 | 4;
-    /**
-     * 優先度
-     */
     priority: number;
-    /**
-     * 登録タイプ
-     * * 0: 取引を推測する(manual_standard)
-     * * 1: 取引を登録する(auto_standard)
-     * * 2: 振替を推測する(manual_transfer)
-     * * 3: 振替を登録する(auto_transfer)
-     * * 4: 無視する取引を登録する(auto_ignore)
-     * * 10: 無視する取引を推測する(manual_ignore)
-     * * 11: プライベート取引を推測する(manual_private)
-     * * 12: プライベート取引を登録する(auto_private)
-     *
-     * このAPIでは以下のactは非対応です(show時は400エラー、create/update時は指定不可):
-     * 5(manual_template), 6(manual_scrub), 7(auto_scrub), 8(manual_output_zengin_scrub), 9(auto_output_zengin_scrub)
-     *
-     * actの種類により、返されるフィールド（tax_name、account_item_name、deal_description等）が異なります。
-     *
-     */
     act: 0 | 1 | 2 | 3 | 4 | 10 | 11 | 12;
-    /**
-     * 税区分名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     tax_name?: string | null;
-    /**
-     * 税区分コード。税区分名(tax_name)に対応するコードです。
-     */
     tax_code?: number | null;
-    /**
-     * 勘定科目の設定に基づいてシステムが推測した税区分名。画面には表示されません。
-     */
     suggested_tax_name?: string | null;
-    /**
-     * 最小金額 (単位: 円)。ルールが未設定の場合はnullが返ります。
-     */
     min_amount?: number | null;
-    /**
-     * 最大金額 (単位: 円)。ルールが未設定の場合はnullが返ります。
-     */
     max_amount?: number | null;
-    /**
-     * 取引の備考
-     * act=0,1,2,3の場合のみ値が返ります。act=4,10,11,12では常にnullです。
-     *
-     */
     deal_description?: string | null;
-    /**
-     * 口座名
-     */
     walletable?: string | null;
-    /**
-     * 振替先口座名
-     * act=2,3(振替を推測/登録)の場合のみ値が返ります。
-     *
-     */
     transfer_walletable?: string | null;
-    /**
-     * 元取引ID。このルールの作成元となった取引のIDです。freeeが自動作成したルールの場合のみ値が返ります。
-     */
     origin_deal_id?: number | null;
-    /**
-     * 元取引コード
-     */
     origin_deal_code?: number | null;
-    /**
-     * 最終更新ユーザーID
-     * * 0: freeeシステムによる更新
-     *
-     */
     last_updated_user_id: number | null;
-    /**
-     * 最終更新ユーザー名。表示名が未設定の場合はメールアドレスが返ります。freeeシステムによる更新の場合は「freee」、ユーザー情報を取得できない場合は「-」が返ります。
-     */
     user_name: string;
-    /**
-     * 更新日 (yyyy-mm-dd)
-     */
     updated_at?: string | null;
-    /**
-     * 適用明細数(正答件数)。統計情報が存在しない場合はnullが返ります。
-     */
     corrected_wallet_txn_count?: number | null;
-    /**
-     * 適用率(正答率、パーセント)。統計情報が存在しない場合はnullが返ります。
-     */
     corrected_wallet_txn_count_percentage?: number | null;
-    /**
-     * 適格請求書等
-     * * non_qualified: 該当しない
-     * * qualified: 該当する
-     * * depends_on_partner: 取引先情報に準拠
-     *
-     */
     qualified_invoice_setting: "non_qualified" | "qualified" | "depends_on_partner";
-    /**
-     * 購入データ原本に準拠
-     * * true: 準拠する
-     * * false: 準拠しない
-     *
-     */
     suggest_tax_from_walletable_invoice: boolean | null;
-    /**
-     * 口座の銀行名
-     */
     walletable_bank_name?: string | null;
-    /**
-     * カードラベル
-     */
     card_label?: string | null;
-    /**
-     * カードラベルID
-     */
     card_label_id?: number | null;
-    /**
-     * 勘定科目名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     account_item_name?: string | null;
-    /**
-     * 取引先名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     partner_name?: string | null;
-    /**
-     * 品目名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     item_name?: string | null;
-    /**
-     * 部門名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     section_name?: string | null;
-    /**
-     * セグメント1タグ名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     division_tag_1_name?: string | null;
-    /**
-     * セグメント2タグ名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     division_tag_2_name?: string | null;
-    /**
-     * セグメント3タグ名
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。
-     *
-     */
     division_tag_3_name?: string | null;
-    /**
-     * メモタグ名の配列
-     * act=0,1(取引を推測/登録)の場合のみ値が返ります。メモタグが1つも設定されていない場合はnullが返ります。
-     *
-     */
     default_tag_names?: Array<string> | null;
-    /**
-     * 有効/無効
-     * * true: 有効
-     * * false: 無効
-     *
-     */
     active: boolean;
   };
 };
@@ -28045,13 +10658,7 @@ export type UpdateUserMatcherResponse =
 
 export type ApplyUserMatchersData = {
   body: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 自動登録ルールを適用する明細IDのリスト
-     */
     wallet_txn_ids: Array<number>;
   };
   path?: never;
@@ -28060,29 +10667,14 @@ export type ApplyUserMatchersData = {
 };
 
 export type ApplyUserMatchersErrors = {
-  /**
-   * クライアントエラー
-   */
   400: BadRequestError;
-  /**
-   * 未認証
-   */
   401: UnauthorizedError;
-  /**
-   * 未認可
-   */
   403: ForbiddenError;
-  /**
-   * サーバーエラー
-   */
   500: InternalServerError;
 };
 
 export type ApplyUserMatchersError = ApplyUserMatchersErrors[keyof ApplyUserMatchersErrors];
 
 export type ApplyUserMatchersResponses = {
-  /**
-   * 自動登録ルール一括適用レスポンス
-   */
   200: unknown;
 };

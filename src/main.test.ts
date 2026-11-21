@@ -35,7 +35,10 @@ describe("CLI integration", () => {
     expect(stdout).toContain("freee");
     expect(stdout).toContain("auth");
     expect(stdout).toContain("setup");
-    expect(stdout).toContain("quotation");
+    expect(stdout).toContain("accounting");
+    expect(stdout).toContain("invoice");
+    expect(stdout).toContain("hr");
+    expect(stdout).toContain("schema");
     expect(stdout).toContain("freee setup");
   });
 
@@ -46,7 +49,7 @@ describe("CLI integration", () => {
   });
 
   test("a command group without a subcommand reports a JSON error", async () => {
-    for (const args of [[], ["deal"], ["deal", "payment"]]) {
+    for (const args of [[], ["accounting"], ["accounting", "deal"]]) {
       const { stdout, stderr, exitCode } = await runCliWithEmptyConfig(args);
       expect(exitCode).toBe(1);
       expect(stdout).toBe("");
@@ -79,6 +82,7 @@ describe("CLI integration", () => {
 
   test("a dry run prints its preview to stdout as one line of JSON", async () => {
     const { stdout, exitCode } = await runCliWithEmptyConfig([
+      "accounting",
       "deal",
       "delete",
       "--company-id",
@@ -90,8 +94,42 @@ describe("CLI integration", () => {
 
     expect(exitCode).toBe(0);
     expect(stdout).toBe(
-      '{"dryRun":true,"request":{"method":"DELETE","path":"/api/1/deals/42","query":{"company_id":123}}}\n',
+      '{"dryRun":true,"request":{"method":"DELETE","url":"https://api.freee.co.jp/api/1/deals/42","query":{"company_id":123}}}\n',
     );
+  });
+
+  test("a stray argument stops the command before it runs", async () => {
+    const { stdout, stderr, exitCode } = await runCliWithEmptyConfig([
+      "accounting",
+      "deal",
+      "delete",
+      "--company-id",
+      "1",
+      "--id",
+      "2",
+      "--dry-run",
+      "false",
+    ]);
+
+    expect(exitCode).toBe(1);
+    expect(stdout).toBe("");
+    expect(JSON.parse(stderr).error).toBe("Unexpected argument: false");
+  });
+
+  test("an integer flag beyond 2^53 - 1 is rejected instead of rounded", async () => {
+    const { stderr, exitCode } = await runCliWithEmptyConfig([
+      "accounting",
+      "deal",
+      "show",
+      "--company-id",
+      "1",
+      "--id",
+      "9007199254740993",
+      "--dry-run",
+    ]);
+
+    expect(exitCode).toBe(1);
+    expect(JSON.parse(stderr).error).toContain("2^53 - 1");
   });
 
   test("unknown commands report one error without an internal stack trace", async () => {
@@ -104,7 +142,11 @@ describe("CLI integration", () => {
   });
 
   test("missing required arguments report one error without an internal stack trace", async () => {
-    const { stdout, stderr, exitCode } = await runCliWithEmptyConfig(["deal", "show"]);
+    const { stdout, stderr, exitCode } = await runCliWithEmptyConfig([
+      "accounting",
+      "deal",
+      "show",
+    ]);
 
     expect(exitCode).toBe(1);
     expect(stdout).toBe("");
@@ -112,7 +154,7 @@ describe("CLI integration", () => {
     expect(payload.error).toContain("Argument '--id' is required");
     expect(payload.exitCode).toBe(1);
     expect(payload.why).toContain("command interface");
-    expect(payload.hint).toContain("freee deal show --help");
+    expect(payload.hint).toContain("freee accounting deal show --help");
     expect(stderr.match(/Argument '--id' is required/g)).toHaveLength(1);
     expect(stderr).not.toContain("TypeError");
     expect(stderr).not.toContain("Bun v");
@@ -120,20 +162,13 @@ describe("CLI integration", () => {
 
   test("unknown options fail before a write command can run", async () => {
     const { stdout, stderr, exitCode } = await runCliWithEmptyConfig([
+      "accounting",
       "deal",
       "create",
       "--company-id",
       "123",
-      "--date",
-      "2026-03-15",
-      "--type",
-      "expense",
-      "--account-item-id",
-      "101",
-      "--tax-code",
-      "21",
-      "--amount",
-      "10000",
+      "--body",
+      "{}",
       "--dryrun",
     ]);
 
@@ -144,23 +179,22 @@ describe("CLI integration", () => {
     expect(stderr).not.toContain("No credentials found");
   });
 
-  test("malformed CLI input reports one actionable validation issue", async () => {
+  test("a request that breaks the API schema reports one validation issue", async () => {
     const { stdout, stderr, exitCode } = await runCliWithEmptyConfig([
-      "invoice",
-      "update",
+      "accounting",
+      "manual-journal",
+      "create",
       "--company-id",
       "1",
-      "--id",
-      "2",
-      "--billing-date",
-      "2026/08/01",
+      "--body",
+      '{"issue_date":"2026-08-01","details":[{"entry_side":"left","tax_code":0,"amount":1}]}',
       "--dry-run",
     ]);
 
     expect(exitCode).toBe(1);
     expect(stdout).toBe("");
     const payload = JSON.parse(stderr);
-    expect(payload.error).toContain("--billing-date is invalid");
-    expect(payload.error.match(/Expected a real date in YYYY-MM-DD format\./g)).toHaveLength(1);
+    expect(payload.code).toBe("INVALID_INPUT");
+    expect(payload.error).toContain("body.details.0.entry_side");
   });
 });

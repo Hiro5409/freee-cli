@@ -350,19 +350,6 @@ export type Options<
   meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta;
 };
 
-/**
- * ログインユーザーの取得
- *
- * <h2 id="">概要</h2>
- * <p>このリクエストの認可セッションにおけるログインユーザーの情報を返します。</p>
- * <p>freee人事労務では一人のログインユーザーを複数の事業所に関連付けられるため、このユーザーと関連のあるすべての事業所の情報をリストで返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>他のAPIのパラメータとしてcompany_idが求められる場合は、このAPIで取得したcompany_idを使用します。</li>
- *   <li>給与計算対象外の従業員のemployee_idとdisplay_nameは取得できません。</li>
- * </ul>
- */
 export const getUsersMe = <ThrowOnError extends boolean = true>(
   options?: Options<GetUsersMeData, ThrowOnError>,
 ): RequestResult<GetUsersMeResponses, GetUsersMeErrors, ThrowOnError> =>
@@ -372,18 +359,6 @@ export const getUsersMe = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 全期間の従業員一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所に所属する従業員をリストで返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- *   <li>退職ユーザーも含めて取得可能です。</li>
- * </ul>
- */
 export const getCompanyEmployees = <ThrowOnError extends boolean = true>(
   options: Options<GetCompanyEmployeesData, ThrowOnError>,
 ): RequestResult<GetCompanyEmployeesResponses, GetCompanyEmployeesErrors, ThrowOnError> =>
@@ -397,20 +372,6 @@ export const getCompanyEmployees = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 従業員一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した対象年月に事業所に所属する従業員をリストで返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- *   <li>指定した年月に退職済みユーザーは取得できません。</li>
- *   <li>保険料計算方法が自動計算の場合、対応する保険料の直接指定金額は無視されnullが返されます。(例: 給与計算時の健康保険料の計算方法が自動計算の場合、給与計算時の健康保険料の直接指定金額はnullが返されます)</li>
- *   <li>事業所が定額制の健康保険組合に加入している場合、保険料の直接指定金額は無視されnullが返されます。</li>
- * </ul>
- */
 export const getEmployees = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeesData, ThrowOnError>,
 ): RequestResult<GetEmployeesResponses, GetEmployeesErrors, ThrowOnError> =>
@@ -420,17 +381,6 @@ export const getEmployees = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 従業員の作成
- *
- * <h2 id="">概要</h2>
- * <p>従業員を新規作成します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const createEmployee = <ThrowOnError extends boolean = true>(
   options?: Options<CreateEmployeeData, ThrowOnError>,
 ): RequestResult<CreateEmployeeResponses, CreateEmployeeErrors, ThrowOnError> =>
@@ -444,17 +394,6 @@ export const createEmployee = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 従業員の削除
- *
- * <h2 id="">概要</h2>
- * <p>指定したIDの従業員を削除します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const destroyEmployee = <ThrowOnError extends boolean = true>(
   options: Options<DestroyEmployeeData, ThrowOnError>,
 ): RequestResult<DestroyEmployeeResponses, DestroyEmployeeErrors, ThrowOnError> =>
@@ -464,20 +403,6 @@ export const destroyEmployee = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 従業員の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定したIDの従業員を返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- *   <li>指定した年月に退職済みユーザーは取得できません。</li>
- *   <li>保険料計算方法が自動計算の場合、対応する保険料の直接指定金額は無視されnullが返されます。(例: 給与計算時の健康保険料の計算方法が自動計算の場合、給与計算時の健康保険料の直接指定金額はnullが返されます)</li>
- *   <li>事業所が定額制の健康保険組合に加入している場合、保険料の直接指定金額は無視されnullが返されます。</li>
- * </ul>
- */
 export const getEmployee = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeeData, ThrowOnError>,
 ): RequestResult<GetEmployeeResponses, GetEmployeeErrors, ThrowOnError> =>
@@ -487,17 +412,6 @@ export const getEmployee = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 従業員の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の情報を更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const updateEmployee = <ThrowOnError extends boolean = true>(
   options: Options<UpdateEmployeeData, ThrowOnError>,
 ): RequestResult<UpdateEmployeeResponses, UpdateEmployeeErrors, ThrowOnError> =>
@@ -511,17 +425,6 @@ export const updateEmployee = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 従業員の姓名・住所などの取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員・日付の姓名などの情報を返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>本APIは、給与計算対象外の従業員には非対応です。employee_idに給与計算対象外の従業員IDを指定した場合、本APIを利用できません。</li>
- * </ul>
- */
 export const getEmployeeProfileRule = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeeProfileRuleData, ThrowOnError>,
 ): RequestResult<GetEmployeeProfileRuleResponses, GetEmployeeProfileRuleErrors, ThrowOnError> =>
@@ -535,17 +438,6 @@ export const getEmployeeProfileRule = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 従業員の姓名・住所などの更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の姓名・住所などを更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>本APIは、給与計算対象外の従業員には非対応です。employee_idに給与計算対象外の従業員IDを指定した場合、本APIを利用できません。</li>
- * </ul>
- */
 export const updateEmployeeProfileRule = <ThrowOnError extends boolean = true>(
   options: Options<UpdateEmployeeProfileRuleData, ThrowOnError>,
 ): RequestResult<
@@ -567,18 +459,6 @@ export const updateEmployeeProfileRule = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 従業員の健康保険の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員・日付の健康保険情報を返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- *   <li>保険料計算方法が自動計算の場合、対応する保険料の直接指定金額は無視されnullが返されます。(例: 給与計算時の健康保険料の計算方法が自動計算の場合、給与計算時の健康保険料の直接指定金額はnullが返されます)</li>
- * </ul>
- */
 export const getEmployeeHealthInsuranceRule = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeeHealthInsuranceRuleData, ThrowOnError>,
 ): RequestResult<
@@ -596,20 +476,6 @@ export const getEmployeeHealthInsuranceRule = <ThrowOnError extends boolean = tr
     ...options,
   });
 
-/**
- * 従業員の健康保険の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の健康保険情報を更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- *   <li>保険料計算方法が自動計算の場合、対応する保険料の直接指定金額は無視されnullが返されます。(例: 給与計算時の健康保険料の計算方法が自動計算の場合、給与計算時の健康保険料の直接指定金額はnullが返されます)</li>
- *   <li>事業所が定額制の健康保険組合に加入している場合、保険料の直接指定金額は無視されnullが返されます。</li>
- *   <li>事業所が定額制の健康保険組合に加入している場合、保険料の計算方法と保険料の更新はできません。</li>
- * </ul>
- */
 export const updateEmployeeHealthInsuranceRule = <ThrowOnError extends boolean = true>(
   options: Options<UpdateEmployeeHealthInsuranceRuleData, ThrowOnError>,
 ): RequestResult<
@@ -631,18 +497,6 @@ export const updateEmployeeHealthInsuranceRule = <ThrowOnError extends boolean =
     },
   });
 
-/**
- * 従業員の厚生年金保険の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員・日付の厚生年金保険情報を返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- *   <li>保険料計算方法が自動計算の場合、対応する保険料の直接指定金額は無視されnullが返されます。(例: 給与計算時の厚生年金保険料の計算方法が自動計算の場合、給与計算時の厚生年金保険料の直接指定金額はnullが返されます)</li>
- * </ul>
- */
 export const getEmployeeWelfarePensionInsuranceRule = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeeWelfarePensionInsuranceRuleData, ThrowOnError>,
 ): RequestResult<
@@ -660,18 +514,6 @@ export const getEmployeeWelfarePensionInsuranceRule = <ThrowOnError extends bool
     ...options,
   });
 
-/**
- * 従業員の厚生年金保険の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の厚生年金保険情報を更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- *   <li>保険料計算方法が自動計算の場合、対応する保険料の直接指定金額は無視されnullが返されます。(例: 給与計算時の厚生年金保険料の計算方法が自動計算の場合、給与計算時の厚生年金保険料の直接指定金額はnullが返されます)</li>
- * </ul>
- */
 export const updateEmployeeWelfarePensionInsuranceRule = <ThrowOnError extends boolean = true>(
   options: Options<UpdateEmployeeWelfarePensionInsuranceRuleData, ThrowOnError>,
 ): RequestResult<
@@ -693,12 +535,6 @@ export const updateEmployeeWelfarePensionInsuranceRule = <ThrowOnError extends b
     },
   });
 
-/**
- * 従業員の家族情報の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員・日付の家族情報を返します。</p>
- */
 export const getEmployeeDependentRules = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeeDependentRulesData, ThrowOnError>,
 ): RequestResult<
@@ -716,30 +552,6 @@ export const getEmployeeDependentRules = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 従業員の家族情報の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の家族情報を更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>idがない場合は新規作成、destroyがtrueの場合は削除になります。</li>
- *   <li>residence_type=live_in: 同居の場合、以下のパラメータに指定した値はWebに反映されません。</li>
- *   <ul>
- *     <li>zipcode1</li>
- *     <li>zipcode2</li>
- *     <li>prefecture_code</li>
- *     <li>address</li>
- *     <li>address_kana</li>
- *     <li>annual_remittance_amount</li>
- *   </ul>
- *   <li>residence_type=non_resident: 別居(国外)の場合、以下のパラメータに指定した値はWebに反映されません。</li>
- *   <ul>
- *     <li>prefecture_code</li>
- *   </ul>
- * </ul>
- */
 export const bulkUpdateEmployeeDependentRules = <ThrowOnError extends boolean = true>(
   options: Options<BulkUpdateEmployeeDependentRulesData, ThrowOnError>,
 ): RequestResult<
@@ -761,12 +573,6 @@ export const bulkUpdateEmployeeDependentRules = <ThrowOnError extends boolean = 
     },
   });
 
-/**
- * 従業員の銀行口座の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員・日付の銀行口座情報を返します。</p>
- */
 export const getEmployeeBankAccountRule = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeeBankAccountRuleData, ThrowOnError>,
 ): RequestResult<
@@ -784,12 +590,6 @@ export const getEmployeeBankAccountRule = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 従業員の銀行口座の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の銀行口座1の情報を更新します。</p>
- */
 export const updateEmployeeBankAccountRule = <ThrowOnError extends boolean = true>(
   options: Options<UpdateEmployeeBankAccountRuleData, ThrowOnError>,
 ): RequestResult<
@@ -811,17 +611,6 @@ export const updateEmployeeBankAccountRule = <ThrowOnError extends boolean = tru
     },
   });
 
-/**
- * 従業員の基本給の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員・日付の基本給情報を返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const getEmployeeBasicPayRule = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeeBasicPayRuleData, ThrowOnError>,
 ): RequestResult<GetEmployeeBasicPayRuleResponses, GetEmployeeBasicPayRuleErrors, ThrowOnError> =>
@@ -835,17 +624,6 @@ export const getEmployeeBasicPayRule = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 従業員の基本給の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の基本給情報を更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const updateEmployeeBasicPayRule = <ThrowOnError extends boolean = true>(
   options: Options<UpdateEmployeeBasicPayRuleData, ThrowOnError>,
 ): RequestResult<
@@ -867,17 +645,6 @@ export const updateEmployeeBasicPayRule = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 従業員の手当情報の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の手当情報をリストで返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const getEmployeeAllowanceRules = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeeAllowanceRulesData, ThrowOnError>,
 ): RequestResult<
@@ -895,18 +662,6 @@ export const getEmployeeAllowanceRules = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 従業員の手当情報の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の手当情報を更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- *   <li>賞与に紐づく手当（frequency=bonus）の場合、対象年月に賞与情報が登録されている必要があります。</li>
- * </ul>
- */
 export const updateEmployeeAllowanceRules = <ThrowOnError extends boolean = true>(
   options: Options<UpdateEmployeeAllowanceRulesData, ThrowOnError>,
 ): RequestResult<
@@ -928,17 +683,6 @@ export const updateEmployeeAllowanceRules = <ThrowOnError extends boolean = true
     },
   });
 
-/**
- * 従業員の手当情報の削除
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の手当情報を削除します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const destroyEmployeeAllowanceRule = <ThrowOnError extends boolean = true>(
   options: Options<DestroyEmployeeAllowanceRuleData, ThrowOnError>,
 ): RequestResult<
@@ -956,17 +700,6 @@ export const destroyEmployeeAllowanceRule = <ThrowOnError extends boolean = true
     ...options,
   });
 
-/**
- * 従業員の控除情報の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の控除情報をリストで返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const getEmployeeDeductionRules = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeeDeductionRulesData, ThrowOnError>,
 ): RequestResult<
@@ -984,18 +717,6 @@ export const getEmployeeDeductionRules = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 従業員の控除情報の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の控除情報を更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- *   <li>賞与に紐づく控除（frequency=bonus）の場合、対象年月に賞与情報が登録されている必要があります。</li>
- * </ul>
- */
 export const updateEmployeeDeductionRules = <ThrowOnError extends boolean = true>(
   options: Options<UpdateEmployeeDeductionRulesData, ThrowOnError>,
 ): RequestResult<
@@ -1017,17 +738,6 @@ export const updateEmployeeDeductionRules = <ThrowOnError extends boolean = true
     },
   });
 
-/**
- * 従業員の控除情報の削除
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の控除情報を削除します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const destroyEmployeeDeductionRule = <ThrowOnError extends boolean = true>(
   options: Options<DestroyEmployeeDeductionRuleData, ThrowOnError>,
 ): RequestResult<
@@ -1045,18 +755,6 @@ export const destroyEmployeeDeductionRule = <ThrowOnError extends boolean = true
     ...options,
   });
 
-/**
- * 従業員のカスタム項目の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員・日付のカスタム項目情報を返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- *   <li>指定年月に在籍していない従業員および給与計算対象外の従業員ではデータが存在しないため、空の配列が返ります。</li>
- * </ul>
- */
 export const getEmployeeProfileCustomFieldsRule = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeeProfileCustomFieldsRuleData, ThrowOnError>,
 ): RequestResult<
@@ -1074,12 +772,6 @@ export const getEmployeeProfileCustomFieldsRule = <ThrowOnError extends boolean 
     ...options,
   });
 
-/**
- * 勤怠の削除
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の勤怠情報を削除します。</p>
- */
 export const destroyEmployeeWorkRecord = <ThrowOnError extends boolean = true>(
   options: Options<DestroyEmployeeWorkRecordData, ThrowOnError>,
 ): RequestResult<
@@ -1097,12 +789,6 @@ export const destroyEmployeeWorkRecord = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 勤怠の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員・日付の勤怠情報を返します。</p>
- */
 export const getEmployeeWorkRecord = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeeWorkRecordData, ThrowOnError>,
 ): RequestResult<GetEmployeeWorkRecordResponses, GetEmployeeWorkRecordErrors, ThrowOnError> =>
@@ -1116,227 +802,6 @@ export const getEmployeeWorkRecord = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 勤怠の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の勤怠情報を更新します。</p>
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>振替出勤・振替休日・代休出勤・代休の登録はAPIでは行うことができません。</li>
- * </ul>
- *
- * <h2 id="_2">examples</h2>
- * <ul>
- *   <li>出勤日について出退勤時刻および休憩時間を更新する場合は以下のようなパラメータをリクエストします。
- *     <pre>
- *       <code>
- *       {
- *         "company_id": 1,
- *         "break_records": [
- *           {
- *             "clock_in_at": "2017-05-25 12:00:00",
- *             "clock_out_at": "2017-05-25 13:00:00"
- *           }
- *         ],
- *         "work_record_segments": [
- *           {
- *             "clock_in_at": "2017-05-25 09:10:00",
- *             "clock_out_at": "2017-05-25 18:20:00"
- *           }
- *         ]
- *       }
- *       </code>
- *     </pre>
- *   </li>
- *
- *   <li>勤務パターンや既定の所定労働時間を変更する場合は use_default_work_pattern に false を指定するとともに、各設定を上書きするパラメータをリクエストします。
- *     <pre>
- *       <code>
- *       {
- *         "company_id": 1,
- *         "break_records": [
- *           {
- *             "clock_in_at": "2017-05-25 12:00:00",
- *             "clock_out_at": "2017-05-25 13:00:00"
- *           }
- *         ],
- *         "work_record_segments": [
- *           {
- *             "clock_in_at": "2017-05-25 09:10:00",
- *             "clock_out_at": "2017-05-25 18:20:00"
- *           }
- *         ],
- *         "day_pattern": "normal_day",
- *         "normal_work_clock_in_at": "2017-05-25 11:00:00",
- *         "normal_work_clock_out_at": "2017-12-20 20:00:00",
- *         "normal_work_mins": 0,
- *         "use_default_work_pattern": false
- *       }
- *       </code>
- *     </pre>
- *   </li>
- *
- *   <li>有給取得時の連携について半休の場合は通常勤務のように勤務開始・終了時間を指定しつつ、加えて以下の要素を指定することで API での勤怠をつけることができます。
- *     <pre>
- *       <code>
- *       {
- *         "company_id": 1,
- *         "break_records": [
- *           {
- *             "clock_in_at": "2023-12-22 12:00:00",
- *             "clock_out_at": "2023-12-22 13:00:00"
- *           }
- *         ],
- *         "work_record_segments": [
- *           {
- *             "clock_in_at": "2017-05-25 09:10:00",
- *             "clock_out_at": "2017-05-25 18:20:00"
- *           }
- *         ],
- *         "paid_holidays": [
- *           {
- *             "type": "half"
- *             "mins": 240
- *           }
- *         ]
- *       }
- *       </code>
- *     </pre>
- *   </li>
- *
- *   <li>有給取得時の連携について午前休または午後休の場合は通常勤務のように勤務開始・終了時間を指定しつつ、加えて以下の要素を指定することで API での勤怠をつけることができます。
- *     <pre>
- *       <code>
- *       {
- *         "company_id": 1,
- *         "break_records": [
- *           {
- *             "clock_in_at": "2023-12-22 16:00:00",
- *             "clock_out_at": "2023-12-22 16:30:00"
- *           }
- *         ],
- *         "clock_in_at": "2023-12-22 14:00:00",
- *         "clock_out_at": "2023-12-22 18:00:00",
- *         "paid_holidays": [
- *           {
- *             "type": "morning_off"
- *           }
- *         ]
- *       }
- *       </code>
- *     </pre>
- *   </li>
- *
- *   <li>有給取得時の連携について半日単位の年次有給休暇と時間単位の年次有給休暇を同日に取得する場合は通常勤務のように勤務開始・終了時間を指定しつつ、加えて以下の要素を指定することで API での勤怠をつけることができます。
- *     <pre>
- *       <code>
- *       {
- *         "company_id": 1,
- *         "break_records": [
- *           {
- *             "clock_in_at": "2023-12-22 16:00:00",
- *             "clock_out_at": "2023-12-22 16:30:00"
- *           }
- *         ],
- *         "clock_in_at": "2023-12-22 14:00:00",
- *         "clock_out_at": "2023-12-22 18:00:00",
- *         "paid_holidays": [
- *           {
- *             "type": "half",
- *             "mins": 240
- *           },
- *           {
- *             "type": "hourly",
- *             "mins": 120
- *           },
- *         ]
- *       }
- *       </code>
- *     </pre>
- *   </li>
- *
- *   <li>特別休暇取得時の連携について全休の場合は以下の要素を指定することで API での勤怠をつけることができます。
- *     <ul>
- *       <li>special_holiday (全休の場合1.0を指定します)</li>
- *       <li>special_holiday_setting_id (特別休暇設定IDを指定します)</li>
- *     </ul>
- *     <pre>
- *       <code>
- *       {
- *         "company_id": 1,
- *         "special_holiday": 1.0
- *         "special_holiday_setting_id": 1
- *       }
- *       </code>
- *     </pre>
- *   </li>
- *
- *   <li>特別休暇取得時の連携について時間休の場合は通常勤務のように勤務開始・終了時間を指定しつつ、加えて以下の要素を指定することで API での勤怠をつけることができます。
- *     <ul>
- *       <li>special_holiday_setting_id (特別休暇設定IDを指定します)</li>
- *       <li>hourly_special_holiday_mins (時間休により計上される所定労働時間を分で指定します)</li>
- *     </ul>
- *     <pre>
- *       <code>
- *       {
- *         "company_id": 1,
- *         "break_records": [
- *           {
- *             "clock_in_at": "2023-12-22 12:00:00",
- *             "clock_out_at": "2023-12-22 13:00:00"
- *           }
- *         ],
- *         "work_record_segments": [
- *           {
- *             "clock_in_at": "2017-05-25 09:10:00",
- *             "clock_out_at": "2017-05-25 18:20:00"
- *           }
- *         ],
- *         "special_holiday_setting_id": 1,
- *         "hourly_special_holiday_mins": 120
- *       }
- *       </code>
- *     </pre>
- *   </li>
- *
- *   <li>特別休暇取得時の連携について午前休または午後休の場合は通常勤務のように勤務開始・終了時間を指定しつつ、加えて以下の要素を指定することで API での勤怠をつけることができます。
- *     <ul>
- *       <li>special_holiday_setting_id (特別休暇設定IDを指定します)</li>
- *       <li>half_holiday_type (morning_off または afternoon_off を指定します)</li>
- *     </ul>
- *     <pre>
- *       <code>
- *       {
- *         "company_id": 1,
- *         "break_records": [
- *           {
- *             "clock_in_at": "2023-12-22 12:00:00",
- *             "clock_out_at": "2023-12-22 12:30:00"
- *           }
- *         ],
- *         "clock_in_at": "2023-12-22 09:00:00",
- *         "clock_out_at": "2023-12-22 13:00:00",
- *         "special_holiday_setting_id": 1,
- *         "half_holiday_type": "afternoon_off"
- *       }
- *       </code>
- *     </pre>
- *   </li>
- *
- *   <li>欠勤を付ける場合は company_idとis_absence 以外のパラメータは必要ありません。
- *     <pre>
- *       <code>
- *       {
- *         "company_id": 1,
- *         "is_absence": true
- *       }
- *       </code>
- *     </pre>
- *   </li>
- *
- * </ul>
- */
 export const updateEmployeeWorkRecord = <ThrowOnError extends boolean = true>(
   options: Options<UpdateEmployeeWorkRecordData, ThrowOnError>,
 ): RequestResult<UpdateEmployeeWorkRecordResponses, UpdateEmployeeWorkRecordErrors, ThrowOnError> =>
@@ -1354,17 +819,6 @@ export const updateEmployeeWorkRecord = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 勤怠情報月次サマリの取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員、月の勤怠情報のサマリを返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>work_recordsオプションにtrueを指定することで、明細となる日次の勤怠情報もあわせて返却します。</li>
- * </ul>
- */
 export const getEmployeeWorkRecordSummary = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeeWorkRecordSummaryData, ThrowOnError>,
 ): RequestResult<
@@ -1382,20 +836,6 @@ export const getEmployeeWorkRecordSummary = <ThrowOnError extends boolean = true
     ...options,
   });
 
-/**
- * 勤怠情報月次サマリの更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員、月の勤怠情報のサマリを更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- *   <li>日毎の勤怠の更新はこのAPIではできません。日毎の勤怠の操作には勤怠APIを使用して下さい。</li>
- *   <li>勤怠データが存在しない場合は新規作成、既に存在する場合は上書き更新されます。</li>
- *   <li>値が設定された項目のみ更新されます。値が設定されなかった場合は自動的に0が設定されます。</li>
- * </ul>
- */
 export const updateEmployeeWorkRecordSummary = <ThrowOnError extends boolean = true>(
   options: Options<UpdateEmployeeWorkRecordSummaryData, ThrowOnError>,
 ): RequestResult<
@@ -1417,12 +857,6 @@ export const updateEmployeeWorkRecordSummary = <ThrowOnError extends boolean = t
     },
   });
 
-/**
- * 打刻一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員・期間の打刻情報を返します。</p>
- */
 export const getEmployeeTimeClocks = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeeTimeClocksData, ThrowOnError>,
 ): RequestResult<GetEmployeeTimeClocksResponses, GetEmployeeTimeClocksErrors, ThrowOnError> =>
@@ -1436,34 +870,6 @@ export const getEmployeeTimeClocks = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 打刻の登録
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の打刻情報を登録します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>休憩開始の連続や退勤のみなど、整合性の取れていない打刻は登録できません。
- * 打刻可能種別の取得APIを呼ぶことで、その従業員がその時点で登録可能な打刻種別が取得できます。</li>
- *
- *   <li>出勤の打刻は</li>
- *   <ul>
- *     <li>前日の出勤時刻から24時間以内の場合、前日の退勤打刻が必須です。</li>
- *     <li> 前日の出勤時刻から24時間経過している場合は、前日の退勤打刻がなくとも出勤打刻を登録することができます。</li>
- *   </ul>
- *
- *   <li>退勤の打刻は</li>
- *   <ul>
- *     <li><a href=\"https://support.freee.co.jp/hc/ja/articles/900004490226-%E5%8B%A4%E6%80%A0%E5%9F%BA%E6%9C%AC%E8%A8%AD%E5%AE%9A%E3%82%92%E8%A1%8C%E3%81%86#h_01EYPYTR9HZ7YB8V5F18VMD1BT"target=\"_blank\">『退勤を自動打刻する』</a>の設定を使用している場合は、出勤打刻から24時間経過しても退勤打刻がない場合に、退勤打刻が自動で登録されます。</li>
- *     <li>すでに登録されている退勤打刻よりも後の時刻であれば上書き登録することができます。</li>
- *   </ul>
- *
- *   <li>打刻が日をまたぐ場合は、base_date(打刻日)に前日の日付を指定してください。</li>
- *
- *   <li>datetime(打刻日時)を指定できるのは管理者の権限を持ったユーザーのみです。</li>
- * </ul>
- */
 export const createEmployeeTimeClock = <ThrowOnError extends boolean = true>(
   options: Options<CreateEmployeeTimeClockData, ThrowOnError>,
 ): RequestResult<CreateEmployeeTimeClockResponses, CreateEmployeeTimeClockErrors, ThrowOnError> =>
@@ -1481,12 +887,6 @@ export const createEmployeeTimeClock = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 打刻の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員・指定した打刻の詳細情報を返します。</p>
- */
 export const getEmployeeTimeClock = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeeTimeClockData, ThrowOnError>,
 ): RequestResult<GetEmployeeTimeClockResponses, GetEmployeeTimeClockErrors, ThrowOnError> =>
@@ -1500,13 +900,6 @@ export const getEmployeeTimeClock = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 打刻可能種別の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員・日付の打刻可能種別と打刻基準日を返します。</p>
- * <p>例: すでに出勤した状態だと、休憩開始、退勤が配列で返ります。</p>
- */
 export const getEmployeeTimeClocksAvailableTypes = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeeTimeClocksAvailableTypesData, ThrowOnError>,
 ): RequestResult<
@@ -1524,12 +917,6 @@ export const getEmployeeTimeClocksAvailableTypes = <ThrowOnError extends boolean
     ...options,
   });
 
-/**
- * 従業員の特別休暇一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員に付与された特別休暇情報をリストで返します。</p>
- */
 export const getEmployeesSpecialHolidays = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeesSpecialHolidaysData, ThrowOnError>,
 ): RequestResult<
@@ -1547,15 +934,6 @@ export const getEmployeesSpecialHolidays = <ThrowOnError extends boolean = true>
     ...options,
   });
 
-/**
- * 勤怠タグ月次サマリの取得
- *
- * <h2 id="">概要</h2>
- * <p>
- *   指定した従業員・年月の勤怠タグサマリの一覧を返します。<br />
- *   年月は給与支払い月を指定してください。
- * </p>
- */
 export const getEmployeesAttendanceTagSummaries = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeesAttendanceTagSummariesData, ThrowOnError>,
 ): RequestResult<
@@ -1573,22 +951,6 @@ export const getEmployeesAttendanceTagSummaries = <ThrowOnError extends boolean 
     ...options,
   });
 
-/**
- * 勤怠タグ月次サマリの更新
- *
- * <h2 id="">概要</h2>
- * <p>
- *   指定した従業員・年月の勤怠タグサマリを更新します。<br />
- *   年月は給与支払い月を指定してください。
- * </p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- *   <li>指定した従業員・年月の勤怠タグサマリが存在する場合は、上書き更新されます。</li>
- *   <li>指定がなかった勤怠タグは自動的に0が設定されます。</li>
- * </ul>
- */
 export const updateEmployeesAttendanceTagSummaries = <ThrowOnError extends boolean = true>(
   options: Options<UpdateEmployeesAttendanceTagSummariesData, ThrowOnError>,
 ): RequestResult<
@@ -1610,12 +972,6 @@ export const updateEmployeesAttendanceTagSummaries = <ThrowOnError extends boole
     },
   });
 
-/**
- * 勤怠タグ一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の利用可能な勤怠タグの一覧を返します。</p>
- */
 export const getEmployeesAttendanceTags = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeesAttendanceTagsData, ThrowOnError>,
 ): RequestResult<
@@ -1633,12 +989,6 @@ export const getEmployeesAttendanceTags = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 勤怠タグと利用回数の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員・日付の勤怠タグと利用回数の一覧を返します。</p>
- */
 export const getEmployeesAttendanceTagsByDate = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeesAttendanceTagsByDateData, ThrowOnError>,
 ): RequestResult<
@@ -1656,18 +1006,6 @@ export const getEmployeesAttendanceTagsByDate = <ThrowOnError extends boolean = 
     ...options,
   });
 
-/**
- * 勤怠タグの更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員・日付の勤怠タグを更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>指定した従業員・日付の勤怠タグが存在する場合は、上書き更新されます。</li>
- *   <li>指定がなかった勤怠タグは削除されます。</li>
- * </ul>
- */
 export const updateEmployeesAttendanceTags = <ThrowOnError extends boolean = true>(
   options: Options<UpdateEmployeesAttendanceTagsData, ThrowOnError>,
 ): RequestResult<
@@ -1689,20 +1027,6 @@ export const updateEmployeesAttendanceTags = <ThrowOnError extends boolean = tru
     },
   });
 
-/**
- * 給与明細一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所に所属する従業員の給与明細をリストで返します。</p>
- * <p>指定した年月に支払いのある給与明細が返されます。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>複数時給を設定している場合はpaymentsに内訳が返されます。</li>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- *   <li>給与計算中の場合は、各パラメータはnullおよび空配列が返ります。</li>
- * </ul>
- */
 export const getSalariesEmployeePayrollStatements = <ThrowOnError extends boolean = true>(
   options: Options<GetSalariesEmployeePayrollStatementsData, ThrowOnError>,
 ): RequestResult<
@@ -1720,70 +1044,6 @@ export const getSalariesEmployeePayrollStatements = <ThrowOnError extends boolea
     ...options,
   });
 
-/**
- * 給与明細の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員ID、年月の給与明細を返します。</p>
- * <p>指定した年月に支払いのある給与明細が返されます。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>複数時給を設定している場合はpaymentsに内訳が返されます。</li>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- *   <li>給与計算中の場合は、各パラメータはnullおよび空配列が返ります。</li>
- * </ul>
- *
- * <h2 id="_2">examples</h2>
- * <pre>
- *   <code>
- *   {
- *   "employee_payroll_statement": {
- *     "id": 1,
- *     "company_id": 1,
- *     "employee_id": 1,
- *     "employee_name": "給与 太郎",
- *     "employee_display_name": "給与 太郎",
- *     "employee_num": "001",
- *     "pay_date": "2018-02-25",
- *     "start_date": "2018-02-01",
- *     "closing_date": "2018-02-28",
- *     "variable_pay_start_date": "2018-01-01",
- *     "variable_pay_closing_date": "2018-01-31",
- *     "fixed": true,
- *     "calc_status": "calculated",
- *     "calculated_at": "2018-09-27T05:06:45.315Z",
- *     "pay_calc_type": "monthly",
- *     "board_member_remuneration_amount": "400000.0",
- *     "basic_pay_amount": "300000.0",
- *     "work_days": "21.0",
- *     "normal_work_time": "8.0",
- *     "normal_work_days": "21.0",
- *     "work_mins_by_paid_holiday": "480.0",
- *     "num_paid_holidays": "1.0",
- *     "is_board_member": true,
- *     "total_attendance_deduction_amount": "0.0",
- *     "total_allowance_amount": "0.0",
- *     "total_deduction_amount": "23830.0",
- *     "total_deduction_employer_share": "16830.0",
- *     "net_payment_amount": "277170.0",
- *     "gross_payment_amount": "301000.0",
- *     "total_worked_days_count": "21.0",
- *     "total_taxable_payment_amount": "301000.0",
- *     "total_expense_amount": "0.0",
- *     "total_transfer_amount": "277170.0",
- *     "total_annual_payment_amount": "600000.0",
- *     "payments": [{ "name": "基本給", "amount": "300000.0"},{ "name": "残業代", "amount": "1000.0"}],
- *     "deductions": [{"name": "所得税", "amount": "7000.0"}, {"name": "健康保険料", "amount": "16830.0"}],
- *     "deductions_emloyers_share": [{"name": "健康保険料(会社負担分)", "amount": "16830.0"}],
- *     "attendances": [{"name": "遅刻・早退", "time": "0.0", "amount": "0.0"}],
- *     "overtime_pays": [{ "name": "時間外労働", "time": "60.0", "amount": "1000.0", "code": null }, { "name": "カスタム固定残業代", "time": null, "amount": "10000.0", "code": "a001" }],
- *     "remark": "備考"
- *     }
- *   }
- *   </code>
- * </pre>
- */
 export const getSalariesEmployeePayrollStatement = <ThrowOnError extends boolean = true>(
   options: Options<GetSalariesEmployeePayrollStatementData, ThrowOnError>,
 ): RequestResult<
@@ -1801,17 +1061,6 @@ export const getSalariesEmployeePayrollStatement = <ThrowOnError extends boolean
     ...options,
   });
 
-/**
- * 給与明細の備考の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の給与明細の備考を更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const updateEmployeePayrollStatementRemark = <ThrowOnError extends boolean = true>(
   options: Options<UpdateEmployeePayrollStatementRemarkData, ThrowOnError>,
 ): RequestResult<
@@ -1833,18 +1082,6 @@ export const updateEmployeePayrollStatementRemark = <ThrowOnError extends boolea
     },
   });
 
-/**
- * 賞与明細一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所に所属する従業員の賞与明細をリストで返します。</p>
- * <p>指定した年月に支払いのある賞与明細が返されます。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const getBonusesEmployeePayrollStatements = <ThrowOnError extends boolean = true>(
   options: Options<GetBonusesEmployeePayrollStatementsData, ThrowOnError>,
 ): RequestResult<
@@ -1862,48 +1099,6 @@ export const getBonusesEmployeePayrollStatements = <ThrowOnError extends boolean
     ...options,
   });
 
-/**
- * 賞与明細の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員ID、年月の賞与明細を返します。</p>
- * <p>指定した年月に支払いのある賞与明細が返されます。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- *
- * <h2 id="_2">examples</h2>
- * <pre>
- *   <code>
- *     {
- *     "employee_payroll_statement": {
- *       "id": 1,
- *       "company_id": 1,
- *       "employee_id": 1,
- *       "employee_name": "給与 太郎",
- *       "employee_display_name": "給与 太郎",
- *       "employee_num": "001",
- *       "closing_date": "2018-03-31",
- *       "pay_date": "2018-03-31",
- *       "fixed": true,
- *       "calc_status": "calculated",
- *       "calculated_at": "2018-09-27T05:06:45.315Z",
- *       "bonus_amount": "300000.0",
- *       "total_allowance_amount": "0.0",
- *       "total_deduction_amount": "23830.0",
- *       "net_payment_amount": "268000.0",
- *       "gross_payment_amount": "330000.0",
- *       "total_taxable_payment_amount": "330000.0",
- *       "allowances": [{"name": "地域手当", "amount": "30000.0"}],
- *       "deductions": [{"name": "所得税", "amount": "46000.0"}, {"name": "健康保険料", "amount": "16000.0"}],
- *       "remark": "備考"
- *     }
- *     }
- *   </code>
- * </pre>
- */
 export const getBonusesEmployeePayrollStatement = <ThrowOnError extends boolean = true>(
   options: Options<GetBonusesEmployeePayrollStatementData, ThrowOnError>,
 ): RequestResult<
@@ -1921,17 +1116,6 @@ export const getBonusesEmployeePayrollStatement = <ThrowOnError extends boolean 
     ...options,
   });
 
-/**
- * 所属一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の指定日付時点における所属情報をリストで返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const getEmployeeGroupMemberships = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeeGroupMembershipsData, ThrowOnError>,
 ): RequestResult<
@@ -1949,18 +1133,6 @@ export const getEmployeeGroupMemberships = <ThrowOnError extends boolean = true>
     ...options,
   });
 
-/**
- * 従業員の所属取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の所属情報をリストで返します。</p>
- * <p>base_dateを指定した場合は指定日付時点の所属情報を、base_dateを省略した場合は全期間の所属履歴を返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const getEmployeeGroupMembershipsByEmployeeId = <ThrowOnError extends boolean = true>(
   options: Options<GetEmployeeGroupMembershipsByEmployeeIdData, ThrowOnError>,
 ): RequestResult<
@@ -1978,18 +1150,6 @@ export const getEmployeeGroupMembershipsByEmployeeId = <ThrowOnError extends boo
     ...options,
   });
 
-/**
- * 部門一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の指定日付時点における部門情報をリストで返します。</p>
- * <p>部門APIの使い方については、<a href="https://developer.freee.co.jp/tips/groups-api-hierarchy" target="_blank">部門APIを利用した組織図の取得について</a> をご参照ください。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const getGroups = <ThrowOnError extends boolean = true>(
   options: Options<GetGroupsData, ThrowOnError>,
 ): RequestResult<GetGroupsResponses, GetGroupsErrors, ThrowOnError> =>
@@ -1999,18 +1159,6 @@ export const getGroups = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 部門の作成
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の部門を新規作成します。</p>
- * <p>部門APIの使い方については、<a href="https://developer.freee.co.jp/tips/groups-api-hierarchy" target="_blank">部門APIを利用した組織図の取得について</a> をご参照ください。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const createGroup = <ThrowOnError extends boolean = true>(
   options?: Options<CreateGroupData, ThrowOnError>,
 ): RequestResult<CreateGroupResponses, CreateGroupErrors, ThrowOnError> =>
@@ -2024,18 +1172,6 @@ export const createGroup = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 部門の削除
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の部門の情報を削除します。</p>
- * <p>部門APIの使い方については、<a href="https://developer.freee.co.jp/tips/groups-api-hierarchy" target="_blank">部門APIを利用した組織図の取得について</a> をご参照ください。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const destroyGroup = <ThrowOnError extends boolean = true>(
   options: Options<DestroyGroupData, ThrowOnError>,
 ): RequestResult<DestroyGroupResponses, DestroyGroupErrors, ThrowOnError> =>
@@ -2045,18 +1181,6 @@ export const destroyGroup = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 部門の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の部門の情報を更新します。</p>
- * <p>部門APIの使い方については、<a href="https://developer.freee.co.jp/tips/groups-api-hierarchy" target="_blank">部門APIを利用した組織図の取得について</a> をご参照ください。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const updateGroup = <ThrowOnError extends boolean = true>(
   options: Options<UpdateGroupData, ThrowOnError>,
 ): RequestResult<UpdateGroupResponses, UpdateGroupErrors, ThrowOnError> =>
@@ -2070,17 +1194,6 @@ export const updateGroup = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * その他手当一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所のその他手当情報をリストで返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const getAllowances = <ThrowOnError extends boolean = true>(
   options: Options<GetAllowancesData, ThrowOnError>,
 ): RequestResult<GetAllowancesResponses, GetAllowancesErrors, ThrowOnError> =>
@@ -2090,17 +1203,6 @@ export const getAllowances = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * その他手当の作成
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所のその他手当を新規作成します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const createAllowance = <ThrowOnError extends boolean = true>(
   options: Options<CreateAllowanceData, ThrowOnError>,
 ): RequestResult<CreateAllowanceResponses, CreateAllowanceErrors, ThrowOnError> =>
@@ -2114,17 +1216,6 @@ export const createAllowance = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * その他手当の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所のその他手当情報を返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const getAllowance = <ThrowOnError extends boolean = true>(
   options: Options<GetAllowanceData, ThrowOnError>,
 ): RequestResult<GetAllowanceResponses, GetAllowanceErrors, ThrowOnError> =>
@@ -2134,17 +1225,6 @@ export const getAllowance = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * その他控除一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所のその他控除情報をリストで返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const getDeductions = <ThrowOnError extends boolean = true>(
   options: Options<GetDeductionsData, ThrowOnError>,
 ): RequestResult<GetDeductionsResponses, GetDeductionsErrors, ThrowOnError> =>
@@ -2154,17 +1234,6 @@ export const getDeductions = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * その他控除の作成
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所のその他控除を新規作成します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const createDeduction = <ThrowOnError extends boolean = true>(
   options: Options<CreateDeductionData, ThrowOnError>,
 ): RequestResult<CreateDeductionResponses, CreateDeductionErrors, ThrowOnError> =>
@@ -2178,17 +1247,6 @@ export const createDeduction = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * その他控除の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所のその他控除情報を返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const getDeduction = <ThrowOnError extends boolean = true>(
   options: Options<GetDeductionData, ThrowOnError>,
 ): RequestResult<GetDeductionResponses, GetDeductionErrors, ThrowOnError> =>
@@ -2198,17 +1256,6 @@ export const getDeduction = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 役職一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の指定日付時点における役職情報をリストで返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const getPositions = <ThrowOnError extends boolean = true>(
   options: Options<GetPositionsData, ThrowOnError>,
 ): RequestResult<GetPositionsResponses, GetPositionsErrors, ThrowOnError> =>
@@ -2218,17 +1265,6 @@ export const getPositions = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 役職の作成
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の役職を新規作成します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const createPosition = <ThrowOnError extends boolean = true>(
   options?: Options<CreatePositionData, ThrowOnError>,
 ): RequestResult<CreatePositionResponses, CreatePositionErrors, ThrowOnError> =>
@@ -2242,18 +1278,6 @@ export const createPosition = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 役職の削除
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の役職の情報を削除します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- *   <li>従業員に役職が適用されている場合、従業員の役職情報も削除されます。</li>
- * </ul>
- */
 export const destroyPosition = <ThrowOnError extends boolean = true>(
   options: Options<DestroyPositionData, ThrowOnError>,
 ): RequestResult<DestroyPositionResponses, DestroyPositionErrors, ThrowOnError> =>
@@ -2263,17 +1287,6 @@ export const destroyPosition = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 役職の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の役職の情報を更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>管理者権限を持ったユーザーのみ実行可能です。</li>
- * </ul>
- */
 export const updatePosition = <ThrowOnError extends boolean = true>(
   options: Options<UpdatePositionData, ThrowOnError>,
 ): RequestResult<UpdatePositionResponses, UpdatePositionErrors, ThrowOnError> =>
@@ -2287,22 +1300,6 @@ export const updatePosition = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 月次勤怠締め申請一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の指定日付時点における月次勤怠締め申請情報をリストで返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- * </ul>
- */
 export const getApprovalRequestsMonthlyAttendances = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalRequestsMonthlyAttendancesData, ThrowOnError>,
 ): RequestResult<
@@ -2320,27 +1317,6 @@ export const getApprovalRequestsMonthlyAttendances = <ThrowOnError extends boole
     ...options,
   });
 
-/**
- * 月次勤怠締め申請の作成
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の月次勤怠締め申請を新規作成します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const createApprovalRequestsMonthlyAttendance = <ThrowOnError extends boolean = true>(
   options?: Options<CreateApprovalRequestsMonthlyAttendanceData, ThrowOnError>,
 ): RequestResult<
@@ -2362,22 +1338,6 @@ export const createApprovalRequestsMonthlyAttendance = <ThrowOnError extends boo
     },
   });
 
-/**
- * 月次勤怠締め申請の削除
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の月次勤怠締め申請情報を削除します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- * </ul>
- */
 export const destroyApprovalRequestsMonthlyAttendance = <ThrowOnError extends boolean = true>(
   options: Options<DestroyApprovalRequestsMonthlyAttendanceData, ThrowOnError>,
 ): RequestResult<
@@ -2395,27 +1355,6 @@ export const destroyApprovalRequestsMonthlyAttendance = <ThrowOnError extends bo
     ...options,
   });
 
-/**
- * 月次勤怠締め申請の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の月次勤怠締め申請情報を取得します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const getApprovalRequestsMonthlyAttendance = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalRequestsMonthlyAttendanceData, ThrowOnError>,
 ): RequestResult<
@@ -2433,27 +1372,6 @@ export const getApprovalRequestsMonthlyAttendance = <ThrowOnError extends boolea
     ...options,
   });
 
-/**
- * 月次勤怠締め申請の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の月次勤怠締め申請情報を更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const updateApprovalRequestsMonthlyAttendance = <ThrowOnError extends boolean = true>(
   options: Options<UpdateApprovalRequestsMonthlyAttendanceData, ThrowOnError>,
 ): RequestResult<
@@ -2475,27 +1393,6 @@ export const updateApprovalRequestsMonthlyAttendance = <ThrowOnError extends boo
     },
   });
 
-/**
- * 月次勤怠締め申請の承認操作
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の月次勤怠締め申請情報を承認操作します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const actionApprovalRequestsMonthlyAttendance = <ThrowOnError extends boolean = true>(
   options: Options<ActionApprovalRequestsMonthlyAttendanceData, ThrowOnError>,
 ): RequestResult<
@@ -2517,22 +1414,6 @@ export const actionApprovalRequestsMonthlyAttendance = <ThrowOnError extends boo
     },
   });
 
-/**
- * 勤務時間修正申請一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の指定日付時点における勤務時間修正申請情報をリストで返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- * </ul>
- */
 export const getApprovalRequestsWorkTimes = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalRequestsWorkTimesData, ThrowOnError>,
 ): RequestResult<
@@ -2550,54 +1431,6 @@ export const getApprovalRequestsWorkTimes = <ThrowOnError extends boolean = true
     ...options,
   });
 
-/**
- * 勤務時間修正申請の作成
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の勤務時間修正を新規作成します。</p>
- *
- * <h2 id="_2">examples</h2>
- * <ul>
- *   <li>勤務時間を修正する場合は以下のようなパラメータを指定します。
- *     <pre>
- *       <code>
- *         {
- *           "company_id": 1,
- *           "target_date": "2017-05-25",
- *           "break_records": [
- *             {
- *               "clock_in_at": "12:00:00",
- *               "clock_out_at": "13:00:00"
- *             }
- *           ],
- *           "work_records": [
- *             {
- *               "clock_in_at": "09:10:00",
- *               "clock_out_at": "18:20:00"
- *             }
- *           ],
- *           "approval_flow_route_id": 1
- *         }
- *       </code>
- *     </pre>
- *   </li>
- * </ul>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const createApprovalRequestsWorkTime = <ThrowOnError extends boolean = true>(
   options?: Options<CreateApprovalRequestsWorkTimeData, ThrowOnError>,
 ): RequestResult<
@@ -2619,22 +1452,6 @@ export const createApprovalRequestsWorkTime = <ThrowOnError extends boolean = tr
     },
   });
 
-/**
- * 勤務時間修正申請の削除
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の勤務時間修正申請情報を削除します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- * </ul>
- */
 export const destroyApprovalRequestsWorkTime = <ThrowOnError extends boolean = true>(
   options: Options<DestroyApprovalRequestsWorkTimeData, ThrowOnError>,
 ): RequestResult<
@@ -2652,27 +1469,6 @@ export const destroyApprovalRequestsWorkTime = <ThrowOnError extends boolean = t
     ...options,
   });
 
-/**
- * 勤務時間修正申請の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の勤務時間修正申請情報を取得します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const getApprovalRequestsWorkTime = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalRequestsWorkTimeData, ThrowOnError>,
 ): RequestResult<
@@ -2690,54 +1486,6 @@ export const getApprovalRequestsWorkTime = <ThrowOnError extends boolean = true>
     ...options,
   });
 
-/**
- * 勤務時間修正申請の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の勤務時間修正申請情報を更新します。</p>
- *
- * <h2 id="_2">examples</h2>
- * <ul>
- *   <li>勤務時間を修正する場合は以下のようなパラメータを指定します。
- *     <pre>
- *       <code>
- *         {
- *           "company_id": 1,
- *           "target_date": "2017-05-25",
- *           "break_records": [
- *             {
- *               "clock_in_at": "12:00:00",
- *               "clock_out_at": "13:00:00"
- *             }
- *           ],
- *           "work_records": [
- *             {
- *               "clock_in_at": "09:10:00",
- *               "clock_out_at": "18:20:00"
- *             }
- *           ],
- *           "approval_flow_route_id": 1
- *         }
- *       </code>
- *     </pre>
- *   </li>
- * </ul>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const updateApprovalRequestsWorkTime = <ThrowOnError extends boolean = true>(
   options: Options<UpdateApprovalRequestsWorkTimeData, ThrowOnError>,
 ): RequestResult<
@@ -2759,27 +1507,6 @@ export const updateApprovalRequestsWorkTime = <ThrowOnError extends boolean = tr
     },
   });
 
-/**
- * 勤務時間修正申請の承認操作
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の勤務時間修正申請情報を承認操作します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const actionApprovalRequestsWorkTime = <ThrowOnError extends boolean = true>(
   options: Options<ActionApprovalRequestsWorkTimeData, ThrowOnError>,
 ): RequestResult<
@@ -2801,27 +1528,6 @@ export const actionApprovalRequestsWorkTime = <ThrowOnError extends boolean = tr
     },
   });
 
-/**
- * 有給休暇申請一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の指定日付時点における有給休暇申請情報をリストで返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const getApprovalRequestsPaidHolidays = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalRequestsPaidHolidaysData, ThrowOnError>,
 ): RequestResult<
@@ -2839,27 +1545,6 @@ export const getApprovalRequestsPaidHolidays = <ThrowOnError extends boolean = t
     ...options,
   });
 
-/**
- * 有給休暇申請の作成
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の有給休暇申請を新規作成します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const createApprovalRequestsPaidHoliday = <ThrowOnError extends boolean = true>(
   options?: Options<CreateApprovalRequestsPaidHolidayData, ThrowOnError>,
 ): RequestResult<
@@ -2881,22 +1566,6 @@ export const createApprovalRequestsPaidHoliday = <ThrowOnError extends boolean =
     },
   });
 
-/**
- * 有給休暇申請の削除
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の有給休暇申請情報を削除します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- * </ul>
- */
 export const destroyApprovalRequestsPaidHoliday = <ThrowOnError extends boolean = true>(
   options: Options<DestroyApprovalRequestsPaidHolidayData, ThrowOnError>,
 ): RequestResult<
@@ -2914,27 +1583,6 @@ export const destroyApprovalRequestsPaidHoliday = <ThrowOnError extends boolean 
     ...options,
   });
 
-/**
- * 有給休暇申請の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の有給休暇申請情報を取得します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const getApprovalRequestsPaidHoliday = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalRequestsPaidHolidayData, ThrowOnError>,
 ): RequestResult<
@@ -2952,27 +1600,6 @@ export const getApprovalRequestsPaidHoliday = <ThrowOnError extends boolean = tr
     ...options,
   });
 
-/**
- * 有給休暇申請の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の有給休暇申請情報を更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const updateApprovalRequestsPaidHoliday = <ThrowOnError extends boolean = true>(
   options: Options<UpdateApprovalRequestsPaidHolidayData, ThrowOnError>,
 ): RequestResult<
@@ -2994,33 +1621,6 @@ export const updateApprovalRequestsPaidHoliday = <ThrowOnError extends boolean =
     },
   });
 
-/**
- * 有給休暇申請の承認操作
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の有給休暇申請情報を承認操作します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>全休の有給休暇申請は承認されると申請者の有給の残数が減ります。</li>
- *   <li>半休と時間休の有給休暇申請は承認されても申請者の有給の残数が減らない場合があります。以下の条件を満たす場合、申請者の有給の残数が減ります。</li>
- *   <ul>
- *     <li>申請承認後、申請者が申請の対象日に出勤打刻と退勤打刻をする。</li>
- *     <li>申請承認前に、申請者が申請の対象日に勤怠を登録している。</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const actionApprovalRequestsPaidHoliday = <ThrowOnError extends boolean = true>(
   options: Options<ActionApprovalRequestsPaidHolidayData, ThrowOnError>,
 ): RequestResult<
@@ -3042,27 +1642,6 @@ export const actionApprovalRequestsPaidHoliday = <ThrowOnError extends boolean =
     },
   });
 
-/**
- * 特別休暇申請一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の指定日付時点における特別休暇申請情報をリストで返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const getApprovalRequestsSpecialHolidays = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalRequestsSpecialHolidaysData, ThrowOnError>,
 ): RequestResult<
@@ -3080,27 +1659,6 @@ export const getApprovalRequestsSpecialHolidays = <ThrowOnError extends boolean 
     ...options,
   });
 
-/**
- * 特別休暇申請の作成
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の特別休暇申請を新規作成します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const createApprovalRequestsSpecialHoliday = <ThrowOnError extends boolean = true>(
   options?: Options<CreateApprovalRequestsSpecialHolidayData, ThrowOnError>,
 ): RequestResult<
@@ -3122,22 +1680,6 @@ export const createApprovalRequestsSpecialHoliday = <ThrowOnError extends boolea
     },
   });
 
-/**
- * 特別休暇申請の削除
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の特別休暇申請情報を削除します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- * </ul>
- */
 export const destroyApprovalRequestsSpecialHoliday = <ThrowOnError extends boolean = true>(
   options: Options<DestroyApprovalRequestsSpecialHolidayData, ThrowOnError>,
 ): RequestResult<
@@ -3155,27 +1697,6 @@ export const destroyApprovalRequestsSpecialHoliday = <ThrowOnError extends boole
     ...options,
   });
 
-/**
- * 特別休暇申請の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の特別休暇申請情報を取得します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const getApprovalRequestsSpecialHoliday = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalRequestsSpecialHolidayData, ThrowOnError>,
 ): RequestResult<
@@ -3193,27 +1714,6 @@ export const getApprovalRequestsSpecialHoliday = <ThrowOnError extends boolean =
     ...options,
   });
 
-/**
- * 特別休暇申請の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の特別休暇申請情報を更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const updateApprovalRequestsSpecialHoliday = <ThrowOnError extends boolean = true>(
   options: Options<UpdateApprovalRequestsSpecialHolidayData, ThrowOnError>,
 ): RequestResult<
@@ -3235,33 +1735,6 @@ export const updateApprovalRequestsSpecialHoliday = <ThrowOnError extends boolea
     },
   });
 
-/**
- * 特別休暇申請の承認操作
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の特別休暇申請情報を承認操作します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>全休の特別休暇申請は承認されると申請者の特別休暇の残数が減ります。</li>
- *   <li>半休と時間休の特別休暇申請は承認されても申請者の特別休暇の残数が減らない場合があります。以下の条件を満たす場合、申請者の特別休暇の残数が減ります。</li>
- *   <ul>
- *     <li>申請承認後、申請者が申請の対象日に出勤打刻と退勤打刻をする。</li>
- *     <li>申請承認前に、申請者が申請の対象日に勤怠を登録している。</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const actionApprovalRequestsSpecialHoliday = <ThrowOnError extends boolean = true>(
   options: Options<ActionApprovalRequestsSpecialHolidayData, ThrowOnError>,
 ): RequestResult<
@@ -3283,22 +1756,6 @@ export const actionApprovalRequestsSpecialHoliday = <ThrowOnError extends boolea
     },
   });
 
-/**
- * 残業申請一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の指定日付時点における残業申請情報をリストで返します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- * </ul>
- */
 export const getApprovalRequestsOvertimeWorks = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalRequestsOvertimeWorksData, ThrowOnError>,
 ): RequestResult<
@@ -3316,44 +1773,6 @@ export const getApprovalRequestsOvertimeWorks = <ThrowOnError extends boolean = 
     ...options,
   });
 
-/**
- * 残業申請の作成
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の残業申請を新規作成します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請の内容を勤怠に反映させるかの設定次第でリクエスト時に指定するパラメータが異なります。残業申請に必要な設定情報の取得APIで確認してください。</li>
- *   <ul>
- *     <li>勤怠に反映する設定の場合</li>
- *     <ul>
- *       <li>設定情報の取得APIで受け取った値を用いてパラメータを指定します。</li>
- *       <li>早出（early_work_start_at, early_work_end_at）か残業（overtime_work_start_at, overtime_work_end_at）のどちらか、もしくは両方を指定してください。</li>
- *       <ul>
- *         <li>早出・残業両方とも指定しなかった場合は取り消し申請となります。対象日の承認済み残業申請は全て取り消され、打刻データがあれば勤怠に反映し直します。</li>
- *       </ul>
- *       <li>早出の終了時刻（early_work_end_at）は所定の出勤時刻と同じ、残業の開始時刻（overtime_work_start_at）は所定の退勤時刻と同じ時刻を指定する必要があります。</li>
- *       <li>早出・残業の時刻に指定できる分の単位はそれぞれ設定（early_work_mins_unit, overtime_work_mins_unit）の通りです。</li>
- *     </ul>
- *     <li>勤怠に反映しない設定の場合</li>
- *     <ul>
- *       <li>残業開始（start_at）と残業終了（end_at）を指定してください。</li>
- *     </ul>
- *   </ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const createApprovalRequestsOvertimeWork = <ThrowOnError extends boolean = true>(
   options?: Options<CreateApprovalRequestsOvertimeWorkData, ThrowOnError>,
 ): RequestResult<
@@ -3375,22 +1794,6 @@ export const createApprovalRequestsOvertimeWork = <ThrowOnError extends boolean 
     },
   });
 
-/**
- * 残業申請の削除
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の残業申請情報を削除します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- * </ul>
- */
 export const destroyApprovalRequestsOvertimeWork = <ThrowOnError extends boolean = true>(
   options: Options<DestroyApprovalRequestsOvertimeWorkData, ThrowOnError>,
 ): RequestResult<
@@ -3408,27 +1811,6 @@ export const destroyApprovalRequestsOvertimeWork = <ThrowOnError extends boolean
     ...options,
   });
 
-/**
- * 残業申請の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の残業申請情報を取得します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const getApprovalRequestsOvertimeWork = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalRequestsOvertimeWorkData, ThrowOnError>,
 ): RequestResult<
@@ -3446,44 +1828,6 @@ export const getApprovalRequestsOvertimeWork = <ThrowOnError extends boolean = t
     ...options,
   });
 
-/**
- * 残業申請の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の残業申請情報を更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請の内容を勤怠に反映させるかの設定次第でリクエスト時に指定するパラメータが異なります。残業申請に必要な設定情報の取得APIで確認してください。</li>
- *   <ul>
- *     <li>勤怠に反映する設定の場合</li>
- *     <ul>
- *       <li>設定情報の取得APIで受け取った値を用いてパラメータを指定します。</li>
- *       <li>早出（early_work_start_at, early_work_end_at）か残業（overtime_work_start_at, overtime_work_end_at）のどちらか、もしくは両方を指定してください。</li>
- *       <ul>
- *         <li>早出・残業両方とも指定しなかった場合は取り消し申請となります。対象日の承認済み残業申請は全て取り消され、打刻データがあれば勤怠に反映し直します。</li>
- *       </ul>
- *       <li>早出の終了時刻（early_work_end_at）は所定の出勤時刻と同じ、残業の開始時刻（overtime_work_start_at）は所定の退勤時刻と同じ時刻を指定する必要があります。</li>
- *       <li>早出・残業の時刻に指定できる分の単位はそれぞれ設定（early_work_mins_unit, overtime_work_mins_unit）の通りです。</li>
- *     </ul>
- *     <li>勤怠に反映しない設定の場合</li>
- *     <ul>
- *       <li>残業開始（start_at）と残業終了（end_at）を指定してください。</li>
- *     </ul>
- *   </ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const updateApprovalRequestsOvertimeWork = <ThrowOnError extends boolean = true>(
   options: Options<UpdateApprovalRequestsOvertimeWorkData, ThrowOnError>,
 ): RequestResult<
@@ -3505,27 +1849,6 @@ export const updateApprovalRequestsOvertimeWork = <ThrowOnError extends boolean 
     },
   });
 
-/**
- * 残業申請の承認操作
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の残業申請情報を承認操作します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- *   <li>申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。</li>
- *   <ul>
- *     <li>status: draft</li>
- *     <li>approval_flow_logs.action: cancel</li>
- *   </ul>
- * </ul>
- */
 export const actionApprovalRequestsOvertimeWork = <ThrowOnError extends boolean = true>(
   options: Options<ActionApprovalRequestsOvertimeWorkData, ThrowOnError>,
 ): RequestResult<
@@ -3547,29 +1870,6 @@ export const actionApprovalRequestsOvertimeWork = <ThrowOnError extends boolean 
     },
   });
 
-/**
- * 残業申請に必要な設定情報の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員・日付の残業申請に必要な設定情報を取得します。</p>
- * <ul>
- *   <li>取得できる設定の一覧</li>
- *   <ul>
- *     <li>勤怠カレンダーに申請を反映するかどうかの設定</li>
- *     <ul>
- *       <li>この設定により、残業申請の作成や更新のリクエスト時に使用するパラメータが変わります。詳細は、残業申請の作成や更新の仕様を参照してください。</li>
- *     </ul>
- *     <li>所定の出退勤時間</li>
- *     <ul>
- *       <li>反映あり申請の場合、残業申請の作成や更新のリクエスト時に所定の出退勤時間が必要になります。詳細は、残業申請の作成や更新の仕様を参照してください。</li>
- *     </ul>
- *     <li>申請で指定できる分の単位</li>
- *     <ul>
- *       <li>反映あり申請の場合、勤務賃金設定の申請の単位設定によって、残業申請できる分単位が変わります。</li>
- *     </ul>
- *   </ul>
- * </ul>
- */
 export const getApprovalRequestsOvertimeWorkSetting = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalRequestsOvertimeWorkSettingData, ThrowOnError>,
 ): RequestResult<
@@ -3587,23 +1887,6 @@ export const getApprovalRequestsOvertimeWorkSetting = <ThrowOnError extends bool
     ...options,
   });
 
-/**
- * 申請経路一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の申請経路一覧を取得する。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>指定した事業所の従業員に紐づくユーザーのみ実行可能です。</li>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- * </ul>
- */
 export const getApprovalFlowRoutes = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalFlowRoutesData, ThrowOnError>,
 ): RequestResult<GetApprovalFlowRoutesResponses, GetApprovalFlowRoutesErrors, ThrowOnError> =>
@@ -3617,23 +1900,6 @@ export const getApprovalFlowRoutes = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 申請経路の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の申請経路を取得する。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>指定した事業所の従業員に紐づくユーザーのみ実行可能です。</li>
- *   <li>申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。</li>
- *   <ul>
- *     <li>役職指定（申請者の所属部門）</li>
- *     <li>役職指定（申請時に部門指定）</li>
- *     <li>部門および役職指定</li>
- *   </ul>
- * </ul>
- */
 export const getApprovalFlowRoute = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalFlowRouteData, ThrowOnError>,
 ): RequestResult<GetApprovalFlowRouteResponses, GetApprovalFlowRouteErrors, ThrowOnError> =>
@@ -3647,12 +1913,6 @@ export const getApprovalFlowRoute = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 年末調整対象一覧の取得
- *
- *
- * 指定した年の年末調整対象のリスト返します。
- */
 export const getYearendAdjustmentEmployees = <ThrowOnError extends boolean = true>(
   options: Options<GetYearendAdjustmentEmployeesData, ThrowOnError>,
 ): RequestResult<
@@ -3670,12 +1930,6 @@ export const getYearendAdjustmentEmployees = <ThrowOnError extends boolean = tru
     ...options,
   });
 
-/**
- * 年末調整の取得
- *
- * 指定した年、従業員IDの年末調整の詳細内容を返します。<br>
- * 年末調整対象外の従業員は、本人情報、給与・賞与、前職情報のみが取得できます。
- */
 export const getYearendAdjustmentEmployee = <ThrowOnError extends boolean = true>(
   options: Options<GetYearendAdjustmentEmployeeData, ThrowOnError>,
 ): RequestResult<
@@ -3693,17 +1947,6 @@ export const getYearendAdjustmentEmployee = <ThrowOnError extends boolean = true
     ...options,
   });
 
-/**
- * 年末調整従業員情報の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の姓名・住所などを更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>本APIは、年末調整が確定済みの従業員には非対応です。</li>
- * </ul>
- */
 export const putYearendAdjustmentEmployee = <ThrowOnError extends boolean = true>(
   options: Options<PutYearendAdjustmentEmployeeData, ThrowOnError>,
 ): RequestResult<
@@ -3725,17 +1968,6 @@ export const putYearendAdjustmentEmployee = <ThrowOnError extends boolean = true
     },
   });
 
-/**
- * 年末調整従業員給与・賞与の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の給与・賞与を更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>本APIは、年末調整が確定済みの従業員には非対応です。</li>
- * </ul>
- */
 export const putYearendAdjustmentPayrollAndBonus = <ThrowOnError extends boolean = true>(
   options: Options<PutYearendAdjustmentPayrollAndBonusData, ThrowOnError>,
 ): RequestResult<
@@ -3757,17 +1989,6 @@ export const putYearendAdjustmentPayrollAndBonus = <ThrowOnError extends boolean
     },
   });
 
-/**
- * 年末調整家族情報の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した年末調整の家族情報を更新します。</p>
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>本APIは、年末調整が確定済みの従業員には非対応です。</li>
- *   <li>idがない場合は新規作成、destroyがtrueの場合は削除になります。</li>
- * </ul>
- */
 export const putYearendAdjustmentDependents = <ThrowOnError extends boolean = true>(
   options: Options<PutYearendAdjustmentDependentsData, ThrowOnError>,
 ): RequestResult<
@@ -3789,17 +2010,6 @@ export const putYearendAdjustmentDependents = <ThrowOnError extends boolean = tr
     },
   });
 
-/**
- * 年末調整従業員前職情報の削除
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の前職情報を削除します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>本APIは、年末調整が確定済みの従業員には非対応です。</li>
- * </ul>
- */
 export const destroyYearendAdjustmentPreviousJob = <ThrowOnError extends boolean = true>(
   options: Options<DestroyYearendAdjustmentPreviousJobData, ThrowOnError>,
 ): RequestResult<
@@ -3817,17 +2027,6 @@ export const destroyYearendAdjustmentPreviousJob = <ThrowOnError extends boolean
     ...options,
   });
 
-/**
- * 年末調整従業員前職情報の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の前職情報を更新します。</p>
- *
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>本APIは、年末調整が確定済みの従業員には非対応です。</li>
- * </ul>
- */
 export const putYearendAdjustmentPreviousJob = <ThrowOnError extends boolean = true>(
   options: Options<PutYearendAdjustmentPreviousJobData, ThrowOnError>,
 ): RequestResult<
@@ -3849,16 +2048,6 @@ export const putYearendAdjustmentPreviousJob = <ThrowOnError extends boolean = t
     },
   });
 
-/**
- * 年末調整従業員保険料情報の作成
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の保険料情報を作成します。</p>
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>本APIは、年末調整が確定済みの従業員には非対応です。</li>
- * </ul>
- */
 export const postYearendAdjustmentInsurances = <ThrowOnError extends boolean = true>(
   options: Options<PostYearendAdjustmentInsurancesData, ThrowOnError>,
 ): RequestResult<
@@ -3880,16 +2069,6 @@ export const postYearendAdjustmentInsurances = <ThrowOnError extends boolean = t
     },
   });
 
-/**
- * 年末調整従業員保険料情報の削除
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の保険料情報を削除します。</p>
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>本APIは、年末調整が確定済みの従業員には非対応です。</li>
- * </ul>
- */
 export const destroyYearendAdjustmentInsurances = <ThrowOnError extends boolean = true>(
   options: Options<DestroyYearendAdjustmentInsurancesData, ThrowOnError>,
 ): RequestResult<
@@ -3907,17 +2086,6 @@ export const destroyYearendAdjustmentInsurances = <ThrowOnError extends boolean 
     ...options,
   });
 
-/**
- * 年末調整従業員保険料情報の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の保険料情報を更新します。</p>
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>本APIは、年末調整が確定済みの従業員には非対応です。</li>
- *   <li>certification_type="xml"の場合、recipient_first_name、recipient_last_name、recipient_relationshipのみが更新の対象となります。</li>
- * </ul>
- */
 export const putYearendAdjustmentInsurances = <ThrowOnError extends boolean = true>(
   options: Options<PutYearendAdjustmentInsurancesData, ThrowOnError>,
 ): RequestResult<
@@ -3939,16 +2107,6 @@ export const putYearendAdjustmentInsurances = <ThrowOnError extends boolean = tr
     },
   });
 
-/**
- * 年末調整従業員住宅ローン控除額の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の住宅ローン控除額を更新します。</p>
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>本APIは、年末調整が確定済みの従業員には非対応です。</li>
- * </ul>
- */
 export const putYearendAdjustmentHousingLoanDeduction = <ThrowOnError extends boolean = true>(
   options: Options<PutYearendAdjustmentHousingLoanDeductionData, ThrowOnError>,
 ): RequestResult<
@@ -3970,16 +2128,6 @@ export const putYearendAdjustmentHousingLoanDeduction = <ThrowOnError extends bo
     },
   });
 
-/**
- * 年末調整従業員住宅ローンの作成
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の住宅ローンを作成します。</p>
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>本APIは、年末調整が確定済みの従業員には非対応です。</li>
- * </ul>
- */
 export const postYearendAdjustmentHousingLoan = <ThrowOnError extends boolean = true>(
   options: Options<PostYearendAdjustmentHousingLoanData, ThrowOnError>,
 ): RequestResult<
@@ -4001,16 +2149,6 @@ export const postYearendAdjustmentHousingLoan = <ThrowOnError extends boolean = 
     },
   });
 
-/**
- * 年末調整従業員住宅ローンの削除
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の住宅ローンを削除します。</p>
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>本APIは、年末調整が確定済みの従業員には非対応です。</li>
- * </ul>
- */
 export const destroyYearendAdjustmentHousingLoan = <ThrowOnError extends boolean = true>(
   options: Options<DestroyYearendAdjustmentHousingLoanData, ThrowOnError>,
 ): RequestResult<
@@ -4028,16 +2166,6 @@ export const destroyYearendAdjustmentHousingLoan = <ThrowOnError extends boolean
     ...options,
   });
 
-/**
- * 年末調整従業員住宅ローンの更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した従業員の住宅ローンを更新します。</p>
- * <h2 id="_1">注意点</h2>
- * <ul>
- *   <li>本APIは、年末調整が確定済みの従業員には非対応です。</li>
- * </ul>
- */
 export const putYearendAdjustmentHousingLoan = <ThrowOnError extends boolean = true>(
   options: Options<PutYearendAdjustmentHousingLoanData, ThrowOnError>,
 ): RequestResult<

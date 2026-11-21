@@ -3,7 +3,6 @@ import { defineNetwork, InterceptorSource } from "msw/experimental";
 import type { HttpHandler } from "msw/http";
 
 export function createNetwork(...handlers: HttpHandler[]) {
-  // Bun's native fetch does not use Node's socket interceptors.
   return defineNetwork({
     sources: [
       new InterceptorSource({

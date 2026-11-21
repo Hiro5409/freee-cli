@@ -325,9 +325,6 @@ import type {
   GetTaxCodeData,
   GetTaxCodeErrors,
   GetTaxCodeResponses,
-  GetTaxCodesData,
-  GetTaxCodesErrors,
-  GetTaxCodesResponses,
   GetTaxesCompaniesData,
   GetTaxesCompaniesErrors,
   GetTaxesCompaniesResponses,
@@ -534,23 +531,6 @@ export type Options<
   meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta;
 };
 
-/**
- * 取引先一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所に登録されている取引先の一覧を取得します。取引・請求書・支払依頼などの取引先マスタとして参照する用途を想定しています。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>アーカイブされた取引先は含まれません。</li>
- *   <li>keyword は、取引先コード・取引先名・正式名称・カナ名称・ショートカット1・2 のいずれかへの部分一致で絞り込みます。半角スペース・全角スペース・タブで区切ると AND 検索になります。</li>
- *   <li>start_update_date / end_update_date で更新日を範囲指定できます。JST の日付を <code>yyyy-mm-dd</code> で指定してください。</li>
- *   <li>取引先コード（code）は、事業所設定で「取引先コードの利用」が有効な場合のみ実際の値が返り、無効な場合は null が返ります。</li>
- *   <li>振込元口座ID（payer_walletable_id）、振込手数料負担（transfer_fee_handling_side）は法人スタータープラン（および旧法人プロフェッショナルプラン）以上の事業所でのみ返却されます。</li>
- * </ul>
- */
 export const getPartners = <ThrowOnError extends boolean = true>(
   options: Options<GetPartnersData, ThrowOnError>,
 ): RequestResult<GetPartnersResponses, GetPartnersErrors, ThrowOnError> =>
@@ -560,34 +540,6 @@ export const getPartners = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 取引先の作成
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所に新しい取引先を作成します。取引や請求書で参照する取引先マスタを新規登録する用途で利用します。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>取引先名称（name）は事業所内で重複できません。すでに同名の取引先が存在するとエラーになります。</li>
- *   <li>code は、事業所設定で「取引先コードの利用」を有効にしている場合のみ利用可能です。
- *     <ul>
- *       <li>有効時は code の指定が必須で、name・code いずれも重複不可です。</li>
- *       <li>無効時に code を指定するとエラーになります。</li>
- *     </ul>
- *   </li>
- *   <li>作成された取引先の available（使用可能フラグ）は常に true になります。</li>
- *   <li>以下の属性は法人スタータープラン（および旧法人プロフェッショナルプラン）以上の事業所でのみ設定・返却されます。無料プラン等では指定しても無視されます。
- *     <ul>
- *       <li>振込元口座ID（payer_walletable_id）</li>
- *       <li>振込手数料負担（transfer_fee_handling_side）</li>
- *       <li>支払期日設定（payment_term_attributes）</li>
- *       <li>請求の入金期日設定（invoice_payment_term_attributes）</li>
- *     </ul>
- *   </li>
- * </ul>
- */
 export const createPartner = <ThrowOnError extends boolean = true>(
   options: Options<CreatePartnerData, ThrowOnError>,
 ): RequestResult<CreatePartnerResponses, CreatePartnerErrors, ThrowOnError> =>
@@ -601,20 +553,6 @@ export const createPartner = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 取引先の削除
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の取引先を削除します。取引で参照されている取引先は削除できないため、削除に失敗した場合は該当取引先の参照を先に解消してください。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>削除された取引先は復元できません。使用停止のみ行いたい場合は、代わりに PUT で <code>available</code> を <code>false</code> に更新することを検討してください。</li>
- *   <li>アーカイブ済みの取引先は削除できません。Web 画面からアーカイブを解除してから再度お試しください。</li>
- * </ul>
- */
 export const destroyPartner = <ThrowOnError extends boolean = true>(
   options: Options<DestroyPartnerData, ThrowOnError>,
 ): RequestResult<DestroyPartnerResponses, DestroyPartnerErrors, ThrowOnError> =>
@@ -624,28 +562,6 @@ export const destroyPartner = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 取引先の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の取引先 1 件を ID を指定して取得します。取引先の詳細確認や、更新前の現在値取得に利用します。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>取引先コード（code）は、事業所設定で「取引先コードの利用」が有効な場合のみ実際の値が返り、無効な場合は null が返ります。</li>
- *   <li>アーカイブ済みの取引先は取得対象になり得ますが、更新・削除はできません。</li>
- *   <li>以下の属性は法人スタータープラン（および旧法人プロフェッショナルプラン）以上の事業所でのみ返却されます。
- *     <ul>
- *       <li>振込元口座ID（payer_walletable_id）</li>
- *       <li>振込手数料負担（transfer_fee_handling_side）</li>
- *       <li>支払期日設定（payment_term_attributes）</li>
- *       <li>請求の入金期日設定（invoice_payment_term_attributes）</li>
- *     </ul>
- *   </li>
- * </ul>
- */
 export const getPartner = <ThrowOnError extends boolean = true>(
   options: Options<GetPartnerData, ThrowOnError>,
 ): RequestResult<GetPartnerResponses, GetPartnerErrors, ThrowOnError> =>
@@ -655,30 +571,6 @@ export const getPartner = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 取引先の更新
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した取引先の情報を更新します。id で更新対象を特定します。取引先コード（code）をキーに更新したい場合は <code>PUT /api/1/partners/code/{code}</code> を利用してください。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>取引先名称（name）は事業所内で重複できません。</li>
- *   <li>取引先コード（code）は本 API では指定・更新できません（指定するとエラーになります）。code をキーに更新したい場合は <code>PUT /api/1/partners/code/{code}</code> を、code 自体を新しい値に変更する用途は本 API ではサポートしていません。</li>
- *   <li>本 API は PATCH 相当の挙動をします。リクエストに含まれていない属性は更新されず、既存値が保持されます。属性を「未設定に戻したい」場合は、payment_term_attributes / invoice_payment_term_attributes のみ null を指定できます（他の属性は未設定化の指定不可）。</li>
- *   <li>以下の属性は法人スタータープラン（および旧法人プロフェッショナルプラン）以上の事業所でのみ設定できます。無料プラン等では指定しても無視されます。
- *     <ul>
- *       <li>振込元口座ID（payer_walletable_id）</li>
- *       <li>振込手数料負担（transfer_fee_handling_side）</li>
- *       <li>支払期日設定（payment_term_attributes）</li>
- *       <li>請求の入金期日設定（invoice_payment_term_attributes）</li>
- *     </ul>
- *   </li>
- *   <li>アーカイブ済みの取引先は更新できません。Web 画面からアーカイブを解除してから再度お試しください。</li>
- * </ul>
- */
 export const updatePartner = <ThrowOnError extends boolean = true>(
   options: Options<UpdatePartnerData, ThrowOnError>,
 ): RequestResult<UpdatePartnerResponses, UpdatePartnerErrors, ThrowOnError> =>
@@ -692,31 +584,6 @@ export const updatePartner = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 取引先コードでの取引先の更新
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>取引先コード（code）をキーに、指定した取引先の情報を更新します。取引先 ID を持たず取引先コードで運用しているシステムからの更新用途を想定しています。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本 API を利用するには、事業所設定で「取引先コードの利用」を有効にしている必要があります。無効な事業所への呼び出しはエラーになります。</li>
- *   <li>code に日本語や記号を含む場合は、URL エンコードして URL に含めてください。</li>
- *   <li>取引先名称（name）は事業所内で重複できません。</li>
- *   <li>本 API では id の指定はできません（指定するとエラーになります）。</li>
- *   <li>本 API は PATCH 相当の挙動をします。リクエストに含まれていない属性は更新されず、既存値が保持されます。payment_term_attributes / invoice_payment_term_attributes に null を指定すると期日設定を未設定に戻せます。</li>
- *   <li>以下の属性は法人スタータープラン（および旧法人プロフェッショナルプラン）以上の事業所でのみ設定できます。
- *     <ul>
- *       <li>振込元口座ID（payer_walletable_id）</li>
- *       <li>振込手数料負担（transfer_fee_handling_side）</li>
- *       <li>支払期日設定（payment_term_attributes）</li>
- *       <li>請求の入金期日設定（invoice_payment_term_attributes）</li>
- *     </ul>
- *   </li>
- * </ul>
- */
 export const updatePartnerByCode = <ThrowOnError extends boolean = true>(
   options: Options<UpdatePartnerByCodeData, ThrowOnError>,
 ): RequestResult<UpdatePartnerByCodeResponses, UpdatePartnerByCodeErrors, ThrowOnError> =>
@@ -734,31 +601,6 @@ export const updatePartnerByCode = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 取引先の更新（存在しない場合は作成）
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>取引先コード（code）をキーに、指定した取引先の情報を更新します。該当する取引先が存在しない場合は新規作成します（upsert）。同期処理を伴う外部システムとの連携で、取引先マスタを一括で登録・更新する用途を想定しています。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本 API を利用するには、事業所設定で「取引先コードの利用」を有効にしている必要があります。無効な事業所への呼び出しはエラーになります。</li>
- *   <li>取引先名称（name）は事業所内で重複できません。</li>
- *   <li>partner オブジェクト内で code を指定することはできません（変更不可）。URL パスの code のみが有効です。</li>
- *   <li>更新レスポンスは 200 OK、新規作成レスポンスは 201 Created で返ります。作成・更新のどちらが行われたかは HTTP ステータスコードで判別してください。</li>
- *   <li>更新時は PATCH 相当の挙動をします。リクエストに含まれていない属性は既存値が保持されます。payment_term_attributes / invoice_payment_term_attributes に null を指定すると期日設定を未設定に戻せます。</li>
- *   <li>以下の属性は法人スタータープラン（および旧法人プロフェッショナルプラン）以上の事業所でのみ設定できます。
- *     <ul>
- *       <li>振込元口座ID（payer_walletable_id）</li>
- *       <li>振込手数料負担（transfer_fee_handling_side）</li>
- *       <li>支払期日設定（payment_term_attributes）</li>
- *       <li>請求の入金期日設定（invoice_payment_term_attributes）</li>
- *     </ul>
- *   </li>
- * </ul>
- */
 export const apiV1Partners_upsertByCode = <ThrowOnError extends boolean = true>(
   options: Options<ApiV1PartnersUpsertByCodeData, ThrowOnError>,
 ): RequestResult<
@@ -780,21 +622,6 @@ export const apiV1Partners_upsertByCode = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * フォーム用選択項目情報の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所で勘定科目の入力フォームを構築するための、勘定科目カテゴリー、勘定科目、デフォルト税区分、決算書表示名を取得します。</p>
- *
- * <h2 id="_2">注意点</h2>
- *
- * <ul>
- *   <li><code>includes</code> に <code>account_item</code> を指定した場合に、<code>account_categories</code> と <code>account_groups</code> を返します。</li>
- *   <li><code>includes</code> を指定しない場合、レスポンスは空のオブジェクトになります。</li>
- * </ul>
- */
 export const getFormsSelectables = <ThrowOnError extends boolean = true>(
   options: Options<GetFormsSelectablesData, ThrowOnError>,
 ): RequestResult<GetFormsSelectablesResponses, GetFormsSelectablesErrors, ThrowOnError> =>
@@ -808,19 +635,6 @@ export const getFormsSelectables = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 勘定科目の削除
- *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した勘定科目を削除する</p>
- * <h2 id="">注意点</h2>
- * <ul>
- *   <li>削除できる勘定科目は、追加で作成したカスタム勘定科目のみです。</li>
- *   <li>デフォルトで存在する勘定科目や口座の勘定科目は削除できません。</li>
- * </ul>
- */
 export const destroyAccountItem = <ThrowOnError extends boolean = true>(
   options: Options<DestroyAccountItemData, ThrowOnError>,
 ): RequestResult<DestroyAccountItemResponses, DestroyAccountItemErrors, ThrowOnError> =>
@@ -834,15 +648,6 @@ export const destroyAccountItem = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 勘定科目の取得
- *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した勘定科目を取得する</p>
- * <p>事業所の設定で勘定科目コードを使用する設定にしている場合、レスポンスで勘定科目コード(code)を返します</p>
- */
 export const getAccountItem = <ThrowOnError extends boolean = true>(
   options: Options<GetAccountItemData, ThrowOnError>,
 ): RequestResult<GetAccountItemResponses, GetAccountItemErrors, ThrowOnError> =>
@@ -852,18 +657,6 @@ export const getAccountItem = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 勘定科目の更新
- *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した勘定科目を更新する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <p>tax_codeは、指定した事業所の税区分一覧の取得APIでavailableの値がtrue、かつ経過措置税区分ではない5%の税区分を確認して、そのcodeを指定して勘定科目の更新をしてください。例 課対仕入の場合、34を指定してください</p>
- * <p>codeを利用するには、事業所の設定で勘定科目コードを使用する設定にする必要があります。</p>
- */
 export const updateAccountItem = <ThrowOnError extends boolean = true>(
   options: Options<UpdateAccountItemData, ThrowOnError>,
 ): RequestResult<UpdateAccountItemResponses, UpdateAccountItemErrors, ThrowOnError> =>
@@ -879,24 +672,6 @@ export const updateAccountItem = <ThrowOnError extends boolean = true>(
     },
   );
 
-/**
- * 勘定科目一覧の取得
- *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した事業所の勘定科目一覧を取得する</p>
- *
- * <h2 id="_2">定義</h2>
- *
- * <ul>
- * <li>default_tax_code : リクエストした日時を基準とした税区分コード</li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- * <p>default_tax_code は勘定科目作成・更新時に利用するものではありません</p>
- * <p>事業所の設定で勘定科目コードを使用する設定にしている場合、レスポンスで勘定科目コード(code)を返します</p>
- */
 export const getAccountItems = <ThrowOnError extends boolean = true>(
   options: Options<GetAccountItemsData, ThrowOnError>,
 ): RequestResult<GetAccountItemsResponses, GetAccountItemsErrors, ThrowOnError> =>
@@ -906,18 +681,6 @@ export const getAccountItems = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 勘定科目の作成
- *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した事業所の勘定科目を作成する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <p>tax_codeは、指定した事業所の税区分一覧の取得APIでavailableの値がtrue、かつ経過措置税区分ではない5%の税区分を確認して、そのcodeを指定して勘定科目の作成をしてください。例 課対仕入の場合、34を指定してください</p>
- * <p>codeを利用するには、事業所の設定で勘定科目コードを使用する設定にする必要があります。</p>
- */
 export const createAccountItem = <ThrowOnError extends boolean = true>(
   options: Options<CreateAccountItemData, ThrowOnError>,
 ): RequestResult<CreateAccountItemResponses, CreateAccountItemErrors, ThrowOnError> =>
@@ -935,20 +698,6 @@ export const createAccountItem = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 勘定科目の更新（存在しない場合は作成）
- *
- *
- * <h2 id="">概要</h2>
- *
- * <p>勘定科目コードをキーに、指定した勘定科目の情報を更新（存在しない場合は作成）する</p>
- * <p>リクエストのトップレベルのcodeに指定した勘定科目コードに一致する勘定科目が存在する場合は更新（ステータスコード200）、存在しない場合は作成（ステータスコード201）します</p>
- *
- * <h2 id="_2">注意点</h2>
- * <p>本APIを利用するには、事業所の設定で勘定科目コードを使用する設定にする必要があります。設定が無効の場合はエラー（ステータスコード400）になります。</p>
- * <p>更新対象を特定する勘定科目コードはトップレベルのcodeで指定してください。account_item.codeは指定できません（指定した場合はエラーになります）。</p>
- * <p>tax_codeは、指定した事業所の税区分一覧の取得APIでavailableの値がtrue、かつ経過措置税区分ではない5%の税区分を確認して、そのcodeを指定して勘定科目の更新をしてください。例 課対仕入の場合、34を指定してください</p>
- */
 export const apiV1AccountItems_upsertByCode = <ThrowOnError extends boolean = true>(
   options: Options<ApiV1AccountItemsUpsertByCodeData, ThrowOnError>,
 ): RequestResult<
@@ -970,20 +719,6 @@ export const apiV1AccountItems_upsertByCode = <ThrowOnError extends boolean = tr
     },
   });
 
-/**
- * メモタグ一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所に登録されているメモタグの一覧を取得します。取引や口座振替の明細に付与するメモタグを確認する用途を想定しています。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>start_update_date / end_update_date でメモタグの更新日を範囲指定して絞り込めます。JST の日付を <code>yyyy-mm-dd</code> で指定してください（どちらも指定日を含みます）。</li>
- *   <li>結果はメモタグIDの昇順で返します。</li>
- * </ul>
- */
 export const getTags = <ThrowOnError extends boolean = true>(
   options: Options<GetTagsData, ThrowOnError>,
 ): RequestResult<GetTagsResponses, GetTagsErrors, ThrowOnError> =>
@@ -993,20 +728,6 @@ export const getTags = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * メモタグの作成
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所に新しいメモタグを作成します。作成したメモタグは取引や口座振替の明細に付与できます。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>メモタグ名（name）は事業所内で重複できません。既に同名のメモタグが存在する場合は 400 エラーになります。</li>
- *   <li>shortcut1 / shortcut2 は、Web画面などでメモタグを検索する際のキーワードとして使用します。</li>
- * </ul>
- */
 export const createTag = <ThrowOnError extends boolean = true>(
   options: Options<CreateTagData, ThrowOnError>,
 ): RequestResult<CreateTagResponses, CreateTagErrors, ThrowOnError> =>
@@ -1020,20 +741,6 @@ export const createTag = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * メモタグの削除
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所のメモタグを削除します。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>取引または配賦基準で使用されているメモタグは削除できず、400 エラーになります。</li>
- *   <li>存在しないか既に削除されたメモタグIDを指定した場合は 404 を返します。</li>
- * </ul>
- */
 export const destroyTag = <ThrowOnError extends boolean = true>(
   options: Options<DestroyTagData, ThrowOnError>,
 ): RequestResult<DestroyTagResponses, DestroyTagErrors, ThrowOnError> =>
@@ -1043,19 +750,6 @@ export const destroyTag = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * メモタグの取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所のメモタグを 1 件取得します。メモタグID（id）はメモタグ一覧の取得 API で確認できます。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>存在しないか既に削除されたメモタグIDを指定した場合は 404 を返します。</li>
- * </ul>
- */
 export const getTag = <ThrowOnError extends boolean = true>(
   options: Options<GetTagData, ThrowOnError>,
 ): RequestResult<GetTagResponses, GetTagErrors, ThrowOnError> =>
@@ -1065,21 +759,6 @@ export const getTag = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * メモタグの更新
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所のメモタグを更新します。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>リクエストボディで shortcut1 / shortcut2 を省略した場合は未設定（null）に更新されます。値を維持したい場合は、現在の値も含めて指定してください。</li>
- *   <li>メモタグ名（name）は事業所内で重複できません。別のメモタグと同名になる更新は 400 エラーになります。</li>
- *   <li>存在しないか既に削除されたメモタグIDを指定した場合は 404 を返します。</li>
- * </ul>
- */
 export const updateTag = <ThrowOnError extends boolean = true>(
   options: Options<UpdateTagData, ThrowOnError>,
 ): RequestResult<UpdateTagResponses, UpdateTagErrors, ThrowOnError> =>
@@ -1093,21 +772,6 @@ export const updateTag = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 部門一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所に登録されている部門の一覧を取得します。取引や振替伝票の明細に付与する部門マスタを参照する用途を想定しています。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>start_update_date / end_update_date で部門の更新日を範囲指定して絞り込めます。JST の日付を <code>yyyy-mm-dd</code> で指定してください（どちらも指定日を含みます）。部門階層を利用している場合、階層構造を維持するため、更新日が範囲外の親部門を含むことがあります。</li>
- *   <li>部門階層を利用できるプランでは indent_count と parent_id を返します。利用できないプランでは、これらのキー自体が返りません。</li>
- *   <li>部門コード（code）は、事業所の設定で部門コードを使用する設定にしている場合のみレスポンスに含まれます。設定が無効の場合は code キー自体が返りません。</li>
- * </ul>
- */
 export const getSections = <ThrowOnError extends boolean = true>(
   options: Options<GetSectionsData, ThrowOnError>,
 ): RequestResult<GetSectionsResponses, GetSectionsErrors, ThrowOnError> =>
@@ -1117,21 +781,6 @@ export const getSections = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 部門の作成
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所に新しい部門を作成します。作成された部門は使用設定（available）が true の状態で登録され、取引作成時などに指定できるようになります。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>部門名（name）は事業所内で重複できません。既に同名の部門が存在する場合は 400 エラーになります。</li>
- *   <li>部門コード（code）を利用するには、事業所の設定で部門コードを使用する設定にする必要があります。設定が無効の場合、code を指定しても無視され保存されません。</li>
- *   <li>親部門ID（parent_id）は部門階層を利用できるプランでのみ反映されます。利用できないプランでは指定しても親子関係は作成されません。</li>
- * </ul>
- */
 export const createSection = <ThrowOnError extends boolean = true>(
   options?: Options<CreateSectionData, ThrowOnError>,
 ): RequestResult<CreateSectionResponses, CreateSectionErrors, ThrowOnError> =>
@@ -1145,20 +794,6 @@ export const createSection = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 部門の削除
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の部門を削除します。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>取引明細・申請・配賦設定などで使用されている部門は削除できず、400 エラーになります。部門を入力候補から外したい場合は、Web画面から使用設定（available）を「使用しない」に変更してください。</li>
- *   <li>存在しないか既に削除された部門IDを指定した場合は 404 を返します。</li>
- * </ul>
- */
 export const destroySection = <ThrowOnError extends boolean = true>(
   options: Options<DestroySectionData, ThrowOnError>,
 ): RequestResult<DestroySectionResponses, DestroySectionErrors, ThrowOnError> =>
@@ -1168,21 +803,6 @@ export const destroySection = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 部門の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の部門を 1 件取得します。部門ID（id）は部門一覧の取得APIで確認できます。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>部門階層を利用できるプランでは indent_count と parent_id を返します。利用できないプランでは、これらのキー自体が返りません。</li>
- *   <li>部門コード（code）は、事業所の設定で部門コードを使用する設定にしている場合のみレスポンスに含まれます。設定が無効の場合は code キー自体が返りません。</li>
- *   <li>存在しないか既に削除された部門IDを指定した場合は 404 を返します。</li>
- * </ul>
- */
 export const getSection = <ThrowOnError extends boolean = true>(
   options: Options<GetSectionData, ThrowOnError>,
 ): RequestResult<GetSectionResponses, GetSectionErrors, ThrowOnError> =>
@@ -1192,23 +812,6 @@ export const getSection = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 部門の更新
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の部門を更新します。このAPIは部門の作成は行いません。部門コードをキーに更新（存在しない場合は作成）したい場合は PUT /api/1/sections/code/upsert を利用してください。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>部門名（name）は事業所内で重複できません。別の部門と同名になる更新は 400 エラーになります。</li>
- *   <li>long_name と parent_id は、省略した場合に現在の値・親子関係を維持します。null を指定すると未設定・親部門なしに更新します。</li>
- *   <li>shortcut1 / shortcut2 / code は、省略または null を指定した場合に未設定（null）へ更新されます。値を維持したい場合は現在の値を指定してください。</li>
- *   <li>部門コード（code）は、事業所の設定で部門コードを使用する設定にしている場合のみ更新されます。設定が無効の場合、code を指定しても無視されます。</li>
- *   <li>親部門ID（parent_id）は部門階層を利用できるプランでのみ反映されます。</li>
- * </ul>
- */
 export const updateSection = <ThrowOnError extends boolean = true>(
   options: Options<UpdateSectionData, ThrowOnError>,
 ): RequestResult<UpdateSectionResponses, UpdateSectionErrors, ThrowOnError> =>
@@ -1222,22 +825,6 @@ export const updateSection = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 部門の更新（存在しない場合は作成）
- *
- * <h2 id="_1">概要</h2>
- * <p>部門コード（code）をキーに、指定した部門の情報を更新します。該当する部門が存在しない場合は新規作成します（upsert）。外部システムとの連携で、部門マスタを一括で登録・更新する用途を想定しています。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIを利用するには、事業所の設定で部門コードを使用する設定にする必要があります。設定が無効な事業所への呼び出しは 400 エラーになります。</li>
- *   <li>section オブジェクト内で code を指定することはできません（部門コードは変更不可）。指定した場合は 400 エラーになります。リクエストボディ直下の code のみが有効です。</li>
- *   <li>更新レスポンスは 200 OK、新規作成レスポンスは 201 Created で返ります。作成・更新のどちらが行われたかは HTTP ステータスコードで判別してください。</li>
- *   <li>long_name と parent_code は、省略した場合に現在の値・親子関係を維持します。null を指定すると未設定・親部門なしに更新します。</li>
- *   <li>shortcut1 / shortcut2 は、省略または null を指定した場合に未設定（null）へ更新されます。値を維持したい場合は現在の値を指定してください。</li>
- *   <li>部門名（name）は事業所内で重複できません。別の部門と同名になる場合は 400 エラーになります。</li>
- * </ul>
- */
 export const apiV1Sections_upsertByCode = <ThrowOnError extends boolean = true>(
   options: Options<ApiV1SectionsUpsertByCodeData, ThrowOnError>,
 ): RequestResult<
@@ -1259,23 +846,6 @@ export const apiV1Sections_upsertByCode = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 請求書一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の請求書一覧を取得する</p>
- *
- * <h2 id="_2">注意点</h2>
- *
- * <ul>
- * <li>partner_id と partner_code は同時に指定できません。どちらか一方のみ指定してください。</li>
- * <li>partner_code は、事業所で取引先コードの利用設定が有効な場合のみ指定できます。無効な事業所で指定した場合はエラーになります。</li>
- * <li>APIを利用するユーザーに閲覧権限のない部門が紐づく請求書は、取得結果に含まれません。</li>
- * </ul>
- *
- */
 export const getInvoices = <ThrowOnError extends boolean = true>(
   options: Options<GetInvoicesData, ThrowOnError>,
 ): RequestResult<GetInvoicesResponses, GetInvoicesErrors, ThrowOnError> =>
@@ -1285,20 +855,6 @@ export const getInvoices = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 請求書の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の請求書を取得する</p>
- *
- * <h2 id="_2">注意点</h2>
- *
- * <ul>
- * <li>APIを利用するユーザーに閲覧権限のない部門が紐づく請求書を指定した場合は、存在しない請求書としてエラーになります。</li>
- * </ul>
- */
 export const getInvoice = <ThrowOnError extends boolean = true>(
   options: Options<GetInvoiceData, ThrowOnError>,
 ): RequestResult<GetInvoiceResponses, GetInvoiceErrors, ThrowOnError> =>
@@ -1308,23 +864,6 @@ export const getInvoice = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 見積書一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の見積書一覧を取得する</p>
- *
- * <h2 id="_2">注意点</h2>
- *
- * <ul>
- * <li>partner_id と partner_code は同時に指定できません。どちらか一方のみ指定してください。</li>
- * <li>partner_code は、事業所で取引先コードの利用設定が有効な場合のみ指定できます。無効な事業所で指定した場合はエラーになります。</li>
- * <li>APIを利用するユーザーに閲覧権限のない部門が紐づく見積書は、取得結果に含まれません。</li>
- * </ul>
- *
- */
 export const getQuotations = <ThrowOnError extends boolean = true>(
   options: Options<GetQuotationsData, ThrowOnError>,
 ): RequestResult<GetQuotationsResponses, GetQuotationsErrors, ThrowOnError> =>
@@ -1334,20 +873,6 @@ export const getQuotations = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 見積書の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の見積書詳細を取得する</p>
- *
- * <h2 id="_2">注意点</h2>
- *
- * <ul>
- * <li>APIを利用するユーザーに閲覧権限のない部門が紐づく見積書を指定した場合は、存在しない見積書としてエラーになります。</li>
- * </ul>
- */
 export const getQuotation = <ThrowOnError extends boolean = true>(
   options: Options<GetQuotationData, ThrowOnError>,
 ): RequestResult<GetQuotationResponses, GetQuotationErrors, ThrowOnError> =>
@@ -1357,60 +882,6 @@ export const getQuotation = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 取引（収入・支出）一覧の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の取引（収入・支出）一覧を取得する</p>
- * <h2 id="_2">定義</h2>
- * <ul>
- * <li>
- * <p>issue_date : 発生日</p>
- * </li>
- * <li>
- * <p>due_date : 支払期日</p>
- * </li>
- * <li>
- * <p>amount : 金額</p>
- * </li>
- * <li>
- * <p>due_amount : 支払残額</p>
- * </li>
- * <li>
- * <p>type</p>
- * <ul>
- * <li>income : 収入</li>
- * <li>expense : 支出</li>
- * </ul>
- * </li>
- * <li>
- * <p>details : 取引の明細行</p>
- * </li>
- * <li>
- * <p>accruals : 取引の債権債務行</p>
- * </li>
- * <li>
- * <p>renews : 取引の+更新行</p>
- * </li>
- * <li>
- * <p>payments : 取引の支払行</p>
- * </li>
- * <li>
- * <p>from_walletable_type</p>
- * <ul>
- * <li>bank_account : 銀行口座</li>
- * <li>credit_card : クレジットカード</li>
- * <li>wallet : 現金</li>
- * <li>private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
- * </ul>
- * </li>
- * </ul>
- * <h2 id="_3">注意点</h2>
- * <ul>
- * <li>セグメントタグ情報は法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で利用可能です。利用可能なセグメントの数は、法人アドバンスプラン（および旧法人プロフェッショナルプラン）の場合は1つ、法人エンタープライズプランの場合は3つです。</li>
- * <li>partner_codeを利用するには、事業所の設定から取引先コードの利用を有効にする必要があります。またpartner_codeとpartner_idは同時に指定することはできません。</li>
- * </ul>
- */
 export const getDeals = <ThrowOnError extends boolean = true>(
   options: Options<GetDealsData, ThrowOnError>,
 ): RequestResult<GetDealsResponses, GetDealsErrors, ThrowOnError> =>
@@ -1420,78 +891,6 @@ export const getDeals = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 取引（収入・支出）の作成
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の取引（収入・支出）を作成する</p>
- * <h2 id="_2">定義</h2>
- * <ul>
- * <li>
- * <p>issue_date : 発生日</p>
- * </li>
- * <li>
- * <p>due_date : 支払期日</p>
- * </li>
- * <li>
- * <p>amount : 金額</p>
- * </li>
- * <li>
- * <p>due_amount : 支払残額</p>
- * </li>
- * <li>
- * <p>type</p>
- * <ul>
- * <li>income : 収入</li>
- * <li>expense : 支出</li>
- * </ul>
- * </li>
- * <li>
- * <p>ref_number : 管理番号</p>
- * </li>
- * <li>
- * <p>details : 取引の明細行(最大100行)</p>
- * </li>
- * <li>
- * <p>payments : 取引の支払行</p>
- * </li>
- * <li>
- * <p>receipt_ids : ファイルボックス（証憑ファイル）ID</p>
- * </li>
- * <li>
- * <p>from_walletable_type</p>
- * <ul>
- * <li>bank_account : 銀行口座</li>
- * <li>credit_card : クレジットカード</li>
- * <li>wallet : 現金</li>
- * <li>private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
- * </ul>
- * </li>
- * </ul>
- * <h2 id="_3">注意点</h2>
- * <ul>
- *     <li><p>本APIでは+更新行(renews)の操作ができません。取引（収入・支出）の+更新の作成APIをご利用ください。</p></li>
- *     <li><p>セグメントタグ情報は法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で利用可能です。利用可能なセグメントの数は、法人アドバンスプラン（および旧法人プロフェッショナルプラン）の場合は1つ、法人エンタープライズプランの場合は3つです。</p></li>
- *     <li>
- *         <p>partner_codeを利用するには、事業所の設定から取引先コードの利用を有効にする必要があります。またpartner_codeとpartner_idは同時に指定することはできません。</p></li>
- *     <li>
- *         <p>account_item_codeを利用するには、事業所の設定から勘定科目コードの利用を有効にする必要があります。またaccount_item_codeとaccount_item_idは同時に指定することはできません。</p></li>
- *     <li>
- *         <p>item_codeを利用するには、事業所の設定から品目コードの利用を有効にする必要があります。またitem_codeとitem_idは同時に指定することはできません。</p></li>
- *     <li>
- *         <p>section_codeを利用するには、事業所の設定から部門コードの利用を有効にする必要があります。またsection_codeとsection_idは同時に指定することはできません。</p></li>
- *     <li>
- *         <p>segment_1_tag_codeを利用するには、事業所の設定からセグメントタグコードの利用を有効にする必要があります。またsegment_1_tag_codeとsegment_1_tag_idは同時に指定することはできません。</p></li>
- *     <li>
- *         <p>segment_2_tag_codeを利用するには、事業所の設定からセグメントタグコードの利用を有効にする必要があります。またsegment_2_tag_codeとsegment_2_tag_idは同時に指定することはできません。</p></li>
- *     <li>
- *         <p>segment_3_tag_codeを利用するには、事業所の設定からセグメントタグコードの利用を有効にする必要があります。またsegment_3_tag_codeとsegment_3_tag_idは同時に指定することはできません。</p></li>
- *     <li>
- *         <p>本APIでは取引の明細行(details)は、最大100行までになります。</p>
- *     </li>
- * </ul>
- *
- */
 export const createDeal = <ThrowOnError extends boolean = true>(
   options?: Options<CreateDealData, ThrowOnError>,
 ): RequestResult<CreateDealResponses, CreateDealErrors, ThrowOnError> =>
@@ -1505,13 +904,6 @@ export const createDeal = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 取引（収入・支出）の削除
- *
- * <h2 id="">概要</h2>
- * <p>指定した取引（収入・支出）を削除する</p>
- *
- */
 export const destroyDeal = <ThrowOnError extends boolean = true>(
   options: Options<DestroyDealData, ThrowOnError>,
 ): RequestResult<DestroyDealResponses, DestroyDealErrors, ThrowOnError> =>
@@ -1521,59 +913,6 @@ export const destroyDeal = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 取引（収入・支出）の取得
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の取引（収入・支出）を取得する</p>
- * <h2 id="_2">定義</h2>
- * <ul>
- * <li>
- * <p>issue_date : 発生日</p>
- * </li>
- * <li>
- * <p>due_date : 支払期日</p>
- * </li>
- * <li>
- * <p>amount : 金額</p>
- * </li>
- * <li>
- * <p>due_amount : 支払残額</p>
- * </li>
- * <li>
- * <p>type</p>
- * <ul>
- * <li>income : 収入</li>
- * <li>expense : 支出</li>
- * </ul>
- * </li>
- * <li>
- * <p>details : 取引の明細行</p>
- * </li>
- * <li>
- * <p>accruals : 取引の債権債務行</p>
- * </li>
- * <li>
- * <p>renews : 取引の+更新行</p>
- * </li>
- * <li>
- * <p>payments : 取引の支払行</p>
- * </li>
- * <li>
- * <p>from_walletable_type</p>
- * <ul>
- * <li>bank_account : 銀行口座</li>
- * <li>credit_card : クレジットカード</li>
- * <li>wallet : 現金</li>
- * <li>private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
- * </ul>
- * </li>
- * </ul>
- * <h2 id="_3">注意点</h2>
- * <ul>
- * <li>セグメントタグ情報は法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で利用可能です。利用可能なセグメントの数は、法人アドバンスプラン（および旧法人プロフェッショナルプラン）の場合は1つ、法人エンタープライズプランの場合は3つです。</li>
- * </ul>
- */
 export const getDeal = <ThrowOnError extends boolean = true>(
   options: Options<GetDealData, ThrowOnError>,
 ): RequestResult<GetDealResponses, GetDealErrors, ThrowOnError> =>
@@ -1583,68 +922,6 @@ export const getDeal = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 取引（収入・支出）の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の取引（収入・支出）を更新する</p>
- * <h2 id="_2">定義</h2>
- * <ul>
- * <li>
- * <p>issue_date : 発生日</p>
- * </li>
- * <li>
- * <p>due_date : 支払期日</p>
- * </li>
- * <li>
- * <p>amount : 金額</p>
- * </li>
- * <li>
- * <p>due_amount : 支払残額</p>
- * </li>
- * <li>
- * <p>type</p>
- * <ul>
- * <li>income : 収入</li>
- * <li>expense : 支出</li>
- * </ul>
- * </li>
- * <li>
- * <p>details : 取引の明細行(最大100行)</p>
- * </li>
- * <li>
- * <p>renews : 取引の+更新行</p>
- * </li>
- * <li>
- * <p>payments : 取引の支払行</p>
- * </li>
- * <li>
- * <p>from_walletable_type</p>
- * <ul>
- * <li>bank_account : 銀行口座</li>
- * <li>credit_card : クレジットカード</li>
- * <li>wallet : 現金</li>
- * <li>private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
- * </ul>
- * </li>
- * <li>
- * <p>receipt_ids : ファイルボックス（証憑ファイル）ID</p>
- * </li>
- * </ul>
- * <h2 id="_3">注意点</h2>
- * <ul>
- *     <li><p>本APIでは支払行(payments)の操作ができません。取引（収入・支出）の支払行の作成・更新・削除APIをご利用ください。</p></li>
- *     <li><p>本APIでは+更新行(renews)の操作ができません。取引（収入・支出）の+更新の作成・更新・削除APIをご利用ください。</p></li>
- *     <li><p>本APIでは収入／支出の切替えができません。既存の取引を削除後、再度作成してください。</p></li>
- *     <li><p>本APIで取引を更新すると、消費税の計算方法は必ず内税方式が選択されます。</p></li>
- *     <li><p>セグメントタグ情報は法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で利用可能です。利用可能なセグメントの数は、法人アドバンスプラン（および旧法人プロフェッショナルプラン）の場合は1つ、法人エンタープライズプランの場合は3つです。</p></li>
- *     <li><p>partner_codeを利用するには、事業所の設定から取引先コードの利用を有効にする必要があります。またpartner_codeとpartner_idは同時に指定することはできません。</p></li>
- *     <li><p>freee請求書から登録された取引は品目・部門・メモタグ・セグメント1、2、3のみ更新可能です。</p></li>
- *     <li>
- *         <p>本APIでは取引の明細行(details)は、最大100行までになります。</p>
- *     </li>
- * </ul>
- */
 export const updateDeal = <ThrowOnError extends boolean = true>(
   options: Options<UpdateDealData, ThrowOnError>,
 ): RequestResult<UpdateDealResponses, UpdateDealErrors, ThrowOnError> =>
@@ -1658,34 +935,6 @@ export const updateDeal = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 取引（収入・支出）の+更新の作成
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の取引（収入・支出）の+更新を作成する</p>
- * <h2 id="_2">定義</h2>
- * <ul> <li> <p>issue_date : 発生日</p> </li>
- * <li> <p>due_date : 支払期日</p> </li>
- * <li> <p>amount : 金額</p> </li>
- * <li> <p>due_amount : 支払残額</p> </li>
- * <li> <p>type</p>
- * <ul> <li>income : 収入</li>
- * <li>expense : 支出</li> </ul> </li>
- * <li> <p>details : 取引の明細行</p> </li>
- * <li> <p>accruals : 取引の債権債務行</p> </li>
- * <li> <p>renews : 取引の+更新行</p> </li>
- * <li> <p>payments : 取引の支払行</p> </li>
- * <li> <p>from_walletable_type</p>
- * <ul> <li>bank_account : 銀行口座</li>
- * <li>credit_card : クレジットカード</li>
- * <li>wallet : 現金</li>
- * <li>private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
- * </ul> </li> </ul>
- * <h2 id="_3">注意点</h2>
- * <ul> <li>本APIではdetails(取引の明細行)、accruals(債権債務行)、renewsのdetails(+更新の明細行)のみ操作可能です。</li>
- * <li>本APIで取引を更新すると、消費税の計算方法は必ず内税方式が選択されます。</li> </ul>
- *
- */
 export const createDealRenew = <ThrowOnError extends boolean = true>(
   options: Options<CreateDealRenewData, ThrowOnError>,
 ): RequestResult<CreateDealRenewResponses, CreateDealRenewErrors, ThrowOnError> =>
@@ -1699,17 +948,6 @@ export const createDealRenew = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 取引（収入・支出）の+更新の削除
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の取引（収入・支出）の+更新を削除する</p>
- * <h2 id="_3">注意点</h2>
- * <ul> <li>本APIでは+更新の削除のみ可能です。取引や支払行に対する削除はできません。</li> <li>renew_idにはrenewsのid(+更新ID)を指定してください。renewsのdetailsのid(+更新の明細行ID)を指定できません。</li>
- * <li>月締めされている仕訳に紐づく＋更新行の編集・削除はできません。</li> <li>承認済み仕訳に紐づく＋更新行の編集・削除は管理者権限のユーザーのみ可能です。</li>
- * <li>本APIで取引を更新すると、消費税の計算方法は必ず内税方式が選択されます。</li> </ul>
- *
- */
 export const deleteDealRenew = <ThrowOnError extends boolean = true>(
   options: Options<DeleteDealRenewData, ThrowOnError>,
 ): RequestResult<DeleteDealRenewResponses, DeleteDealRenewErrors, ThrowOnError> =>
@@ -1719,34 +957,6 @@ export const deleteDealRenew = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 取引（収入・支出）の+更新の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の取引（収入・支出）の+更新を更新する</p>
- * <h2 id="_2">定義</h2>
- * <ul> <li> <p>issue_date : 発生日</p> </li>
- * <li> <p>due_date : 支払期日</p> </li>
- * <li> <p>amount : 金額</p> </li>
- * <li> <p>due_amount : 支払残額</p> </li>
- * <li> <p>type</p>
- * <ul> <li>income : 収入</li>
- * <li>expense : 支出</li> </ul> </li>
- * <li> <p>details : 取引の明細行</p> </li>
- * <li> <p>accruals : 取引の債権債務行</p> </li>
- * <li> <p>renews : 取引の+更新行</p> </li>
- * <li> <p>payments : 取引の支払行</p> </li>
- * <li> <p>from_walletable_type</p>
- * <ul> <li>bank_account : 銀行口座</li>
- * <li>credit_card : クレジットカード</li>
- * <li>wallet : 現金</li>
- * <li>private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
- * </ul> </li> </ul>
- * <h2 id="_3">注意点</h2>
- * <ul> <li>本APIでは+更新の更新のみ可能です。取引や支払行に対する更新はできません。</li> <li>renew_idにはrenewsのid(+更新ID)を指定してください。renewsのdetailsのid(+更新の明細行ID)を指定できません。</li> <li>月締めされている仕訳に紐づく＋更新行の編集・削除はできません。</li> <li>承認済み仕訳に紐づく＋更新行の編集・削除は管理者権限のユーザーのみ可能です。</li>
- * <li>本APIで取引を更新すると、消費税の計算方法は必ず内税方式が選択されます。</li> </ul>
- *
- */
 export const updateDealRenew = <ThrowOnError extends boolean = true>(
   options: Options<UpdateDealRenewData, ThrowOnError>,
 ): RequestResult<UpdateDealRenewResponses, UpdateDealRenewErrors, ThrowOnError> =>
@@ -1760,46 +970,6 @@ export const updateDealRenew = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 取引（収入・支出）の支払行の作成
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の取引（収入・支出）の支払行を作成する</p>
- * <h2 id="_2">定義</h2>
- * <ul>
- * <li>
- * <p>issue_date : 発生日</p>
- * </li>
- * <li>
- * <p>due_date : 支払期日</p>
- * </li>
- * <li>
- * <p>amount : 金額</p>
- * </li>
- * <li>
- * <p>due_amount : 支払残額</p>
- * </li>
- * <li>
- * <p>type</p>
- * <ul>
- * <li>income : 収入</li>
- * <li>expense : 支出</li>
- * </ul>
- * </li>
- * <li> <p>details : 取引の明細行</p> </li>
- * <li> <p>renews : 取引の+更新行</p> </li>
- * <li> <p>payments : 取引の支払行</p> </li>
- * <li>
- * <p>from_walletable_type</p>
- * <ul>
- * <li>bank_account : 銀行口座</li>
- * <li>credit_card : クレジットカード</li>
- * <li>wallet : 現金</li>
- * <li>private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
- * </ul>
- * </li>
- * </ul>
- */
 export const createDealPayment = <ThrowOnError extends boolean = true>(
   options: Options<CreateDealPaymentData, ThrowOnError>,
 ): RequestResult<CreateDealPaymentResponses, CreateDealPaymentErrors, ThrowOnError> =>
@@ -1817,37 +987,6 @@ export const createDealPayment = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 取引（収入・支出）の支払行の削除
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の取引（収入・支出）の支払行を削除する</p>
- * <h2 id="_2">定義</h2>
- * <ul>
- * <li>
- * <p>issue_date : 発生日</p>
- * </li>
- * <li>
- * <p>due_date : 支払期日</p>
- * </li>
- * <li>
- * <p>amount : 金額</p>
- * </li>
- * <li>
- * <p>due_amount : 支払残額</p>
- * </li>
- * <li>
- * <p>type</p>
- * <ul>
- * <li>income : 収入</li>
- * <li>expense : 支出</li>
- * </ul>
- * </li>
- * <li>
- * <p>details : 取引の明細行</p>
- * </li>
- * </ul>
- */
 export const destroyDealPayment = <ThrowOnError extends boolean = true>(
   options: Options<DestroyDealPaymentData, ThrowOnError>,
 ): RequestResult<DestroyDealPaymentResponses, DestroyDealPaymentErrors, ThrowOnError> =>
@@ -1861,52 +1000,6 @@ export const destroyDealPayment = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 取引（収入・支出）の支払行の更新
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の取引（収入・支出）の支払行を更新する</p>
- * <h2 id="_2">定義</h2>
- * <ul>
- * <li>
- * <p>issue_date : 発生日</p>
- * </li>
- * <li>
- * <p>due_date : 支払期日</p>
- * </li>
- * <li>
- * <p>amount : 金額</p>
- * </li>
- * <li>
- * <p>due_amount : 支払残額</p>
- * </li>
- * <li>
- * <p>type</p>
- * <ul>
- * <li>income : 収入</li>
- * <li>expense : 支出</li>
- * </ul>
- * </li>
- * <li>
- * <p>details : 取引の明細行</p>
- * </li>
- * <li>
- * <p>renews : 取引の+更新行</p>
- * </li>
- * <li>
- * <p>payments : 取引の支払行</p>
- * </li>
- * <li>
- * <p>from_walletable_type</p>
- * <ul>
- * <li>bank_account : 銀行口座</li>
- * <li>credit_card : クレジットカード</li>
- * <li>wallet : 現金</li>
- * <li>private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
- * </ul>
- * </li>
- * </ul>
- */
 export const updateDealPayment = <ThrowOnError extends boolean = true>(
   options: Options<UpdateDealPaymentData, ThrowOnError>,
 ): RequestResult<UpdateDealPaymentResponses, UpdateDealPaymentErrors, ThrowOnError> =>
@@ -1922,21 +1015,6 @@ export const updateDealPayment = <ThrowOnError extends boolean = true>(
     },
   );
 
-/**
- * 振替伝票一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の振替伝票を、発生日・勘定科目・金額・取引先などの条件で絞り込んで取得します。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>振替伝票は売掛・買掛レポートには反映されません。債権・債務データの登録には取引APIを使用してください。</li>
- *   <li>事業所の仕訳番号形式が有効な場合のみ、<code>txn_number</code>に仕訳番号が入ります。</li>
- *   <li>セグメントタグは法人アドバンスプラン（旧法人プロフェッショナルプランを含む）以上で利用できます。法人アドバンスプランではセグメント1、法人エンタープライズプランではセグメント1〜3を利用できます。</li>
- *   <li><code>partner_code</code>を利用するには、事業所の取引先コード利用設定を有効にしてください。<code>partner_id</code>と<code>partner_code</code>は同時に指定できません。</li>
- * </ul>
- */
 export const getManualJournals = <ThrowOnError extends boolean = true>(
   options: Options<GetManualJournalsData, ThrowOnError>,
 ): RequestResult<GetManualJournalsResponses, GetManualJournalsErrors, ThrowOnError> =>
@@ -1948,24 +1026,6 @@ export const getManualJournals = <ThrowOnError extends boolean = true>(
     },
   );
 
-/**
- * 振替伝票の作成
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所に、貸借が一致する振替伝票を作成します。各貸借行の金額は税込・円で指定します。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>振替伝票は売掛・買掛レポートには反映されません。債権・債務データの登録には取引APIを使用してください。</li>
- *   <li>貸借行は貸方・借方の合計で100行まで指定でき、貸方と借方の金額合計を一致させる必要があります。</li>
- *   <li>勘定科目は<code>account_item_id</code>または<code>account_item_code</code>のどちらか一方を指定してください。コードを利用するには事業所の勘定科目コード利用設定を有効にしてください。</li>
- *   <li>取引先・品目・部門・セグメントタグも、IDとコードを同時に指定できません。各コードを利用するには、対応する事業所のコード利用設定を有効にしてください。</li>
- *   <li>セグメントタグは法人アドバンスプラン（旧法人プロフェッショナルプランを含む）以上で利用できます。</li>
- * </ul>
- *
- *
- */
 export const createManualJournal = <ThrowOnError extends boolean = true>(
   options?: Options<CreateManualJournalData, ThrowOnError>,
 ): RequestResult<CreateManualJournalResponses, CreateManualJournalErrors, ThrowOnError> =>
@@ -1983,18 +1043,6 @@ export const createManualJournal = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 振替伝票の削除
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所と振替伝票IDに一致する振替伝票を削除します。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>承認済みの振替伝票は、事業所設定と操作ユーザーの権限によって削除できない場合があります。</li>
- * </ul>
- */
 export const destroyManualJournal = <ThrowOnError extends boolean = true>(
   options: Options<DestroyManualJournalData, ThrowOnError>,
 ): RequestResult<DestroyManualJournalResponses, DestroyManualJournalErrors, ThrowOnError> =>
@@ -2008,20 +1056,6 @@ export const destroyManualJournal = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 振替伝票の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所と振替伝票IDに一致する振替伝票を取得します。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>事業所の仕訳番号形式が有効な場合のみ、<code>txn_number</code>に仕訳番号が入ります。</li>
- *   <li>セグメントタグは契約プランで利用可能なものだけがレスポンスに含まれます。</li>
- *   <li>各種コードは、対応する事業所のコード利用設定が有効な場合だけレスポンスに含まれます。</li>
- * </ul>
- */
 export const getManualJournal = <ThrowOnError extends boolean = true>(
   options: Options<GetManualJournalData, ThrowOnError>,
 ): RequestResult<GetManualJournalResponses, GetManualJournalErrors, ThrowOnError> =>
@@ -2031,24 +1065,6 @@ export const getManualJournal = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 振替伝票の更新
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した振替伝票を、リクエストに含めた貸借行の内容で更新します。各貸借行の金額は税込・円で指定します。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li><code>details</code>に含まれない既存の貸借行は削除されます。残す行は貸借行IDを指定して必ず<code>details</code>に含めてください。</li>
- *   <li>貸借行IDを指定した行は更新され、指定しない行は新規行として追加されます。</li>
- *   <li>貸借行は貸方・借方の合計で100行まで指定でき、貸方と借方の金額合計を一致させる必要があります。</li>
- *   <li>勘定科目・取引先・品目・部門・セグメントタグは、IDとコードを同時に指定できません。コードを利用するには、対応する事業所のコード利用設定を有効にしてください。</li>
- *   <li>承認済みの振替伝票は、事業所設定と操作ユーザーの権限によって更新できない場合があります。</li>
- * </ul>
- *
- *
- */
 export const updateManualJournal = <ThrowOnError extends boolean = true>(
   options: Options<UpdateManualJournalData, ThrowOnError>,
 ): RequestResult<UpdateManualJournalResponses, UpdateManualJournalErrors, ThrowOnError> =>
@@ -2066,21 +1082,6 @@ export const updateManualJournal = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 事業所に所属するユーザー一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所に所属するユーザーの一覧を取得する</p>
- *
- * <p>事業所のメンバーのユーザーID・メールアドレス・氏名を確認できます。取引や申請などの担当者（user_id）を指定する前に、対象ユーザーのIDを調べる用途で使用します。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>各ユーザーの権限は返りません。ログインユーザー自身の権限を確認する場合は「ログインユーザーの権限の取得 (/api/1/users/capabilities)」を使用してください。</li>
- * </ul>
- */
 export const getUsers = <ThrowOnError extends boolean = true>(
   options: Options<GetUsersData, ThrowOnError>,
 ): RequestResult<GetUsersResponses, GetUsersErrors, ThrowOnError> =>
@@ -2090,23 +1091,6 @@ export const getUsers = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * ログインユーザーの取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>アクセストークンに紐づくログインユーザーの情報を取得する</p>
- *
- * <p>API連携アプリの認可後に、操作しているユーザー本人の情報（ユーザーID・メールアドレス・氏名）や、そのユーザーが所属する事業所の一覧を確認する用途で使用します。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>companiesパラメータを指定しない場合は、ユーザーの基本情報のみが返ります（レスポンスにcompaniesは含まれません）。</li>
- *   <li>advisorパラメータはcompaniesと同時に指定してください。companiesを指定せずにadvisorを指定した場合は400エラーになります。</li>
- *   <li>companies・advisorはパラメータの指定有無で判定されます。falseを指定した場合もtrueと同様に扱われるため、事業所一覧が不要な場合はパラメータ自体を省略してください。</li>
- * </ul>
- */
 export const getUsersMe = <ThrowOnError extends boolean = true>(
   options?: Options<GetUsersMeData, ThrowOnError>,
 ): RequestResult<GetUsersMeResponses, GetUsersMeErrors, ThrowOnError> =>
@@ -2116,20 +1100,6 @@ export const getUsersMe = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * ログインユーザーの更新
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>アクセストークンに紐づくログインユーザーの基本情報（表示名・氏名・カナ氏名）を更新する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>更新できるのはログインユーザー自身の情報のみです。他のユーザーの情報は更新できません（ユーザーIDの指定はありません）。</li>
- *   <li>リクエストボディでキーを省略した項目は更新されません。項目を未設定に戻す場合は空文字を指定してください。</li>
- * </ul>
- */
 export const updateUser = <ThrowOnError extends boolean = true>(
   options?: Options<UpdateUserData, ThrowOnError>,
 ): RequestResult<UpdateUserResponses, UpdateUserErrors, ThrowOnError> =>
@@ -2143,22 +1113,6 @@ export const updateUser = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * ログインユーザーの権限の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所におけるログインユーザーの権限を取得する</p>
- *
- * <p>機能（レスポンスの各キー）ごとに、閲覧 (read)・作成 (create)・更新 (update)・削除 (destroy) などの操作が許可されているかどうかがbooleanで返ります。APIで取引や申請などを操作する前に、必要な権限があるかを確認する用途で使用します。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>ログインユーザーが所属していない事業所のcompany_idを指定した場合は404エラーになります。</li>
- *   <li>一部の機能では、read/create/update/destroy以外のキー（例: 操作可能な範囲を表すallowed_target、操作可否を表すwrite/confirm）が返ります。各機能のスキーマを参照してください。</li>
- * </ul>
- */
 export const getUsersCapabilities = <ThrowOnError extends boolean = true>(
   options: Options<GetUsersCapabilitiesData, ThrowOnError>,
 ): RequestResult<GetUsersCapabilitiesResponses, GetUsersCapabilitiesErrors, ThrowOnError> =>
@@ -2172,20 +1126,6 @@ export const getUsersCapabilities = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 事業所一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>アクセストークンのユーザーが所属するすべての事業所の一覧を取得する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIで取得できるのは事業所の基本情報（ID・名称・事業所番号・ユーザー権限）のみです。会計年度や設定情報を含む詳細は事業所の取得（GET /api/1/companies/{id}）を利用してください。</li>
- *   <li>他のAPIのパラメータとして利用する事業所ID（company_id）は、本APIのレスポンスの id を指定します。</li>
- * </ul>
- */
 export const getCompanies = <ThrowOnError extends boolean = true>(
   options?: Options<GetCompaniesData, ThrowOnError>,
 ): RequestResult<GetCompaniesResponses, GetCompaniesErrors, ThrowOnError> =>
@@ -2195,21 +1135,6 @@ export const getCompanies = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 事業所の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の詳細情報（名称・連絡先・各種設定・会計年度の一覧）を取得する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>クエリパラメータを指定しない場合は事業所の基本情報と会計年度の一覧のみを返します。勘定科目・税区分コード・品目・取引先・部門・メモタグ・口座の一覧が必要な場合は、details または対応する個別のクエリパラメータを指定してください。</li>
- *   <li>details および個別指定のクエリパラメータに指定できる値は true のみです。一覧を含めない場合は、false を指定するのではなくパラメータ自体を省略してください。</li>
- *   <li>アクセストークンのユーザーが所属していない事業所IDを指定した場合は 400 (存在しない事業所のid) を返します。所属する事業所のIDは事業所一覧の取得（GET /api/1/companies）で確認できます。</li>
- * </ul>
- */
 export const getCompany = <ThrowOnError extends boolean = true>(
   options: Options<GetCompanyData, ThrowOnError>,
 ): RequestResult<GetCompanyResponses, GetCompanyErrors, ThrowOnError> =>
@@ -2219,21 +1144,6 @@ export const getCompany = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 品目一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所に登録されている品目の一覧を取得します。取引や振替伝票の明細に付与する品目マスタとして参照する用途を想定しています。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>使用設定（available）が false の品目も含めて返します。</li>
- *   <li>start_update_date / end_update_date で品目の更新日を範囲指定して絞り込めます。JST の日付を <code>yyyy-mm-dd</code> で指定してください（どちらも指定日を含みます）。</li>
- *   <li>品目コード（code）は、事業所の設定で品目コードを使用する設定にしている場合のみレスポンスに含まれます。設定が無効の場合は code キー自体が返りません。</li>
- * </ul>
- */
 export const getItems = <ThrowOnError extends boolean = true>(
   options: Options<GetItemsData, ThrowOnError>,
 ): RequestResult<GetItemsResponses, GetItemsErrors, ThrowOnError> =>
@@ -2243,21 +1153,6 @@ export const getItems = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 品目の作成
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所に新しい品目を作成します。作成された品目は使用設定（available）が true の状態で登録され、取引作成時などに指定できるようになります。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>品目名（name）は事業所内で重複できません。既に同名の品目が存在する場合は 400 エラーになります。</li>
- *   <li>品目コード（code）を利用するには、事業所の設定で品目コードを使用する設定にする必要があります。設定が無効の場合、code を指定しても無視され保存されません。</li>
- *   <li>品目コード（code）は事業所内で重複できません。</li>
- * </ul>
- */
 export const createItem = <ThrowOnError extends boolean = true>(
   options?: Options<CreateItemData, ThrowOnError>,
 ): RequestResult<CreateItemResponses, CreateItemErrors, ThrowOnError> =>
@@ -2271,20 +1166,6 @@ export const createItem = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 品目の削除
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の品目を削除します。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>取引などで既に使用されている品目は削除できず、400 エラーになります。品目を無効にしたい場合は、Web 画面から使用設定（available）を「使用しない」に変更してください。</li>
- *   <li>存在しないか既に削除された品目IDを指定した場合は 404 を返します。</li>
- * </ul>
- */
 export const destroyItem = <ThrowOnError extends boolean = true>(
   options: Options<DestroyItemData, ThrowOnError>,
 ): RequestResult<DestroyItemResponses, DestroyItemErrors, ThrowOnError> =>
@@ -2294,20 +1175,6 @@ export const destroyItem = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 品目の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の品目を 1 件取得します。品目ID（id）は品目一覧の取得 API で確認できます。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>品目コード（code）は、事業所の設定で品目コードを使用する設定にしている場合のみレスポンスに含まれます。設定が無効の場合は code キー自体が返りません。</li>
- *   <li>存在しないか既に削除された品目IDを指定した場合は 404 を返します。</li>
- * </ul>
- */
 export const getItem = <ThrowOnError extends boolean = true>(
   options: Options<GetItemData, ThrowOnError>,
 ): RequestResult<GetItemResponses, GetItemErrors, ThrowOnError> =>
@@ -2317,22 +1184,6 @@ export const getItem = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 品目の更新
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の品目を更新します。この API は品目の作成は行いません。品目コードをキーに更新（存在しない場合は作成）したい場合は <code>PUT /api/1/items/code/upsert</code> を利用してください。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>リクエストボディで省略した任意項目（shortcut1・shortcut2・code）は未設定（null）に更新されます。値を維持したい場合は、現在の値も含めてすべての項目を指定してください。</li>
- *   <li>品目名（name）は事業所内で重複できません。別の品目と同名になる更新は 400 エラーになります。</li>
- *   <li>品目コード（code）は、事業所の設定で品目コードを使用する設定にしている場合のみ更新されます。設定が無効の場合、code を指定しても無視されます。</li>
- *   <li>存在しない品目IDを指定した場合はエラーになります。品目IDは品目一覧の取得 API で事前に確認してください。</li>
- * </ul>
- */
 export const updateItem = <ThrowOnError extends boolean = true>(
   options: Options<UpdateItemData, ThrowOnError>,
 ): RequestResult<UpdateItemResponses, UpdateItemErrors, ThrowOnError> =>
@@ -2346,23 +1197,6 @@ export const updateItem = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 品目の更新（存在しない場合は作成）
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>品目コード（code）をキーに、指定した品目の情報を更新します。該当する品目が存在しない場合は新規作成します（upsert）。外部システムとの連携で、品目マスタを一括で登録・更新する用途を想定しています。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本 API を利用するには、事業所の設定で品目コードを使用する設定にする必要があります。設定が無効な事業所への呼び出しは 400 エラーになります。</li>
- *   <li>item オブジェクト内で code を指定することはできません（品目コードは変更不可）。指定した場合は 400 エラーになります。リクエストボディ直下の code のみが有効です。</li>
- *   <li>更新レスポンスは 200 OK、新規作成レスポンスは 201 Created で返ります。作成・更新のどちらが行われたかは HTTP ステータスコードで判別してください。</li>
- *   <li>更新時、item オブジェクト内で省略した任意項目（shortcut1・shortcut2）は未設定（null）に更新されます。値を維持したい場合は、現在の値も含めてすべての項目を指定してください。</li>
- *   <li>品目名（name）は事業所内で重複できません。別の品目と同名になる場合は 400 エラーになります。</li>
- * </ul>
- */
 export const apiV1Items_upsertByCode = <ThrowOnError extends boolean = true>(
   options?: Options<ApiV1ItemsUpsertByCodeData, ThrowOnError>,
 ): RequestResult<ApiV1ItemsUpsertByCodeResponses, ApiV1ItemsUpsertByCodeErrors, ThrowOnError> =>
@@ -2380,45 +1214,6 @@ export const apiV1Items_upsertByCode = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 税区分一覧の取得（廃止予定）
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>税区分一覧を取得する</p>
- *
- * <p>税区分コード（code）は、取引の作成（POST /api/1/deals）や振替伝票の作成（POST /api/1/manual_journals）などで税区分を指定する際に tax_code として利用します。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>このAPIは廃止予定のため非推奨です。/api/1/taxes/companies/{company_id}（指定した事業所の税区分一覧の取得）をご利用ください。</li>
- *   <li>本APIは事業所の設定に依存しない共通の税区分マスタを返します。事業所ごとの使用設定（available）や表示カテゴリ（display_category）を確認する場合は /api/1/taxes/companies/{company_id} をご利用ください。</li>
- *   <li>API利用上の非推奨税区分（課税、非課税、不課税、輸出等、未選択、課税8%）は返りません。</li>
- * </ul>
- */
-export const getTaxCodes = <ThrowOnError extends boolean = true>(
-  options?: Options<GetTaxCodesData, ThrowOnError>,
-): RequestResult<GetTaxCodesResponses, GetTaxCodesErrors, ThrowOnError> =>
-  (options?.client ?? client).get<GetTaxCodesResponses, GetTaxCodesErrors, ThrowOnError>({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/1/taxes/codes",
-    ...options,
-  });
-
-/**
- * 税区分の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定したコードに対応する税区分を取得する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>存在しないコード、またはAPI利用上の非推奨税区分（課税、非課税、不課税、輸出等、未選択、課税8%）のコードを指定した場合は404エラーが返ります。</li>
- * </ul>
- */
 export const getTaxCode = <ThrowOnError extends boolean = true>(
   options: Options<GetTaxCodeData, ThrowOnError>,
 ): RequestResult<GetTaxCodeResponses, GetTaxCodeErrors, ThrowOnError> =>
@@ -2428,22 +1223,6 @@ export const getTaxCode = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 指定した事業所の税区分一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の税区分一覧を取得する</p>
- *
- * <p>税区分コード（code）は、取引の作成（POST /api/1/deals）や振替伝票の作成（POST /api/1/manual_journals）などで税区分を指定する際に tax_code として利用します。事業所で利用できる税区分と使用設定（available）を確認するために本APIをご利用ください。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>一覧には事業所の設定で「使用しない」となっている税区分も含まれます。available=true を指定すると、使用する設定の税区分のみに絞り込めます。</li>
- *   <li>display_category が null の税区分は、税率を持たない税区分（未選択、対象外など）です。</li>
- * </ul>
- */
 export const getTaxesCompanies = <ThrowOnError extends boolean = true>(
   options: Options<GetTaxesCompaniesData, ThrowOnError>,
 ): RequestResult<GetTaxesCompaniesResponses, GetTaxesCompaniesErrors, ThrowOnError> =>
@@ -2455,26 +1234,6 @@ export const getTaxesCompanies = <ThrowOnError extends boolean = true>(
     },
   );
 
-/**
- * 口座一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の口座（銀行口座・クレジットカード・その他の決済口座）の一覧を取得する</p>
- *
- * <p>取得できる口座は、リクエストしたユーザーが所属するグループ管理（work_group）で参照可能な口座に限られます。</p>
- *
- * <p>ここで取得できる口座IDと種別（type）は、取引の作成（POST /api/1/deals）・口座振替（POST /api/1/transfers）・入出金明細の取得（GET /api/1/wallet_txns）などで from_walletable_type / to_walletable_type と ID を指定する際に利用します。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>type を指定しない場合は、bank_account・credit_card・wallet の全種別を返します。</li>
- *   <li>残高情報（walletable_balance / last_balance）、最終同期成功日時（last_synced_at）、同期ステータス（sync_status）は、いずれもオプションのため、それぞれ with_balance / with_last_synced_at / with_sync_status を true にした場合のみレスポンスに含まれます。</li>
- *   <li>同期に対応した金融機関の口座（銀行口座・クレジットカード）は本APIでは作成できません。web画面で登録してください。</li>
- *   <li>walletable_balance（登録残高）・last_balance（同期残高）はいずれも円単位です。</li>
- * </ul>
- */
 export const getWalletables = <ThrowOnError extends boolean = true>(
   options: Options<GetWalletablesData, ThrowOnError>,
 ): RequestResult<GetWalletablesResponses, GetWalletablesErrors, ThrowOnError> =>
@@ -2484,24 +1243,6 @@ export const getWalletables = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 口座の作成
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所に口座を作成する</p>
- *
- * <p>作成した口座は、取引の作成（POST /api/1/deals）や口座振替（POST /api/1/transfers）などで from_walletable_type / to_walletable_type と ID を指定して利用できます。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>同期に対応した金融機関の口座はこのAPIでは作成できません。web画面で登録してください。</li>
- *   <li>type に bank_account / credit_card を指定する場合は bank_id が必須です。type に wallet を指定する場合は bank_id を省略できます。</li>
- *   <li>type に wallet を指定し、かつ bank_id を省略した場合のみ、is_asset で資産口座（true）と負債口座（false）を選択できます。bank_id を指定した場合は、資産口座か負債口座かは bank_id で指定したサービスに応じて自動判定され、is_asset は無視されます。</li>
- *   <li>既存の口座と重複する口座名を指定した場合は 400 エラーが返ります。</li>
- * </ul>
- */
 export const createWalletable = <ThrowOnError extends boolean = true>(
   options?: Options<CreateWalletableData, ThrowOnError>,
 ): RequestResult<CreateWalletableResponses, CreateWalletableErrors, ThrowOnError> =>
@@ -2517,21 +1258,6 @@ export const createWalletable = <ThrowOnError extends boolean = true>(
     },
   );
 
-/**
- * 口座の削除
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の口座を削除する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>削除を実行するには、当該口座に関連する仕訳データを事前に削除する必要があります。仕訳が残っている場合は 400 エラーが返ります。</li>
- *   <li>当該口座に仕訳が残っていないか確認するには、レポートの「仕訳帳」等を参照し、必要に応じて、「取引」や「口座振替」も削除します。</li>
- *   <li>指定した口座が存在しない、またはリクエストしたユーザーのグループ管理（work_group）で参照できない口座を指定した場合は 404 エラーが返ります。</li>
- * </ul>
- */
 export const destroyWalletable = <ThrowOnError extends boolean = true>(
   options: Options<DestroyWalletableData, ThrowOnError>,
 ): RequestResult<DestroyWalletableResponses, DestroyWalletableErrors, ThrowOnError> =>
@@ -2545,20 +1271,6 @@ export const destroyWalletable = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 口座の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の口座を1件取得する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>指定した口座が存在しない、またはリクエストしたユーザーのグループ管理（work_group）で参照できない口座を指定した場合は 404 エラーが返ります。</li>
- *   <li>残高情報（walletable_balance / last_balance）は常に含まれます。最終同期成功日時（last_synced_at）と同期ステータス（sync_status）は、それぞれ with_last_synced_at / with_sync_status を true にした場合のみレスポンスに含まれます。</li>
- * </ul>
- */
 export const getWalletable = <ThrowOnError extends boolean = true>(
   options: Options<GetWalletableData, ThrowOnError>,
 ): RequestResult<GetWalletableResponses, GetWalletableErrors, ThrowOnError> =>
@@ -2568,21 +1280,6 @@ export const getWalletable = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 口座の更新
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の口座の口座名を更新する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>更新できるのは口座名（name）のみです。type や bank_id、資産/負債区分の変更はできません。</li>
- *   <li>既存の口座と重複する口座名を指定した場合は 400 エラーが返ります。</li>
- *   <li>指定した口座が存在しない、またはリクエストしたユーザーのグループ管理（work_group）で参照できない口座を指定した場合は 404 エラーが返ります。</li>
- * </ul>
- */
 export const updateWalletable = <ThrowOnError extends boolean = true>(
   options: Options<UpdateWalletableData, ThrowOnError>,
 ): RequestResult<UpdateWalletableResponses, UpdateWalletableErrors, ThrowOnError> =>
@@ -2596,26 +1293,6 @@ export const updateWalletable = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 連携サービス一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>freee会計に口座として登録できる連携サービス（銀行口座・クレジットカード・その他の決済口座）の一覧を取得する</p>
- *
- * <h2 id="_2">注意点</h2>
- *
- * <ul>
- * <li>連携サービスはfreeeが管理する事業所に依存しないマスタデータのため、company_idパラメータの指定は不要です。</li>
- *
- * <li>typeパラメータは指定必須です。未指定または定義されていない値を指定した場合は、ステータスコード400のエラーが返ります。</li>
- *
- * <li>取得結果は連携サービス名(カナ)の昇順（name_kanaが同一の場合はidの昇順）で返ります。</li>
- *
- * <li>取得したidは、口座の作成（POST /api/1/walletables）のbank_idパラメータに指定して利用します。</li>
- * </ul>
- */
 export const getBanks = <ThrowOnError extends boolean = true>(
   options?: Options<GetBanksData, ThrowOnError>,
 ): RequestResult<GetBanksResponses, GetBanksErrors, ThrowOnError> =>
@@ -2625,22 +1302,6 @@ export const getBanks = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 連携サービスの取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定したIDの連携サービス（銀行口座・クレジットカード・その他の決済口座）を取得する</p>
- *
- * <h2 id="_2">注意点</h2>
- *
- * <ul>
- * <li>連携サービスはfreeeが管理する事業所に依存しないマスタデータのため、company_idパラメータの指定は不要です。</li>
- *
- * <li>存在しないID、または連携が終了したサービスのIDを指定した場合は、ステータスコード404のエラーが返ります。</li>
- * </ul>
- */
 export const getBank = <ThrowOnError extends boolean = true>(
   options: Options<GetBankData, ThrowOnError>,
 ): RequestResult<GetBankResponses, GetBankErrors, ThrowOnError> =>
@@ -2650,20 +1311,6 @@ export const getBank = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 取引（振替）一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の取引（振替）一覧を取得する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>振替元・振替先に指定できる口座のIDと口座区分（type）は、口座一覧の取得（GET /api/1/walletables）で確認できます。</li>
- *   <li>振替先口座はレスポンスの to_walletables（複数行）で返します。amount / to_walletable_type / to_walletable_id / description は振替先の複数指定に対応していない旧形式のフィールド（廃止予定）で、振替先が複数ある場合、amount は全行の合計金額（支払手数料が設定されている場合は手数料分を加算した金額）、to_walletable_type / to_walletable_id は金額が最大の行の値、description は各行の備考を結合した文字列を返します。</li>
- * </ul>
- */
 export const getTransfers = <ThrowOnError extends boolean = true>(
   options: Options<GetTransfersData, ThrowOnError>,
 ): RequestResult<GetTransfersResponses, GetTransfersErrors, ThrowOnError> =>
@@ -2673,21 +1320,6 @@ export const getTransfers = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 取引（振替）の作成
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の取引（振替）を作成する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>振替元・振替先に指定できる口座のIDと口座区分（type）は、口座一覧の取得（GET /api/1/walletables）で確認できます。</li>
- *   <li>振替先が1つの場合は to_walletable_type / to_walletable_id / amount（必要に応じて description）を指定します。振替先が複数の場合は to_walletables（最大50行）を指定します。両方を同時に指定することはできません。</li>
- *   <li>to_walletables を指定する場合、振替元は from_walletable_type / from_walletable_id で共通指定し、各行の amount には0円より大きい金額を指定します。複数行で同一の振替先口座は指定できません。</li>
- * </ul>
- */
 export const createTransfer = <ThrowOnError extends boolean = true>(
   options?: Options<CreateTransferData, ThrowOnError>,
 ): RequestResult<CreateTransferResponses, CreateTransferErrors, ThrowOnError> =>
@@ -2701,20 +1333,6 @@ export const createTransfer = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 取引（振替）の削除
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の取引（振替）を削除する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>指定したIDの取引（振替）が存在しない場合や、削除済み・権限がない場合は404を返します。</li>
- *   <li>取引（振替）の状態により削除できない場合は400を返します。エラーメッセージに削除できない理由を含みます。</li>
- * </ul>
- */
 export const destroyTransfer = <ThrowOnError extends boolean = true>(
   options: Options<DestroyTransferData, ThrowOnError>,
 ): RequestResult<DestroyTransferResponses, DestroyTransferErrors, ThrowOnError> =>
@@ -2724,20 +1342,6 @@ export const destroyTransfer = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 取引（振替）の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の取引（振替）を取得する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>振替先口座はレスポンスの to_walletables（複数行）で返します。amount / to_walletable_type / to_walletable_id / description は振替先の複数指定に対応していない旧形式のフィールド（廃止予定）で、振替先が複数ある場合、amount は全行の合計金額（支払手数料が設定されている場合は手数料分を加算した金額）、to_walletable_type / to_walletable_id は金額が最大の行の値、description は各行の備考を結合した文字列を返します。</li>
- *   <li>指定したIDの取引（振替）が存在しない場合や、削除済み・権限がない場合は404を返します。</li>
- * </ul>
- */
 export const getTransfer = <ThrowOnError extends boolean = true>(
   options: Options<GetTransferData, ThrowOnError>,
 ): RequestResult<GetTransferResponses, GetTransferErrors, ThrowOnError> =>
@@ -2747,22 +1351,6 @@ export const getTransfer = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 取引（振替）の更新
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の取引（振替）を更新する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>部分更新ではありません。作成時と同様に、更新後の取引（振替）の内容全体をリクエストで指定します。</li>
- *   <li>振替先が複数ある取引（振替）を更新する場合は to_walletables の指定が必要です。to_walletables を指定せず旧形式の単一フィールド（to_walletable_type / to_walletable_id / amount）のみで更新しようとするとエラーになります（複数の振替先を意図せず1件に置き換えることを防ぐためです）。</li>
- *   <li>受取利息や振込手数料が設定された取引（振替）は本APIでは更新できません。</li>
- *   <li>承認済みの取引（振替）は、事業所の設定や実行ユーザーの権限によっては更新できません。</li>
- * </ul>
- */
 export const updateTransfer = <ThrowOnError extends boolean = true>(
   options: Options<UpdateTransferData, ThrowOnError>,
 ): RequestResult<UpdateTransferResponses, UpdateTransferErrors, ThrowOnError> =>
@@ -2776,59 +1364,6 @@ export const updateTransfer = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 口座明細一覧の取得
- *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した事業所の口座明細（銀行口座・クレジットカード・その他の決済口座の入出金明細）一覧を取得する</p>
- *
- * <h2 id="_2">注意点</h2>
- *
- * <ul>
- * <li>デフォルトでは取引日（date）の降順で返されます。sort_type に created_at_desc を指定すると、明細の作成日時の降順で返されます。</li>
- * <li>取得件数は limit と offset で制御します（デフォルト: 20件、最大: 100件）。</li>
- * </ul>
- *
- * <h2 id="_3">定義</h2>
- *
- * <ul>
- * <li>
- * <p>amount : 取引金額（単位: 円）</p>
- * </li>
- *
- * <li>
- * <p>due_amount : 取引登録待ち金額（明細に対してまだ取引が登録されていない金額）</p>
- * </li>
- *
- * <li>
- * <p>balance : 残高（銀行口座等）</p>
- * </li>
- *
- * <li>
- * <p>entry_side</p>
- *
- * <ul>
- * <li>income : 入金</li>
- *
- * <li>expense : 出金</li>
- * </ul>
- * </li>
- *
- * <li>
- * <p>walletable_type</p>
- *
- * <ul>
- * <li>bank_account : 銀行口座</li>
- *
- * <li>credit_card : クレジットカード</li>
- *
- * <li>wallet : 現金・その他の決済口座</li>
- * </ul>
- * </li>
- * </ul>
- */
 export const getWalletTxns = <ThrowOnError extends boolean = true>(
   options: Options<GetWalletTxnsData, ThrowOnError>,
 ): RequestResult<GetWalletTxnsResponses, GetWalletTxnsErrors, ThrowOnError> =>
@@ -2838,58 +1373,6 @@ export const getWalletTxns = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 口座明細の作成
- *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した事業所の口座明細を作成する</p>
- *
- * <h2 id="_2">注意点</h2>
- *
- * <ul>
- * <li>登録時に<a target="_blank" href="https://support.freee.co.jp/hc/ja/articles/202848350-明細の自動登録ルールを設定する">自動登録ルールの設定</a>の条件に一致した場合はルールが適用され、取引の登録などが自動で行われることがあります。ルールが適用され登録処理が実行された場合、レスポンスの rule_matched が true になります。</li>
- * </ul>
- *
- * <h2 id="_3">定義</h2>
- *
- * <ul>
- * <li>
- * <p>amount : 取引金額（単位: 円）</p>
- * </li>
- *
- * <li>
- * <p>due_amount : 取引登録待ち金額（明細に対してまだ取引が登録されていない金額）</p>
- * </li>
- *
- * <li>
- * <p>balance : 残高（銀行口座等）</p>
- * </li>
- *
- * <li>
- * <p>entry_side</p>
- *
- * <ul>
- * <li>income : 入金</li>
- *
- * <li>expense : 出金</li>
- * </ul>
- * </li>
- *
- * <li>
- * <p>walletable_type</p>
- *
- * <ul>
- * <li>bank_account : 銀行口座</li>
- *
- * <li>credit_card : クレジットカード</li>
- *
- * <li>wallet : 現金・その他の決済口座</li>
- * </ul>
- * </li>
- * </ul>
- */
 export const createWalletTxn = <ThrowOnError extends boolean = true>(
   options?: Options<CreateWalletTxnData, ThrowOnError>,
 ): RequestResult<CreateWalletTxnResponses, CreateWalletTxnErrors, ThrowOnError> =>
@@ -2903,19 +1386,6 @@ export const createWalletTxn = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 口座明細の削除
- *
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の口座明細を削除する</p>
- *
- * <h2 id="">注意点</h2>
- * <ul>
- *   <li>同期をして取得したデータが「明細」の場合は、削除および再取得はできません。</li>
- *   <li>詳細は<a target="_blank" href="https://support.freee.co.jp/hc/ja/articles/360015892332">freeeヘルプセンター</a>をご確認ください。</li>
- * </ul>
- */
 export const destroyWalletTxn = <ThrowOnError extends boolean = true>(
   options: Options<DestroyWalletTxnData, ThrowOnError>,
 ): RequestResult<DestroyWalletTxnResponses, DestroyWalletTxnErrors, ThrowOnError> =>
@@ -2929,52 +1399,6 @@ export const destroyWalletTxn = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 口座明細の取得
- *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した事業所の口座明細を取得する</p>
- *
- * <h2 id="_2">定義</h2>
- *
- * <ul>
- * <li>
- * <p>amount : 取引金額（単位: 円）</p>
- * </li>
- *
- * <li>
- * <p>due_amount : 取引登録待ち金額（明細に対してまだ取引が登録されていない金額）</p>
- * </li>
- *
- * <li>
- * <p>balance : 残高（銀行口座等）</p>
- * </li>
- *
- * <li>
- * <p>entry_side</p>
- *
- * <ul>
- * <li>income : 入金</li>
- *
- * <li>expense : 出金</li>
- * </ul>
- * </li>
- *
- * <li>
- * <p>walletable_type</p>
- *
- * <ul>
- * <li>bank_account : 銀行口座</li>
- *
- * <li>credit_card : クレジットカード</li>
- *
- * <li>wallet : 現金・その他の決済口座</li>
- * </ul>
- * </li>
- * </ul>
- */
 export const getWalletTxn = <ThrowOnError extends boolean = true>(
   options: Options<GetWalletTxnData, ThrowOnError>,
 ): RequestResult<GetWalletTxnResponses, GetWalletTxnErrors, ThrowOnError> =>
@@ -2984,17 +1408,6 @@ export const getWalletTxn = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 口座明細で未決済取引の消込
- *
- * 指定した口座明細と既存の未決済取引を紐づけて消込する
- *
- * ### 注意点
- * - deals に指定した取引の決済金額の合計と adjustment_deal の金額の合計を合わせた額は、明細金額と一致させてください。決済金額の合計が明細金額に満たない・超える場合は、差額を新規取引として登録するために adjustment_deal を指定してください。
- * - adjustment_deal を指定した場合、作成された取引のIDがレスポンスの new_deal_id に入ります。指定しない場合は null になります。
- * - 同一のパラメータで再リクエストした場合も冪等に同じレスポンスを返します。
- * - 明細が既に別の取引で消込済みの場合、または取引が既に別の明細で決済済みの場合は409エラーが返ります。
- */
 export const reconcileWalletTxn = <ThrowOnError extends boolean = true>(
   options: Options<ReconcileWalletTxnData, ThrowOnError>,
 ): RequestResult<ReconcileWalletTxnResponses, ReconcileWalletTxnErrors, ThrowOnError> =>
@@ -3012,15 +1425,6 @@ export const reconcileWalletTxn = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 口座明細からの取引登録
- *
- * 指定した口座明細から取引を作成し、作成した取引で明細を消込する
- *
- * ### 注意点
- * - deal_lines の amount は符号付きの整数で指定します。明細の入出金区分（entry_side）と amount の符号から、借方・貸方が自動で決まります。
- * - deal_lines の金額の合計は明細金額と一致させてください。
- */
 export const createWalletTxnDeal = <ThrowOnError extends boolean = true>(
   options: Options<CreateWalletTxnDealData, ThrowOnError>,
 ): RequestResult<CreateWalletTxnDealResponses, CreateWalletTxnDealErrors, ThrowOnError> =>
@@ -3038,19 +1442,6 @@ export const createWalletTxnDeal = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 口座明細からの口座振替登録
- *
- * 指定した口座明細を口座振替として登録する
- *
- * ### 注意点
- * - 振替元は transfer_from_line で1口座、振替先は transfer_to_lines で複数口座を指定できます。
- * - 入金明細の場合は transfer_to_lines、出金明細の場合は transfer_from_line に、必ず対象の明細の口座を含めてください。
- * - transfer_from_line の振替元口座から出金される金額は、transfer_to_lines の金額の合計と charge_lines の金額の合計（line_type が paid は加算、received は減算）を合わせた額と必ず一致させてください。
- * - 明細の口座に対応する金額（出金明細の場合は上記の振替元の金額、入金明細の場合は transfer_to_lines のうち明細の口座の行の金額）は、明細金額と一致させてください。
- * - transfer_to_lines に同一口座（walletable_type と walletable_id の組み合わせ）を重複して指定できません。
- * - 税込経理の事業所では charge_lines の vat を指定できません。
- */
 export const createWalletTxnTransfer = <ThrowOnError extends boolean = true>(
   options: Options<CreateWalletTxnTransferData, ThrowOnError>,
 ): RequestResult<CreateWalletTxnTransferResponses, CreateWalletTxnTransferErrors, ThrowOnError> =>
@@ -3068,14 +1459,6 @@ export const createWalletTxnTransfer = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 口座明細のプライベート取引としての登録
- *
- * 指定した口座明細に対応するプライベート取引を作成し、明細を消込する
- *
- * ### 注意点
- * - プライベート取引は、個人事業所では事業主貸・事業主借、法人事業所では役員貸付金・役員借入金として登録されます。勘定科目や金額の指定は不要です。
- */
 export const createWalletTxnPrivateDeal = <ThrowOnError extends boolean = true>(
   options: Options<CreateWalletTxnPrivateDealData, ThrowOnError>,
 ): RequestResult<
@@ -3097,15 +1480,6 @@ export const createWalletTxnPrivateDeal = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 口座明細の無視
- *
- * 指定した口座明細を「無視」の状態に変更する
- *
- * ### 注意点
- * - 既に「無視」の明細を指定した場合も、冪等に成功として200を返します。
- * - 「消込済み」の明細は無視できません。先に口座明細の未消込への変更API（POST /api/1/wallet_txns/{id}/reset）で「未消込」に戻してください。
- */
 export const ignoreWalletTxn = <ThrowOnError extends boolean = true>(
   options: Options<IgnoreWalletTxnData, ThrowOnError>,
 ): RequestResult<IgnoreWalletTxnResponses, IgnoreWalletTxnErrors, ThrowOnError> =>
@@ -3119,16 +1493,6 @@ export const ignoreWalletTxn = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 口座明細の未消込への変更
- *
- * 「無視」または「消込済み」の口座明細を「未消込」の状態に戻す
- *
- * ### 注意点
- * - 「無視」の明細は無視を解除し、「消込済み」の明細は消込を解除します。
- * - 既に「未消込」の明細を指定した場合も、冪等に成功として200を返します。
- * - 明細に紐づく仕訳が承認済みの場合、または非同期処理中の場合は400エラーが返ります。
- */
 export const resetWalletTxn = <ThrowOnError extends boolean = true>(
   options: Options<ResetWalletTxnData, ThrowOnError>,
 ): RequestResult<ResetWalletTxnResponses, ResetWalletTxnErrors, ThrowOnError> =>
@@ -3142,34 +1506,6 @@ export const resetWalletTxn = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 仕訳帳のダウンロード要求
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の仕訳帳ファイルの作成を依頼する（非同期処理）</p>
- *
- * <p>本APIはファイル作成のリクエストを受け付けるのみで、ファイルは非同期で作成されます。レスポンスの id（受け付けID）を使って、仕訳帳のステータスの取得（GET /api/1/journals/reports/{id}/status）でステータスを確認し、uploaded になったら仕訳帳のダウンロード（GET /api/1/journals/reports/{id}/download）でファイルを取得してください。</p>
- *
- * <p>生成されるファイルのファイル形式と出力項目に関しては、<a href="https://support.freee.co.jp/hc/ja/articles/204615564#other">ヘルプページ</a>をご参照ください。download_type ごとの詳細は以下をご参照ください。</p>
- *
- * <ul>
- *   <li>generic <a href="https://support.freee.co.jp/hc/ja/articles/204615564#2">(旧CSV)</a></li>
- *   <li>generic_v2 <a href="https://support.freee.co.jp/hc/ja/articles/204615564#h_01GEDXEY3SQP8Y7S58CM2H4CKH">(新CSV（freee汎用形式）)</a></li>
- *   <li>csv <a href="https://support.freee.co.jp/hc/ja/articles/204599604#2">(弥生会計)</a></li>
- *   <li>pdf <a href="https://support.freee.co.jp/hc/ja/articles/204615564#3">(PDF)</a></li>
- * </ul>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>start_date・end_date を指定しない場合は、当期の会計年度の開始日・終了日が自動で設定されます。</li>
- *   <li>encoding は download_type が generic・generic_v2 の場合のみ指定できます。未指定の場合は sjis になります。download_type が csv・pdf の場合に指定すると 400 エラーになります（csv は常に sjis で出力されるため、レスポンスの encoding には sjis が返ります。pdf の場合は null が返ります）。</li>
- *   <li>visible_tags は download_type が generic・csv・pdf の場合のみ指定できます（generic_v2 に指定すると 400 エラーになります）。指定しない場合は従来の仕様の仕訳帳が出力されます。</li>
- *   <li>segment_1_tag・segment_2_tag・segment_3_tag は download_type が generic の場合のみ指定でき、対応するセグメントが利用可能なプランの契約と設定を完了している必要があります。詳細は<a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>をご参照ください。</li>
- *   <li>visible_ids は download_type が generic の場合のみ指定できます（それ以外に指定すると 400 エラーになります）。</li>
- * </ul>
- */
 export const getJournals = <ThrowOnError extends boolean = true>(
   options: Options<GetJournalsData, ThrowOnError>,
 ): RequestResult<GetJournalsResponses, GetJournalsErrors, ThrowOnError> =>
@@ -3179,22 +1515,6 @@ export const getJournals = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 仕訳帳のステータスの取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>仕訳帳のダウンロードリクエストのステータスを取得する</p>
- *
- * <p>仕訳帳のダウンロード要求（GET /api/1/journals）のレスポンスで返る id（受け付けID）を指定します。status が uploaded になると、レスポンスに download_url（仕訳帳のダウンロード（GET /api/1/journals/reports/{id}/download）のURL）が含まれます。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>status が failed の場合はファイルの作成に失敗しています。仕訳帳のダウンロード要求（GET /api/1/journals）から再度やり直してください。</li>
- *   <li>指定した id が存在しない場合は 404 エラーになります。</li>
- * </ul>
- */
 export const getJournalStatus = <ThrowOnError extends boolean = true>(
   options: Options<GetJournalStatusData, ThrowOnError>,
 ): RequestResult<GetJournalStatusResponses, GetJournalStatusErrors, ThrowOnError> =>
@@ -3204,21 +1524,6 @@ export const getJournalStatus = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 仕訳帳のダウンロード
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>作成が完了した仕訳帳ファイルをダウンロードする</p>
- *
- * <p>仕訳帳のステータスの取得（GET /api/1/journals/reports/{id}/status）で status が uploaded になった後に呼び出してください。ファイルは仕訳帳のダウンロード要求（GET /api/1/journals）で指定した download_type に応じて CSV（text/csv）または PDF（application/pdf）で返ります。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>ファイルの作成が完了していない場合や、指定した id が存在しない場合は 404 エラーになります。</li>
- * </ul>
- */
 export const downloadJournal = <ThrowOnError extends boolean = true>(
   options: Options<DownloadJournalData, ThrowOnError>,
 ): RequestResult<DownloadJournalResponses, DownloadJournalErrors, ThrowOnError> =>
@@ -3228,40 +1533,6 @@ export const downloadJournal = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 仕訳帳の仕訳一覧の取得
- *
- * ## 概要
- *
- * 指定した事業所の仕訳を、仕訳帳と同じ検索条件で絞り込んで取得します。検索条件はリクエストボディで指定します。
- *
- * ## 定義
- *
- * - `debit` / `credit`: 仕訳の借方行・貸方行。配列の順が表示順です。
- * - 消費税行 (`line_type: tax`): 税抜経理の期間に、仮払消費税等・仮受消費税等を取引先・税区分・貸借ごと (部門必須設定が「全科目」の事業所ではさらに部門ごと) にまとめた行です。`debit` / `credit` の末尾に付きます。明細としては存在しないため、`id` など一部の項目は `null` になります。
- *
- * ## 検索条件の判定
- *
- * 複数の条件を指定したときは、次の単位で判定します。
- *
- * - 仕訳単位: `start_issue_date` / `end_issue_date` / `deal_ids` / `start_created_date` / `end_created_date` / `adjustment` / `approval_status` / `current_approver_user_id` / `last_approver_user_id` / `create_user_id` / `receipts` / `receipt_partner_name` / `ref_number` / `txn_number` / `cost_allocation` / `reverse_journal` / `description` / `wallet_txn_description`。仕訳がそれぞれの条件を満たせばヒットします。
- * - 明細行単位: `account_item_id` / `tax_code` / `partner_id` / `item_id` / `section_id` / `memo_tag_id` / `segment_tag_1_id` / `segment_tag_2_id` / `segment_tag_3_id` / `detail_amount_min` / `detail_amount_max`。同じ 1 つの明細行がすべての条件を満たす必要があります。
- * - コメント単位: `comment_status` / `comment_important` / `comment_details` / `comment_poster_user_id` / `comment_recipient_user_id`。同じ 1 つのコメントがすべての条件を満たす必要があります。
- *
- * `account_item_id` に次の勘定科目を指定した場合は例外です。
- *
- * - 口座に紐づく勘定科目 (現金・普通預金など)、事業主借・事業主貸・役員借入金・役員貸付金: 勘定科目とそれ以外の明細行条件を別々に判定します。それぞれを満たす行が同じ仕訳の中にあればヒットします。
- * - 仮払消費税等・仮受消費税等: 税抜経理の期間は、消費税行の元になる明細行 (税額があるもの) も検索対象に含めます。
- *
- * ## 注意点
- *
- * - `start_issue_date` / `end_issue_date` と `deal_ids` のどちらも指定しない場合は 400 を返します。
- * - 経理方式 (税込 / 税抜) は、仕訳の発生日が属する会計年度の設定で決まります。検索期間が複数の会計年度にまたがる場合は、仕訳ごとに経理方式が異なることがあります。
- * - レスポンスにマスタの名称 (勘定科目名・部門名・取引先名など) は含まれません。名称は各マスタ API (`/api/1/account_items`、`/api/1/sections`、`/api/1/partners` など) で取得してください。
- * - 存在しないマスタ ID (他の事業所のものを含む) を指定した場合は 400 を返します。ユーザー ID は事業所への所属を検証しないため、所属していないユーザーの ID を指定しても 0 件を返します。
- * - `next_page_token` が `null` のレスポンスが最終ページです。トークンの中身には依存しないでください。ページを取得する間に仕訳が登録・更新・削除されると、重複や欠落が起きることがあります。
- * - 検索結果への反映は非同期のため、登録・更新した直後の仕訳は含まれないことがあります。
- */
 export const searchReportJournals = <ThrowOnError extends boolean = true>(
   options: Options<SearchReportJournalsData, ThrowOnError>,
 ): RequestResult<SearchReportJournalsResponses, SearchReportJournalsErrors, ThrowOnError> =>
@@ -3279,89 +1550,6 @@ export const searchReportJournals = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 貸借対照表の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の貸借対照表（Balance Sheet, BS）を取得します。決算作業や月次の残高確認、取引先・品目・部門・セグメント単位のBS内訳集計に利用できます。</p>
- *
- * <h2 id="_2">定義</h2>
- * <ul>
- *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
- *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
- *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
- *   <li><p>opening_balance : 期首残高（円）</p></li>
- *   <li><p>debit_amount : 期間中の借方金額（円）</p></li>
- *   <li><p>credit_amount : 期間中の貸方金額（円）</p></li>
- *   <li><p>closing_balance : 期末残高（円）</p></li>
- *   <li><p>composition_ratio : 構成比（百分率、%。BSの区分合計（資産の部合計、または負債及び純資産の部合計）に対する当該行の残高割合を 100 換算した値。相殺科目などで基準額を超える場合は 100 を超え得る）</p></li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- * <ul>
- *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
- *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
- *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
- *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
- *   <ul>
- *     <li>fiscal_year</li>
- *     <li>start_month</li>
- *     <li>end_month</li>
- *   </ul>
- *   </li>
- *   <li>0を指定すると未選択で絞り込めます
- *   <ul>
- *     <li>partner_idに0を指定して絞り込んだ場合
- *     <ul>
- *       <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
- *     </ul>
- *     </li>
- *   </ul>
- *   </li>
- * </ul>
- *
- * <h2 id="_4">レスポンスの例</h2>
- * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_bs?company_id=1&amp;fiscal_year=2019&amp;breakdown_display_type=partner</p>
- * </blockquote>
- *
- * <pre><code>{
- *   &quot;trial_bs&quot;: {
- *     &quot;company_id&quot;: 1,
- *     &quot;fiscal_year&quot;: 2019,
- *     &quot;breakdown_display_type&quot;: &quot;partner&quot;,
- *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
- *     &quot;balances&quot;: [
- *       {
- *         &quot;account_item_id&quot;: 1000,
- *         &quot;account_item_name&quot;: &quot;現金&quot;,
- *         &quot;hierarchy_level&quot;: 2,
- *         &quot;account_category_name&quot;: &quot;流動資産&quot;,
- *         &quot;opening_balance&quot;: 100000,
- *         &quot;debit_amount&quot;: 50000,
- *         &quot;credit_amount&quot;: 20000,
- *         &quot;closing_balance&quot;: 130000,
- *         &quot;composition_ratio&quot;: 25.0,
- *         &quot;partners&quot;: [
- *           {
- *             &quot;id&quot;: 123,
- *             &quot;name&quot;: &quot;freee&quot;,
- *             &quot;opening_balance&quot;: 100000,
- *             &quot;debit_amount&quot;: 50000,
- *             &quot;credit_amount&quot;: 20000,
- *             &quot;closing_balance&quot;: 130000,
- *             &quot;composition_ratio&quot;: 25.0
- *           }
- *         ]
- *       }
- *     ]
- *   },
- *   &quot;up_to_date&quot;: true
- * }</code></pre>
- *
- */
 export const getTrialBs = <ThrowOnError extends boolean = true>(
   options: Options<GetTrialBsData, ThrowOnError>,
 ): RequestResult<GetTrialBsResponses, GetTrialBsErrors, ThrowOnError> =>
@@ -3371,73 +1559,6 @@ export const getTrialBs = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 貸借対照表(前年比較)の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の貸借対照表(前年比較)を取得します。当年度と前年度の期末残高を並べて比較し、前年比を確認する用途に利用できます。</p>
- *
- * <h2 id="_2">定義</h2>
- * <ul>
- *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
- *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
- *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
- *   <li><p>last_year_closing_balance : 前年度期末残高（円）</p></li>
- *   <li><p>closing_balance : 当年度期末残高（円）</p></li>
- *   <li><p>year_on_year : 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）</p></li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- * <ul>
- *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
- *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
- *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
- *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
- *   <ul>
- *     <li>fiscal_year</li>
- *     <li>start_month</li>
- *     <li>end_month</li>
- *   </ul>
- *   </li>
- *   <li>0を指定すると未選択で絞り込めます
- *   <ul>
- *     <li>partner_idに0を指定して絞り込んだ場合
- *     <ul>
- *       <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
- *     </ul>
- *     </li>
- *   </ul>
- *   </li>
- * </ul>
- *
- * <h2 id="_4">レスポンスの例</h2>
- * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_bs_two_years?company_id=1&amp;fiscal_year=2019</p>
- * </blockquote>
- *
- * <pre><code>{
- *   &quot;trial_bs_two_years&quot;: {
- *     &quot;company_id&quot;: 1,
- *     &quot;fiscal_year&quot;: 2019,
- *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
- *     &quot;balances&quot;: [
- *       {
- *         &quot;account_item_id&quot;: 1000,
- *         &quot;account_item_name&quot;: &quot;現金&quot;,
- *         &quot;hierarchy_level&quot;: 2,
- *         &quot;account_category_name&quot;: &quot;流動資産&quot;,
- *         &quot;last_year_closing_balance&quot;: 25000,
- *         &quot;closing_balance&quot;: 100000,
- *         &quot;year_on_year&quot;: 400.0
- *       }
- *     ]
- *   },
- *   &quot;up_to_date&quot;: true
- * }</code></pre>
- *
- */
 export const getTrialBsTwoYears = <ThrowOnError extends boolean = true>(
   options: Options<GetTrialBsTwoYearsData, ThrowOnError>,
 ): RequestResult<GetTrialBsTwoYearsResponses, GetTrialBsTwoYearsErrors, ThrowOnError> =>
@@ -3451,75 +1572,6 @@ export const getTrialBsTwoYears = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 貸借対照表(３期間比較)の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の貸借対照表(３期間比較)を取得します。当年度・前年度・前々年度の期末残高を並べて比較し、中期の推移や前年比を確認する用途に利用できます。</p>
- *
- * <h2 id="_2">定義</h2>
- * <ul>
- *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
- *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
- *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
- *   <li><p>two_years_before_closing_balance : 前々年度期末残高（円）</p></li>
- *   <li><p>last_year_closing_balance : 前年度期末残高（円）</p></li>
- *   <li><p>closing_balance : 当年度期末残高（円）</p></li>
- *   <li><p>year_on_year : 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）</p></li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- * <ul>
- *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
- *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
- *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
- *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
- *   <ul>
- *     <li>fiscal_year</li>
- *     <li>start_month</li>
- *     <li>end_month</li>
- *   </ul>
- *   </li>
- *   <li>0を指定すると未選択で絞り込めます
- *   <ul>
- *     <li>partner_idに0を指定して絞り込んだ場合
- *     <ul>
- *       <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
- *     </ul>
- *     </li>
- *   </ul>
- *   </li>
- * </ul>
- *
- * <h2 id="_4">レスポンスの例</h2>
- * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_bs_three_years?company_id=1&amp;fiscal_year=2019</p>
- * </blockquote>
- *
- * <pre><code>{
- *   &quot;trial_bs_three_years&quot;: {
- *     &quot;company_id&quot;: 1,
- *     &quot;fiscal_year&quot;: 2019,
- *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
- *     &quot;balances&quot;: [
- *       {
- *         &quot;account_item_id&quot;: 1000,
- *         &quot;account_item_name&quot;: &quot;現金&quot;,
- *         &quot;hierarchy_level&quot;: 2,
- *         &quot;account_category_name&quot;: &quot;流動資産&quot;,
- *         &quot;two_years_before_closing_balance&quot;: 50000,
- *         &quot;last_year_closing_balance&quot;: 25000,
- *         &quot;closing_balance&quot;: 100000,
- *         &quot;year_on_year&quot;: 400.0
- *       }
- *     ]
- *   },
- *   &quot;up_to_date&quot;: true
- * }</code></pre>
- *
- */
 export const getTrialBsThreeYears = <ThrowOnError extends boolean = true>(
   options: Options<GetTrialBsThreeYearsData, ThrowOnError>,
 ): RequestResult<GetTrialBsThreeYearsResponses, GetTrialBsThreeYearsErrors, ThrowOnError> =>
@@ -3533,90 +1585,6 @@ export const getTrialBsThreeYears = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 損益計算書の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の損益計算書（Profit and Loss statement, PL）を取得します。月次・期間指定での損益確認や、取引先・品目・部門・セグメント単位のPL内訳集計に利用できます。</p>
- *
- * <h2 id="_2">定義</h2>
- * <ul>
- *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
- *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
- *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
- *   <li><p>opening_balance : 期首残高（円）</p></li>
- *   <li><p>debit_amount : 期間中の借方金額（円）</p></li>
- *   <li><p>credit_amount : 期間中の貸方金額（円）</p></li>
- *   <li><p>closing_balance : 期末残高（円）</p></li>
- *   <li><p>composition_ratio : 構成比（百分率、%。PLの基準額（法人の場合は売上高の合計、個人の場合は収入金額の合計）に対する当該行の金額割合を 100 換算した値。基準額を超える行では 100 を超え得る）</p></li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- * <ul>
- *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
- *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
- *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
- *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
- *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
- *   <ul>
- *     <li>fiscal_year</li>
- *     <li>start_month</li>
- *     <li>end_month</li>
- *   </ul>
- *   </li>
- *   <li>0を指定すると未選択で絞り込めます
- *   <ul>
- *     <li>partner_idに0を指定して絞り込んだ場合
- *     <ul>
- *       <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
- *     </ul>
- *     </li>
- *   </ul>
- *   </li>
- * </ul>
- *
- * <h2 id="_4">レスポンスの例</h2>
- * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_pl?company_id=1&amp;fiscal_year=2019&amp;breakdown_display_type=partner</p>
- * </blockquote>
- *
- * <pre><code>{
- *   &quot;trial_pl&quot;: {
- *     &quot;company_id&quot;: 1,
- *     &quot;fiscal_year&quot;: 2019,
- *     &quot;breakdown_display_type&quot;: &quot;partner&quot;,
- *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
- *     &quot;balances&quot;: [
- *       {
- *         &quot;account_item_id&quot;: 1500,
- *         &quot;account_item_name&quot;: &quot;売上高&quot;,
- *         &quot;hierarchy_level&quot;: 2,
- *         &quot;account_category_name&quot;: &quot;営業収益&quot;,
- *         &quot;opening_balance&quot;: 0,
- *         &quot;debit_amount&quot;: 50000,
- *         &quot;credit_amount&quot;: 150000,
- *         &quot;closing_balance&quot;: 100000,
- *         &quot;composition_ratio&quot;: 100.0,
- *         &quot;partners&quot;: [
- *           {
- *             &quot;id&quot;: 123,
- *             &quot;name&quot;: &quot;freee&quot;,
- *             &quot;opening_balance&quot;: 0,
- *             &quot;debit_amount&quot;: 50000,
- *             &quot;credit_amount&quot;: 150000,
- *             &quot;closing_balance&quot;: 100000,
- *             &quot;composition_ratio&quot;: 100.0
- *           }
- *         ]
- *       }
- *     ]
- *   },
- *   &quot;up_to_date&quot;: true
- * }</code></pre>
- *
- */
 export const getTrialPl = <ThrowOnError extends boolean = true>(
   options: Options<GetTrialPlData, ThrowOnError>,
 ): RequestResult<GetTrialPlResponses, GetTrialPlErrors, ThrowOnError> =>
@@ -3626,74 +1594,6 @@ export const getTrialPl = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 損益計算書(前年比較)の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の損益計算書(前年比較)を取得します。当年度と前年度の期末残高を並べて比較し、前年比を確認する用途に利用できます。</p>
- *
- * <h2 id="_2">定義</h2>
- * <ul>
- *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
- *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
- *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
- *   <li><p>last_year_closing_balance : 前年度期末残高（円）</p></li>
- *   <li><p>closing_balance : 当年度期末残高（円）</p></li>
- *   <li><p>year_on_year : 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）</p></li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- * <ul>
- *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
- *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
- *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
- *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
- *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
- *   <ul>
- *     <li>fiscal_year</li>
- *     <li>start_month</li>
- *     <li>end_month</li>
- *   </ul>
- *   </li>
- *   <li>0を指定すると未選択で絞り込めます
- *   <ul>
- *     <li>partner_idに0を指定して絞り込んだ場合
- *     <ul>
- *       <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
- *     </ul>
- *     </li>
- *   </ul>
- *   </li>
- * </ul>
- *
- * <h2 id="_4">レスポンスの例</h2>
- * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_pl_two_years?company_id=1&amp;fiscal_year=2019</p>
- * </blockquote>
- *
- * <pre><code>{
- *   &quot;trial_pl_two_years&quot;: {
- *     &quot;company_id&quot;: 1,
- *     &quot;fiscal_year&quot;: 2019,
- *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
- *     &quot;balances&quot;: [
- *       {
- *         &quot;account_item_id&quot;: 1500,
- *         &quot;account_item_name&quot;: &quot;売上高&quot;,
- *         &quot;hierarchy_level&quot;: 2,
- *         &quot;account_category_name&quot;: &quot;営業収益&quot;,
- *         &quot;last_year_closing_balance&quot;: 25000,
- *         &quot;closing_balance&quot;: 100000,
- *         &quot;year_on_year&quot;: 400.0
- *       }
- *     ]
- *   },
- *   &quot;up_to_date&quot;: true
- * }</code></pre>
- *
- */
 export const getTrialPlTwoYears = <ThrowOnError extends boolean = true>(
   options: Options<GetTrialPlTwoYearsData, ThrowOnError>,
 ): RequestResult<GetTrialPlTwoYearsResponses, GetTrialPlTwoYearsErrors, ThrowOnError> =>
@@ -3707,76 +1607,6 @@ export const getTrialPlTwoYears = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 損益計算書(３期間比較)の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の損益計算書(３期間比較)を取得します。当年度・前年度・前々年度の期末残高を並べて比較し、前年比を確認する用途に利用できます。</p>
- *
- * <h2 id="_2">定義</h2>
- * <ul>
- *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
- *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
- *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
- *   <li><p>two_years_before_closing_balance : 前々年度期末残高（円）</p></li>
- *   <li><p>last_year_closing_balance : 前年度期末残高（円）</p></li>
- *   <li><p>closing_balance : 当年度期末残高（円）</p></li>
- *   <li><p>year_on_year : 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）</p></li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- * <ul>
- *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
- *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
- *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
- *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
- *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
- *   <ul>
- *     <li>fiscal_year</li>
- *     <li>start_month</li>
- *     <li>end_month</li>
- *   </ul>
- *   </li>
- *   <li>0を指定すると未選択で絞り込めます
- *   <ul>
- *     <li>partner_idに0を指定して絞り込んだ場合
- *     <ul>
- *       <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
- *     </ul>
- *     </li>
- *   </ul>
- *   </li>
- * </ul>
- *
- * <h2 id="_4">レスポンスの例</h2>
- * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_pl_three_years?company_id=1&amp;fiscal_year=2019</p>
- * </blockquote>
- *
- * <pre><code>{
- *   &quot;trial_pl_three_years&quot;: {
- *     &quot;company_id&quot;: 1,
- *     &quot;fiscal_year&quot;: 2019,
- *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
- *     &quot;balances&quot;: [
- *       {
- *         &quot;account_item_id&quot;: 1500,
- *         &quot;account_item_name&quot;: &quot;売上高&quot;,
- *         &quot;hierarchy_level&quot;: 2,
- *         &quot;account_category_name&quot;: &quot;営業収益&quot;,
- *         &quot;two_years_before_closing_balance&quot;: 50000,
- *         &quot;last_year_closing_balance&quot;: 25000,
- *         &quot;closing_balance&quot;: 100000,
- *         &quot;year_on_year&quot;: 400.0
- *       }
- *     ]
- *   },
- *   &quot;up_to_date&quot;: true
- * }</code></pre>
- *
- */
 export const getTrialPlThreeYears = <ThrowOnError extends boolean = true>(
   options: Options<GetTrialPlThreeYearsData, ThrowOnError>,
 ): RequestResult<GetTrialPlThreeYearsResponses, GetTrialPlThreeYearsErrors, ThrowOnError> =>
@@ -3790,88 +1620,6 @@ export const getTrialPlThreeYears = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 損益計算書(部門比較)の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の損益計算書(部門比較)を取得します。指定した部門（最大5つ）ごとの期末残高を並べて比較する用途に利用できます。</p>
- *
- * <h2 id="_2">定義</h2>
- * <ul>
- *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
- *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
- *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
- *   <li><p>closing_balance : 期末残高（円。行直下の値は比較対象に指定した部門の合計、sections 配下の値は各部門の金額）</p></li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- * <ul>
- *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
- *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
- *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
- *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
- *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
- *   <ul>
- *     <li>fiscal_year</li>
- *     <li>start_month</li>
- *     <li>end_month</li>
- *   </ul>
- *   </li>
- *   <li>0を指定すると未選択で絞り込めます
- *   <ul>
- *     <li>partner_idに0を指定して絞り込んだ場合
- *     <ul>
- *       <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
- *     </ul>
- *     </li>
- *   </ul>
- *   </li>
- * </ul>
- *
- * <h2 id="_4">レスポンスの例</h2>
- * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_pl_sections?company_id=1&amp;section_ids=1,2,3&amp;fiscal_year=2019</p>
- * </blockquote>
- *
- * <pre><code>{
- *   &quot;trial_pl_sections&quot;: {
- *     &quot;company_id&quot;: 1,
- *     &quot;section_ids&quot;: &quot;1,2,3&quot;,
- *     &quot;fiscal_year&quot;: 2019,
- *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
- *     &quot;balances&quot;: [
- *       {
- *         &quot;account_item_id&quot;: 1500,
- *         &quot;account_item_name&quot;: &quot;売上高&quot;,
- *         &quot;hierarchy_level&quot;: 2,
- *         &quot;account_category_name&quot;: &quot;営業収益&quot;,
- *         &quot;closing_balance&quot;: 600000,
- *         &quot;sections&quot;: [
- *           {
- *             &quot;id&quot;: 1,
- *             &quot;name&quot;: &quot;営業部&quot;,
- *             &quot;closing_balance&quot;: 100000
- *           },
- *           {
- *             &quot;id&quot;: 2,
- *             &quot;name&quot;: &quot;広報部&quot;,
- *             &quot;closing_balance&quot;: 200000
- *           },
- *           {
- *             &quot;id&quot;: 3,
- *             &quot;name&quot;: &quot;人事部&quot;,
- *             &quot;closing_balance&quot;: 300000
- *           }
- *         ]
- *       }
- *     ]
- *   },
- *   &quot;up_to_date&quot;: true
- * }</code></pre>
- *
- */
 export const getTrialPlSections = <ThrowOnError extends boolean = true>(
   options: Options<GetTrialPlSectionsData, ThrowOnError>,
 ): RequestResult<GetTrialPlSectionsResponses, GetTrialPlSectionsErrors, ThrowOnError> =>
@@ -3885,88 +1633,6 @@ export const getTrialPlSections = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 損益計算書(セグメント１比較)の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の損益計算書(セグメント1比較)を取得します。指定したセグメント1タグ（最大5つ）ごとの期末残高を並べて比較する用途に利用できます。</p>
- *
- * <h2 id="_2">定義</h2>
- * <ul>
- *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
- *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
- *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
- *   <li><p>closing_balance : 期末残高（円。行直下の値は比較対象に指定したセグメント1タグの合計、segment_1_tags 配下の値は各タグの金額）</p></li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- * <ul>
- *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
- *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
- *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
- *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
- *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
- *   <ul>
- *     <li>fiscal_year</li>
- *     <li>start_month</li>
- *     <li>end_month</li>
- *   </ul>
- *   </li>
- *   <li>0を指定すると未選択で絞り込めます
- *   <ul>
- *     <li>partner_idに0を指定して絞り込んだ場合
- *     <ul>
- *       <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
- *     </ul>
- *     </li>
- *   </ul>
- *   </li>
- * </ul>
- *
- * <h2 id="_4">レスポンスの例</h2>
- * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_pl_segment_1_tags?company_id=1&amp;segment_1_tag_ids=1,2,3&amp;fiscal_year=2019</p>
- * </blockquote>
- *
- * <pre><code>{
- *   &quot;trial_pl_segment_1_tags&quot;: {
- *     &quot;company_id&quot;: 1,
- *     &quot;segment_1_tag_ids&quot;: &quot;1,2,3&quot;,
- *     &quot;fiscal_year&quot;: 2019,
- *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
- *     &quot;balances&quot;: [
- *       {
- *         &quot;account_item_id&quot;: 1500,
- *         &quot;account_item_name&quot;: &quot;売上高&quot;,
- *         &quot;hierarchy_level&quot;: 2,
- *         &quot;account_category_name&quot;: &quot;営業収益&quot;,
- *         &quot;closing_balance&quot;: 600000,
- *         &quot;segment_1_tags&quot;: [
- *           {
- *             &quot;id&quot;: 1,
- *             &quot;name&quot;: &quot;プロジェクトA&quot;,
- *             &quot;closing_balance&quot;: 100000
- *           },
- *           {
- *             &quot;id&quot;: 2,
- *             &quot;name&quot;: &quot;プロジェクトB&quot;,
- *             &quot;closing_balance&quot;: 200000
- *           },
- *           {
- *             &quot;id&quot;: 3,
- *             &quot;name&quot;: &quot;プロジェクトC&quot;,
- *             &quot;closing_balance&quot;: 300000
- *           }
- *         ]
- *       }
- *     ]
- *   },
- *   &quot;up_to_date&quot;: true
- * }</code></pre>
- *
- */
 export const getTrialPlSegment1Tags = <ThrowOnError extends boolean = true>(
   options: Options<GetTrialPlSegment1TagsData, ThrowOnError>,
 ): RequestResult<GetTrialPlSegment1TagsResponses, GetTrialPlSegment1TagsErrors, ThrowOnError> =>
@@ -3980,88 +1646,6 @@ export const getTrialPlSegment1Tags = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 損益計算書(セグメント２比較)の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の損益計算書(セグメント2比較)を取得します。指定したセグメント2タグ（最大5つ）ごとの期末残高を並べて比較する用途に利用できます。</p>
- *
- * <h2 id="_2">定義</h2>
- * <ul>
- *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
- *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
- *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
- *   <li><p>closing_balance : 期末残高（円。行直下の値は比較対象に指定したセグメント2タグの合計、segment_2_tags 配下の値は各タグの金額）</p></li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- * <ul>
- *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
- *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
- *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
- *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
- *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
- *   <ul>
- *     <li>fiscal_year</li>
- *     <li>start_month</li>
- *     <li>end_month</li>
- *   </ul>
- *   </li>
- *   <li>0を指定すると未選択で絞り込めます
- *   <ul>
- *     <li>partner_idに0を指定して絞り込んだ場合
- *     <ul>
- *       <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
- *     </ul>
- *     </li>
- *   </ul>
- *   </li>
- * </ul>
- *
- * <h2 id="_4">レスポンスの例</h2>
- * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_pl_segment_2_tags?company_id=1&amp;segment_2_tag_ids=1,2,3&amp;fiscal_year=2019</p>
- * </blockquote>
- *
- * <pre><code>{
- *   &quot;trial_pl_segment_2_tags&quot;: {
- *     &quot;company_id&quot;: 1,
- *     &quot;segment_2_tag_ids&quot;: &quot;1,2,3&quot;,
- *     &quot;fiscal_year&quot;: 2019,
- *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
- *     &quot;balances&quot;: [
- *       {
- *         &quot;account_item_id&quot;: 1500,
- *         &quot;account_item_name&quot;: &quot;売上高&quot;,
- *         &quot;hierarchy_level&quot;: 2,
- *         &quot;account_category_name&quot;: &quot;営業収益&quot;,
- *         &quot;closing_balance&quot;: 600000,
- *         &quot;segment_2_tags&quot;: [
- *           {
- *             &quot;id&quot;: 1,
- *             &quot;name&quot;: &quot;プロジェクトA&quot;,
- *             &quot;closing_balance&quot;: 100000
- *           },
- *           {
- *             &quot;id&quot;: 2,
- *             &quot;name&quot;: &quot;プロジェクトB&quot;,
- *             &quot;closing_balance&quot;: 200000
- *           },
- *           {
- *             &quot;id&quot;: 3,
- *             &quot;name&quot;: &quot;プロジェクトC&quot;,
- *             &quot;closing_balance&quot;: 300000
- *           }
- *         ]
- *       }
- *     ]
- *   },
- *   &quot;up_to_date&quot;: true
- * }</code></pre>
- *
- */
 export const getTrialPlSegment2Tags = <ThrowOnError extends boolean = true>(
   options: Options<GetTrialPlSegment2TagsData, ThrowOnError>,
 ): RequestResult<GetTrialPlSegment2TagsResponses, GetTrialPlSegment2TagsErrors, ThrowOnError> =>
@@ -4075,88 +1659,6 @@ export const getTrialPlSegment2Tags = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 損益計算書(セグメント３比較)の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の損益計算書(セグメント3比較)を取得します。指定したセグメント3タグ（最大5つ）ごとの期末残高を並べて比較する用途に利用できます。</p>
- *
- * <h2 id="_2">定義</h2>
- * <ul>
- *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
- *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
- *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
- *   <li><p>closing_balance : 期末残高（円。行直下の値は比較対象に指定したセグメント3タグの合計、segment_3_tags 配下の値は各タグの金額）</p></li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- * <ul>
- *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
- *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
- *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
- *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
- *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
- *   <ul>
- *     <li>fiscal_year</li>
- *     <li>start_month</li>
- *     <li>end_month</li>
- *   </ul>
- *   </li>
- *   <li>0を指定すると未選択で絞り込めます
- *   <ul>
- *     <li>partner_idに0を指定して絞り込んだ場合
- *     <ul>
- *       <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
- *     </ul>
- *     </li>
- *   </ul>
- *   </li>
- * </ul>
- *
- * <h2 id="_4">レスポンスの例</h2>
- * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_pl_segment_3_tags?company_id=1&amp;segment_3_tag_ids=1,2,3&amp;fiscal_year=2019</p>
- * </blockquote>
- *
- * <pre><code>{
- *   &quot;trial_pl_segment_3_tags&quot;: {
- *     &quot;company_id&quot;: 1,
- *     &quot;segment_3_tag_ids&quot;: &quot;1,2,3&quot;,
- *     &quot;fiscal_year&quot;: 2019,
- *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
- *     &quot;balances&quot;: [
- *       {
- *         &quot;account_item_id&quot;: 1500,
- *         &quot;account_item_name&quot;: &quot;売上高&quot;,
- *         &quot;hierarchy_level&quot;: 2,
- *         &quot;account_category_name&quot;: &quot;営業収益&quot;,
- *         &quot;closing_balance&quot;: 600000,
- *         &quot;segment_3_tags&quot;: [
- *           {
- *             &quot;id&quot;: 1,
- *             &quot;name&quot;: &quot;プロジェクトA&quot;,
- *             &quot;closing_balance&quot;: 100000
- *           },
- *           {
- *             &quot;id&quot;: 2,
- *             &quot;name&quot;: &quot;プロジェクトB&quot;,
- *             &quot;closing_balance&quot;: 200000
- *           },
- *           {
- *             &quot;id&quot;: 3,
- *             &quot;name&quot;: &quot;プロジェクトC&quot;,
- *             &quot;closing_balance&quot;: 300000
- *           }
- *         ]
- *       }
- *     ]
- *   },
- *   &quot;up_to_date&quot;: true
- * }</code></pre>
- *
- */
 export const getTrialPlSegment3Tags = <ThrowOnError extends boolean = true>(
   options: Options<GetTrialPlSegment3TagsData, ThrowOnError>,
 ): RequestResult<GetTrialPlSegment3TagsResponses, GetTrialPlSegment3TagsErrors, ThrowOnError> =>
@@ -4170,91 +1672,6 @@ export const getTrialPlSegment3Tags = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 製造原価報告書の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の製造原価報告書（Cost Report, CR）を取得します。材料費・労務費・製造経費など製造原価の期間集計や、取引先・品目・部門・セグメント単位の内訳集計に利用できます。</p>
- *
- * <h2 id="_2">定義</h2>
- * <ul>
- *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
- *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
- *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
- *   <li><p>opening_balance : 期首残高（円）</p></li>
- *   <li><p>debit_amount : 期間中の借方金額（円）</p></li>
- *   <li><p>credit_amount : 期間中の貸方金額（円）</p></li>
- *   <li><p>closing_balance : 期末残高（円）</p></li>
- *   <li><p>composition_ratio : 構成比（百分率、%。製造原価報告書の基準額（勘定科目カテゴリー「製造原価」の金額。法人・個人共通）に対する当該行の金額割合を 100 換算した値。基準額を超える行では 100 を超え得る）</p></li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- * <ul>
- *   <li>対象の会計年度で製造業向け機能を使用する設定になっている必要があります。無効の場合はエラー（400）になります。</li>
- *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
- *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
- *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
- *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
- *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
- *   <ul>
- *     <li>fiscal_year</li>
- *     <li>start_month</li>
- *     <li>end_month</li>
- *   </ul>
- *   </li>
- *   <li>0を指定すると未選択で絞り込めます
- *   <ul>
- *     <li>partner_idに0を指定して絞り込んだ場合
- *     <ul>
- *       <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
- *     </ul>
- *     </li>
- *   </ul>
- *   </li>
- * </ul>
- *
- * <h2 id="_4">レスポンスの例</h2>
- * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr?company_id=1&amp;fiscal_year=2019&amp;breakdown_display_type=partner</p>
- * </blockquote>
- *
- * <pre><code>{
- *   &quot;trial_cr&quot;: {
- *     &quot;company_id&quot;: 1,
- *     &quot;fiscal_year&quot;: 2019,
- *     &quot;breakdown_display_type&quot;: &quot;partner&quot;,
- *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
- *     &quot;balances&quot;: [
- *       {
- *         &quot;account_item_id&quot;: 1500,
- *         &quot;account_item_name&quot;: &quot;[製]期首材料棚卸高&quot;,
- *         &quot;hierarchy_level&quot;: 2,
- *         &quot;account_category_name&quot;: &quot;期首原材料棚卸&quot;,
- *         &quot;opening_balance&quot;: 0,
- *         &quot;debit_amount&quot;: 150000,
- *         &quot;credit_amount&quot;: 50000,
- *         &quot;closing_balance&quot;: 100000,
- *         &quot;composition_ratio&quot;: 10.0,
- *         &quot;partners&quot;: [
- *           {
- *             &quot;id&quot;: 123,
- *             &quot;name&quot;: &quot;freee&quot;,
- *             &quot;opening_balance&quot;: 0,
- *             &quot;debit_amount&quot;: 150000,
- *             &quot;credit_amount&quot;: 50000,
- *             &quot;closing_balance&quot;: 100000,
- *             &quot;composition_ratio&quot;: 10.0
- *           }
- *         ]
- *       }
- *     ]
- *   },
- *   &quot;up_to_date&quot;: true
- * }</code></pre>
- *
- */
 export const getTrialCr = <ThrowOnError extends boolean = true>(
   options: Options<GetTrialCrData, ThrowOnError>,
 ): RequestResult<GetTrialCrResponses, GetTrialCrErrors, ThrowOnError> =>
@@ -4264,75 +1681,6 @@ export const getTrialCr = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 製造原価報告書(前年比較)の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の製造原価報告書(前年比較)を取得します。当年度と前年度の期末残高を並べて比較し、前年比を確認する用途に利用できます。</p>
- *
- * <h2 id="_2">定義</h2>
- * <ul>
- *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
- *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
- *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
- *   <li><p>last_year_closing_balance : 前年度期末残高（円）</p></li>
- *   <li><p>closing_balance : 当年度期末残高（円）</p></li>
- *   <li><p>year_on_year : 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）</p></li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- * <ul>
- *   <li>対象の会計年度で製造業向け機能を使用する設定になっている必要があります。無効の場合はエラー（400）になります。</li>
- *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
- *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
- *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
- *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
- *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
- *   <ul>
- *     <li>fiscal_year</li>
- *     <li>start_month</li>
- *     <li>end_month</li>
- *   </ul>
- *   </li>
- *   <li>0を指定すると未選択で絞り込めます
- *   <ul>
- *     <li>partner_idに0を指定して絞り込んだ場合
- *     <ul>
- *       <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
- *     </ul>
- *     </li>
- *   </ul>
- *   </li>
- * </ul>
- *
- * <h2 id="_4">レスポンスの例</h2>
- * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr_two_years?company_id=1&amp;fiscal_year=2019</p>
- * </blockquote>
- *
- * <pre><code>{
- *   &quot;trial_cr_two_years&quot;: {
- *     &quot;company_id&quot;: 1,
- *     &quot;fiscal_year&quot;: 2019,
- *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
- *     &quot;balances&quot;: [
- *       {
- *         &quot;account_item_id&quot;: 1500,
- *         &quot;account_item_name&quot;: &quot;[製]期首材料棚卸高&quot;,
- *         &quot;hierarchy_level&quot;: 2,
- *         &quot;account_category_name&quot;: &quot;期首原材料棚卸&quot;,
- *         &quot;last_year_closing_balance&quot;: 25000,
- *         &quot;closing_balance&quot;: 100000,
- *         &quot;year_on_year&quot;: 400.0
- *       }
- *     ]
- *   },
- *   &quot;up_to_date&quot;: true
- * }</code></pre>
- *
- */
 export const getTrialCrTwoYears = <ThrowOnError extends boolean = true>(
   options: Options<GetTrialCrTwoYearsData, ThrowOnError>,
 ): RequestResult<GetTrialCrTwoYearsResponses, GetTrialCrTwoYearsErrors, ThrowOnError> =>
@@ -4346,77 +1694,6 @@ export const getTrialCrTwoYears = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 製造原価報告書(３期間比較)の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の製造原価報告書(３期間比較)を取得します。当年度・前年度・前々年度の期末残高を並べて比較し、前年比を確認する用途に利用できます。</p>
- *
- * <h2 id="_2">定義</h2>
- * <ul>
- *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
- *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
- *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
- *   <li><p>two_years_before_closing_balance : 前々年度期末残高（円）</p></li>
- *   <li><p>last_year_closing_balance : 前年度期末残高（円）</p></li>
- *   <li><p>closing_balance : 当年度期末残高（円）</p></li>
- *   <li><p>year_on_year : 前年比（百分率、%。100 は前年と同額、200 は前年比 2 倍、50 は前年比 0.5 倍。前年度期末残高が 0 以下、または当年度期末残高が負数の場合は 0 が返る）</p></li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- * <ul>
- *   <li>対象の会計年度で製造業向け機能を使用する設定になっている必要があります。無効の場合はエラー（400）になります。</li>
- *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
- *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
- *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
- *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
- *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
- *   <ul>
- *     <li>fiscal_year</li>
- *     <li>start_month</li>
- *     <li>end_month</li>
- *   </ul>
- *   </li>
- *   <li>0を指定すると未選択で絞り込めます
- *   <ul>
- *     <li>partner_idに0を指定して絞り込んだ場合
- *     <ul>
- *       <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
- *     </ul>
- *     </li>
- *   </ul>
- *   </li>
- * </ul>
- *
- * <h2 id="_4">レスポンスの例</h2>
- * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr_three_years?company_id=1&amp;fiscal_year=2019</p>
- * </blockquote>
- *
- * <pre><code>{
- *   &quot;trial_cr_three_years&quot;: {
- *     &quot;company_id&quot;: 1,
- *     &quot;fiscal_year&quot;: 2019,
- *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
- *     &quot;balances&quot;: [
- *       {
- *         &quot;account_item_id&quot;: 1500,
- *         &quot;account_item_name&quot;: &quot;[製]期首材料棚卸高&quot;,
- *         &quot;hierarchy_level&quot;: 2,
- *         &quot;account_category_name&quot;: &quot;期首原材料棚卸&quot;,
- *         &quot;two_years_before_closing_balance&quot;: 50000,
- *         &quot;last_year_closing_balance&quot;: 25000,
- *         &quot;closing_balance&quot;: 100000,
- *         &quot;year_on_year&quot;: 400.0
- *       }
- *     ]
- *   },
- *   &quot;up_to_date&quot;: true
- * }</code></pre>
- *
- */
 export const getTrialCrThreeYears = <ThrowOnError extends boolean = true>(
   options: Options<GetTrialCrThreeYearsData, ThrowOnError>,
 ): RequestResult<GetTrialCrThreeYearsResponses, GetTrialCrThreeYearsErrors, ThrowOnError> =>
@@ -4430,89 +1707,6 @@ export const getTrialCrThreeYears = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 製造原価報告書(部門比較)の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の製造原価報告書(部門比較)を取得します。指定した部門（最大5つ）ごとの期末残高を並べて比較する用途に利用できます。</p>
- *
- * <h2 id="_2">定義</h2>
- * <ul>
- *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
- *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
- *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
- *   <li><p>closing_balance : 期末残高（円。行直下の値は比較対象に指定した部門の合計、sections 配下の値は各部門の金額）</p></li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- * <ul>
- *   <li>対象の会計年度で製造業向け機能を使用する設定になっている必要があります。無効の場合はエラー（400）になります。</li>
- *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
- *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
- *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
- *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
- *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
- *   <ul>
- *     <li>fiscal_year</li>
- *     <li>start_month</li>
- *     <li>end_month</li>
- *   </ul>
- *   </li>
- *   <li>0を指定すると未選択で絞り込めます
- *   <ul>
- *     <li>partner_idに0を指定して絞り込んだ場合
- *     <ul>
- *       <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
- *     </ul>
- *     </li>
- *   </ul>
- *   </li>
- * </ul>
- *
- * <h2 id="_4">レスポンスの例</h2>
- * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr_sections?company_id=1&amp;section_ids=1,2,3&amp;fiscal_year=2019</p>
- * </blockquote>
- *
- * <pre><code>{
- *   &quot;trial_cr_sections&quot;: {
- *     &quot;company_id&quot;: 1,
- *     &quot;section_ids&quot;: &quot;1,2,3&quot;,
- *     &quot;fiscal_year&quot;: 2019,
- *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
- *     &quot;balances&quot;: [
- *       {
- *         &quot;account_item_id&quot;: 1500,
- *         &quot;account_item_name&quot;: &quot;[製]期首材料棚卸高&quot;,
- *         &quot;hierarchy_level&quot;: 2,
- *         &quot;account_category_name&quot;: &quot;期首原材料棚卸&quot;,
- *         &quot;closing_balance&quot;: 600000,
- *         &quot;sections&quot;: [
- *           {
- *             &quot;id&quot;: 1,
- *             &quot;name&quot;: &quot;営業部&quot;,
- *             &quot;closing_balance&quot;: 100000
- *           },
- *           {
- *             &quot;id&quot;: 2,
- *             &quot;name&quot;: &quot;広報部&quot;,
- *             &quot;closing_balance&quot;: 200000
- *           },
- *           {
- *             &quot;id&quot;: 3,
- *             &quot;name&quot;: &quot;人事部&quot;,
- *             &quot;closing_balance&quot;: 300000
- *           }
- *         ]
- *       }
- *     ]
- *   },
- *   &quot;up_to_date&quot;: true
- * }</code></pre>
- *
- */
 export const getTrialCrSections = <ThrowOnError extends boolean = true>(
   options: Options<GetTrialCrSectionsData, ThrowOnError>,
 ): RequestResult<GetTrialCrSectionsResponses, GetTrialCrSectionsErrors, ThrowOnError> =>
@@ -4526,89 +1720,6 @@ export const getTrialCrSections = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 製造原価報告書(セグメント１比較)の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の製造原価報告書(セグメント1比較)を取得します。指定したセグメント1タグ（最大5つ）ごとの期末残高を並べて比較する用途に利用できます。</p>
- *
- * <h2 id="_2">定義</h2>
- * <ul>
- *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
- *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
- *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
- *   <li><p>closing_balance : 期末残高（円。行直下の値は比較対象に指定したセグメント1タグの合計、segment_1_tags 配下の値は各タグの金額）</p></li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- * <ul>
- *   <li>対象の会計年度で製造業向け機能を使用する設定になっている必要があります。無効の場合はエラー（400）になります。</li>
- *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
- *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
- *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
- *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
- *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
- *   <ul>
- *     <li>fiscal_year</li>
- *     <li>start_month</li>
- *     <li>end_month</li>
- *   </ul>
- *   </li>
- *   <li>0を指定すると未選択で絞り込めます
- *   <ul>
- *     <li>partner_idに0を指定して絞り込んだ場合
- *     <ul>
- *       <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
- *     </ul>
- *     </li>
- *   </ul>
- *   </li>
- * </ul>
- *
- * <h2 id="_4">レスポンスの例</h2>
- * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr_segment_1_tags?company_id=1&amp;segment_1_tag_ids=1,2,3&amp;fiscal_year=2019</p>
- * </blockquote>
- *
- * <pre><code>{
- *   &quot;trial_cr_segment_1_tags&quot;: {
- *     &quot;company_id&quot;: 1,
- *     &quot;segment_1_tag_ids&quot;: &quot;1,2,3&quot;,
- *     &quot;fiscal_year&quot;: 2019,
- *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
- *     &quot;balances&quot;: [
- *       {
- *         &quot;account_item_id&quot;: 1500,
- *         &quot;account_item_name&quot;: &quot;[製]期首材料棚卸高&quot;,
- *         &quot;hierarchy_level&quot;: 2,
- *         &quot;account_category_name&quot;: &quot;期首原材料棚卸&quot;,
- *         &quot;closing_balance&quot;: 600000,
- *         &quot;segment_1_tags&quot;: [
- *           {
- *             &quot;id&quot;: 1,
- *             &quot;name&quot;: &quot;プロジェクトA&quot;,
- *             &quot;closing_balance&quot;: 100000
- *           },
- *           {
- *             &quot;id&quot;: 2,
- *             &quot;name&quot;: &quot;プロジェクトB&quot;,
- *             &quot;closing_balance&quot;: 200000
- *           },
- *           {
- *             &quot;id&quot;: 3,
- *             &quot;name&quot;: &quot;プロジェクトC&quot;,
- *             &quot;closing_balance&quot;: 300000
- *           }
- *         ]
- *       }
- *     ]
- *   },
- *   &quot;up_to_date&quot;: true
- * }</code></pre>
- *
- */
 export const getTrialCrSegment1Tags = <ThrowOnError extends boolean = true>(
   options: Options<GetTrialCrSegment1TagsData, ThrowOnError>,
 ): RequestResult<GetTrialCrSegment1TagsResponses, GetTrialCrSegment1TagsErrors, ThrowOnError> =>
@@ -4622,89 +1733,6 @@ export const getTrialCrSegment1Tags = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 製造原価報告書(セグメント２比較)の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の製造原価報告書(セグメント2比較)を取得します。指定したセグメント2タグ（最大5つ）ごとの期末残高を並べて比較する用途に利用できます。</p>
- *
- * <h2 id="_2">定義</h2>
- * <ul>
- *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
- *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
- *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
- *   <li><p>closing_balance : 期末残高（円。行直下の値は比較対象に指定したセグメント2タグの合計、segment_2_tags 配下の値は各タグの金額）</p></li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- * <ul>
- *   <li>対象の会計年度で製造業向け機能を使用する設定になっている必要があります。無効の場合はエラー（400）になります。</li>
- *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
- *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
- *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
- *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
- *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
- *   <ul>
- *     <li>fiscal_year</li>
- *     <li>start_month</li>
- *     <li>end_month</li>
- *   </ul>
- *   </li>
- *   <li>0を指定すると未選択で絞り込めます
- *   <ul>
- *     <li>partner_idに0を指定して絞り込んだ場合
- *     <ul>
- *       <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
- *     </ul>
- *     </li>
- *   </ul>
- *   </li>
- * </ul>
- *
- * <h2 id="_4">レスポンスの例</h2>
- * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr_segment_2_tags?company_id=1&amp;segment_2_tag_ids=1,2,3&amp;fiscal_year=2019</p>
- * </blockquote>
- *
- * <pre><code>{
- *   &quot;trial_cr_segment_2_tags&quot;: {
- *     &quot;company_id&quot;: 1,
- *     &quot;segment_2_tag_ids&quot;: &quot;1,2,3&quot;,
- *     &quot;fiscal_year&quot;: 2019,
- *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
- *     &quot;balances&quot;: [
- *       {
- *         &quot;account_item_id&quot;: 1500,
- *         &quot;account_item_name&quot;: &quot;[製]期首材料棚卸高&quot;,
- *         &quot;hierarchy_level&quot;: 2,
- *         &quot;account_category_name&quot;: &quot;期首原材料棚卸&quot;,
- *         &quot;closing_balance&quot;: 600000,
- *         &quot;segment_2_tags&quot;: [
- *           {
- *             &quot;id&quot;: 1,
- *             &quot;name&quot;: &quot;プロジェクトA&quot;,
- *             &quot;closing_balance&quot;: 100000
- *           },
- *           {
- *             &quot;id&quot;: 2,
- *             &quot;name&quot;: &quot;プロジェクトB&quot;,
- *             &quot;closing_balance&quot;: 200000
- *           },
- *           {
- *             &quot;id&quot;: 3,
- *             &quot;name&quot;: &quot;プロジェクトC&quot;,
- *             &quot;closing_balance&quot;: 300000
- *           }
- *         ]
- *       }
- *     ]
- *   },
- *   &quot;up_to_date&quot;: true
- * }</code></pre>
- *
- */
 export const getTrialCrSegment2Tags = <ThrowOnError extends boolean = true>(
   options: Options<GetTrialCrSegment2TagsData, ThrowOnError>,
 ): RequestResult<GetTrialCrSegment2TagsResponses, GetTrialCrSegment2TagsErrors, ThrowOnError> =>
@@ -4718,89 +1746,6 @@ export const getTrialCrSegment2Tags = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 製造原価報告書(セグメント３比較)の取得
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の製造原価報告書(セグメント3比較)を取得します。指定したセグメント3タグ（最大5つ）ごとの期末残高を並べて比較する用途に利用できます。</p>
- *
- * <h2 id="_2">定義</h2>
- * <ul>
- *   <li><p>created_at : 作成日時（ISO 8601, JST）</p></li>
- *   <li><p>account_item_name : 勘定科目名</p></li>
- *   <li><p>hierarchy_level : 階層レベル（1が最上位、値が大きいほど深い階層）</p></li>
- *   <li><p>parent_account_category_name : 上位勘定科目カテゴリー名</p></li>
- *   <li><p>closing_balance : 期末残高（円。行直下の値は比較対象に指定したセグメント3タグの合計、segment_3_tags 配下の値は各タグの金額）</p></li>
- * </ul>
- *
- * <h2 id="_3">注意点</h2>
- * <ul>
- *   <li>対象の会計年度で製造業向け機能を使用する設定になっている必要があります。無効の場合はエラー（400）になります。</li>
- *   <li>会計年度が指定されない場合、現在の会計年度がデフォルトとなります。</li>
- *   <li>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</li>
- *   <li>配賦仕訳の絞り込み（cost_allocation）は法人スタンダードプラン（および旧法人ベーシックプラン）以上で利用可能です。</li>
- *   <li>partner_codeとpartner_idは同時に指定することはできません。</li>
- *   <li>start_date / end_date を指定した場合、以下を同時に指定することはできません。
- *   <ul>
- *     <li>fiscal_year</li>
- *     <li>start_month</li>
- *     <li>end_month</li>
- *   </ul>
- *   </li>
- *   <li>0を指定すると未選択で絞り込めます
- *   <ul>
- *     <li>partner_idに0を指定して絞り込んだ場合
- *     <ul>
- *       <li>取引先が設定されていない取引、振替伝票の金額がレスポンスに返却されます</li>
- *     </ul>
- *     </li>
- *   </ul>
- *   </li>
- * </ul>
- *
- * <h2 id="_4">レスポンスの例</h2>
- * <blockquote>
- * <p>GET https://api.freee.co.jp/api/1/reports/trial_cr_segment_3_tags?company_id=1&amp;segment_3_tag_ids=1,2,3&amp;fiscal_year=2019</p>
- * </blockquote>
- *
- * <pre><code>{
- *   &quot;trial_cr_segment_3_tags&quot;: {
- *     &quot;company_id&quot;: 1,
- *     &quot;segment_3_tag_ids&quot;: &quot;1,2,3&quot;,
- *     &quot;fiscal_year&quot;: 2019,
- *     &quot;created_at&quot;: &quot;2019-12-17T12:00:50+09:00&quot;,
- *     &quot;balances&quot;: [
- *       {
- *         &quot;account_item_id&quot;: 1500,
- *         &quot;account_item_name&quot;: &quot;[製]期首材料棚卸高&quot;,
- *         &quot;hierarchy_level&quot;: 2,
- *         &quot;account_category_name&quot;: &quot;期首原材料棚卸&quot;,
- *         &quot;closing_balance&quot;: 600000,
- *         &quot;segment_3_tags&quot;: [
- *           {
- *             &quot;id&quot;: 1,
- *             &quot;name&quot;: &quot;プロジェクトA&quot;,
- *             &quot;closing_balance&quot;: 100000
- *           },
- *           {
- *             &quot;id&quot;: 2,
- *             &quot;name&quot;: &quot;プロジェクトB&quot;,
- *             &quot;closing_balance&quot;: 200000
- *           },
- *           {
- *             &quot;id&quot;: 3,
- *             &quot;name&quot;: &quot;プロジェクトC&quot;,
- *             &quot;closing_balance&quot;: 300000
- *           }
- *         ]
- *       }
- *     ]
- *   },
- *   &quot;up_to_date&quot;: true
- * }</code></pre>
- *
- */
 export const getTrialCrSegment3Tags = <ThrowOnError extends boolean = true>(
   options: Options<GetTrialCrSegment3TagsData, ThrowOnError>,
 ): RequestResult<GetTrialCrSegment3TagsResponses, GetTrialCrSegment3TagsErrors, ThrowOnError> =>
@@ -4814,19 +1759,6 @@ export const getTrialCrSegment3Tags = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 総勘定元帳一覧の取得（β版）
- *
- * <h2 id="">概要</h2>
- * <p>指定した事業所の総勘定元帳一覧を取得する</p>
- * <br>
- * ※このAPIはβ版として提供しています。
- * <ul>
- *   <li>このAPIは法人アドバンスプラン（および旧法人プロフェッショナルプラン）・法人エンタープライズプランに加入している事業所のみが利用できます。</li>
- *   <li>利用状況によって事前の告知なく提供プラン・コール数の上限を変更する可能性があります。</li>
- *   <li>他エンドポイントと比べてレスポンスタイムが遅い場合があります。</li>
- * </ul>
- */
 export const getGeneralLedgers = <ThrowOnError extends boolean = true>(
   options: Options<GetGeneralLedgersData, ThrowOnError>,
 ): RequestResult<GetGeneralLedgersResponses, GetGeneralLedgersErrors, ThrowOnError> =>
@@ -4838,20 +1770,6 @@ export const getGeneralLedgers = <ThrowOnError extends boolean = true>(
     },
   );
 
-/**
- * ファイルボックス（証憑ファイル）一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所のファイルボックス（証憑ファイル）一覧を取得する</p>
- * <p>アップロード日（start_date〜end_date）の期間を指定して取得します。ファイルの実体（バイナリ）は本APIでは取得できないため、ファイルボックス（証憑ファイル）のダウンロードAPI（GET /api/1/receipts/{id}/download）を利用してください。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>一度に取得できる件数は最大3000件です（デフォルト: 50件）。それを超えるファイルを取得する場合は、offsetとlimitを利用してページングしてください。</li>
- * </ul>
- */
 export const getReceipts = <ThrowOnError extends boolean = true>(
   options: Options<GetReceiptsData, ThrowOnError>,
 ): RequestResult<GetReceiptsResponses, GetReceiptsErrors, ThrowOnError> =>
@@ -4861,34 +1779,6 @@ export const getReceipts = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * ファイルボックス（証憑ファイル）のアップロード
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>ファイルボックス（証憑ファイル）をアップロードする</p>
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>リクエストヘッダーの Content-Type は、multipart/form-dataにのみ対応しています。</li>
- *   <li>インボイス制度適格請求書発行事業者登録番号はOCR解析結果が採用されます。OCR解析結果を確認する場合は、Web画面にてご確認ください。上書きする場合は、ファイルボックス（証憑ファイル）の更新APIをご利用ください。</li>
- *   <li>以下の制限を満たさない場合アップロードに失敗します。</li>
- *   <ul>
- *       <li>ファイルサイズの制限： 64MBまで</li>
- *       <li>月間アップロード容量の制限： 月間合計10GBまで</li>
- *       <li>1分間あたりのアップロード数制限： 300ファイルまで</li>
- *       <li>プランによる月間アップロード数の制限： 以下のリンクからご確認ください</li>
- *       <ul>
- *           <li>
- *               <a href="https://support.freee.co.jp/hc/ja/articles/213726523--%E5%80%8B%E4%BA%BA-freee%E4%BC%9A%E8%A8%88%E3%81%AE%E3%83%97%E3%83%A9%E3%83%B3%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6" target="_blank">【個人】freee会計のプランについて</a>
- *           </li>
- *           <li>
- *               <a href="https://support.freee.co.jp/hc/ja/articles/27975180546713--%E6%B3%95%E4%BA%BA-freee%E4%BC%9A%E8%A8%88%E3%81%AE%E3%83%97%E3%83%A9%E3%83%B3%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6-2024%E5%B9%B47%E6%9C%88%E4%BB%A5%E9%99%8D" target="_blank">【法人】freee会計のプランについて（2024年7月以降）</a>
- *           </li>
- *       </ul>
- *   </ul>
- * </ul>
- */
 export const createReceipt = <ThrowOnError extends boolean = true>(
   options: Options<CreateReceiptData, ThrowOnError>,
 ): RequestResult<CreateReceiptResponses, CreateReceiptErrors, ThrowOnError> =>
@@ -4903,14 +1793,6 @@ export const createReceipt = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * ファイルボックス（証憑ファイル）の削除
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>ファイルボックス（証憑ファイル）を削除する</p>
- */
 export const destroyReceipt = <ThrowOnError extends boolean = true>(
   options: Options<DestroyReceiptData, ThrowOnError>,
 ): RequestResult<DestroyReceiptResponses, DestroyReceiptErrors, ThrowOnError> =>
@@ -4920,15 +1802,6 @@ export const destroyReceipt = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * ファイルボックス（証憑ファイル）の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所のファイルボックス（証憑ファイル）を取得する</p>
- * <p>ファイルの実体（バイナリ）は本APIでは取得できないため、ファイルボックス（証憑ファイル）のダウンロードAPI（GET /api/1/receipts/{id}/download）を利用してください。</p>
- */
 export const getReceipt = <ThrowOnError extends boolean = true>(
   options: Options<GetReceiptData, ThrowOnError>,
 ): RequestResult<GetReceiptResponses, GetReceiptErrors, ThrowOnError> =>
@@ -4938,19 +1811,6 @@ export const getReceipt = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * ファイルボックス（証憑ファイル）の更新
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>ファイルボックス（証憑ファイル）を更新する</p>
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIでは、証憑ファイルの再アップロードはできません。</li>
- *   <li>リクエストボディに含めたフィールドのみが更新されます。含めなかったフィールドの値は変更されません。</li>
- * </ul>
- */
 export const updateReceipt = <ThrowOnError extends boolean = true>(
   options: Options<UpdateReceiptData, ThrowOnError>,
 ): RequestResult<UpdateReceiptResponses, UpdateReceiptErrors, ThrowOnError> =>
@@ -4964,15 +1824,6 @@ export const updateReceipt = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * ファイルボックス（証憑ファイル）のダウンロード
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所のファイルボックス（証憑ファイル）をダウンロードする</p>
- * <p>レスポンスのContent-Typeは、アップロードされたファイルの形式（ファイルボックス（証憑ファイル）の取得APIで返るmime_type）に応じて返ります。</p>
- */
 export const downloadReceipt = <ThrowOnError extends boolean = true>(
   options: Options<DownloadReceiptData, ThrowOnError>,
 ): RequestResult<DownloadReceiptResponses, DownloadReceiptErrors, ThrowOnError> =>
@@ -4982,21 +1833,6 @@ export const downloadReceipt = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 経費申請一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の経費申請一覧を取得する</p>
- *
- * <p>経費精算APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-expense-applications" target="_blank">freee会計経費精算APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIでは、経費申請の一覧を取得することができます。</li>
- * </ul>
- */
 export const getExpenseApplications = <ThrowOnError extends boolean = true>(
   options: Options<GetExpenseApplicationsData, ThrowOnError>,
 ): RequestResult<GetExpenseApplicationsResponses, GetExpenseApplicationsErrors, ThrowOnError> =>
@@ -5010,59 +1846,6 @@ export const getExpenseApplications = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 経費申請の作成
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の経費申請を作成する</p>
- *
- * <p>経費精算APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-expense-applications" target="_blank">freee会計経費精算APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>
- *     申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。
- *     <ul>
- *       <li>
- *         承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。
- *         <ul>
- *           <li>
- *             初回申請の場合
- *             <ul><li>申請の作成（POST）</li></ul>
- *           </li>
- *           <li>
- *             作成済みの申請の申請ステータス変更・更新する場合
- *             <ul><li>申請の更新（PUT）</li></ul>
- *           </li>
- *           <li>
- *             申請中、承認済み、却下の申請の承認操作を行う場合
- *             <ul><li>承認操作の実行（POST）</li></ul>
- *           </li>
- *         </ul>
- *       </li>
- *       <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>
- *     </ul>
- *   </li>
- *   <li>
- *     承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
- *     </ul>
- *     申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。
- *   </li>
- *   <li>申請時には、申請タイトル(title)に加え、項目行については金額(amount)、日付(transaction_date)、内容(description)が必須項目となります。申請時の業務効率化のため、API入力をお勧めします。</li>
- *   <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は作成できません。</li>
- *   <li>
- *     明細行ごとに部門・メモタグ・セグメントを設定するには、明細行のtag_assignmentにline（明細に個別付与）を指定し、明細行のsection_id・tag_ids・segment_1〜3_tag_idを指定してください。
- *     tag_assignmentを指定しない明細行には、申請全体のsection_id・tag_ids・segment_1〜3_tag_idが適用されます（application: 申請全体に付与）。
- *   </li>
- *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
- * </ul>
- */
 export const createExpenseApplication = <ThrowOnError extends boolean = true>(
   options?: Options<CreateExpenseApplicationData, ThrowOnError>,
 ): RequestResult<CreateExpenseApplicationResponses, CreateExpenseApplicationErrors, ThrowOnError> =>
@@ -5080,45 +1863,6 @@ export const createExpenseApplication = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 経費申請の削除
- *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した事業所の経費申請を削除する</p>
- *
- * <p>経費精算APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-expense-applications" target="_blank">freee会計経費精算APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>
- *     申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。
- *     <ul>
- *       <li>
- *         承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。
- *         <ul>
- *           <li>
- *             初回申請の場合
- *             <ul><li>申請の作成（POST）</li></ul>
- *           </li>
- *           <li>
- *             作成済みの申請の申請ステータス変更・更新する場合
- *             <ul><li>申請の更新（PUT）</li></ul>
- *           </li>
- *           <li>
- *             申請中、承認済み、却下の申請の承認操作を行う場合
- *             <ul><li>承認操作の実行（POST）</li></ul>
- *           </li>
- *         </ul>
- *       </li>
- *       <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>
- *       <li>自分が申請者でない申請の削除が可能なのはユーザーの権限が管理者権限、且つ申請ステータスが差し戻しの場合のみです</li>
- *     </ul>
- *   </li>
- *   <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は削除できません。</li>
- * </ul>
- */
 export const destroyExpenseApplication = <ThrowOnError extends boolean = true>(
   options: Options<DestroyExpenseApplicationData, ThrowOnError>,
 ): RequestResult<
@@ -5136,16 +1880,6 @@ export const destroyExpenseApplication = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 経費申請詳細の取得
- *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した事業所の経費申請を取得する</p>
- *
- * <p>経費精算APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-expense-applications" target="_blank">freee会計経費精算APIの使い方</a>をご参照ください</p>
- */
 export const getExpenseApplication = <ThrowOnError extends boolean = true>(
   options: Options<GetExpenseApplicationData, ThrowOnError>,
 ): RequestResult<GetExpenseApplicationResponses, GetExpenseApplicationErrors, ThrowOnError> =>
@@ -5159,66 +1893,6 @@ export const getExpenseApplication = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 経費申請の更新
- *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した事業所の経費申請を更新する</p>
- *
- * <p>経費精算APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-expense-applications" target="_blank">freee会計経費精算APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIでは、経費申請を更新することができます。</li>
- *   <li>本APIでは、status(申請ステータス): draft:下書き, feedback:差戻しのみ更新可能です。</li>
- *   <li>
- *     申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。
- *     <ul>
- *       <li>
- *         承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。
- *         <ul>
- *           <li>
- *             初回申請の場合
- *             <ul><li>申請の作成（POST）</li></ul>
- *           </li>
- *           <li>
- *             作成済みの申請の申請ステータス変更・更新する場合
- *             <ul><li>申請の更新（PUT）</li></ul>
- *           </li>
- *           <li>
- *             申請中、承認済み、却下の申請の承認操作を行う場合
- *             <ul><li>承認操作の実行（POST）</li></ul>
- *           </li>
- *         </ul>
- *       </li>
- *       <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>
- *     </ul>
- *   </li>
- *   <li>
- *     承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
- *     </ul>
- *     申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。
- *   </li>
- *   <li>申請時には、申請タイトル(title)に加え、項目行については金額(amount)、日付(transaction_date)、内容(description)が必須項目となります。申請時の業務効率化のため、API入力をお勧めします。</li>
- *   <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は更新できません。</li>
- *   <li>
- *     部門・メモタグ・セグメントの更新について
- *     <ul>
- *       <li>申請全体のsection_id・tag_ids・segment_1〜3_tag_idは、指定した内容で置き換えられます。未指定の項目は削除され、tag_assignmentがapplication（申請全体に付与）の明細行の値も空になります。</li>
- *       <li>明細行の部門・メモタグ・セグメントは、明細行のtag_assignmentを指定した場合のみ更新されます。tag_assignmentを指定しない既存の明細行は、部門・メモタグ・セグメントと付与先が変更されません。</li>
- *       <li>tag_assignmentにline（明細に個別付与）を指定すると、明細行のsection_id・tag_ids・segment_1〜3_tag_idの内容で置き換えられます。指定しなかった項目は空になります。</li>
- *       <li>tag_assignmentにapplication（申請全体に付与）を指定すると、明細に個別付与した値を削除して申請全体の値を適用します。明細行のsection_id・tag_ids・segment_1〜3_tag_idは無視されるため、明細行ごとに値を変えたい場合はlineを指定してください。</li>
- *     </ul>
- *   </li>
- *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
- * </ul>
- */
 export const updateExpenseApplication = <ThrowOnError extends boolean = true>(
   options: Options<UpdateExpenseApplicationData, ThrowOnError>,
 ): RequestResult<UpdateExpenseApplicationResponses, UpdateExpenseApplicationErrors, ThrowOnError> =>
@@ -5236,55 +1910,6 @@ export const updateExpenseApplication = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 経費申請の承認操作
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の経費申請の承認操作を行う</p>
- *
- * <p>経費精算APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-expense-applications" target="_blank">freee会計経費精算APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIでは、経費申請の承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）を行うことができます。</li>
- *   <li>
- *     申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。
- *     <ul>
- *       <li>
- *         承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。
- *         <ul>
- *           <li>
- *             初回申請の場合
- *             <ul><li>申請の作成（POST）</li></ul>
- *           </li>
- *           <li>
- *             作成済みの申請の申請ステータス変更・更新する場合
- *             <ul><li>申請の更新（PUT）</li></ul>
- *           </li>
- *           <li>
- *             申請中、承認済み、却下の申請の承認操作を行う場合
- *             <ul><li>承認操作の実行（POST）</li></ul>
- *           </li>
- *         </ul>
- *       </li>
- *       <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>
- *     </ul>
- *   </li>
- *   <li>
- *     承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
- *     </ul>
- *     次の承認ステップが部門選択型の場合は next_group_id を指定してください。
- *   </li>
- *   <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は承認操作できません。</li>
- *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
- * </ul>
- */
 export const updateExpenseApplicationAction = <ThrowOnError extends boolean = true>(
   options: Options<UpdateExpenseApplicationActionData, ThrowOnError>,
 ): RequestResult<
@@ -5306,39 +1931,6 @@ export const updateExpenseApplicationAction = <ThrowOnError extends boolean = tr
     },
   });
 
-/**
- * 経費申請に関連付ける各種申請の更新
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の経費申請に関連付ける各種申請の更新を行う</p>
- *
- * <p>経費精算APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-expense-applications" target="_blank">freee会計経費精算APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIでは、経費申請に関連付ける各種申請を更新することができます。</li>
- *   <li>本APIでは、status(申請ステータス): in_progress:申請中, approved:承認済みのみ更新可能です。</li>
- *   <li>parent_idにnullを指定すると、現在設定されている各種申請との関連付けを解除できます。</li>
- *   <li>
- *     申請ステータスが申請中の経費申請に対して関連付ける各種申請を更新するためには、以下の全てに当てはまる必要があります。
- *     <ul>
- *       <li>現在の承認ステップで承認者として指定されている、または特権承認ができる</li>
- *       <li>申請フォームの設定で、承認者による経費申請に関連付ける各種申請の更新が許可されている</li>
- *     </ul>
- *   </li>
- *   <li>
- *     申請ステータスが承認済みの経費申請に対して関連付ける各種申請を更新するためには、以下の全てに当てはまる必要があります。
- *     <ul>
- *       <li>経費精算に対する閲覧および編集の権限を持ち、自分の経費申請のみに限定する制限がかかっていない</li>
- *       <li>申請フォームの設定で、管理者による経費申請に関連付ける各種申請の更新が許可されている</li>
- *     </ul>
- *   </li>
- *   <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は関連付ける各種申請を更新できません。</li>
- *   <li>申請フォームの設定はWeb画面よりご利用ください。</li>
- * </ul>
- */
 export const updateExpenseApplicationParentApprovableRequests = <
   ThrowOnError extends boolean = true,
 >(
@@ -5362,14 +1954,6 @@ export const updateExpenseApplicationParentApprovableRequests = <
     },
   });
 
-/**
- * 経費精算の外貨一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の経費精算で利用する外貨の一覧を取得します。</p>
- */
 export const listExpenseApplicationCurrencies = <ThrowOnError extends boolean = true>(
   options: Options<ListExpenseApplicationCurrenciesData, ThrowOnError>,
 ): RequestResult<
@@ -5387,14 +1971,6 @@ export const listExpenseApplicationCurrencies = <ThrowOnError extends boolean = 
     ...options,
   });
 
-/**
- * 経費精算の外貨の作成
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の経費精算で利用する外貨を作成します。</p>
- */
 export const createExpenseApplicationCurrency = <ThrowOnError extends boolean = true>(
   options: Options<CreateExpenseApplicationCurrencyData, ThrowOnError>,
 ): RequestResult<
@@ -5416,14 +1992,6 @@ export const createExpenseApplicationCurrency = <ThrowOnError extends boolean = 
     },
   });
 
-/**
- * 経費精算の外貨の削除
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の経費精算で利用する外貨を削除します。</p>
- */
 export const deleteExpenseApplicationCurrency = <ThrowOnError extends boolean = true>(
   options: Options<DeleteExpenseApplicationCurrencyData, ThrowOnError>,
 ): RequestResult<
@@ -5441,14 +2009,6 @@ export const deleteExpenseApplicationCurrency = <ThrowOnError extends boolean = 
     ...options,
   });
 
-/**
- * 経費精算の外貨の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の経費精算で利用する外貨を取得します。</p>
- */
 export const getExpenseApplicationCurrency = <ThrowOnError extends boolean = true>(
   options: Options<GetExpenseApplicationCurrencyData, ThrowOnError>,
 ): RequestResult<
@@ -5466,14 +2026,6 @@ export const getExpenseApplicationCurrency = <ThrowOnError extends boolean = tru
     ...options,
   });
 
-/**
- * 経費精算の外貨の更新
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の経費精算で利用する外貨を更新します。</p>
- */
 export const updateExpenseApplicationCurrency = <ThrowOnError extends boolean = true>(
   options: Options<UpdateExpenseApplicationCurrencyData, ThrowOnError>,
 ): RequestResult<
@@ -5495,14 +2047,6 @@ export const updateExpenseApplicationCurrency = <ThrowOnError extends boolean = 
     },
   });
 
-/**
- * 経費申請フォームの取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の経費申請フォームの設定を取得します。設定が未作成の場合は初期値を返します。</p>
- */
 export const getExpenseApplicationForm = <ThrowOnError extends boolean = true>(
   options: Options<GetExpenseApplicationFormData, ThrowOnError>,
 ): RequestResult<
@@ -5520,14 +2064,6 @@ export const getExpenseApplicationForm = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 経費申請フォームの更新
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の経費申請フォームの設定を更新します。設定が未作成の場合は作成します。</p>
- */
 export const updateExpenseApplicationForm = <ThrowOnError extends boolean = true>(
   options: Options<UpdateExpenseApplicationFormData, ThrowOnError>,
 ): RequestResult<
@@ -5549,14 +2085,6 @@ export const updateExpenseApplicationForm = <ThrowOnError extends boolean = true
     },
   });
 
-/**
- * 経費申請の金額の自動計算
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した経費科目の金額計算設定にカスタム申請項目の入力値を適用し、経費申請の明細行の金額を計算します。計算するだけで、経費申請も計算結果も保存されません。</p>
- */
 export const createExpenseApplicationAmountCalculation = <ThrowOnError extends boolean = true>(
   options: Options<CreateExpenseApplicationAmountCalculationData, ThrowOnError>,
 ): RequestResult<
@@ -5578,16 +2106,6 @@ export const createExpenseApplicationAmountCalculation = <ThrowOnError extends b
     },
   });
 
-/**
- * 経費科目一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の経費科目一覧を取得する</p>
- *
- * <p>経費科目は、経費申請の作成時に申請者が選択する項目で、勘定科目・税区分・品目などの組み合わせをあらかじめ設定したものです。</p>
- */
 export const getExpenseApplicationLineTemplates = <ThrowOnError extends boolean = true>(
   options: Options<GetExpenseApplicationLineTemplatesData, ThrowOnError>,
 ): RequestResult<
@@ -5605,21 +2123,6 @@ export const getExpenseApplicationLineTemplates = <ThrowOnError extends boolean 
     ...options,
   });
 
-/**
- * 経費科目の作成
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の経費科目を作成する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>作成された経費科目のsource_line_template_idには、作成された経費科目自身のIDが設定されます。</li>
- *   <li>required_receiptを未指定で作成した場合、添付ファイルは任意（false）になります。</li>
- *   <li>item_idで品目を紐付けた場合でも、レスポンスに品目IDは含まれません。</li>
- * </ul>
- */
 export const createExpenseApplicationLineTemplate = <ThrowOnError extends boolean = true>(
   options: Options<CreateExpenseApplicationLineTemplateData, ThrowOnError>,
 ): RequestResult<
@@ -5641,14 +2144,6 @@ export const createExpenseApplicationLineTemplate = <ThrowOnError extends boolea
     },
   });
 
-/**
- * 経費科目の削除
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の経費科目を削除する</p>
- */
 export const destroyExpenseApplicationLineTemplate = <ThrowOnError extends boolean = true>(
   options: Options<DestroyExpenseApplicationLineTemplateData, ThrowOnError>,
 ): RequestResult<
@@ -5666,14 +2161,6 @@ export const destroyExpenseApplicationLineTemplate = <ThrowOnError extends boole
     ...options,
   });
 
-/**
- * 経費科目の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の経費科目を取得する</p>
- */
 export const getExpenseApplicationLineTemplate = <ThrowOnError extends boolean = true>(
   options: Options<GetExpenseApplicationLineTemplateData, ThrowOnError>,
 ): RequestResult<
@@ -5691,27 +2178,6 @@ export const getExpenseApplicationLineTemplate = <ThrowOnError extends boolean =
     ...options,
   });
 
-/**
- * 経費科目の更新
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の経費科目を更新する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIはリクエストボディで指定した内容への全置換で更新します。任意パラメータ（item_id, description, line_description, required_receipt）を未指定にした場合、その項目は未設定（required_receiptは任意 = false）にリセットされます。更新前の値を維持したい場合は、経費科目の取得APIで現在の値を確認し、すべてのパラメータを指定してください。</li>
- *   <li>custom_form_parts と amount_calculation_setting は、パラメータ自体を省略した場合のみ現在の設定を維持します。指定した場合はその内容で全置換し、空配列（custom_form_parts: []）を指定した場合はカスタム申請項目をすべて削除します。既存のカスタム申請項目を残す場合は取得した id と key をそのまま指定してください。</li>
- *   <li>
- *     更新内容によっては経費科目が作り直され、レスポンスのidが更新前と変わります。カスタム申請項目や金額計算設定を変更した場合に発生し、custom_form_parts[].idも同時に振り直されます。custom_form_parts[].key は作り直されても変わらないため、カスタム申請項目を識別する用途には key を使ってください。
- *     <ul>
- *       <li>設定を変更してもsource_line_template_idは変わりません。経費科目を長期的に識別する用途にはこちらを保存してください。</li>
- *       <li>本APIのidパラメータは変更前の経費科目IDでも受け付けますが、取得・更新・削除の前に一覧取得または経費科目の取得APIで最新のidを引き直すことを推奨します。</li>
- *     </ul>
- *   </li>
- * </ul>
- */
 export const updateExpenseApplicationLineTemplate = <ThrowOnError extends boolean = true>(
   options: Options<UpdateExpenseApplicationLineTemplateData, ThrowOnError>,
 ): RequestResult<
@@ -5733,30 +2199,6 @@ export const updateExpenseApplicationLineTemplate = <ThrowOnError extends boolea
     },
   });
 
-/**
- * 支払依頼一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の支払依頼一覧を取得する</p>
- *
- * <p>支払依頼APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-payment-requests" target="_blank">freee会計支払依頼APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIでは、支払依頼の一覧を取得することができます。</li>
- *   <li>パラメータ status を指定しない場合、ステータスでは絞り込まず、すべてのステータスの支払依頼を返します。</li>
- *   <li>
- *     パラメータ status には申請ステータスと取引ステータスのどちらかを指定します。レスポンスでは申請ステータスを status、取引ステータスを deal_status として返します。
- *     <ul>
- *       <li>パラメータ status に <code>approved</code> を指定した場合は、取引が登録されていない承認済の支払依頼のみを返します。取引が登録された承認済の支払依頼は、<code>unsettled</code> または <code>settled</code> を指定すると取得できます。レスポンスの status は取引の有無に関わらず <code>approved</code> です。</li>
- *       <li>例: パラメータ status に <code>settled</code> を指定した場合、レスポンスの status が <code>approved</code>、deal_status が <code>settled</code> の支払依頼を返します。</li>
- *     </ul>
- *   </li>
- *   <li>後続の支払依頼が存在する場合でも、取得件数が limit より少なくなることがあります。</li>
- * </ul>
- */
 export const getPaymentRequests = <ThrowOnError extends boolean = true>(
   options: Options<GetPaymentRequestsData, ThrowOnError>,
 ): RequestResult<GetPaymentRequestsResponses, GetPaymentRequestsErrors, ThrowOnError> =>
@@ -5770,55 +2212,6 @@ export const getPaymentRequests = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 支払依頼の作成
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の支払依頼を作成する</p>
- *
- * <p>支払依頼APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-payment-requests" target="_blank">freee会計支払依頼APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>
- *     申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。
- *     <ul>
- *       <li>
- *         承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。
- *         <ul>
- *           <li>
- *             初回申請の場合
- *             <ul><li>申請の作成（POST）</li></ul>
- *           </li>
- *           <li>
- *             作成済みの申請の申請ステータス変更・更新する場合
- *             <ul><li>申請の更新（PUT）</li></ul>
- *           </li>
- *           <li>
- *             申請中、承認済み、却下の申請の承認操作を行う場合
- *             <ul><li>承認操作の実行（POST）</li></ul>
- *           </li>
- *         </ul>
- *       </li>
- *       <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>
- *     </ul>
- *   </li>
- *   <li>
- *     承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
- *     </ul>
- *     申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。
- *   </li>
- *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
- *   <li>本APIでは支払依頼の項目行一覧(payment_request_lines)は、最大100行までになります。</li>
- *   <li>parent_id と parent_type で、各種申請または購買申請を親申請として関連付けられます。</li>
- * </ul>
- */
 export const createPaymentRequest = <ThrowOnError extends boolean = true>(
   options?: Options<CreatePaymentRequestData, ThrowOnError>,
 ): RequestResult<CreatePaymentRequestResponses, CreatePaymentRequestErrors, ThrowOnError> =>
@@ -5836,44 +2229,6 @@ export const createPaymentRequest = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 支払依頼の削除
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の支払依頼を削除する</p>
- *
- * <p>支払依頼APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-payment-requests" target="_blank">freee会計支払依頼APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIでは、支払依頼の承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）を行うことができます。</li>
- *   <li>
- *     申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。
- *     <ul>
- *       <li>
- *         承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。
- *         <ul>
- *           <li>
- *             初回申請の場合
- *             <ul><li>申請の作成（POST）</li></ul>
- *           </li>
- *           <li>
- *             作成済みの申請の申請ステータス変更・更新する場合
- *             <ul><li>申請の更新（PUT）</li></ul>
- *           </li>
- *           <li>
- *             申請中、承認済み、却下の申請の承認操作を行う場合
- *             <ul><li>承認操作の実行（POST）</li></ul>
- *           </li>
- *         </ul>
- *       </li>
- *       <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>
- *     </ul>
- *   </li>
- * </ul>
- */
 export const destroyPaymentRequest = <ThrowOnError extends boolean = true>(
   options: Options<DestroyPaymentRequestData, ThrowOnError>,
 ): RequestResult<DestroyPaymentRequestResponses, DestroyPaymentRequestErrors, ThrowOnError> =>
@@ -5887,16 +2242,6 @@ export const destroyPaymentRequest = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 支払依頼の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の支払依頼を取得する</p>
- *
- * <p>支払依頼APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-payment-requests" target="_blank">freee会計支払依頼APIの使い方</a>をご参照ください</p>
- */
 export const getPaymentRequest = <ThrowOnError extends boolean = true>(
   options: Options<GetPaymentRequestData, ThrowOnError>,
 ): RequestResult<GetPaymentRequestResponses, GetPaymentRequestErrors, ThrowOnError> =>
@@ -5908,58 +2253,6 @@ export const getPaymentRequest = <ThrowOnError extends boolean = true>(
     },
   );
 
-/**
- * 支払依頼の更新
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の支払依頼を更新する</p>
- *
- * <p>支払依頼APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-payment-requests" target="_blank">freee会計支払依頼APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIでは、支払依頼を更新することができます。</li>
- *   <li>本APIでは、status(申請ステータス): draft:下書き, in_progress:申請中, feedback:差戻しのみ更新可能です。</li>
- *   <li>
- *     申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。
- *     <ul>
- *       <li>
- *         承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。
- *         <ul>
- *           <li>
- *             初回申請の場合
- *             <ul><li>申請の作成（POST）</li></ul>
- *           </li>
- *           <li>
- *             作成済みの申請の申請ステータス変更・更新する場合
- *             <ul><li>申請の更新（PUT）</li></ul>
- *           </li>
- *           <li>
- *             申請中、承認済み、却下の申請の承認操作を行う場合
- *             <ul><li>承認操作の実行（POST）</li></ul>
- *           </li>
- *         </ul>
- *       </li>
- *       <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>
- *     </ul>
- *   </li>
- *   <li>
- *     承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
- *     </ul>
- *     申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。
- *   </li>
- *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
- *   <li>申請ステータスが申請中の場合には、申請タイトル(title)、申請日(application_date)、申請経路ID(approval_flow_route_id)、承認者のユーザーID(approver_id)は更新ができません。</li>
- *   <li>本APIでは支払依頼の項目行一覧(payment_request_lines)は、最大100行までになります。</li>
- *   <li>parent_id と parent_type で、各種申請または購買申請を親申請として関連付けられます。parent_id に null を指定すると関連付けを解除し、キーを指定しない場合は親申請を更新しません。</li>
- * </ul>
- */
 export const updatePaymentRequest = <ThrowOnError extends boolean = true>(
   options: Options<UpdatePaymentRequestData, ThrowOnError>,
 ): RequestResult<UpdatePaymentRequestResponses, UpdatePaymentRequestErrors, ThrowOnError> =>
@@ -5977,54 +2270,6 @@ export const updatePaymentRequest = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 支払依頼の承認操作
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の支払依頼の承認操作を行う</p>
- *
- * <p>支払依頼APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-payment-requests" target="_blank">freee会計支払依頼APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIでは、支払依頼の承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）を行うことができます。</li>
- *   <li>
- *     申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。
- *     <ul>
- *       <li>
- *         承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。
- *         <ul>
- *           <li>
- *             初回申請の場合
- *             <ul><li>申請の作成（POST）</li></ul>
- *           </li>
- *           <li>
- *             作成済みの申請の申請ステータス変更・更新する場合
- *             <ul><li>申請の更新（PUT）</li></ul>
- *           </li>
- *           <li>
- *             申請中、承認済み、却下の申請の承認操作を行う場合
- *             <ul><li>承認操作の実行（POST）</li></ul>
- *           </li>
- *         </ul>
- *       </li>
- *       <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>
- *     </ul>
- *   </li>
- *   <li>
- *     承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
- *     </ul>
- *     次の承認ステップが部門選択型の場合は next_group_id を指定してください。
- *   </li>
- *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
- * </ul>
- */
 export const updatePaymentRequestAction = <ThrowOnError extends boolean = true>(
   options: Options<UpdatePaymentRequestActionData, ThrowOnError>,
 ): RequestResult<
@@ -6046,24 +2291,6 @@ export const updatePaymentRequestAction = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 各種申請一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の各種申請一覧を取得する</p>
- *
- * <p>各種申請APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-approval-requests" target="_blank">freee会計の各種申請APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIでは、各種申請一覧を取得することができます。</li>
- *   <li>
- *     申請フォームの項目に契約書（freeeサイン連携）が利用されている各種申請については、API経由で参照は可能ですが、作成と更新ができません。
- *   </li>
- * </ul>
- */
 export const getApprovalRequests = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalRequestsData, ThrowOnError>,
 ): RequestResult<GetApprovalRequestsResponses, GetApprovalRequestsErrors, ThrowOnError> =>
@@ -6077,93 +2304,6 @@ export const getApprovalRequests = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 各種申請の作成
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の各種申請を作成する</p>
- *
- * <p>各種申請APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-approval-requests" target="_blank">freee会計の各種申請APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIでは、各種申請を作成することができます。</li>
- *   <li>
- *     申請項目(request_items)については、申請フォームで設定された項目のIDとそれに対応する値を入力してください。
- *     <ul>
- *       <li>タイトル(title)：文字列(必須項目, 255文字まで, 改行なし) 例)予算申請</li>
- *       <li>1行コメント(single_line)：文字列(255文字まで, 改行なし) 例)予算に関する申請</li>
- *       <li>複数行コメント(multi_line)：文字列(1000文字まで, 改行あり)
- *       <br>
- *       &nbsp;&nbsp;例)<br>
- *       &nbsp;&nbsp;予算に関する申請<br>
- *       &nbsp;&nbsp;申請日 2019-12-17<br>
- *       </li>
- *       <li>プルダウン(select)： プルダウンの選択肢の名前(改行なし) 例)開発部</li>
- *       <li>複数選択(checkbox)： 選択肢名の JSON 配列文字列 例)["関東","九州"]</li>
- *       <li>日付(date)： 日付形式 例)2019-12-17</li>
- *       <li>金額(amount)： 数値(申請フォームで設定した上限・下限金額内の値, 改行なし) 例)10000</li>
- *       <li>添付ファイル(receipt)： ファイルボックス（証憑ファイル）APIのID 例)1
- *         <ul>
- *           <li>ファイルボックスを参照できる権限が必要</li>
- *           <li>自分のアップロードしたファイルのみ参照可能な権限のユーザーの場合、他ユーザーがアップロードしたファイルを指定できません</li>
- *         </ul>
- *       </li>
- *       <li>部門ID(section)： 部門APIのID 例)1</li>
- *         <ul>
- *           <li>親部門は入力できません</li>
- *           <li>ユーザーの所属するグループで利用不可な部門は入力できません</li>
- *         </ul>
- *       <li>取引先ID(partner)： 取引先APIのID 例)1</li>
- *     </ul>
- *   </li>
- *   <li>申請項目に項目ID, 項目タイプの組み合わせが重複したものを入力できません</li>
- *   <li>
- *     申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。
- *     <ul>
- *       <li>
- *         承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。
- *         <ul>
- *           <li>
- *             初回申請の場合
- *             <ul><li>申請の作成（POST）</li></ul>
- *           </li>
- *           <li>
- *             作成済みの申請の申請ステータス変更・更新する場合
- *             <ul><li>申請の更新（PUT）</li></ul>
- *           </li>
- *           <li>
- *             申請中、承認済み、却下の申請の承認操作を行う場合
- *             <ul><li>承認操作の実行（POST）</li></ul>
- *           </li>
- *         </ul>
- *       </li>
- *       <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>
- *     </ul>
- *   </li>
- *   <li>
- *     承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
- *     </ul>
- *     申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。
- *   </li>
- *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
- *   <li>
- *     申請フォームの項目に契約書（freeeサイン連携）が利用されている各種申請については、API経由で参照は可能ですが、作成と更新ができません。
- *   </li>
- *   <li>Web画面やAPIを通じて申請フォームが変更されると、本APIで使用する項目ID（request_itemsで指定するid）も変更されます。本API利用前に各種申請の取得APIを利用し、最新の申請フォームを取得することを推奨します。</li>
- *   <li>申請中の申請を作成に成功した場合、申請者へメール、モバイルプッシュ、slack による通知をします
- *     <ul>
- *       <li>Webhook を有効にした事業所の場合は Webhook にも通知をします</li>
- *     </ul>
- *   </li>
- * </ul>
- */
 export const createApprovalRequest = <ThrowOnError extends boolean = true>(
   options?: Options<CreateApprovalRequestData, ThrowOnError>,
 ): RequestResult<CreateApprovalRequestResponses, CreateApprovalRequestErrors, ThrowOnError> =>
@@ -6181,43 +2321,6 @@ export const createApprovalRequest = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 各種申請の削除
- *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した事業所の各種申請を削除する</p>
- *
- * <p>各種申請APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-approval-requests" target="_blank">freee会計の各種申請APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>
- *     申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。
- *     <ul>
- *       <li>
- *         承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。
- *         <ul>
- *           <li>
- *             初回申請の場合
- *             <ul><li>申請の作成（POST）</li></ul>
- *           </li>
- *           <li>
- *             作成済みの申請の申請ステータス変更・更新する場合
- *             <ul><li>申請の更新（PUT）</li></ul>
- *           </li>
- *           <li>
- *             申請中、承認済み、却下の申請の承認操作を行う場合
- *             <ul><li>承認操作の実行（POST）</li></ul>
- *           </li>
- *         </ul>
- *       </li>
- *       <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>
- *     </ul>
- *   </li>
- * </ul>
- */
 export const destroyApprovalRequest = <ThrowOnError extends boolean = true>(
   options: Options<DestroyApprovalRequestData, ThrowOnError>,
 ): RequestResult<DestroyApprovalRequestResponses, DestroyApprovalRequestErrors, ThrowOnError> =>
@@ -6231,23 +2334,6 @@ export const destroyApprovalRequest = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 各種申請の取得
- *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した事業所の各種申請を取得する</p>
- *
- * <p>各種申請APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-approval-requests" target="_blank">freee会計の各種申請APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>
- *     申請フォームの項目に契約書（freeeサイン連携）が利用されている各種申請については、API経由で参照は可能ですが、作成と更新ができません。
- *   </li>
- * </ul>
- */
 export const getApprovalRequest = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalRequestData, ThrowOnError>,
 ): RequestResult<GetApprovalRequestResponses, GetApprovalRequestErrors, ThrowOnError> =>
@@ -6261,95 +2347,6 @@ export const getApprovalRequest = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 各種申請の更新
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の各種申請を更新する</p>
- *
- * <p>各種申請APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-approval-requests" target="_blank">freee会計の各種申請APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIでは、各種申請を更新することができます。</li>
- *   <li>
- *     申請項目(request_items)については、各種申請の取得APIで取得したrequest_items.idとそれに対応する値を入力してください。
- *     <ul>
- *       <li>タイトル(title)：文字列(必須項目, 255文字まで, 改行なし) 例)予算申請</li>
- *       <li>1行コメント(single_line)：文字列(255文字まで, 改行なし) 例)予算に関する申請</li>
- *       <li>複数行コメント(multi_line)：文字列(1000文字まで, 改行あり)
- *       <br>
- *       &nbsp;&nbsp;例)<br>
- *       &nbsp;&nbsp;予算に関する申請<br>
- *       &nbsp;&nbsp;申請日 2019-12-17<br>
- *       </li>
- *       <li>プルダウン(select)： プルダウンの選択肢の名前(改行なし) 例)開発部</li>
- *       <li>複数選択(checkbox)： 選択肢名の JSON 配列文字列 例)["関東","九州"]</li>
- *       <li>日付(date)： 日付形式 例)2019-12-17</li>
- *       <li>金額(amount)： 数値(申請フォームで設定した上限・下限金額内の値, 改行なし) 例)10000</li>
- *       <li>添付ファイル(receipt)： ファイルボックス（証憑ファイル）APIのID 例)1
- *         <ul>
- *           <li>ファイルボックスを参照できる権限が必要</li>
- *           <li>自分のアップロードしたファイルのみ参照可能な権限のユーザーの場合、他ユーザーがアップロードしたファイルを指定できません</li>
- *         </ul>
- *       </li>
- *       <li>部門ID(section)： 部門APIのID 例)1</li>
- *         <ul>
- *           <li>親部門は入力できません</li>
- *           <li>ユーザーの所属するグループで利用不可な部門は入力できません</li>
- *         </ul>
- *       <li>取引先ID(partner)： 取引先APIのID 例)1</li>
- *     </ul>
- *   </li>
- *   <li>申請項目に項目ID, 項目タイプの組み合わせが重複したものを入力できません</li>
- *   <li>本APIでは、status(申請ステータス): draft:下書き, feedback:差戻しのみ更新可能です。</li>
- *   <li>
- *     申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。
- *     <ul>
- *       <li>
- *         承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。
- *         <ul>
- *           <li>
- *             初回申請の場合
- *             <ul><li>申請の作成（POST）</li></ul>
- *           </li>
- *           <li>
- *             作成済みの申請の申請ステータス変更・更新する場合
- *             <ul><li>申請の更新（PUT）</li></ul>
- *           </li>
- *           <li>
- *             申請中、承認済み、却下の申請の承認操作を行う場合
- *             <ul><li>承認操作の実行（POST）</li></ul>
- *           </li>
- *         </ul>
- *       </li>
- *       <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>
- *     </ul>
- *   </li>
- *   <li>
- *     承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
- *     </ul>
- *     申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。
- *   </li>
- *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
- *   <li>
- *     申請フォームの項目に契約書（freeeサイン連携）が利用されている各種申請については、API経由で参照は可能ですが、作成と更新ができません。
- *   </li>
- *   <li>Web画面やAPIを通じて申請フォームが変更されると、本APIで使用する項目ID（request_itemsで指定するid）も変更されます。本APIで使用する項目IDは申請作成時点の項目IDです。本API利用前に各種申請の取得APIを利用し、申請作成時点の項目IDを取得することを推奨します。</li>
- *   <li>申請中の申請を作成に成功した場合、申請者へメール、モバイルプッシュ、slack による通知をします
- *     <ul>
- *       <li>申請を共有している場合、共有者へメール、slack による通知をします</li>
- *       <li>Webhook を有効にした事業所の場合は Webhook にも通知をします</li>
- *     </ul>
- *   </li>
- * </ul>
- */
 export const updateApprovalRequest = <ThrowOnError extends boolean = true>(
   options: Options<UpdateApprovalRequestData, ThrowOnError>,
 ): RequestResult<UpdateApprovalRequestResponses, UpdateApprovalRequestErrors, ThrowOnError> =>
@@ -6367,57 +2364,6 @@ export const updateApprovalRequest = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 各種申請の承認操作
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の各種申請の承認操作を行う</p>
- *
- * <p>各種申請APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-approval-requests" target="_blank">freee会計の各種申請APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIでは、各種申請の承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）を行うことができます。</li>
- *   <li>
- *     申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。
- *     <ul>
- *       <li>
- *         承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。
- *         <ul>
- *           <li>
- *             初回申請の場合
- *             <ul><li>申請の作成（POST）</li></ul>
- *           </li>
- *           <li>
- *             作成済みの申請の申請ステータス変更・更新する場合
- *             <ul><li>申請の更新（PUT）</li></ul>
- *           </li>
- *           <li>
- *             申請中、承認済み、却下の申請の承認操作を行う場合
- *             <ul><li>承認操作の実行（POST）</li></ul>
- *           </li>
- *         </ul>
- *       </li>
- *       <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>
- *     </ul>
- *   </li>
- *   <li>
- *     承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。
- *     <ul>
- *       <li>役職指定（申請者の所属部門）</li>
- *       <li>役職指定（申請時に部門指定）</li>
- *       <li>部門および役職指定</li>
- *     </ul>
- *     次の承認ステップが部門選択型の場合は next_group_id を指定してください。
- *   </li>
- *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
- *   <li>
- *     申請フォームの項目に契約書（freeeサイン連携）が利用されている各種申請については、API経由で参照は可能ですが、作成と更新ができません。
- *   </li>
- * </ul>
- */
 export const updateApprovalRequestAction = <ThrowOnError extends boolean = true>(
   options: Options<UpdateApprovalRequestActionData, ThrowOnError>,
 ): RequestResult<
@@ -6439,16 +2385,6 @@ export const updateApprovalRequestAction = <ThrowOnError extends boolean = true>
     },
   });
 
-/**
- * 各種申請の申請フォーム一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の各種申請の申請フォーム一覧を取得する</p>
- *
- * <p>各種申請APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-approval-requests" target="_blank">freee会計の各種申請APIの使い方</a>をご参照ください</p>
- */
 export const getApprovalRequestForms = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalRequestFormsData, ThrowOnError>,
 ): RequestResult<GetApprovalRequestFormsResponses, GetApprovalRequestFormsErrors, ThrowOnError> =>
@@ -6462,16 +2398,6 @@ export const getApprovalRequestForms = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 各種申請の申請フォームの取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の各種申請の申請フォームを取得する</p>
- *
- * <p>各種申請APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-approval-requests" target="_blank">freee会計の各種申請APIの使い方</a>をご参照ください</p>
- */
 export const getApprovalRequestForm = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalRequestFormData, ThrowOnError>,
 ): RequestResult<GetApprovalRequestFormResponses, GetApprovalRequestFormErrors, ThrowOnError> =>
@@ -6485,19 +2411,6 @@ export const getApprovalRequestForm = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 購買申請一覧の取得
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の購買申請一覧を取得する</p>
- *
- * <h2 id="_2">注意点</h2>
- *
- * <ul>
- *   <li>レスポンスの amount は非推奨です。同じ値を返す budget_amount を使用してください。</li>
- * </ul>
- */
 export const getPurchaseRequests = <ThrowOnError extends boolean = true>(
   options: Options<GetPurchaseRequestsData, ThrowOnError>,
 ): RequestResult<GetPurchaseRequestsResponses, GetPurchaseRequestsErrors, ThrowOnError> =>
@@ -6511,13 +2424,6 @@ export const getPurchaseRequests = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 購買申請の作成
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の購買申請を作成する</p>
- */
 export const createPurchaseRequest = <ThrowOnError extends boolean = true>(
   options: Options<CreatePurchaseRequestData, ThrowOnError>,
 ): RequestResult<CreatePurchaseRequestResponses, CreatePurchaseRequestErrors, ThrowOnError> =>
@@ -6535,13 +2441,6 @@ export const createPurchaseRequest = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 購買申請の削除
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の購買申請を削除する</p>
- */
 export const destroyPurchaseRequest = <ThrowOnError extends boolean = true>(
   options: Options<DestroyPurchaseRequestData, ThrowOnError>,
 ): RequestResult<DestroyPurchaseRequestResponses, DestroyPurchaseRequestErrors, ThrowOnError> =>
@@ -6555,13 +2454,6 @@ export const destroyPurchaseRequest = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 購買申請の取得
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の購買申請を取得する</p>
- */
 export const getPurchaseRequest = <ThrowOnError extends boolean = true>(
   options: Options<GetPurchaseRequestData, ThrowOnError>,
 ): RequestResult<GetPurchaseRequestResponses, GetPurchaseRequestErrors, ThrowOnError> =>
@@ -6575,13 +2467,6 @@ export const getPurchaseRequest = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 購買申請の更新
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の購買申請を更新する</p>
- */
 export const updatePurchaseRequest = <ThrowOnError extends boolean = true>(
   options: Options<UpdatePurchaseRequestData, ThrowOnError>,
 ): RequestResult<UpdatePurchaseRequestResponses, UpdatePurchaseRequestErrors, ThrowOnError> =>
@@ -6599,19 +2484,6 @@ export const updatePurchaseRequest = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 購買申請の申請フォーム一覧の取得
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の購買申請の申請フォーム一覧を取得する</p>
- *
- * <h2 id="_2">注意点</h2>
- *
- * <ul>
- *   <li>status を指定しない場合、削除済み（deleted）の申請フォームも含めて返します。申請で使用できる申請フォームのみを取得する場合は、status に active を指定してください。</li>
- * </ul>
- */
 export const getPurchaseRequestsForms = <ThrowOnError extends boolean = true>(
   options: Options<GetPurchaseRequestsFormsData, ThrowOnError>,
 ): RequestResult<GetPurchaseRequestsFormsResponses, GetPurchaseRequestsFormsErrors, ThrowOnError> =>
@@ -6625,19 +2497,6 @@ export const getPurchaseRequestsForms = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 購買申請の申請フォーム詳細の取得
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の購買申請の申請フォーム詳細を取得する</p>
- *
- * <h2 id="_2">注意点</h2>
- *
- * <ul>
- *   <li>購買申請の作成・更新時に指定する approval_flow_route_id には、本APIのレスポンスの flow_routes の id を指定してください。申請経路一覧の取得API（/api/1/approval_flow_routes）のレスポンスの id は本APIの flow_routes の src_id に対応しており、flow_routes の id とは異なる値です。</li>
- * </ul>
- */
 export const getPurchaseRequestsForm = <ThrowOnError extends boolean = true>(
   options: Options<GetPurchaseRequestsFormData, ThrowOnError>,
 ): RequestResult<GetPurchaseRequestsFormResponses, GetPurchaseRequestsFormErrors, ThrowOnError> =>
@@ -6651,13 +2510,6 @@ export const getPurchaseRequestsForm = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 購買申請の承認操作
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の購買申請の承認操作を行う</p>
- */
 export const createPurchaseRequestAction = <ThrowOnError extends boolean = true>(
   options: Options<CreatePurchaseRequestActionData, ThrowOnError>,
 ): RequestResult<
@@ -6679,35 +2531,6 @@ export const createPurchaseRequestAction = <ThrowOnError extends boolean = true>
     },
   });
 
-/**
- * 購買申請の購買予算と予算消化の取得
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した購買申請に対する購買予算額と予算消化を取得します。</p>
- *
- * <h2 id="_2">金額</h2>
- *
- * <ul>
- *   <li>金額の単位は円です。</li>
- *   <li>consumed_amount は購買予算全体の税込消化額です。</li>
- *   <li>budget_consumptions は予算を消化した全明細です。</li>
- * </ul>
- *
- * <h2 id="_3">予算追跡状態</h2>
- *
- * <ul>
- *   <li>in_progress と approved は購買予算の状態です。</li>
- *   <li>下書き・差戻し・却下などの予算追跡対象外の場合は not_tracked です。</li>
- * </ul>
- *
- * <h2 id="_4">権限</h2>
- *
- * <ul>
- *   <li>対象購買申請の閲覧権限が必要です。</li>
- *   <li>閲覧できない購買申請は存在しないものとして 404 を返します。</li>
- * </ul>
- */
 export const getPurchaseRequestPurchaseBudget = <ThrowOnError extends boolean = true>(
   options: Options<GetPurchaseRequestPurchaseBudgetData, ThrowOnError>,
 ): RequestResult<
@@ -6725,25 +2548,6 @@ export const getPurchaseRequestPurchaseBudget = <ThrowOnError extends boolean = 
     ...options,
   });
 
-/**
- * 申請経路一覧の取得
- *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した事業所の申請経路一覧を取得する</p>
- *
- * <p>各種申請APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-approval-requests" target="_blank">freee会計の各種申請APIの使い方</a>をご参照ください</p>
- * <p>経費精算APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-expense-applications" target="_blank">freee会計の経費精算APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="">注意点</h2>
- *
- * <ul>
- *   <li>
- *     <p>承認ステップの詳細（steps）は本APIのレスポンスには含まれません。承認方法や分岐条件を確認する場合は、申請経路の取得（GET /api/1/approval_flow_routes/{id}）をご利用ください。</p>
- *   </li>
- * </ul>
- */
 export const getApprovalFlowRoutes = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalFlowRoutesData, ThrowOnError>,
 ): RequestResult<GetApprovalFlowRoutesResponses, GetApprovalFlowRoutesErrors, ThrowOnError> =>
@@ -6757,25 +2561,6 @@ export const getApprovalFlowRoutes = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 申請経路の取得
- *
- *
- * <h2 id="">概要</h2>
- *
- * <p>指定した事業所の申請経路を取得する</p>
- *
- * <p>各種申請APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-approval-requests" target="_blank">freee会計の各種申請APIの使い方</a>をご参照ください</p>
- * <p>経費精算APIの使い方については、<a href="https://developer.freee.co.jp/tips/accounting-expense-applications" target="_blank">freee会計の経費精算APIの使い方</a>をご参照ください</p>
- *
- * <h2 id="">注意点</h2>
- *
- * <ul>
- *   <li>
- *     <p>承認ステップごとの承認方法は steps[].resource_type で判別できます。役職で承認者を指定する承認ステップ（and_position / or_position）では steps[].approver_determination_type、steps[].group、steps[].position_types を、条件分岐の承認ステップ（switchable）では steps[].switching_rules をご参照ください。</p>
- *   </li>
- * </ul>
- */
 export const getApprovalFlowRoute = <ThrowOnError extends boolean = true>(
   options: Options<GetApprovalFlowRouteData, ThrowOnError>,
 ): RequestResult<GetApprovalFlowRouteResponses, GetApprovalFlowRouteErrors, ThrowOnError> =>
@@ -6789,18 +2574,6 @@ export const getApprovalFlowRoute = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * セグメントタグ一覧の取得
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所に登録されているセグメントタグの一覧を取得します。取引や振替伝票の明細に付与するセグメントタグを参照する用途を想定しています。</p>
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>segment_id にはセグメント区分（1、2、3）を指定します。利用できるセグメント区分は事業所の契約プランによって異なり、利用できない区分を指定した場合はエラーになります。</li>
- *   <li>start_update_date / end_update_date でセグメントタグの更新日を範囲指定して絞り込めます。JST の日付を yyyy-mm-dd で指定してください（どちらも指定日を含みます）。</li>
- *   <li>セグメントタグコード（code）は、事業所の設定でセグメントタグコードを使用する設定にしている場合のみレスポンスに含まれます。設定が無効の場合は code キー自体が返りません。</li>
- * </ul>
- */
 export const getSegmentTags = <ThrowOnError extends boolean = true>(
   options: Options<GetSegmentTagsData, ThrowOnError>,
 ): RequestResult<GetSegmentTagsResponses, GetSegmentTagsErrors, ThrowOnError> =>
@@ -6810,18 +2583,6 @@ export const getSegmentTags = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * セグメントタグの作成
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所のセグメント区分に、新しいセグメントタグを作成します。作成したタグは取引や振替伝票の明細に付与できます。</p>
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>segment_id にはセグメント区分（1、2、3）を指定します。利用できない区分を指定した場合はエラーになります。</li>
- *   <li>セグメントタグ名（name）は、事業所内の同じセグメント区分で重複できません。</li>
- *   <li>セグメントタグコード（code）は、事業所の設定でセグメントタグコードを使用する設定にしている場合のみ保存されます。設定が無効の場合は指定しても保存されません。</li>
- * </ul>
- */
 export const createSegmentTag = <ThrowOnError extends boolean = true>(
   options: Options<CreateSegmentTagData, ThrowOnError>,
 ): RequestResult<CreateSegmentTagResponses, CreateSegmentTagErrors, ThrowOnError> =>
@@ -6835,17 +2596,6 @@ export const createSegmentTag = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * セグメントタグの削除
- *
- * <h2 id="_1">概要</h2>
- * <p>セグメントタグIDを指定して、セグメントタグを削除します。</p>
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>取引明細や振替伝票などで使用されているセグメントタグは削除できず、400 エラーになります。</li>
- *   <li>存在しないか既に削除されたセグメントタグIDを指定した場合は 404 エラーになります。</li>
- * </ul>
- */
 export const destroySegmentsTag = <ThrowOnError extends boolean = true>(
   options: Options<DestroySegmentsTagData, ThrowOnError>,
 ): RequestResult<DestroySegmentsTagResponses, DestroySegmentsTagErrors, ThrowOnError> =>
@@ -6859,19 +2609,6 @@ export const destroySegmentsTag = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * セグメントタグの更新
- *
- * <h2 id="_1">概要</h2>
- * <p>セグメントタグIDを指定して、セグメントタグの情報を更新します。このAPIはセグメントタグの作成は行いません。</p>
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>セグメントタグ名（name）は、事業所内の同じセグメント区分で重複できません。</li>
- *   <li>description / shortcut1 / shortcut2 / code は、省略した場合に未設定（null）へ更新されます。値を維持したい場合は現在の値を指定してください。</li>
- *   <li>セグメントタグコード（code）は、事業所の設定でセグメントタグコードを使用する設定にしている場合のみ更新されます。設定が無効の場合は指定しても保存されません。</li>
- *   <li>存在しないか既に削除されたセグメントタグIDを指定した場合は 404 エラーになります。</li>
- * </ul>
- */
 export const updateSegmentTag = <ThrowOnError extends boolean = true>(
   options: Options<UpdateSegmentTagData, ThrowOnError>,
 ): RequestResult<UpdateSegmentTagResponses, UpdateSegmentTagErrors, ThrowOnError> =>
@@ -6885,20 +2622,6 @@ export const updateSegmentTag = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * セグメントタグの更新（作成）
- *
- * <h2 id="_1">概要</h2>
- * <p>セグメントタグコード（code）をキーにセグメントタグを更新し、該当するタグが存在しない場合は新規作成します。外部システムとの連携でセグメントタグマスタを登録・更新する用途を想定しています。</p>
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIを利用するには、事業所の設定でセグメントタグコードを使用する設定にする必要があります。設定が無効な事業所への呼び出しは 400 エラーになります。</li>
- *   <li>segment_tag オブジェクト内で code を指定することはできません。セグメントタグコードは変更できないため、リクエストボディ直下の code のみを指定してください。</li>
- *   <li>更新した場合は 200 OK、新規作成した場合は 201 Created を返します。処理結果は HTTP ステータスコードで判別してください。</li>
- *   <li>description / shortcut1 / shortcut2 は、省略した場合に未設定（null）へ更新されます。値を維持したい場合は現在の値を指定してください。</li>
- *   <li>セグメントタグ名（name）は、事業所内の同じセグメント区分で重複できません。</li>
- * </ul>
- */
 export const upsertSegmentTag = <ThrowOnError extends boolean = true>(
   options: Options<UpsertSegmentTagData, ThrowOnError>,
 ): RequestResult<UpsertSegmentTagResponses, UpsertSegmentTagErrors, ThrowOnError> =>
@@ -6912,32 +2635,6 @@ export const upsertSegmentTag = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 固定資産一覧の取得
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の固定資産一覧を取得する</p>
- * <p>target_dateで指定した会計期間に償却データが存在する固定資産を、固定資産IDの昇順で返します。</p>
- *
- * <h2 id="_2">定義</h2>
- * <ul>
- *   <li>このAPIは法人エンタープライズに加入している事業所のみが利用できます。</li>
- *   <li><p>target_date : 表示したい会計期間の開始年月日。開始年月日以外を指定した場合は、その日付が含まれる会計期間が対象となります。</p></li>
- *   <li><p>depreciation_amount : 本年分の償却費合計</p></li>
- *   <li><p>depreciation_method : 償却方法</p></li>
- *   <li><p>depreciation_account_item_id : 減価償却に使う勘定科目</p></li>
- *   <li><p>acquisition_cost : 取得価額</p></li>
- *   <li><p>opening_balance : 期首残高</p></li>
- *   <li><p>undepreciated_balance : 未償却残高。土地などの償却しない固定資産はnullが返ります。</p></li>
- *   <li><p>opening_accumulated_depreciation : 期首減価償却累計額</p></li>
- *   <li><p>closing_accumulated_depreciation : 期末減価償却累計額</p></li>
- * </ul>
- * <h2 id="_3">注意点</h2>
- * <ul>
- *   <li><p>up_to_dateがfalseの場合、残高の集計が完了していません。最新の集計結果を確認したい場合は、時間を空けて再度取得する必要があります。</p></li>
- *   <li><p>このAPIはfreee会計の固定資産台帳を取得します。freee固定資産で登録した固定資産は取得できませんのでご注意ください。<a href="https://docs.google.com/presentation/d/1LDrOH1d8FJeCA_qTJuIXwcou1kh00dCLR_X8nacPb98/edit?usp=sharing">freee固定資産の詳細はこちらをご覧ください。</a></p></li>
- * </ul>
- */
 export const getFixedAssets = <ThrowOnError extends boolean = true>(
   options: Options<GetFixedAssetsData, ThrowOnError>,
 ): RequestResult<GetFixedAssetsResponses, GetFixedAssetsErrors, ThrowOnError> =>
@@ -6947,21 +2644,6 @@ export const getFixedAssets = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 決算書表示名の作成
- *
- *
- * <h2 id="_1">概要</h2>
- * <p>指定した事業所の決算書表示名（小カテゴリー）を作成する</p>
- * <p>決算書表示名は、貸借対照表・損益計算書などの決算書上で勘定科目をまとめて表示するための表示名です。勘定科目カテゴリー（中分類）の配下に作成され、勘定科目の作成・更新時に決算書表示名として指定できるようになります。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>nameは同一年度内で一意である必要があります。すでに存在する決算書表示名と同じnameを指定した場合は400エラーになります。</li>
- *   <li>account_category_idには、決算書表示名を配下に作成できる勘定科目カテゴリーのみ指定できます。指定可能な値はSelectablesフォーム用選択項目情報エンドポイント(account_groups.account_category_id)で取得してください。</li>
- *   <li>indexを指定しない場合、決算書表示名は同一勘定科目カテゴリー内の末尾に追加されます。</li>
- * </ul>
- */
 export const createAccountGroup = <ThrowOnError extends boolean = true>(
   options: Options<CreateAccountGroupData, ThrowOnError>,
 ): RequestResult<CreateAccountGroupResponses, CreateAccountGroupErrors, ThrowOnError> =>
@@ -6979,24 +2661,6 @@ export const createAccountGroup = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 自動登録ルール一覧の取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の自動登録ルール一覧を取得する</p>
- *
- * <p>自動登録ルールとは、口座から同期された明細（入出金データ）の内容をもとに、取引や振替の登録・推測を自動で行うためのルールです。</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>activeパラメータを指定しない場合は、有効な自動登録ルールのみが返ります。無効なルールも含めて取得する場合はactive=allを指定してください。</li>
- *   <li>一覧は自動登録ルールID（id）の降順で返ります。</li>
- *   <li>walletableパラメータは口座名の完全一致で絞り込みます。指定した名前の口座が事業所に存在しない場合は空の一覧が返ります。</li>
- *   <li>offsetはlimitの倍数である必要があります。</li>
- * </ul>
- */
 export const getUserMatchers = <ThrowOnError extends boolean = true>(
   options: Options<GetUserMatchersData, ThrowOnError>,
 ): RequestResult<GetUserMatchersResponses, GetUserMatchersErrors, ThrowOnError> =>
@@ -7006,22 +2670,6 @@ export const getUserMatchers = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 自動登録ルールの作成
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の自動登録ルールを作成する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>company_idはリクエストボディではなくクエリパラメータで指定します。</li>
- *   <li>act=0,1（取引を推測/登録）の場合は、tax_name（税区分名）とaccount_item_name（勘定科目名）の指定が必須です。</li>
- *   <li>登録タイプ（act）が5(manual_template), 6(manual_scrub), 7(auto_scrub), 8(manual_output_zengin_scrub), 9(auto_output_zengin_scrub)の自動登録ルールは、このAPIでは作成できません。</li>
- *   <li>同じ内容の自動登録ルールが既に存在する場合は、400エラーが返ります。</li>
- * </ul>
- */
 export const createUserMatcher = <ThrowOnError extends boolean = true>(
   options: Options<CreateUserMatcherData, ThrowOnError>,
 ): RequestResult<CreateUserMatcherResponses, CreateUserMatcherErrors, ThrowOnError> =>
@@ -7039,19 +2687,6 @@ export const createUserMatcher = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 自動登録ルールの削除
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の自動登録ルールを削除する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>登録タイプ（act）が5(manual_template), 6(manual_scrub), 7(auto_scrub), 8(manual_output_zengin_scrub), 9(auto_output_zengin_scrub)の自動登録ルールは削除できません。</li>
- * </ul>
- */
 export const destroyUserMatcher = <ThrowOnError extends boolean = true>(
   options: Options<DestroyUserMatcherData, ThrowOnError>,
 ): RequestResult<DestroyUserMatcherResponses, DestroyUserMatcherErrors, ThrowOnError> =>
@@ -7065,19 +2700,6 @@ export const destroyUserMatcher = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 自動登録ルールの取得
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の自動登録ルールを取得する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>登録タイプ（act）が5(manual_template), 6(manual_scrub), 7(auto_scrub), 8(manual_output_zengin_scrub), 9(auto_output_zengin_scrub)の自動登録ルールは取得できません。該当するルールのIDを指定した場合は400エラーが返ります。</li>
- * </ul>
- */
 export const getUserMatcher = <ThrowOnError extends boolean = true>(
   options: Options<GetUserMatcherData, ThrowOnError>,
 ): RequestResult<GetUserMatcherResponses, GetUserMatcherErrors, ThrowOnError> =>
@@ -7087,22 +2709,6 @@ export const getUserMatcher = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 自動登録ルールの更新
- *
- *
- * <h2 id="_1">概要</h2>
- *
- * <p>指定した事業所の自動登録ルールを更新する</p>
- *
- * <h2 id="_2">注意点</h2>
- * <ul>
- *   <li>本APIは更新後の状態をすべて指定するPUT APIです。リクエストで指定しなかった任意項目は未設定（null）で上書きされるため、変更しない項目も含めてすべての項目を指定してください。</li>
- *   <li>act=0,1（取引を推測/登録）の場合は、tax_name（税区分名）とaccount_item_name（勘定科目名）の指定が必須です。</li>
- *   <li>登録タイプ（act）に5(manual_template), 6(manual_scrub), 7(auto_scrub), 8(manual_output_zengin_scrub), 9(auto_output_zengin_scrub)を指定することはできません。</li>
- *   <li>更新の結果、同じ内容の自動登録ルールが既に存在する場合は、400エラーが返ります。</li>
- * </ul>
- */
 export const updateUserMatcher = <ThrowOnError extends boolean = true>(
   options: Options<UpdateUserMatcherData, ThrowOnError>,
 ): RequestResult<UpdateUserMatcherResponses, UpdateUserMatcherErrors, ThrowOnError> =>
@@ -7118,18 +2724,6 @@ export const updateUserMatcher = <ThrowOnError extends boolean = true>(
     },
   );
 
-/**
- * 自動登録ルールの一括適用
- *
- * 概要
- *
- * 指定した未消込明細に、未適用の自動登録ルールを一括で適用する
- *
- * 注意点
- * - 適用処理は非同期で実行されます。レスポンスを受け取った時点では適用は完了していません。
- * - wallet_txn_ids に、事業所内に存在しない明細IDが含まれる場合は400エラーが返ります。
- * - 指定された明細のうち、適用対象外の明細（未消込以外の明細など）は処理対象外としてスキップされます。
- */
 export const applyUserMatchers = <ThrowOnError extends boolean = true>(
   options: Options<ApplyUserMatchersData, ThrowOnError>,
 ): RequestResult<ApplyUserMatchersResponses, ApplyUserMatchersErrors, ThrowOnError> =>

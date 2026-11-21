@@ -13,13 +13,11 @@ export { client, hrClient, invoiceClient };
 
 type FreeeClient = typeof client | typeof hrClient | typeof invoiceClient;
 
-// Only reads are safe to retry automatically; writes can create accounting records.
 const apiFetch = Object.assign(
   async (request: Parameters<typeof fetch>[0]) => {
     try {
       return await ky(request, {
         retry: { methods: ["get", "head"] },
-        // Upload duration depends on document size and uplink speed; callers can still abort.
         timeout:
           request instanceof Request &&
           request.headers.get("content-type")?.startsWith("multipart/form-data")

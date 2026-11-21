@@ -177,9 +177,6 @@ export type HandleGetUsersMeResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/users/me` operation.
- */
 export function handleGetUsersMe(
   response?: HandleGetUsersMeResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -211,9 +208,6 @@ export type HandleGetCompanyEmployeesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/companies/{company_id}/employees` operation.
- */
 export function handleGetCompanyEmployees(
   response?:
     | HandleGetCompanyEmployeesResponse
@@ -257,9 +251,6 @@ export type HandleGetEmployeesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees` operation.
- */
 export function handleGetEmployees(
   response?: HandleGetEmployeesResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -291,9 +282,6 @@ export type HandleCreateEmployeeResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/v1/employees` operation.
- */
 export function handleCreateEmployee(
   response?: HandleCreateEmployeeResponse | HttpResponseResolver<never, CreateEmployeeData["body"]>,
   options?: RequestHandlerOptions,
@@ -325,9 +313,6 @@ export type HandleDestroyEmployeeResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/v1/employees/{id}` operation.
- */
 export function handleDestroyEmployee(
   response?:
     | HandleDestroyEmployeeResponse
@@ -371,9 +356,6 @@ export type HandleGetEmployeeResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{id}` operation.
- */
 export function handleGetEmployee(
   response?:
     | HandleGetEmployeeResponse
@@ -417,9 +399,6 @@ export type HandleUpdateEmployeeResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/employees/{id}` operation.
- */
 export function handleUpdateEmployee(
   response?:
     | HandleUpdateEmployeeResponse
@@ -463,9 +442,6 @@ export type HandleGetEmployeeProfileRuleResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/profile_rule` operation.
- */
 export function handleGetEmployeeProfileRule(
   response?:
     | HandleGetEmployeeProfileRuleResponse
@@ -509,9 +485,6 @@ export type HandleUpdateEmployeeProfileRuleResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/employees/{employee_id}/profile_rule` operation.
- */
 export function handleUpdateEmployeeProfileRule(
   response?:
     | HandleUpdateEmployeeProfileRuleResponse
@@ -555,9 +528,6 @@ export type HandleGetEmployeeHealthInsuranceRuleResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/health_insurance_rule` operation.
- */
 export function handleGetEmployeeHealthInsuranceRule(
   response?:
     | HandleGetEmployeeHealthInsuranceRuleResponse
@@ -601,9 +571,6 @@ export type HandleUpdateEmployeeHealthInsuranceRuleResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/employees/{employee_id}/health_insurance_rule` operation.
- */
 export function handleUpdateEmployeeHealthInsuranceRule(
   response?:
     | HandleUpdateEmployeeHealthInsuranceRuleResponse
@@ -647,9 +614,6 @@ export type HandleGetEmployeeWelfarePensionInsuranceRuleResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/welfare_pension_insurance_rule` operation.
- */
 export function handleGetEmployeeWelfarePensionInsuranceRule(
   response?:
     | HandleGetEmployeeWelfarePensionInsuranceRuleResponse
@@ -693,9 +657,6 @@ export type HandleUpdateEmployeeWelfarePensionInsuranceRuleResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/employees/{employee_id}/welfare_pension_insurance_rule` operation.
- */
 export function handleUpdateEmployeeWelfarePensionInsuranceRule(
   response?:
     | HandleUpdateEmployeeWelfarePensionInsuranceRuleResponse
@@ -739,9 +700,6 @@ export type HandleGetEmployeeDependentRulesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/dependent_rules` operation.
- */
 export function handleGetEmployeeDependentRules(
   response?:
     | HandleGetEmployeeDependentRulesResponse
@@ -785,9 +743,6 @@ export type HandleBulkUpdateEmployeeDependentRulesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/employees/{employee_id}/dependent_rules/bulk_update` operation.
- */
 export function handleBulkUpdateEmployeeDependentRules(
   response?:
     | HandleBulkUpdateEmployeeDependentRulesResponse
@@ -831,9 +786,6 @@ export type HandleGetEmployeeBankAccountRuleResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/bank_account_rule` operation.
- */
 export function handleGetEmployeeBankAccountRule(
   response?:
     | HandleGetEmployeeBankAccountRuleResponse
@@ -877,9 +829,6 @@ export type HandleUpdateEmployeeBankAccountRuleResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/employees/{employee_id}/bank_account_rule` operation.
- */
 export function handleUpdateEmployeeBankAccountRule(
   response?:
     | HandleUpdateEmployeeBankAccountRuleResponse
@@ -923,9 +872,6 @@ export type HandleGetEmployeeBasicPayRuleResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/basic_pay_rule` operation.
- */
 export function handleGetEmployeeBasicPayRule(
   response?:
     | HandleGetEmployeeBasicPayRuleResponse
@@ -969,9 +915,6 @@ export type HandleUpdateEmployeeBasicPayRuleResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/employees/{employee_id}/basic_pay_rule` operation.
- */
 export function handleUpdateEmployeeBasicPayRule(
   response?:
     | HandleUpdateEmployeeBasicPayRuleResponse
@@ -1015,9 +958,6 @@ export type HandleGetEmployeeAllowanceRulesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/allowance_rules` operation.
- */
 export function handleGetEmployeeAllowanceRules(
   response?:
     | HandleGetEmployeeAllowanceRulesResponse
@@ -1061,9 +1001,6 @@ export type HandleUpdateEmployeeAllowanceRulesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/employees/{employee_id}/allowance_rules` operation.
- */
 export function handleUpdateEmployeeAllowanceRules(
   response?:
     | HandleUpdateEmployeeAllowanceRulesResponse
@@ -1107,9 +1044,6 @@ export type HandleDestroyEmployeeAllowanceRuleResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/v1/employees/{employee_id}/allowance_rules/{id}` operation.
- */
 export function handleDestroyEmployeeAllowanceRule(
   response?:
     | HandleDestroyEmployeeAllowanceRuleResponse
@@ -1155,9 +1089,6 @@ export type HandleGetEmployeeDeductionRulesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/deduction_rules` operation.
- */
 export function handleGetEmployeeDeductionRules(
   response?:
     | HandleGetEmployeeDeductionRulesResponse
@@ -1201,9 +1132,6 @@ export type HandleUpdateEmployeeDeductionRulesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/employees/{employee_id}/deduction_rules` operation.
- */
 export function handleUpdateEmployeeDeductionRules(
   response?:
     | HandleUpdateEmployeeDeductionRulesResponse
@@ -1247,9 +1175,6 @@ export type HandleDestroyEmployeeDeductionRuleResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/v1/employees/{employee_id}/deduction_rules/{id}` operation.
- */
 export function handleDestroyEmployeeDeductionRule(
   response?:
     | HandleDestroyEmployeeDeductionRuleResponse
@@ -1295,9 +1220,6 @@ export type HandleGetEmployeeProfileCustomFieldsRuleResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/profile_custom_fields` operation.
- */
 export function handleGetEmployeeProfileCustomFieldsRule(
   response?:
     | HandleGetEmployeeProfileCustomFieldsRuleResponse
@@ -1341,9 +1263,6 @@ export type HandleDestroyEmployeeWorkRecordResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/v1/employees/{employee_id}/work_records/{date}` operation.
- */
 export function handleDestroyEmployeeWorkRecord(
   response?:
     | HandleDestroyEmployeeWorkRecordResponse
@@ -1389,9 +1308,6 @@ export type HandleGetEmployeeWorkRecordResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/work_records/{date}` operation.
- */
 export function handleGetEmployeeWorkRecord(
   response?:
     | HandleGetEmployeeWorkRecordResponse
@@ -1437,9 +1353,6 @@ export type HandleUpdateEmployeeWorkRecordResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/employees/{employee_id}/work_records/{date}` operation.
- */
 export function handleUpdateEmployeeWorkRecord(
   response?:
     | HandleUpdateEmployeeWorkRecordResponse
@@ -1485,9 +1398,6 @@ export type HandleGetEmployeeWorkRecordSummaryResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/work_record_summaries/{year}/{month}` operation.
- */
 export function handleGetEmployeeWorkRecordSummary(
   response?:
     | HandleGetEmployeeWorkRecordSummaryResponse
@@ -1535,9 +1445,6 @@ export type HandleUpdateEmployeeWorkRecordSummaryResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/employees/{employee_id}/work_record_summaries/{year}/{month}` operation.
- */
 export function handleUpdateEmployeeWorkRecordSummary(
   response?:
     | HandleUpdateEmployeeWorkRecordSummaryResponse
@@ -1585,9 +1492,6 @@ export type HandleGetEmployeeTimeClocksResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/time_clocks` operation.
- */
 export function handleGetEmployeeTimeClocks(
   response?:
     | HandleGetEmployeeTimeClocksResponse
@@ -1631,9 +1535,6 @@ export type HandleCreateEmployeeTimeClockResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/v1/employees/{employee_id}/time_clocks` operation.
- */
 export function handleCreateEmployeeTimeClock(
   response?:
     | HandleCreateEmployeeTimeClockResponse
@@ -1677,9 +1578,6 @@ export type HandleGetEmployeeTimeClockResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/time_clocks/{id}` operation.
- */
 export function handleGetEmployeeTimeClock(
   response?:
     | HandleGetEmployeeTimeClockResponse
@@ -1725,9 +1623,6 @@ export type HandleGetEmployeeTimeClocksAvailableTypesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/time_clocks/available_types` operation.
- */
 export function handleGetEmployeeTimeClocksAvailableTypes(
   response?:
     | HandleGetEmployeeTimeClocksAvailableTypesResponse
@@ -1771,9 +1666,6 @@ export type HandleGetEmployeesSpecialHolidaysResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/special_holidays` operation.
- */
 export function handleGetEmployeesSpecialHolidays(
   response?:
     | HandleGetEmployeesSpecialHolidaysResponse
@@ -1817,9 +1709,6 @@ export type HandleGetEmployeesAttendanceTagSummariesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/attendance_tag_summaries/{year}/{month}` operation.
- */
 export function handleGetEmployeesAttendanceTagSummaries(
   response?:
     | HandleGetEmployeesAttendanceTagSummariesResponse
@@ -1867,9 +1756,6 @@ export type HandleUpdateEmployeesAttendanceTagSummariesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/employees/{employee_id}/attendance_tag_summaries/{year}/{month}` operation.
- */
 export function handleUpdateEmployeesAttendanceTagSummaries(
   response?:
     | HandleUpdateEmployeesAttendanceTagSummariesResponse
@@ -1917,9 +1803,6 @@ export type HandleGetEmployeesAttendanceTagsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/attendance_tags` operation.
- */
 export function handleGetEmployeesAttendanceTags(
   response?:
     | HandleGetEmployeesAttendanceTagsResponse
@@ -1963,9 +1846,6 @@ export type HandleGetEmployeesAttendanceTagsByDateResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/attendance_tags/{date}` operation.
- */
 export function handleGetEmployeesAttendanceTagsByDate(
   response?:
     | HandleGetEmployeesAttendanceTagsByDateResponse
@@ -2011,9 +1891,6 @@ export type HandleUpdateEmployeesAttendanceTagsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/employees/{employee_id}/attendance_tags/{date}` operation.
- */
 export function handleUpdateEmployeesAttendanceTags(
   response?:
     | HandleUpdateEmployeesAttendanceTagsResponse
@@ -2059,9 +1936,6 @@ export type HandleGetSalariesEmployeePayrollStatementsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/salaries/employee_payroll_statements` operation.
- */
 export function handleGetSalariesEmployeePayrollStatements(
   response?:
     HandleGetSalariesEmployeePayrollStatementsResponse | HttpResponseResolver<never, never>,
@@ -2094,9 +1968,6 @@ export type HandleGetSalariesEmployeePayrollStatementResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/salaries/employee_payroll_statements/{employee_id}` operation.
- */
 export function handleGetSalariesEmployeePayrollStatement(
   response?:
     | HandleGetSalariesEmployeePayrollStatementResponse
@@ -2140,9 +2011,6 @@ export type HandleUpdateEmployeePayrollStatementRemarkResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/salaries/employee_payroll_statements/{employee_id}/remark` operation.
- */
 export function handleUpdateEmployeePayrollStatementRemark(
   response?:
     | HandleUpdateEmployeePayrollStatementRemarkResponse
@@ -2186,9 +2054,6 @@ export type HandleGetBonusesEmployeePayrollStatementsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/bonuses/employee_payroll_statements` operation.
- */
 export function handleGetBonusesEmployeePayrollStatements(
   response?: HandleGetBonusesEmployeePayrollStatementsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -2220,9 +2085,6 @@ export type HandleGetBonusesEmployeePayrollStatementResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/bonuses/employee_payroll_statements/{employee_id}` operation.
- */
 export function handleGetBonusesEmployeePayrollStatement(
   response?:
     | HandleGetBonusesEmployeePayrollStatementResponse
@@ -2266,9 +2128,6 @@ export type HandleGetEmployeeGroupMembershipsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employee_group_memberships` operation.
- */
 export function handleGetEmployeeGroupMemberships(
   response?: HandleGetEmployeeGroupMembershipsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -2300,9 +2159,6 @@ export type HandleGetEmployeeGroupMembershipsByEmployeeIdResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/employees/{employee_id}/group_memberships` operation.
- */
 export function handleGetEmployeeGroupMembershipsByEmployeeId(
   response?:
     | HandleGetEmployeeGroupMembershipsByEmployeeIdResponse
@@ -2346,9 +2202,6 @@ export type HandleGetGroupsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/groups` operation.
- */
 export function handleGetGroups(
   response?: HandleGetGroupsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -2380,9 +2233,6 @@ export type HandleCreateGroupResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/v1/groups` operation.
- */
 export function handleCreateGroup(
   response?: HandleCreateGroupResponse | HttpResponseResolver<never, CreateGroupData["body"]>,
   options?: RequestHandlerOptions,
@@ -2414,9 +2264,6 @@ export type HandleDestroyGroupResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/v1/groups/{id}` operation.
- */
 export function handleDestroyGroup(
   response?:
     | HandleDestroyGroupResponse
@@ -2460,9 +2307,6 @@ export type HandleUpdateGroupResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/groups/{id}` operation.
- */
 export function handleUpdateGroup(
   response?:
     | HandleUpdateGroupResponse
@@ -2506,9 +2350,6 @@ export type HandleGetAllowancesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/allowances` operation.
- */
 export function handleGetAllowances(
   response?: HandleGetAllowancesResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -2540,9 +2381,6 @@ export type HandleCreateAllowanceResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/v1/allowances` operation.
- */
 export function handleCreateAllowance(
   response?:
     HandleCreateAllowanceResponse | HttpResponseResolver<never, CreateAllowanceData["body"]>,
@@ -2575,9 +2413,6 @@ export type HandleGetAllowanceResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/allowances/{id}` operation.
- */
 export function handleGetAllowance(
   response?:
     | HandleGetAllowanceResponse
@@ -2621,9 +2456,6 @@ export type HandleGetDeductionsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/deductions` operation.
- */
 export function handleGetDeductions(
   response?: HandleGetDeductionsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -2655,9 +2487,6 @@ export type HandleCreateDeductionResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/v1/deductions` operation.
- */
 export function handleCreateDeduction(
   response?:
     HandleCreateDeductionResponse | HttpResponseResolver<never, CreateDeductionData["body"]>,
@@ -2690,9 +2519,6 @@ export type HandleGetDeductionResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/deductions/{id}` operation.
- */
 export function handleGetDeduction(
   response?:
     | HandleGetDeductionResponse
@@ -2736,9 +2562,6 @@ export type HandleGetPositionsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/positions` operation.
- */
 export function handleGetPositions(
   response?: HandleGetPositionsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -2770,9 +2593,6 @@ export type HandleCreatePositionResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/v1/positions` operation.
- */
 export function handleCreatePosition(
   response?: HandleCreatePositionResponse | HttpResponseResolver<never, CreatePositionData["body"]>,
   options?: RequestHandlerOptions,
@@ -2804,9 +2624,6 @@ export type HandleDestroyPositionResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/v1/positions/{id}` operation.
- */
 export function handleDestroyPosition(
   response?:
     | HandleDestroyPositionResponse
@@ -2850,9 +2667,6 @@ export type HandleUpdatePositionResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/positions/{id}` operation.
- */
 export function handleUpdatePosition(
   response?:
     | HandleUpdatePositionResponse
@@ -2896,9 +2710,6 @@ export type HandleGetApprovalRequestsMonthlyAttendancesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/approval_requests/monthly_attendances` operation.
- */
 export function handleGetApprovalRequestsMonthlyAttendances(
   response?:
     HandleGetApprovalRequestsMonthlyAttendancesResponse | HttpResponseResolver<never, never>,
@@ -2931,9 +2742,6 @@ export type HandleCreateApprovalRequestsMonthlyAttendanceResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/v1/approval_requests/monthly_attendances` operation.
- */
 export function handleCreateApprovalRequestsMonthlyAttendance(
   response?:
     | HandleCreateApprovalRequestsMonthlyAttendanceResponse
@@ -2967,9 +2775,6 @@ export type HandleDestroyApprovalRequestsMonthlyAttendanceResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/v1/approval_requests/monthly_attendances/{id}` operation.
- */
 export function handleDestroyApprovalRequestsMonthlyAttendance(
   response?:
     | HandleDestroyApprovalRequestsMonthlyAttendanceResponse
@@ -3013,9 +2818,6 @@ export type HandleGetApprovalRequestsMonthlyAttendanceResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/approval_requests/monthly_attendances/{id}` operation.
- */
 export function handleGetApprovalRequestsMonthlyAttendance(
   response?:
     | HandleGetApprovalRequestsMonthlyAttendanceResponse
@@ -3059,9 +2861,6 @@ export type HandleUpdateApprovalRequestsMonthlyAttendanceResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/approval_requests/monthly_attendances/{id}` operation.
- */
 export function handleUpdateApprovalRequestsMonthlyAttendance(
   response?:
     | HandleUpdateApprovalRequestsMonthlyAttendanceResponse
@@ -3105,9 +2904,6 @@ export type HandleActionApprovalRequestsMonthlyAttendanceResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/v1/approval_requests/monthly_attendances/{id}/actions` operation.
- */
 export function handleActionApprovalRequestsMonthlyAttendance(
   response?:
     | HandleActionApprovalRequestsMonthlyAttendanceResponse
@@ -3151,9 +2947,6 @@ export type HandleGetApprovalRequestsWorkTimesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/approval_requests/work_times` operation.
- */
 export function handleGetApprovalRequestsWorkTimes(
   response?: HandleGetApprovalRequestsWorkTimesResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -3185,9 +2978,6 @@ export type HandleCreateApprovalRequestsWorkTimeResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/v1/approval_requests/work_times` operation.
- */
 export function handleCreateApprovalRequestsWorkTime(
   response?:
     | HandleCreateApprovalRequestsWorkTimeResponse
@@ -3221,9 +3011,6 @@ export type HandleDestroyApprovalRequestsWorkTimeResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/v1/approval_requests/work_times/{id}` operation.
- */
 export function handleDestroyApprovalRequestsWorkTime(
   response?:
     | HandleDestroyApprovalRequestsWorkTimeResponse
@@ -3267,9 +3054,6 @@ export type HandleGetApprovalRequestsWorkTimeResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/approval_requests/work_times/{id}` operation.
- */
 export function handleGetApprovalRequestsWorkTime(
   response?:
     | HandleGetApprovalRequestsWorkTimeResponse
@@ -3313,9 +3097,6 @@ export type HandleUpdateApprovalRequestsWorkTimeResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/approval_requests/work_times/{id}` operation.
- */
 export function handleUpdateApprovalRequestsWorkTime(
   response?:
     | HandleUpdateApprovalRequestsWorkTimeResponse
@@ -3359,9 +3140,6 @@ export type HandleActionApprovalRequestsWorkTimeResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/v1/approval_requests/work_times/{id}/actions` operation.
- */
 export function handleActionApprovalRequestsWorkTime(
   response?:
     | HandleActionApprovalRequestsWorkTimeResponse
@@ -3405,9 +3183,6 @@ export type HandleGetApprovalRequestsPaidHolidaysResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/approval_requests/paid_holidays` operation.
- */
 export function handleGetApprovalRequestsPaidHolidays(
   response?: HandleGetApprovalRequestsPaidHolidaysResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -3439,9 +3214,6 @@ export type HandleCreateApprovalRequestsPaidHolidayResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/v1/approval_requests/paid_holidays` operation.
- */
 export function handleCreateApprovalRequestsPaidHoliday(
   response?:
     | HandleCreateApprovalRequestsPaidHolidayResponse
@@ -3475,9 +3247,6 @@ export type HandleDestroyApprovalRequestsPaidHolidayResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/v1/approval_requests/paid_holidays/{id}` operation.
- */
 export function handleDestroyApprovalRequestsPaidHoliday(
   response?:
     | HandleDestroyApprovalRequestsPaidHolidayResponse
@@ -3521,9 +3290,6 @@ export type HandleGetApprovalRequestsPaidHolidayResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/approval_requests/paid_holidays/{id}` operation.
- */
 export function handleGetApprovalRequestsPaidHoliday(
   response?:
     | HandleGetApprovalRequestsPaidHolidayResponse
@@ -3567,9 +3333,6 @@ export type HandleUpdateApprovalRequestsPaidHolidayResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/approval_requests/paid_holidays/{id}` operation.
- */
 export function handleUpdateApprovalRequestsPaidHoliday(
   response?:
     | HandleUpdateApprovalRequestsPaidHolidayResponse
@@ -3613,9 +3376,6 @@ export type HandleActionApprovalRequestsPaidHolidayResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/v1/approval_requests/paid_holidays/{id}/actions` operation.
- */
 export function handleActionApprovalRequestsPaidHoliday(
   response?:
     | HandleActionApprovalRequestsPaidHolidayResponse
@@ -3659,9 +3419,6 @@ export type HandleGetApprovalRequestsSpecialHolidaysResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/approval_requests/special_holidays` operation.
- */
 export function handleGetApprovalRequestsSpecialHolidays(
   response?: HandleGetApprovalRequestsSpecialHolidaysResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -3693,9 +3450,6 @@ export type HandleCreateApprovalRequestsSpecialHolidayResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/v1/approval_requests/special_holidays` operation.
- */
 export function handleCreateApprovalRequestsSpecialHoliday(
   response?:
     | HandleCreateApprovalRequestsSpecialHolidayResponse
@@ -3729,9 +3483,6 @@ export type HandleDestroyApprovalRequestsSpecialHolidayResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/v1/approval_requests/special_holidays/{id}` operation.
- */
 export function handleDestroyApprovalRequestsSpecialHoliday(
   response?:
     | HandleDestroyApprovalRequestsSpecialHolidayResponse
@@ -3775,9 +3526,6 @@ export type HandleGetApprovalRequestsSpecialHolidayResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/approval_requests/special_holidays/{id}` operation.
- */
 export function handleGetApprovalRequestsSpecialHoliday(
   response?:
     | HandleGetApprovalRequestsSpecialHolidayResponse
@@ -3821,9 +3569,6 @@ export type HandleUpdateApprovalRequestsSpecialHolidayResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/approval_requests/special_holidays/{id}` operation.
- */
 export function handleUpdateApprovalRequestsSpecialHoliday(
   response?:
     | HandleUpdateApprovalRequestsSpecialHolidayResponse
@@ -3867,9 +3612,6 @@ export type HandleActionApprovalRequestsSpecialHolidayResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/v1/approval_requests/special_holidays/{id}/actions` operation.
- */
 export function handleActionApprovalRequestsSpecialHoliday(
   response?:
     | HandleActionApprovalRequestsSpecialHolidayResponse
@@ -3913,9 +3655,6 @@ export type HandleGetApprovalRequestsOvertimeWorksResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/approval_requests/overtime_works` operation.
- */
 export function handleGetApprovalRequestsOvertimeWorks(
   response?: HandleGetApprovalRequestsOvertimeWorksResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -3947,9 +3686,6 @@ export type HandleCreateApprovalRequestsOvertimeWorkResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/v1/approval_requests/overtime_works` operation.
- */
 export function handleCreateApprovalRequestsOvertimeWork(
   response?:
     | HandleCreateApprovalRequestsOvertimeWorkResponse
@@ -3983,9 +3719,6 @@ export type HandleDestroyApprovalRequestsOvertimeWorkResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/v1/approval_requests/overtime_works/{id}` operation.
- */
 export function handleDestroyApprovalRequestsOvertimeWork(
   response?:
     | HandleDestroyApprovalRequestsOvertimeWorkResponse
@@ -4029,9 +3762,6 @@ export type HandleGetApprovalRequestsOvertimeWorkResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/approval_requests/overtime_works/{id}` operation.
- */
 export function handleGetApprovalRequestsOvertimeWork(
   response?:
     | HandleGetApprovalRequestsOvertimeWorkResponse
@@ -4075,9 +3805,6 @@ export type HandleUpdateApprovalRequestsOvertimeWorkResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/approval_requests/overtime_works/{id}` operation.
- */
 export function handleUpdateApprovalRequestsOvertimeWork(
   response?:
     | HandleUpdateApprovalRequestsOvertimeWorkResponse
@@ -4121,9 +3848,6 @@ export type HandleActionApprovalRequestsOvertimeWorkResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/v1/approval_requests/overtime_works/{id}/actions` operation.
- */
 export function handleActionApprovalRequestsOvertimeWork(
   response?:
     | HandleActionApprovalRequestsOvertimeWorkResponse
@@ -4167,9 +3891,6 @@ export type HandleGetApprovalRequestsOvertimeWorkSettingResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/approval_requests/overtime_works/setting` operation.
- */
 export function handleGetApprovalRequestsOvertimeWorkSetting(
   response?:
     HandleGetApprovalRequestsOvertimeWorkSettingResponse | HttpResponseResolver<never, never>,
@@ -4202,9 +3923,6 @@ export type HandleGetApprovalFlowRoutesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/approval_flow_routes` operation.
- */
 export function handleGetApprovalFlowRoutes(
   response?: HandleGetApprovalFlowRoutesResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -4236,9 +3954,6 @@ export type HandleGetApprovalFlowRouteResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/approval_flow_routes/{id}` operation.
- */
 export function handleGetApprovalFlowRoute(
   response?:
     | HandleGetApprovalFlowRouteResponse
@@ -4282,9 +3997,6 @@ export type HandleGetYearendAdjustmentEmployeesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/yearend_adjustments/{year}/employees` operation.
- */
 export function handleGetYearendAdjustmentEmployees(
   response?:
     | HandleGetYearendAdjustmentEmployeesResponse
@@ -4328,9 +4040,6 @@ export type HandleGetYearendAdjustmentEmployeeResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/v1/yearend_adjustments/{year}/employees/{employee_id}` operation.
- */
 export function handleGetYearendAdjustmentEmployee(
   response?:
     | HandleGetYearendAdjustmentEmployeeResponse
@@ -4376,9 +4085,6 @@ export type HandlePutYearendAdjustmentEmployeeResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/yearend_adjustments/{year}/employees/{employee_id}` operation.
- */
 export function handlePutYearendAdjustmentEmployee(
   response?:
     | HandlePutYearendAdjustmentEmployeeResponse
@@ -4424,9 +4130,6 @@ export type HandlePutYearendAdjustmentPayrollAndBonusResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/yearend_adjustments/{year}/payroll_and_bonus/{employee_id}` operation.
- */
 export function handlePutYearendAdjustmentPayrollAndBonus(
   response?:
     | HandlePutYearendAdjustmentPayrollAndBonusResponse
@@ -4472,9 +4175,6 @@ export type HandlePutYearendAdjustmentDependentsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/yearend_adjustments/{year}/dependents/{employee_id}` operation.
- */
 export function handlePutYearendAdjustmentDependents(
   response?:
     | HandlePutYearendAdjustmentDependentsResponse
@@ -4520,9 +4220,6 @@ export type HandleDestroyYearendAdjustmentPreviousJobResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/v1/yearend_adjustments/{year}/previous_jobs/{employee_id}` operation.
- */
 export function handleDestroyYearendAdjustmentPreviousJob(
   response?:
     | HandleDestroyYearendAdjustmentPreviousJobResponse
@@ -4568,9 +4265,6 @@ export type HandlePutYearendAdjustmentPreviousJobResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/yearend_adjustments/{year}/previous_jobs/{employee_id}` operation.
- */
 export function handlePutYearendAdjustmentPreviousJob(
   response?:
     | HandlePutYearendAdjustmentPreviousJobResponse
@@ -4616,9 +4310,6 @@ export type HandlePostYearendAdjustmentInsurancesResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/v1/yearend_adjustments/{year}/insurances/{employee_id}` operation.
- */
 export function handlePostYearendAdjustmentInsurances(
   response?:
     | HandlePostYearendAdjustmentInsurancesResponse
@@ -4664,9 +4355,6 @@ export type HandleDestroyYearendAdjustmentInsurancesResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/v1/yearend_adjustments/{year}/insurances/{employee_id}/{id}` operation.
- */
 export function handleDestroyYearendAdjustmentInsurances(
   response?:
     | HandleDestroyYearendAdjustmentInsurancesResponse
@@ -4714,9 +4402,6 @@ export type HandlePutYearendAdjustmentInsurancesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/yearend_adjustments/{year}/insurances/{employee_id}/{id}` operation.
- */
 export function handlePutYearendAdjustmentInsurances(
   response?:
     | HandlePutYearendAdjustmentInsurancesResponse
@@ -4764,9 +4449,6 @@ export type HandlePutYearendAdjustmentHousingLoanDeductionResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/yearend_adjustments/{year}/housing_loan_deductions/{employee_id}` operation.
- */
 export function handlePutYearendAdjustmentHousingLoanDeduction(
   response?:
     | HandlePutYearendAdjustmentHousingLoanDeductionResponse
@@ -4812,9 +4494,6 @@ export type HandlePostYearendAdjustmentHousingLoanResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/v1/yearend_adjustments/{year}/housing_loans/{employee_id}` operation.
- */
 export function handlePostYearendAdjustmentHousingLoan(
   response?:
     | HandlePostYearendAdjustmentHousingLoanResponse
@@ -4860,9 +4539,6 @@ export type HandleDestroyYearendAdjustmentHousingLoanResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/v1/yearend_adjustments/{year}/housing_loans/{employee_id}/{id}` operation.
- */
 export function handleDestroyYearendAdjustmentHousingLoan(
   response?:
     | HandleDestroyYearendAdjustmentHousingLoanResponse
@@ -4910,9 +4586,6 @@ export type HandlePutYearendAdjustmentHousingLoanResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/v1/yearend_adjustments/{year}/housing_loans/{employee_id}/{id}` operation.
- */
 export function handlePutYearendAdjustmentHousingLoan(
   response?:
     | HandlePutYearendAdjustmentHousingLoanResponse
@@ -4956,441 +4629,114 @@ export function handlePutYearendAdjustmentHousingLoan(
 }
 
 export type MswHandlerFactories = {
-  /**
-   * Handler for the `GET /api/v1/users/me` operation.
-   */
   getUsersMe: typeof handleGetUsersMe;
-  /**
-   * Handler for the `GET /api/v1/companies/{company_id}/employees` operation.
-   */
   getCompanyEmployees: typeof handleGetCompanyEmployees;
-  /**
-   * Handler for the `GET /api/v1/employees` operation.
-   */
   getEmployees: typeof handleGetEmployees;
-  /**
-   * Handler for the `POST /api/v1/employees` operation.
-   */
   createEmployee: typeof handleCreateEmployee;
-  /**
-   * Handler for the `DELETE /api/v1/employees/{id}` operation.
-   */
   destroyEmployee: typeof handleDestroyEmployee;
-  /**
-   * Handler for the `GET /api/v1/employees/{id}` operation.
-   */
   getEmployee: typeof handleGetEmployee;
-  /**
-   * Handler for the `PUT /api/v1/employees/{id}` operation.
-   */
   updateEmployee: typeof handleUpdateEmployee;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/profile_rule` operation.
-   */
   getEmployeeProfileRule: typeof handleGetEmployeeProfileRule;
-  /**
-   * Handler for the `PUT /api/v1/employees/{employee_id}/profile_rule` operation.
-   */
   updateEmployeeProfileRule: typeof handleUpdateEmployeeProfileRule;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/health_insurance_rule` operation.
-   */
   getEmployeeHealthInsuranceRule: typeof handleGetEmployeeHealthInsuranceRule;
-  /**
-   * Handler for the `PUT /api/v1/employees/{employee_id}/health_insurance_rule` operation.
-   */
   updateEmployeeHealthInsuranceRule: typeof handleUpdateEmployeeHealthInsuranceRule;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/welfare_pension_insurance_rule` operation.
-   */
   getEmployeeWelfarePensionInsuranceRule: typeof handleGetEmployeeWelfarePensionInsuranceRule;
-  /**
-   * Handler for the `PUT /api/v1/employees/{employee_id}/welfare_pension_insurance_rule` operation.
-   */
   updateEmployeeWelfarePensionInsuranceRule: typeof handleUpdateEmployeeWelfarePensionInsuranceRule;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/dependent_rules` operation.
-   */
   getEmployeeDependentRules: typeof handleGetEmployeeDependentRules;
-  /**
-   * Handler for the `PUT /api/v1/employees/{employee_id}/dependent_rules/bulk_update` operation.
-   */
   bulkUpdateEmployeeDependentRules: typeof handleBulkUpdateEmployeeDependentRules;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/bank_account_rule` operation.
-   */
   getEmployeeBankAccountRule: typeof handleGetEmployeeBankAccountRule;
-  /**
-   * Handler for the `PUT /api/v1/employees/{employee_id}/bank_account_rule` operation.
-   */
   updateEmployeeBankAccountRule: typeof handleUpdateEmployeeBankAccountRule;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/basic_pay_rule` operation.
-   */
   getEmployeeBasicPayRule: typeof handleGetEmployeeBasicPayRule;
-  /**
-   * Handler for the `PUT /api/v1/employees/{employee_id}/basic_pay_rule` operation.
-   */
   updateEmployeeBasicPayRule: typeof handleUpdateEmployeeBasicPayRule;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/allowance_rules` operation.
-   */
   getEmployeeAllowanceRules: typeof handleGetEmployeeAllowanceRules;
-  /**
-   * Handler for the `PUT /api/v1/employees/{employee_id}/allowance_rules` operation.
-   */
   updateEmployeeAllowanceRules: typeof handleUpdateEmployeeAllowanceRules;
-  /**
-   * Handler for the `DELETE /api/v1/employees/{employee_id}/allowance_rules/{id}` operation.
-   */
   destroyEmployeeAllowanceRule: typeof handleDestroyEmployeeAllowanceRule;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/deduction_rules` operation.
-   */
   getEmployeeDeductionRules: typeof handleGetEmployeeDeductionRules;
-  /**
-   * Handler for the `PUT /api/v1/employees/{employee_id}/deduction_rules` operation.
-   */
   updateEmployeeDeductionRules: typeof handleUpdateEmployeeDeductionRules;
-  /**
-   * Handler for the `DELETE /api/v1/employees/{employee_id}/deduction_rules/{id}` operation.
-   */
   destroyEmployeeDeductionRule: typeof handleDestroyEmployeeDeductionRule;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/profile_custom_fields` operation.
-   */
   getEmployeeProfileCustomFieldsRule: typeof handleGetEmployeeProfileCustomFieldsRule;
-  /**
-   * Handler for the `DELETE /api/v1/employees/{employee_id}/work_records/{date}` operation.
-   */
   destroyEmployeeWorkRecord: typeof handleDestroyEmployeeWorkRecord;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/work_records/{date}` operation.
-   */
   getEmployeeWorkRecord: typeof handleGetEmployeeWorkRecord;
-  /**
-   * Handler for the `PUT /api/v1/employees/{employee_id}/work_records/{date}` operation.
-   */
   updateEmployeeWorkRecord: typeof handleUpdateEmployeeWorkRecord;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/work_record_summaries/{year}/{month}` operation.
-   */
   getEmployeeWorkRecordSummary: typeof handleGetEmployeeWorkRecordSummary;
-  /**
-   * Handler for the `PUT /api/v1/employees/{employee_id}/work_record_summaries/{year}/{month}` operation.
-   */
   updateEmployeeWorkRecordSummary: typeof handleUpdateEmployeeWorkRecordSummary;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/time_clocks` operation.
-   */
   getEmployeeTimeClocks: typeof handleGetEmployeeTimeClocks;
-  /**
-   * Handler for the `POST /api/v1/employees/{employee_id}/time_clocks` operation.
-   */
   createEmployeeTimeClock: typeof handleCreateEmployeeTimeClock;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/time_clocks/{id}` operation.
-   */
   getEmployeeTimeClock: typeof handleGetEmployeeTimeClock;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/time_clocks/available_types` operation.
-   */
   getEmployeeTimeClocksAvailableTypes: typeof handleGetEmployeeTimeClocksAvailableTypes;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/special_holidays` operation.
-   */
   getEmployeesSpecialHolidays: typeof handleGetEmployeesSpecialHolidays;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/attendance_tag_summaries/{year}/{month}` operation.
-   */
   getEmployeesAttendanceTagSummaries: typeof handleGetEmployeesAttendanceTagSummaries;
-  /**
-   * Handler for the `PUT /api/v1/employees/{employee_id}/attendance_tag_summaries/{year}/{month}` operation.
-   */
   updateEmployeesAttendanceTagSummaries: typeof handleUpdateEmployeesAttendanceTagSummaries;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/attendance_tags` operation.
-   */
   getEmployeesAttendanceTags: typeof handleGetEmployeesAttendanceTags;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/attendance_tags/{date}` operation.
-   */
   getEmployeesAttendanceTagsByDate: typeof handleGetEmployeesAttendanceTagsByDate;
-  /**
-   * Handler for the `PUT /api/v1/employees/{employee_id}/attendance_tags/{date}` operation.
-   */
   updateEmployeesAttendanceTags: typeof handleUpdateEmployeesAttendanceTags;
-  /**
-   * Handler for the `GET /api/v1/salaries/employee_payroll_statements` operation.
-   */
   getSalariesEmployeePayrollStatements: typeof handleGetSalariesEmployeePayrollStatements;
-  /**
-   * Handler for the `GET /api/v1/salaries/employee_payroll_statements/{employee_id}` operation.
-   */
   getSalariesEmployeePayrollStatement: typeof handleGetSalariesEmployeePayrollStatement;
-  /**
-   * Handler for the `PUT /api/v1/salaries/employee_payroll_statements/{employee_id}/remark` operation.
-   */
   updateEmployeePayrollStatementRemark: typeof handleUpdateEmployeePayrollStatementRemark;
-  /**
-   * Handler for the `GET /api/v1/bonuses/employee_payroll_statements` operation.
-   */
   getBonusesEmployeePayrollStatements: typeof handleGetBonusesEmployeePayrollStatements;
-  /**
-   * Handler for the `GET /api/v1/bonuses/employee_payroll_statements/{employee_id}` operation.
-   */
   getBonusesEmployeePayrollStatement: typeof handleGetBonusesEmployeePayrollStatement;
-  /**
-   * Handler for the `GET /api/v1/employee_group_memberships` operation.
-   */
   getEmployeeGroupMemberships: typeof handleGetEmployeeGroupMemberships;
-  /**
-   * Handler for the `GET /api/v1/employees/{employee_id}/group_memberships` operation.
-   */
   getEmployeeGroupMembershipsByEmployeeId: typeof handleGetEmployeeGroupMembershipsByEmployeeId;
-  /**
-   * Handler for the `GET /api/v1/groups` operation.
-   */
   getGroups: typeof handleGetGroups;
-  /**
-   * Handler for the `POST /api/v1/groups` operation.
-   */
   createGroup: typeof handleCreateGroup;
-  /**
-   * Handler for the `DELETE /api/v1/groups/{id}` operation.
-   */
   destroyGroup: typeof handleDestroyGroup;
-  /**
-   * Handler for the `PUT /api/v1/groups/{id}` operation.
-   */
   updateGroup: typeof handleUpdateGroup;
-  /**
-   * Handler for the `GET /api/v1/allowances` operation.
-   */
   getAllowances: typeof handleGetAllowances;
-  /**
-   * Handler for the `POST /api/v1/allowances` operation.
-   */
   createAllowance: typeof handleCreateAllowance;
-  /**
-   * Handler for the `GET /api/v1/allowances/{id}` operation.
-   */
   getAllowance: typeof handleGetAllowance;
-  /**
-   * Handler for the `GET /api/v1/deductions` operation.
-   */
   getDeductions: typeof handleGetDeductions;
-  /**
-   * Handler for the `POST /api/v1/deductions` operation.
-   */
   createDeduction: typeof handleCreateDeduction;
-  /**
-   * Handler for the `GET /api/v1/deductions/{id}` operation.
-   */
   getDeduction: typeof handleGetDeduction;
-  /**
-   * Handler for the `GET /api/v1/positions` operation.
-   */
   getPositions: typeof handleGetPositions;
-  /**
-   * Handler for the `POST /api/v1/positions` operation.
-   */
   createPosition: typeof handleCreatePosition;
-  /**
-   * Handler for the `DELETE /api/v1/positions/{id}` operation.
-   */
   destroyPosition: typeof handleDestroyPosition;
-  /**
-   * Handler for the `PUT /api/v1/positions/{id}` operation.
-   */
   updatePosition: typeof handleUpdatePosition;
-  /**
-   * Handler for the `GET /api/v1/approval_requests/monthly_attendances` operation.
-   */
   getApprovalRequestsMonthlyAttendances: typeof handleGetApprovalRequestsMonthlyAttendances;
-  /**
-   * Handler for the `POST /api/v1/approval_requests/monthly_attendances` operation.
-   */
   createApprovalRequestsMonthlyAttendance: typeof handleCreateApprovalRequestsMonthlyAttendance;
-  /**
-   * Handler for the `DELETE /api/v1/approval_requests/monthly_attendances/{id}` operation.
-   */
   destroyApprovalRequestsMonthlyAttendance: typeof handleDestroyApprovalRequestsMonthlyAttendance;
-  /**
-   * Handler for the `GET /api/v1/approval_requests/monthly_attendances/{id}` operation.
-   */
   getApprovalRequestsMonthlyAttendance: typeof handleGetApprovalRequestsMonthlyAttendance;
-  /**
-   * Handler for the `PUT /api/v1/approval_requests/monthly_attendances/{id}` operation.
-   */
   updateApprovalRequestsMonthlyAttendance: typeof handleUpdateApprovalRequestsMonthlyAttendance;
-  /**
-   * Handler for the `POST /api/v1/approval_requests/monthly_attendances/{id}/actions` operation.
-   */
   actionApprovalRequestsMonthlyAttendance: typeof handleActionApprovalRequestsMonthlyAttendance;
-  /**
-   * Handler for the `GET /api/v1/approval_requests/work_times` operation.
-   */
   getApprovalRequestsWorkTimes: typeof handleGetApprovalRequestsWorkTimes;
-  /**
-   * Handler for the `POST /api/v1/approval_requests/work_times` operation.
-   */
   createApprovalRequestsWorkTime: typeof handleCreateApprovalRequestsWorkTime;
-  /**
-   * Handler for the `DELETE /api/v1/approval_requests/work_times/{id}` operation.
-   */
   destroyApprovalRequestsWorkTime: typeof handleDestroyApprovalRequestsWorkTime;
-  /**
-   * Handler for the `GET /api/v1/approval_requests/work_times/{id}` operation.
-   */
   getApprovalRequestsWorkTime: typeof handleGetApprovalRequestsWorkTime;
-  /**
-   * Handler for the `PUT /api/v1/approval_requests/work_times/{id}` operation.
-   */
   updateApprovalRequestsWorkTime: typeof handleUpdateApprovalRequestsWorkTime;
-  /**
-   * Handler for the `POST /api/v1/approval_requests/work_times/{id}/actions` operation.
-   */
   actionApprovalRequestsWorkTime: typeof handleActionApprovalRequestsWorkTime;
-  /**
-   * Handler for the `GET /api/v1/approval_requests/paid_holidays` operation.
-   */
   getApprovalRequestsPaidHolidays: typeof handleGetApprovalRequestsPaidHolidays;
-  /**
-   * Handler for the `POST /api/v1/approval_requests/paid_holidays` operation.
-   */
   createApprovalRequestsPaidHoliday: typeof handleCreateApprovalRequestsPaidHoliday;
-  /**
-   * Handler for the `DELETE /api/v1/approval_requests/paid_holidays/{id}` operation.
-   */
   destroyApprovalRequestsPaidHoliday: typeof handleDestroyApprovalRequestsPaidHoliday;
-  /**
-   * Handler for the `GET /api/v1/approval_requests/paid_holidays/{id}` operation.
-   */
   getApprovalRequestsPaidHoliday: typeof handleGetApprovalRequestsPaidHoliday;
-  /**
-   * Handler for the `PUT /api/v1/approval_requests/paid_holidays/{id}` operation.
-   */
   updateApprovalRequestsPaidHoliday: typeof handleUpdateApprovalRequestsPaidHoliday;
-  /**
-   * Handler for the `POST /api/v1/approval_requests/paid_holidays/{id}/actions` operation.
-   */
   actionApprovalRequestsPaidHoliday: typeof handleActionApprovalRequestsPaidHoliday;
-  /**
-   * Handler for the `GET /api/v1/approval_requests/special_holidays` operation.
-   */
   getApprovalRequestsSpecialHolidays: typeof handleGetApprovalRequestsSpecialHolidays;
-  /**
-   * Handler for the `POST /api/v1/approval_requests/special_holidays` operation.
-   */
   createApprovalRequestsSpecialHoliday: typeof handleCreateApprovalRequestsSpecialHoliday;
-  /**
-   * Handler for the `DELETE /api/v1/approval_requests/special_holidays/{id}` operation.
-   */
   destroyApprovalRequestsSpecialHoliday: typeof handleDestroyApprovalRequestsSpecialHoliday;
-  /**
-   * Handler for the `GET /api/v1/approval_requests/special_holidays/{id}` operation.
-   */
   getApprovalRequestsSpecialHoliday: typeof handleGetApprovalRequestsSpecialHoliday;
-  /**
-   * Handler for the `PUT /api/v1/approval_requests/special_holidays/{id}` operation.
-   */
   updateApprovalRequestsSpecialHoliday: typeof handleUpdateApprovalRequestsSpecialHoliday;
-  /**
-   * Handler for the `POST /api/v1/approval_requests/special_holidays/{id}/actions` operation.
-   */
   actionApprovalRequestsSpecialHoliday: typeof handleActionApprovalRequestsSpecialHoliday;
-  /**
-   * Handler for the `GET /api/v1/approval_requests/overtime_works` operation.
-   */
   getApprovalRequestsOvertimeWorks: typeof handleGetApprovalRequestsOvertimeWorks;
-  /**
-   * Handler for the `POST /api/v1/approval_requests/overtime_works` operation.
-   */
   createApprovalRequestsOvertimeWork: typeof handleCreateApprovalRequestsOvertimeWork;
-  /**
-   * Handler for the `DELETE /api/v1/approval_requests/overtime_works/{id}` operation.
-   */
   destroyApprovalRequestsOvertimeWork: typeof handleDestroyApprovalRequestsOvertimeWork;
-  /**
-   * Handler for the `GET /api/v1/approval_requests/overtime_works/{id}` operation.
-   */
   getApprovalRequestsOvertimeWork: typeof handleGetApprovalRequestsOvertimeWork;
-  /**
-   * Handler for the `PUT /api/v1/approval_requests/overtime_works/{id}` operation.
-   */
   updateApprovalRequestsOvertimeWork: typeof handleUpdateApprovalRequestsOvertimeWork;
-  /**
-   * Handler for the `POST /api/v1/approval_requests/overtime_works/{id}/actions` operation.
-   */
   actionApprovalRequestsOvertimeWork: typeof handleActionApprovalRequestsOvertimeWork;
-  /**
-   * Handler for the `GET /api/v1/approval_requests/overtime_works/setting` operation.
-   */
   getApprovalRequestsOvertimeWorkSetting: typeof handleGetApprovalRequestsOvertimeWorkSetting;
-  /**
-   * Handler for the `GET /api/v1/approval_flow_routes` operation.
-   */
   getApprovalFlowRoutes: typeof handleGetApprovalFlowRoutes;
-  /**
-   * Handler for the `GET /api/v1/approval_flow_routes/{id}` operation.
-   */
   getApprovalFlowRoute: typeof handleGetApprovalFlowRoute;
-  /**
-   * Handler for the `GET /api/v1/yearend_adjustments/{year}/employees` operation.
-   */
   getYearendAdjustmentEmployees: typeof handleGetYearendAdjustmentEmployees;
-  /**
-   * Handler for the `GET /api/v1/yearend_adjustments/{year}/employees/{employee_id}` operation.
-   */
   getYearendAdjustmentEmployee: typeof handleGetYearendAdjustmentEmployee;
-  /**
-   * Handler for the `PUT /api/v1/yearend_adjustments/{year}/employees/{employee_id}` operation.
-   */
   putYearendAdjustmentEmployee: typeof handlePutYearendAdjustmentEmployee;
-  /**
-   * Handler for the `PUT /api/v1/yearend_adjustments/{year}/payroll_and_bonus/{employee_id}` operation.
-   */
   putYearendAdjustmentPayrollAndBonus: typeof handlePutYearendAdjustmentPayrollAndBonus;
-  /**
-   * Handler for the `PUT /api/v1/yearend_adjustments/{year}/dependents/{employee_id}` operation.
-   */
   putYearendAdjustmentDependents: typeof handlePutYearendAdjustmentDependents;
-  /**
-   * Handler for the `DELETE /api/v1/yearend_adjustments/{year}/previous_jobs/{employee_id}` operation.
-   */
   destroyYearendAdjustmentPreviousJob: typeof handleDestroyYearendAdjustmentPreviousJob;
-  /**
-   * Handler for the `PUT /api/v1/yearend_adjustments/{year}/previous_jobs/{employee_id}` operation.
-   */
   putYearendAdjustmentPreviousJob: typeof handlePutYearendAdjustmentPreviousJob;
-  /**
-   * Handler for the `POST /api/v1/yearend_adjustments/{year}/insurances/{employee_id}` operation.
-   */
   postYearendAdjustmentInsurances: typeof handlePostYearendAdjustmentInsurances;
-  /**
-   * Handler for the `DELETE /api/v1/yearend_adjustments/{year}/insurances/{employee_id}/{id}` operation.
-   */
   destroyYearendAdjustmentInsurances: typeof handleDestroyYearendAdjustmentInsurances;
-  /**
-   * Handler for the `PUT /api/v1/yearend_adjustments/{year}/insurances/{employee_id}/{id}` operation.
-   */
   putYearendAdjustmentInsurances: typeof handlePutYearendAdjustmentInsurances;
-  /**
-   * Handler for the `PUT /api/v1/yearend_adjustments/{year}/housing_loan_deductions/{employee_id}` operation.
-   */
   putYearendAdjustmentHousingLoanDeduction: typeof handlePutYearendAdjustmentHousingLoanDeduction;
-  /**
-   * Handler for the `POST /api/v1/yearend_adjustments/{year}/housing_loans/{employee_id}` operation.
-   */
   postYearendAdjustmentHousingLoan: typeof handlePostYearendAdjustmentHousingLoan;
-  /**
-   * Handler for the `DELETE /api/v1/yearend_adjustments/{year}/housing_loans/{employee_id}/{id}` operation.
-   */
   destroyYearendAdjustmentHousingLoan: typeof handleDestroyYearendAdjustmentHousingLoan;
-  /**
-   * Handler for the `PUT /api/v1/yearend_adjustments/{year}/housing_loans/{employee_id}/{id}` operation.
-   */
   putYearendAdjustmentHousingLoan: typeof handlePutYearendAdjustmentHousingLoan;
 };
 

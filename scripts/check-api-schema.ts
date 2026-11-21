@@ -5,41 +5,13 @@ import { fileURLToPath } from "node:url";
 
 import * as v from "valibot";
 
+import { apis } from "../src/api/apis.ts";
+
 const SCHEMA_REPOSITORY = "https://github.com/freee/freee-api-schema.git";
 const SCHEMA_RAW_BASE_URL = "https://raw.githubusercontent.com/freee/freee-api-schema";
 const SCHEMA_REF = "refs/heads/master";
 const PINNED_SCHEMA_PATTERN =
   /https:\/\/raw\.githubusercontent\.com\/freee\/freee-api-schema\/([0-9a-f]{40})/;
-
-const API_SPECS = [
-  {
-    api: "accounting",
-    schemaPath: "v2020_06_15/open-api-3/api-schema.json",
-    sdkPath: "src/types/freee/sdk.gen.ts",
-  },
-  {
-    api: "invoice",
-    schemaPath: "iv/open-api-3/api-schema.yml",
-    sdkPath: "src/types/freee-invoice/sdk.gen.ts",
-  },
-  {
-    api: "hr",
-    schemaPath: "hr/open-api-3/api-schema.json",
-    sdkPath: "src/types/freee-hr/sdk.gen.ts",
-  },
-] as const;
-
-type ApiName = (typeof API_SPECS)[number]["api"];
-
-type Endpoint = {
-  method: string;
-  path: string;
-};
-
-type ImportedSdkOperation = {
-  api: ApiName;
-  operation: string;
-};
 
 const OasChangeSchema = v.object({
   id: v.string(),
@@ -62,12 +34,6 @@ type ValidationResult = CommandResult & {
   name: string;
 };
 
-const SDK_DIRECTORY_TO_API: Record<string, ApiName> = {
-  freee: "accounting",
-  "freee-invoice": "invoice",
-  "freee-hr": "hr",
-};
-
 function formatCommandOutput(result: CommandResult): string {
   return [result.stdout, result.stderr]
     .map((output) => output.trim())
@@ -75,90 +41,10 @@ function formatCommandOutput(result: CommandResult): string {
     .join("\n");
 }
 
-function endpointKey(endpoint: Endpoint): string {
-  return `${endpoint.method.toUpperCase()} ${endpoint.path}`;
-}
-
 export function extractPinnedRevision(configSource: string): string {
   const revision = configSource.match(PINNED_SCHEMA_PATTERN)?.[1];
   if (!revision) throw new Error("Cannot find the pinned freee API schema commit");
   return revision;
-}
-
-export function extractSdkEndpoints(source: string): Map<string, Endpoint> {
-  const endpoints = new Map<string, Endpoint>();
-  const declarations = [...source.matchAll(/^[ \t]*export const ([A-Za-z_$][\w$]*)\s*=/gm)];
-
-  for (const [index, declaration] of declarations.entries()) {
-    const name = declaration[1];
-    if (name === undefined) continue;
-
-    const nextDeclaration = declarations[index + 1];
-    const block = source.slice(declaration.index, nextDeclaration?.index ?? source.length);
-    const method = block.match(
-      /\(options\??\.client \?\? client\)\.(get|post|put|patch|delete)\s*(?:<|\()/,
-    )?.[1];
-    const path = block.match(/\burl:\s*"([^"]+)"/)?.[1];
-    if (method && path) endpoints.set(name, { method: method.toUpperCase(), path });
-  }
-
-  return endpoints;
-}
-
-export function extractImportedSdkOperations(source: string): Array<ImportedSdkOperation> {
-  const operations: Array<ImportedSdkOperation> = [];
-  const imports =
-    /import\s*\{([^}]*)\}\s*from\s*["'][^"']*types\/(freee|freee-invoice|freee-hr)\/sdk\.gen\.ts["']/g;
-  const sdkReferences = /["'][^"']*types\/(freee|freee-invoice|freee-hr)\/sdk\.gen\.ts["']/g;
-  const matchedImports = [...source.matchAll(imports)];
-
-  if (matchedImports.length !== [...source.matchAll(sdkReferences)].length) {
-    throw new Error("Unsupported generated SDK import or export");
-  }
-
-  for (const match of matchedImports) {
-    const names = match[1];
-    const api = match[2] ? SDK_DIRECTORY_TO_API[match[2]] : undefined;
-    if (!names || !api) continue;
-
-    for (const importedName of names.split(",")) {
-      const operation = importedName
-        .trim()
-        .replace(/^type\s+/, "")
-        .split(/\s+as\s+/)[0];
-      if (operation) operations.push({ api, operation });
-    }
-  }
-
-  return operations;
-}
-
-export function classifyChanges(
-  changes: ReadonlyArray<OasChange>,
-  usedEndpoints: ReadonlySet<string>,
-): {
-  apiWideChanges: Array<OasChange>;
-  opportunities: Array<OasChange>;
-  usedOperationChanges: Array<OasChange>;
-} {
-  return {
-    apiWideChanges:
-      usedEndpoints.size === 0
-        ? []
-        : changes.filter(
-            ({ id, operation, path }) =>
-              id !== "endpoint-added" && operation === undefined && path === undefined,
-          ),
-    opportunities: changes.filter(({ id }) => id === "endpoint-added"),
-    usedOperationChanges: changes.filter(
-      ({ id, level, operation, path }) =>
-        id !== "endpoint-added" &&
-        level >= 2 &&
-        operation !== undefined &&
-        path !== undefined &&
-        usedEndpoints.has(endpointKey({ method: operation, path })),
-    ),
-  };
 }
 
 export function parseOasChanges(source: string): Array<OasChange> {
@@ -245,33 +131,6 @@ async function replacePinnedRevision(
   await writeFile(configPath, updated);
 }
 
-export async function collectUsedEndpoints(repoRoot: string): Promise<Map<ApiName, Set<string>>> {
-  const endpointMaps = new Map<ApiName, Map<string, Endpoint>>();
-  for (const { api, sdkPath } of API_SPECS) {
-    endpointMaps.set(api, extractSdkEndpoints(await readFile(join(repoRoot, sdkPath), "utf8")));
-  }
-
-  const usedEndpoints = new Map<ApiName, Set<string>>(
-    API_SPECS.map(({ api }) => [api, new Set<string>()]),
-  );
-  const sourceFiles = new Bun.Glob("src/**/*.ts");
-
-  for await (const path of sourceFiles.scan({ cwd: repoRoot, onlyFiles: true })) {
-    if (path.includes("/types/") || path.endsWith(".test.ts")) continue;
-
-    const source = await readFile(join(repoRoot, path), "utf8");
-    for (const { api, operation } of extractImportedSdkOperations(source)) {
-      const endpoint = endpointMaps.get(api)?.get(operation);
-      if (!endpoint) {
-        throw new Error(`Cannot map imported ${api} SDK function ${operation} to an endpoint`);
-      }
-      usedEndpoints.get(api)?.add(endpointKey(endpoint));
-    }
-  }
-
-  return usedEndpoints;
-}
-
 async function readChangelog(
   repoRoot: string,
   schemaPath: string,
@@ -304,7 +163,7 @@ async function readChangelog(
   return parseOasChanges(result.stdout);
 }
 
-function formatChanges(api: ApiName, changes: ReadonlyArray<OasChange>): Array<string> {
+function formatChanges(api: string, changes: ReadonlyArray<OasChange>): Array<string> {
   return changes.map(({ id, operation, path, text }) => {
     const endpoint = operation && path ? `${operation} ${path}` : "API";
     return `- [${api}] ${endpoint}: ${text} (${id})`;
@@ -341,23 +200,13 @@ async function checkApiSchema(repoRoot: string): Promise<number> {
     `Checking freee API schema ${pinnedRevision.slice(0, 12)}..${latestRevision.slice(0, 12)}...`,
   );
 
-  const usedEndpoints = await collectUsedEndpoints(repoRoot);
   const changesByApi = await Promise.all(
-    API_SPECS.map(async ({ api, schemaPath }) => ({
-      api,
-      changes: await readChangelog(repoRoot, schemaPath, pinnedRevision, latestRevision),
+    apis.map(async ({ name, schema }) => ({
+      name,
+      changes: await readChangelog(repoRoot, schema, pinnedRevision, latestRevision),
     })),
   );
-
-  const opportunities: Array<string> = [];
-  const apiWideChanges: Array<string> = [];
-  const usedOperationChanges: Array<string> = [];
-  for (const { api, changes } of changesByApi) {
-    const classified = classifyChanges(changes, usedEndpoints.get(api) ?? new Set());
-    opportunities.push(...formatChanges(api, classified.opportunities));
-    apiWideChanges.push(...formatChanges(api, classified.apiWideChanges));
-    usedOperationChanges.push(...formatChanges(api, classified.usedOperationChanges));
-  }
+  const changes = changesByApi.flatMap((api) => formatChanges(api.name, api.changes));
 
   const workingCopy = await createWorkingCopy(repoRoot);
   try {
@@ -365,42 +214,20 @@ async function checkApiSchema(repoRoot: string): Promise<number> {
 
     const generation = await run(["bun", "run", "generate-types"], workingCopy);
     if (generation.exitCode !== 0) {
-      console.error("Action required: the latest schema cannot generate the API clients.");
+      console.error("The latest freee API schema cannot generate the API clients.");
       console.error(formatCommandOutput(generation));
       return 1;
     }
 
     const validationResults = await validateGeneratedClient(workingCopy);
-    const failedValidations = validationResults
-      .filter(({ exitCode }) => exitCode !== 0)
-      .map(({ name }) => name);
-
-    if (
-      opportunities.length === 0 &&
-      apiWideChanges.length === 0 &&
-      usedOperationChanges.length === 0 &&
-      failedValidations.length === 0
-    ) {
-      console.log("No CLI action required. The pinned schema can remain unchanged.");
-      return 0;
-    }
-
-    console.error("Action required for the latest freee API schema.");
-    if (opportunities.length > 0) {
-      console.error("\nNew API opportunities:");
-      console.error(opportunities.join("\n"));
-    }
-    if (apiWideChanges.length > 0) {
-      console.error("\nAPI-wide changes:");
-      console.error(apiWideChanges.join("\n"));
-    }
-    if (usedOperationChanges.length > 0) {
-      console.error("\nChanges to API operations used by the CLI:");
-      console.error(usedOperationChanges.join("\n"));
+    console.error("Update the pinned freee API schema: the generated commands change.");
+    if (changes.length > 0) {
+      console.error("\nSchema changes:");
+      console.error(changes.join("\n"));
     }
     for (const result of validationResults) {
       if (result.exitCode === 0) continue;
-      console.error(`\nGenerated clients failed ${result.name}:`);
+      console.error(`\nThe latest schema fails ${result.name}:`);
       console.error(formatCommandOutput(result));
     }
     return 1;

@@ -87,7 +87,15 @@ describe("setup wizard", () => {
         "work",
         "--set-default",
       ],
-      ["/usr/local/bin/bun", "/workspace/src/main.ts", "company", "list", "--profile", "work"],
+      [
+        "/usr/local/bin/bun",
+        "/workspace/src/main.ts",
+        "accounting",
+        "company",
+        "list",
+        "--profile",
+        "work",
+      ],
       [
         "/usr/local/bin/bun",
         "/workspace/src/main.ts",
@@ -134,7 +142,7 @@ describe("setup wizard", () => {
     expect(statSync(join(testDir, "oauth.env")).mode & 0o777).toBe(0o600);
     expect(spawn.mock.calls.map(([command]) => command)).toEqual([
       ["/usr/bin/freee", "profile", "set-default", "--name", "default"],
-      ["/usr/bin/freee", "company", "list", "--profile", "default"],
+      ["/usr/bin/freee", "accounting", "company", "list", "--profile", "default"],
       ["/usr/bin/freee", "company", "switch", "--profile", "default", "--id", "7"],
     ]);
   });

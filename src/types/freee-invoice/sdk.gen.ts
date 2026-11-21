@@ -149,12 +149,6 @@ export type Options<
   meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta;
 };
 
-/**
- * 納品書一覧の取得
- *
- *
- * 納品書の一覧を返します。
- */
 export const deliverySlipsIndex = <ThrowOnError extends boolean = true>(
   options: Options<DeliverySlipsIndexData, ThrowOnError>,
 ): RequestResult<DeliverySlipsIndexResponses, DeliverySlipsIndexErrors, ThrowOnError> =>
@@ -168,16 +162,6 @@ export const deliverySlipsIndex = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 納品書の作成
- *
- *
- * 納品書の作成をします。
- *
- * issue_date, account_item_id, tax_code, item_id, section_id, tag_ids, segment_1_tag_id, segment_2_tag_id, segment_3_tag_id は、取引登録の下書き保存で利用されます。
- *
- * tag_idsは10個まで設定可能です。
- */
 export const deliverySlipsCreate = <ThrowOnError extends boolean = true>(
   options: Options<DeliverySlipsCreateData, ThrowOnError>,
 ): RequestResult<DeliverySlipsCreateResponses, DeliverySlipsCreateErrors, ThrowOnError> =>
@@ -195,12 +179,6 @@ export const deliverySlipsCreate = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 使用可能な納品書の帳票テンプレート一覧の取得
- *
- *
- * 使用可能な納品書の帳票テンプレート一覧を返します。
- */
 export const deliverySlipsTemplatesIndex = <ThrowOnError extends boolean = true>(
   options: Options<DeliverySlipsTemplatesIndexData, ThrowOnError>,
 ): RequestResult<
@@ -218,12 +196,6 @@ export const deliverySlipsTemplatesIndex = <ThrowOnError extends boolean = true>
     ...options,
   });
 
-/**
- * 納品書の取得
- *
- *
- * 指定されたIDの納品書を返します。
- */
 export const deliverySlipsShow = <ThrowOnError extends boolean = true>(
   options: Options<DeliverySlipsShowData, ThrowOnError>,
 ): RequestResult<DeliverySlipsShowResponses, DeliverySlipsShowErrors, ThrowOnError> =>
@@ -235,16 +207,6 @@ export const deliverySlipsShow = <ThrowOnError extends boolean = true>(
     },
   );
 
-/**
- * 納品書の更新
- *
- *
- * 納品書の更新をします。
- *
- * issue_date, account_item_id, tax_code, item_id, section_id, tag_ids, segment_1_tag_id, segment_2_tag_id, segment_3_tag_id は、取引登録の下書き保存で利用されます。
- *
- * tag_idsは10個まで設定可能です。
- */
 export const deliverySlipsUpdate = <ThrowOnError extends boolean = true>(
   options: Options<DeliverySlipsUpdateData, ThrowOnError>,
 ): RequestResult<DeliverySlipsUpdateResponses, DeliverySlipsUpdateErrors, ThrowOnError> =>
@@ -262,14 +224,6 @@ export const deliverySlipsUpdate = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 納品書の取消
- *
- *
- * 指定された納品書を取消状態にします。
- *
- * 取引が紐づいている場合は取引も削除されます。
- */
 export const deliverySlipsCancel = <ThrowOnError extends boolean = true>(
   options: Options<DeliverySlipsCancelData, ThrowOnError>,
 ): RequestResult<DeliverySlipsCancelResponses, DeliverySlipsCancelErrors, ThrowOnError> =>
@@ -287,12 +241,6 @@ export const deliverySlipsCancel = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 取消された納品書の復元
- *
- *
- * 指定された取消済み納品書を復元します。
- */
 export const deliverySlipsUncancel = <ThrowOnError extends boolean = true>(
   options: Options<DeliverySlipsUncancelData, ThrowOnError>,
 ): RequestResult<DeliverySlipsUncancelResponses, DeliverySlipsUncancelErrors, ThrowOnError> =>
@@ -310,10 +258,6 @@ export const deliverySlipsUncancel = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 請求書一覧の取得
- *
- */
 export const invoicesIndex = <ThrowOnError extends boolean = true>(
   options: Options<InvoicesIndexData, ThrowOnError>,
 ): RequestResult<InvoicesIndexResponses, InvoicesIndexErrors, ThrowOnError> =>
@@ -323,16 +267,6 @@ export const invoicesIndex = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 請求書の作成
- *
- *
- * 請求書の作成をします。
- *
- * issue_date, account_item_id, tax_code, item_id, section_id, tag_ids, segment_1_tag_id, segment_2_tag_id, segment_3_tag_id は、取引登録の下書き保存で利用されます。
- *
- * tag_idsは10個まで設定可能です。
- */
 export const invoicesCreate = <ThrowOnError extends boolean = true>(
   options: Options<InvoicesCreateData, ThrowOnError>,
 ): RequestResult<InvoicesCreateResponses, InvoicesCreateErrors, ThrowOnError> =>
@@ -346,12 +280,6 @@ export const invoicesCreate = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 使用可能な請求書の帳票テンプレート一覧の取得
- *
- *
- * 使用可能な請求書の帳票テンプレート一覧を返します。
- */
 export const invoicesTemplatesIndex = <ThrowOnError extends boolean = true>(
   options: Options<InvoicesTemplatesIndexData, ThrowOnError>,
 ): RequestResult<InvoicesTemplatesIndexResponses, InvoicesTemplatesIndexErrors, ThrowOnError> =>
@@ -365,12 +293,6 @@ export const invoicesTemplatesIndex = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 請求書の取得
- *
- *
- * 指定されたIDの請求書を返します。
- */
 export const invoicesShow = <ThrowOnError extends boolean = true>(
   options: Options<InvoicesShowData, ThrowOnError>,
 ): RequestResult<InvoicesShowResponses, InvoicesShowErrors, ThrowOnError> =>
@@ -380,16 +302,6 @@ export const invoicesShow = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 請求書の更新
- *
- *
- * 請求書の更新をします。
- *
- * issue_date, account_item_id, tax_code, item_id, section_id, tag_ids, segment_1_tag_id, segment_2_tag_id, segment_3_tag_id は、取引登録の下書き保存で利用されます。
- *
- * tag_idsは10個まで設定可能です。
- */
 export const invoicesUpdate = <ThrowOnError extends boolean = true>(
   options: Options<InvoicesUpdateData, ThrowOnError>,
 ): RequestResult<InvoicesUpdateResponses, InvoicesUpdateErrors, ThrowOnError> =>
@@ -403,14 +315,6 @@ export const invoicesUpdate = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 請求書の取消
- *
- *
- * 指定された請求書を取消状態にします。
- *
- * 取引が紐づいている場合は取引も削除されます。
- */
 export const invoicesCancel = <ThrowOnError extends boolean = true>(
   options: Options<InvoicesCancelData, ThrowOnError>,
 ): RequestResult<InvoicesCancelResponses, InvoicesCancelErrors, ThrowOnError> =>
@@ -424,12 +328,6 @@ export const invoicesCancel = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 取消された請求書の復元
- *
- *
- * 指定された取消済み請求書を復元します。
- */
 export const invoicesUncancel = <ThrowOnError extends boolean = true>(
   options: Options<InvoicesUncancelData, ThrowOnError>,
 ): RequestResult<InvoicesUncancelResponses, InvoicesUncancelErrors, ThrowOnError> =>
@@ -443,10 +341,6 @@ export const invoicesUncancel = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 支払通知書一覧の取得
- *
- */
 export const paymentNoticesIndex = <ThrowOnError extends boolean = true>(
   options: Options<PaymentNoticesIndexData, ThrowOnError>,
 ): RequestResult<PaymentNoticesIndexResponses, PaymentNoticesIndexErrors, ThrowOnError> =>
@@ -460,12 +354,6 @@ export const paymentNoticesIndex = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 支払通知書の作成
- *
- *
- * 支払通知書の作成をします。
- */
 export const paymentNoticesCreate = <ThrowOnError extends boolean = true>(
   options: Options<PaymentNoticesCreateData, ThrowOnError>,
 ): RequestResult<PaymentNoticesCreateResponses, PaymentNoticesCreateErrors, ThrowOnError> =>
@@ -483,12 +371,6 @@ export const paymentNoticesCreate = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 使用可能な支払通知書の帳票テンプレート一覧の取得
- *
- *
- * 使用可能な支払通知書の帳票テンプレート一覧を返します。
- */
 export const paymentNoticesTemplatesIndex = <ThrowOnError extends boolean = true>(
   options: Options<PaymentNoticesTemplatesIndexData, ThrowOnError>,
 ): RequestResult<
@@ -506,12 +388,6 @@ export const paymentNoticesTemplatesIndex = <ThrowOnError extends boolean = true
     ...options,
   });
 
-/**
- * 支払通知書の取得
- *
- *
- * 指定されたIDの支払通知書を返します。
- */
 export const paymentNoticesShow = <ThrowOnError extends boolean = true>(
   options: Options<PaymentNoticesShowData, ThrowOnError>,
 ): RequestResult<PaymentNoticesShowResponses, PaymentNoticesShowErrors, ThrowOnError> =>
@@ -525,12 +401,6 @@ export const paymentNoticesShow = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 支払通知書の更新
- *
- *
- * 支払通知書の更新をします。
- */
 export const paymentNoticesUpdate = <ThrowOnError extends boolean = true>(
   options: Options<PaymentNoticesUpdateData, ThrowOnError>,
 ): RequestResult<PaymentNoticesUpdateResponses, PaymentNoticesUpdateErrors, ThrowOnError> =>
@@ -548,14 +418,6 @@ export const paymentNoticesUpdate = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 支払通知書の取消
- *
- *
- * 指定された支払通知書を取消状態にします。
- *
- * 取引が紐づいている場合は取引も削除されます。
- */
 export const paymentNoticesCancel = <ThrowOnError extends boolean = true>(
   options: Options<PaymentNoticesCancelData, ThrowOnError>,
 ): RequestResult<PaymentNoticesCancelResponses, PaymentNoticesCancelErrors, ThrowOnError> =>
@@ -573,12 +435,6 @@ export const paymentNoticesCancel = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 取消された支払通知書の復元
- *
- *
- * 指定された取消済み支払通知書を復元します。
- */
 export const paymentNoticesUncancel = <ThrowOnError extends boolean = true>(
   options: Options<PaymentNoticesUncancelData, ThrowOnError>,
 ): RequestResult<PaymentNoticesUncancelResponses, PaymentNoticesUncancelErrors, ThrowOnError> =>
@@ -596,12 +452,6 @@ export const paymentNoticesUncancel = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 発注書一覧の取得
- *
- *
- * 発注書の一覧を返します。
- */
 export const purchaseOrdersIndex = <ThrowOnError extends boolean = true>(
   options: Options<PurchaseOrdersIndexData, ThrowOnError>,
 ): RequestResult<PurchaseOrdersIndexResponses, PurchaseOrdersIndexErrors, ThrowOnError> =>
@@ -615,16 +465,6 @@ export const purchaseOrdersIndex = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 発注書の作成
- *
- *
- * 発注書の作成をします。
- *
- * issue_date, account_item_id, tax_code, item_id, section_id, tag_ids, segment_1_tag_id, segment_2_tag_id, segment_3_tag_id は、取引登録の下書き保存で利用されます。
- *
- * tag_idsは10個まで設定可能です。
- */
 export const purchaseOrdersCreate = <ThrowOnError extends boolean = true>(
   options: Options<PurchaseOrdersCreateData, ThrowOnError>,
 ): RequestResult<PurchaseOrdersCreateResponses, PurchaseOrdersCreateErrors, ThrowOnError> =>
@@ -642,12 +482,6 @@ export const purchaseOrdersCreate = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 使用可能な発注書の帳票テンプレート一覧の取得
- *
- *
- * 使用可能な発注書の帳票テンプレート一覧を返します。
- */
 export const purchaseOrdersTemplatesIndex = <ThrowOnError extends boolean = true>(
   options: Options<PurchaseOrdersTemplatesIndexData, ThrowOnError>,
 ): RequestResult<
@@ -665,12 +499,6 @@ export const purchaseOrdersTemplatesIndex = <ThrowOnError extends boolean = true
     ...options,
   });
 
-/**
- * 発注書の取得
- *
- *
- * 指定されたIDの発注書を返します。
- */
 export const purchaseOrdersShow = <ThrowOnError extends boolean = true>(
   options: Options<PurchaseOrdersShowData, ThrowOnError>,
 ): RequestResult<PurchaseOrdersShowResponses, PurchaseOrdersShowErrors, ThrowOnError> =>
@@ -684,16 +512,6 @@ export const purchaseOrdersShow = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 発注書の更新
- *
- *
- * 発注書の更新をします。
- *
- * issue_date, account_item_id, tax_code, item_id, section_id, tag_ids, segment_1_tag_id, segment_2_tag_id, segment_3_tag_id は、取引登録の下書き保存で利用されます。
- *
- * tag_idsは10個まで設定可能です。
- */
 export const purchaseOrdersUpdate = <ThrowOnError extends boolean = true>(
   options: Options<PurchaseOrdersUpdateData, ThrowOnError>,
 ): RequestResult<PurchaseOrdersUpdateResponses, PurchaseOrdersUpdateErrors, ThrowOnError> =>
@@ -711,14 +529,6 @@ export const purchaseOrdersUpdate = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 発注書の取消
- *
- *
- * 指定された発注書を取消状態にします。
- *
- * 取引が紐づいている場合は取引も削除されます。
- */
 export const purchaseOrdersCancel = <ThrowOnError extends boolean = true>(
   options: Options<PurchaseOrdersCancelData, ThrowOnError>,
 ): RequestResult<PurchaseOrdersCancelResponses, PurchaseOrdersCancelErrors, ThrowOnError> =>
@@ -736,12 +546,6 @@ export const purchaseOrdersCancel = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 取消された発注書の復元
- *
- *
- * 指定された取消済み発注書を復元します。
- */
 export const purchaseOrdersUncancel = <ThrowOnError extends boolean = true>(
   options: Options<PurchaseOrdersUncancelData, ThrowOnError>,
 ): RequestResult<PurchaseOrdersUncancelResponses, PurchaseOrdersUncancelErrors, ThrowOnError> =>
@@ -759,10 +563,6 @@ export const purchaseOrdersUncancel = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 見積書一覧の取得
- *
- */
 export const quotationsIndex = <ThrowOnError extends boolean = true>(
   options: Options<QuotationsIndexData, ThrowOnError>,
 ): RequestResult<QuotationsIndexResponses, QuotationsIndexErrors, ThrowOnError> =>
@@ -772,12 +572,6 @@ export const quotationsIndex = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 見積書の作成
- *
- *
- * 見積書の作成をします。
- */
 export const quotationsCreate = <ThrowOnError extends boolean = true>(
   options: Options<QuotationsCreateData, ThrowOnError>,
 ): RequestResult<QuotationsCreateResponses, QuotationsCreateErrors, ThrowOnError> =>
@@ -791,12 +585,6 @@ export const quotationsCreate = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 使用可能な見積書の帳票テンプレート一覧の取得
- *
- *
- * 使用可能な見積書の帳票テンプレート一覧を返します。
- */
 export const quotationsTemplatesIndex = <ThrowOnError extends boolean = true>(
   options: Options<QuotationsTemplatesIndexData, ThrowOnError>,
 ): RequestResult<QuotationsTemplatesIndexResponses, QuotationsTemplatesIndexErrors, ThrowOnError> =>
@@ -810,12 +598,6 @@ export const quotationsTemplatesIndex = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 見積書の取得
- *
- *
- * 指定されたIDの見積書を返します。
- */
 export const quotationsShow = <ThrowOnError extends boolean = true>(
   options: Options<QuotationsShowData, ThrowOnError>,
 ): RequestResult<QuotationsShowResponses, QuotationsShowErrors, ThrowOnError> =>
@@ -825,12 +607,6 @@ export const quotationsShow = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 見積書の更新
- *
- *
- * 見積書の更新をします。
- */
 export const quotationsUpdate = <ThrowOnError extends boolean = true>(
   options: Options<QuotationsUpdateData, ThrowOnError>,
 ): RequestResult<QuotationsUpdateResponses, QuotationsUpdateErrors, ThrowOnError> =>
@@ -844,12 +620,6 @@ export const quotationsUpdate = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 見積書の取消
- *
- *
- * 指定された見積書を取消状態にします。
- */
 export const quotationsCancel = <ThrowOnError extends boolean = true>(
   options: Options<QuotationsCancelData, ThrowOnError>,
 ): RequestResult<QuotationsCancelResponses, QuotationsCancelErrors, ThrowOnError> =>
@@ -863,12 +633,6 @@ export const quotationsCancel = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 取消された見積書の復元
- *
- *
- * 指定された取消済み見積書を復元します。
- */
 export const quotationsUncancel = <ThrowOnError extends boolean = true>(
   options: Options<QuotationsUncancelData, ThrowOnError>,
 ): RequestResult<QuotationsUncancelResponses, QuotationsUncancelErrors, ThrowOnError> =>
@@ -886,12 +650,6 @@ export const quotationsUncancel = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 領収書一覧の取得
- *
- *
- * 領収書の一覧を返します。
- */
 export const receiptsIndex = <ThrowOnError extends boolean = true>(
   options: Options<ReceiptsIndexData, ThrowOnError>,
 ): RequestResult<ReceiptsIndexResponses, ReceiptsIndexErrors, ThrowOnError> =>
@@ -901,16 +659,6 @@ export const receiptsIndex = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 領収書の作成
- *
- *
- * 領収書の作成をします。
- *
- * issue_date, account_item_id, tax_code, item_id, section_id, tag_ids, segment_1_tag_id, segment_2_tag_id, segment_3_tag_id は、取引登録の下書き保存で利用されます。
- *
- * tag_idsは10個まで設定可能です。
- */
 export const receiptsCreate = <ThrowOnError extends boolean = true>(
   options: Options<ReceiptsCreateData, ThrowOnError>,
 ): RequestResult<ReceiptsCreateResponses, ReceiptsCreateErrors, ThrowOnError> =>
@@ -924,12 +672,6 @@ export const receiptsCreate = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 使用可能な領収書の帳票テンプレート一覧の取得
- *
- *
- * 使用可能な領収書の帳票テンプレート一覧を返します。
- */
 export const receiptsTemplatesIndex = <ThrowOnError extends boolean = true>(
   options: Options<ReceiptsTemplatesIndexData, ThrowOnError>,
 ): RequestResult<ReceiptsTemplatesIndexResponses, ReceiptsTemplatesIndexErrors, ThrowOnError> =>
@@ -943,12 +685,6 @@ export const receiptsTemplatesIndex = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 領収書の取得
- *
- *
- * 指定されたIDの領収書を返します。
- */
 export const receiptsShow = <ThrowOnError extends boolean = true>(
   options: Options<ReceiptsShowData, ThrowOnError>,
 ): RequestResult<ReceiptsShowResponses, ReceiptsShowErrors, ThrowOnError> =>
@@ -958,16 +694,6 @@ export const receiptsShow = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
-/**
- * 領収書の更新
- *
- *
- * 領収書の更新をします。
- *
- * issue_date, account_item_id, tax_code, item_id, section_id, tag_ids, segment_1_tag_id, segment_2_tag_id, segment_3_tag_id は、取引登録の下書き保存で利用されます。
- *
- * tag_idsは10個まで設定可能です。
- */
 export const receiptsUpdate = <ThrowOnError extends boolean = true>(
   options: Options<ReceiptsUpdateData, ThrowOnError>,
 ): RequestResult<ReceiptsUpdateResponses, ReceiptsUpdateErrors, ThrowOnError> =>
@@ -981,14 +707,6 @@ export const receiptsUpdate = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 領収書の取消
- *
- *
- * 指定された領収書を取消状態にします。
- *
- * 取引が紐づいている場合は取引も削除されます。
- */
 export const receiptsCancel = <ThrowOnError extends boolean = true>(
   options: Options<ReceiptsCancelData, ThrowOnError>,
 ): RequestResult<ReceiptsCancelResponses, ReceiptsCancelErrors, ThrowOnError> =>
@@ -1002,12 +720,6 @@ export const receiptsCancel = <ThrowOnError extends boolean = true>(
     },
   });
 
-/**
- * 取消された領収書の復元
- *
- *
- * 指定された取消済み領収書を復元します。
- */
 export const receiptsUncancel = <ThrowOnError extends boolean = true>(
   options: Options<ReceiptsUncancelData, ThrowOnError>,
 ): RequestResult<ReceiptsUncancelResponses, ReceiptsUncancelErrors, ThrowOnError> =>
