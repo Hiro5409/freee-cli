@@ -66,6 +66,20 @@ freee accounting company list
 freee company switch --id 1234567 --name "My Company"
 ```
 
+### Web operations
+
+Three operations exist only in the freee Web app: `web invoice register-deal`, `web invoice set-sending-status`, and `web walletable sync`. They run in [Agent Browser](https://github.com/vercel-labs/agent-browser) with the profile's encrypted browser session and depend on freee's unpublished Web interfaces, so a freee change can break them.
+
+```bash
+freee auth login --web --profile work
+freee web walletable sync --profile work --id 42
+freee web walletable sync --profile work --all
+freee web invoice set-sending-status --profile work --id 456 --status sent
+freee web invoice register-deal --profile work --id 456
+```
+
+`auth login --web` opens a dedicated browser in which you sign in and select the profile's company; it waits up to five minutes and saves only a verified session. Each operation checks that company before it runs. A single sync waits up to one hour, and `--all` reports the accounts whose sync freee started and finished. `auth status` reports API and browser access separately.
+
 ## Calling from Agents
 
 ```bash

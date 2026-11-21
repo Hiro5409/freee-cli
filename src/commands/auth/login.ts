@@ -17,18 +17,24 @@ import { loadCredentials, updateCredentials } from "../../config/credentials.ts"
 import { loadOAuthCredentials } from "../../config/oauth.ts";
 import { ConfigError } from "../../errors.ts";
 import { globalArgs } from "../../global-args.ts";
+import { loginFreeeWeb } from "../../plugins/web-operations/freee-web.ts";
 import {
   assertProfileWritable,
   defaultProfileAfterLogin,
   resolveConfiguredLoginProfile,
+  resolveFreeeScope,
 } from "../../profiles.ts";
 
 export const loginCommand = define({
   name: "login",
-  description: "Log in through OAuth",
+  description: "Log in through OAuth, or use --web to renew the browser login",
   args: merge(
     globalArgs,
     args({
+      web: withDefault(
+        boolean({ description: "Log in to the configured company's browser session" }),
+        false,
+      ),
       replace: withDefault(
         boolean({ description: "Replace credentials already stored under this profile name" }),
         false,
@@ -42,6 +48,18 @@ export const loginCommand = define({
   examples: `$ freee auth login --profile work
 $ freee auth login --profile work --replace`,
   run: async (ctx) => {
+    if (ctx.values.web) {
+      if (ctx.values.replace || ctx.values["set-default"]) {
+        throw new ConfigError("--web cannot be combined with --replace or --set-default.");
+      }
+      const scope = resolveFreeeScope(ctx.values.profile);
+      console.error(
+        JSON.stringify({
+          notice: `Log in and select freee company ${scope.companyId} in the browser. Waiting up to 5 minutes.`,
+        }),
+      );
+      return JSON.stringify({ ...(await loginFreeeWeb(scope)), method: "web" });
+    }
     const dir = configDir();
     const storedProfiles = Object.keys(loadCredentials(dir));
     const profile = resolveConfiguredLoginProfile(ctx.values.profile, dir);

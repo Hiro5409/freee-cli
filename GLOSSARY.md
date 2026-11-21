@@ -13,8 +13,12 @@ A named local connection that associates authentication with a selected Company.
 _Avoid_: Company, session
 
 **Authentication**:
-Authorization to access the freee API as an identity.
+Authorization to access freee as an identity. API authorization and browser authentication are independent forms of access.
 _Avoid_: Profile, Company
+
+**Browser session**:
+An authenticated browser context that can access a Company through the freee Web product.
+_Avoid_: Profile, API token
 
 **Wallet transaction**:
 An entry in a freee bank, card, or wallet account awaiting or recording bookkeeping treatment. It is distinct from the accounting transaction it may be linked to.

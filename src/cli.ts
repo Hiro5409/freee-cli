@@ -14,6 +14,11 @@ import { printError } from "./error-output.ts";
 import { CliError } from "./errors.ts";
 import { globalArgs } from "./global-args.ts";
 import { writeOutput } from "./output/write.ts";
+import {
+  invoiceRegisterDealCommand,
+  invoiceSetSendingStatusCommand,
+  walletableSyncCommand,
+} from "./plugins/web-operations/commands.ts";
 import { commands as hrCommands } from "./types/freee-hr/commands.gen.ts";
 import { commands as invoiceCommands } from "./types/freee-invoice/commands.gen.ts";
 import { commands as accountingCommands } from "./types/freee/commands.gen.ts";
@@ -31,6 +36,13 @@ const commands = {
   }),
   company: commandGroup("company", "Choose the default company of a profile", {
     switch: companySetDefaultCommand,
+  }),
+  web: commandGroup("web", "Operations that only the freee Web app offers, through Agent Browser", {
+    invoice: commandGroup("invoice", "Invoice operations", {
+      "register-deal": invoiceRegisterDealCommand,
+      "set-sending-status": invoiceSetSendingStatusCommand,
+    }),
+    walletable: commandGroup("walletable", "Account operations", { sync: walletableSyncCommand }),
   }),
   ...apiCommands([
     {

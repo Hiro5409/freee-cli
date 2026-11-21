@@ -184,3 +184,18 @@ export function listProfiles(dir = configDir()): ProfileSummary[] {
     };
   });
 }
+
+export type FreeeScope = { profile: string; companyId: number };
+
+export function resolveFreeeScope(requestedProfile?: unknown): FreeeScope {
+  const directory = configDir();
+  const profile = resolveConfiguredProfile(requestedProfile, directory);
+  const configuredProfile = loadConfig(directory).profiles[profile];
+  if (!configuredProfile) {
+    throw new ConfigError(`Profile "${profile}" has no configured freee company.`);
+  }
+  return {
+    profile,
+    companyId: configuredProfile.companyId,
+  };
+}

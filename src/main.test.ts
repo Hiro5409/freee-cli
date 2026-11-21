@@ -63,6 +63,7 @@ describe("CLI integration", () => {
   test("freee auth login --help shows login usage", async () => {
     const { stdout } = await runCli(["auth", "login", "--help"]);
     expect(stdout).toContain("login");
+    expect(stdout).toContain("--web");
     expect(stdout).toContain("freee auth login --profile");
   });
 
