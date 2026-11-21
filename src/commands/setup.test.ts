@@ -48,7 +48,7 @@ describe("setup wizard", () => {
 
   test("stores new OAuth credentials, logs in, and selects a company", async () => {
     const prompts = createPrompts({
-      confirms: [true, false],
+      confirms: [true, false, false],
       passwords: ["client-secret"],
       texts: ["client-id", "work", "42"],
     });
@@ -118,7 +118,7 @@ describe("setup wizard", () => {
     saveOAuthCredentials(testDir, { clientId: "stored-id", clientSecret: "stored-secret" });
     chmodSync(join(testDir, "oauth.env"), 0o644);
     const prompts = createPrompts({
-      confirms: [true, true, true],
+      confirms: [true, true, true, false],
       texts: ["default", "7"],
     });
     const spawn = mock((_command: string[], _options: SpawnOptions) => ({
@@ -144,6 +144,31 @@ describe("setup wizard", () => {
       ["/usr/bin/freee", "profile", "set-default", "--name", "default"],
       ["/usr/bin/freee", "accounting", "company", "list", "--profile", "default"],
       ["/usr/bin/freee", "company", "switch", "--profile", "default", "--id", "7"],
+    ]);
+  });
+
+  test("opens Web login for the same selected CLI profile", async () => {
+    saveOAuthCredentials(testDir, { clientId: "stored-id", clientSecret: "stored-secret" });
+    const prompts = createPrompts({ confirms: [true, true, true, true], texts: ["work", "42"] });
+    const spawn = mock((_command: string[], _options: SpawnOptions) => ({
+      exited: Promise.resolve(0),
+    }));
+    await runSetupWizard({
+      configDirectory: testDir,
+      entrypoint: "",
+      interactive: true,
+      openBrowser: () => true,
+      prompts,
+      runtime: "/usr/bin/freee",
+      spawn,
+    });
+    expect(spawn.mock.calls.at(-1)?.[0]).toEqual([
+      "/usr/bin/freee",
+      "auth",
+      "login",
+      "--web",
+      "--profile",
+      "work",
     ]);
   });
 
