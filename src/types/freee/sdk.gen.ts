@@ -282,6 +282,9 @@ import type {
   GetPaymentRequestsResponses,
   GetPurchaseRequestData,
   GetPurchaseRequestErrors,
+  GetPurchaseRequestPurchaseBudgetData,
+  GetPurchaseRequestPurchaseBudgetErrors,
+  GetPurchaseRequestPurchaseBudgetResponses,
   GetPurchaseRequestResponses,
   GetPurchaseRequestsData,
   GetPurchaseRequestsErrors,
@@ -322,6 +325,9 @@ import type {
   GetTaxCodeData,
   GetTaxCodeErrors,
   GetTaxCodeResponses,
+  GetTaxCodesData,
+  GetTaxCodesErrors,
+  GetTaxCodesResponses,
   GetTaxesCompaniesData,
   GetTaxesCompaniesErrors,
   GetTaxesCompaniesResponses,
@@ -421,6 +427,9 @@ import type {
   ResetWalletTxnData,
   ResetWalletTxnErrors,
   ResetWalletTxnResponses,
+  SearchReportJournalsData,
+  SearchReportJournalsErrors,
+  SearchReportJournalsResponses,
   UpdateAccountItemData,
   UpdateAccountItemErrors,
   UpdateAccountItemResponses,
@@ -1392,7 +1401,7 @@ export const getQuotation = <ThrowOnError extends boolean = true>(
  * <li>bank_account : 銀行口座</li>
  * <li>credit_card : クレジットカード</li>
  * <li>wallet : 現金</li>
- * <li>private_account_item : プライベート資金（法人の場合は役員借入金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
+ * <li>private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
  * </ul>
  * </li>
  * </ul>
@@ -1455,7 +1464,7 @@ export const getDeals = <ThrowOnError extends boolean = true>(
  * <li>bank_account : 銀行口座</li>
  * <li>credit_card : クレジットカード</li>
  * <li>wallet : 現金</li>
- * <li>private_account_item : プライベート資金（法人の場合は役員借入金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
+ * <li>private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
  * </ul>
  * </li>
  * </ul>
@@ -1556,7 +1565,7 @@ export const destroyDeal = <ThrowOnError extends boolean = true>(
  * <li>bank_account : 銀行口座</li>
  * <li>credit_card : クレジットカード</li>
  * <li>wallet : 現金</li>
- * <li>private_account_item : プライベート資金（法人の場合は役員借入金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
+ * <li>private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
  * </ul>
  * </li>
  * </ul>
@@ -1615,7 +1624,7 @@ export const getDeal = <ThrowOnError extends boolean = true>(
  * <li>bank_account : 銀行口座</li>
  * <li>credit_card : クレジットカード</li>
  * <li>wallet : 現金</li>
- * <li>private_account_item : プライベート資金（法人の場合は役員借入金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
+ * <li>private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
  * </ul>
  * </li>
  * <li>
@@ -1670,7 +1679,7 @@ export const updateDeal = <ThrowOnError extends boolean = true>(
  * <ul> <li>bank_account : 銀行口座</li>
  * <li>credit_card : クレジットカード</li>
  * <li>wallet : 現金</li>
- * <li>private_account_item : プライベート資金（法人の場合は役員借入金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
+ * <li>private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
  * </ul> </li> </ul>
  * <h2 id="_3">注意点</h2>
  * <ul> <li>本APIではdetails(取引の明細行)、accruals(債権債務行)、renewsのdetails(+更新の明細行)のみ操作可能です。</li>
@@ -1731,7 +1740,7 @@ export const deleteDealRenew = <ThrowOnError extends boolean = true>(
  * <ul> <li>bank_account : 銀行口座</li>
  * <li>credit_card : クレジットカード</li>
  * <li>wallet : 現金</li>
- * <li>private_account_item : プライベート資金（法人の場合は役員借入金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
+ * <li>private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
  * </ul> </li> </ul>
  * <h2 id="_3">注意点</h2>
  * <ul> <li>本APIでは+更新の更新のみ可能です。取引や支払行に対する更新はできません。</li> <li>renew_idにはrenewsのid(+更新ID)を指定してください。renewsのdetailsのid(+更新の明細行ID)を指定できません。</li> <li>月締めされている仕訳に紐づく＋更新行の編集・削除はできません。</li> <li>承認済み仕訳に紐づく＋更新行の編集・削除は管理者権限のユーザーのみ可能です。</li>
@@ -1786,7 +1795,7 @@ export const updateDealRenew = <ThrowOnError extends boolean = true>(
  * <li>bank_account : 銀行口座</li>
  * <li>credit_card : クレジットカード</li>
  * <li>wallet : 現金</li>
- * <li>private_account_item : プライベート資金（法人の場合は役員借入金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
+ * <li>private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
  * </ul>
  * </li>
  * </ul>
@@ -1893,7 +1902,7 @@ export const destroyDealPayment = <ThrowOnError extends boolean = true>(
  * <li>bank_account : 銀行口座</li>
  * <li>credit_card : クレジットカード</li>
  * <li>wallet : 現金</li>
- * <li>private_account_item : プライベート資金（法人の場合は役員借入金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
+ * <li>private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）</li>
  * </ul>
  * </li>
  * </ul>
@@ -2369,6 +2378,32 @@ export const apiV1Items_upsertByCode = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options?.headers,
     },
+  });
+
+/**
+ * 税区分一覧の取得（廃止予定）
+ *
+ *
+ * <h2 id="_1">概要</h2>
+ *
+ * <p>税区分一覧を取得する</p>
+ *
+ * <p>税区分コード（code）は、取引の作成（POST /api/1/deals）や振替伝票の作成（POST /api/1/manual_journals）などで税区分を指定する際に tax_code として利用します。</p>
+ *
+ * <h2 id="_2">注意点</h2>
+ * <ul>
+ *   <li>このAPIは廃止予定のため非推奨です。/api/1/taxes/companies/{company_id}（指定した事業所の税区分一覧の取得）をご利用ください。</li>
+ *   <li>本APIは事業所の設定に依存しない共通の税区分マスタを返します。事業所ごとの使用設定（available）や表示カテゴリ（display_category）を確認する場合は /api/1/taxes/companies/{company_id} をご利用ください。</li>
+ *   <li>API利用上の非推奨税区分（課税、非課税、不課税、輸出等、未選択、課税8%）は返りません。</li>
+ * </ul>
+ */
+export const getTaxCodes = <ThrowOnError extends boolean = true>(
+  options?: Options<GetTaxCodesData, ThrowOnError>,
+): RequestResult<GetTaxCodesResponses, GetTaxCodesErrors, ThrowOnError> =>
+  (options?.client ?? client).get<GetTaxCodesResponses, GetTaxCodesErrors, ThrowOnError>({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/1/taxes/codes",
+    ...options,
   });
 
 /**
@@ -3191,6 +3226,57 @@ export const downloadJournal = <ThrowOnError extends boolean = true>(
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/1/journals/reports/{id}/download",
     ...options,
+  });
+
+/**
+ * 仕訳帳の仕訳一覧の取得
+ *
+ * ## 概要
+ *
+ * 指定した事業所の仕訳を、仕訳帳と同じ検索条件で絞り込んで取得します。検索条件はリクエストボディで指定します。
+ *
+ * ## 定義
+ *
+ * - `debit` / `credit`: 仕訳の借方行・貸方行。配列の順が表示順です。
+ * - 消費税行 (`line_type: tax`): 税抜経理の期間に、仮払消費税等・仮受消費税等を取引先・税区分・貸借ごと (部門必須設定が「全科目」の事業所ではさらに部門ごと) にまとめた行です。`debit` / `credit` の末尾に付きます。明細としては存在しないため、`id` など一部の項目は `null` になります。
+ *
+ * ## 検索条件の判定
+ *
+ * 複数の条件を指定したときは、次の単位で判定します。
+ *
+ * - 仕訳単位: `start_issue_date` / `end_issue_date` / `deal_ids` / `start_created_date` / `end_created_date` / `adjustment` / `approval_status` / `current_approver_user_id` / `last_approver_user_id` / `create_user_id` / `receipts` / `receipt_partner_name` / `ref_number` / `txn_number` / `cost_allocation` / `reverse_journal` / `description` / `wallet_txn_description`。仕訳がそれぞれの条件を満たせばヒットします。
+ * - 明細行単位: `account_item_id` / `tax_code` / `partner_id` / `item_id` / `section_id` / `memo_tag_id` / `segment_tag_1_id` / `segment_tag_2_id` / `segment_tag_3_id` / `detail_amount_min` / `detail_amount_max`。同じ 1 つの明細行がすべての条件を満たす必要があります。
+ * - コメント単位: `comment_status` / `comment_important` / `comment_details` / `comment_poster_user_id` / `comment_recipient_user_id`。同じ 1 つのコメントがすべての条件を満たす必要があります。
+ *
+ * `account_item_id` に次の勘定科目を指定した場合は例外です。
+ *
+ * - 口座に紐づく勘定科目 (現金・普通預金など)、事業主借・事業主貸・役員借入金・役員貸付金: 勘定科目とそれ以外の明細行条件を別々に判定します。それぞれを満たす行が同じ仕訳の中にあればヒットします。
+ * - 仮払消費税等・仮受消費税等: 税抜経理の期間は、消費税行の元になる明細行 (税額があるもの) も検索対象に含めます。
+ *
+ * ## 注意点
+ *
+ * - `start_issue_date` / `end_issue_date` と `deal_ids` のどちらも指定しない場合は 400 を返します。
+ * - 経理方式 (税込 / 税抜) は、仕訳の発生日が属する会計年度の設定で決まります。検索期間が複数の会計年度にまたがる場合は、仕訳ごとに経理方式が異なることがあります。
+ * - レスポンスにマスタの名称 (勘定科目名・部門名・取引先名など) は含まれません。名称は各マスタ API (`/api/1/account_items`、`/api/1/sections`、`/api/1/partners` など) で取得してください。
+ * - 存在しないマスタ ID (他の事業所のものを含む) を指定した場合は 400 を返します。ユーザー ID は事業所への所属を検証しないため、所属していないユーザーの ID を指定しても 0 件を返します。
+ * - `next_page_token` が `null` のレスポンスが最終ページです。トークンの中身には依存しないでください。ページを取得する間に仕訳が登録・更新・削除されると、重複や欠落が起きることがあります。
+ * - 検索結果への反映は非同期のため、登録・更新した直後の仕訳は含まれないことがあります。
+ */
+export const searchReportJournals = <ThrowOnError extends boolean = true>(
+  options: Options<SearchReportJournalsData, ThrowOnError>,
+): RequestResult<SearchReportJournalsResponses, SearchReportJournalsErrors, ThrowOnError> =>
+  (options.client ?? client).post<
+    SearchReportJournalsResponses,
+    SearchReportJournalsErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/1/journals/search",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**
@@ -4970,6 +5056,10 @@ export const getExpenseApplications = <ThrowOnError extends boolean = true>(
  *   </li>
  *   <li>申請時には、申請タイトル(title)に加え、項目行については金額(amount)、日付(transaction_date)、内容(description)が必須項目となります。申請時の業務効率化のため、API入力をお勧めします。</li>
  *   <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は作成できません。</li>
+ *   <li>
+ *     明細行ごとに部門・メモタグ・セグメントを設定するには、明細行のtag_assignmentにline（明細に個別付与）を指定し、明細行のsection_id・tag_ids・segment_1〜3_tag_idを指定してください。
+ *     tag_assignmentを指定しない明細行には、申請全体のsection_id・tag_ids・segment_1〜3_tag_idが適用されます（application: 申請全体に付与）。
+ *   </li>
  *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
  * </ul>
  */
@@ -5117,6 +5207,15 @@ export const getExpenseApplication = <ThrowOnError extends boolean = true>(
  *   </li>
  *   <li>申請時には、申請タイトル(title)に加え、項目行については金額(amount)、日付(transaction_date)、内容(description)が必須項目となります。申請時の業務効率化のため、API入力をお勧めします。</li>
  *   <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は更新できません。</li>
+ *   <li>
+ *     部門・メモタグ・セグメントの更新について
+ *     <ul>
+ *       <li>申請全体のsection_id・tag_ids・segment_1〜3_tag_idは、指定した内容で置き換えられます。未指定の項目は削除され、tag_assignmentがapplication（申請全体に付与）の明細行の値も空になります。</li>
+ *       <li>明細行の部門・メモタグ・セグメントは、明細行のtag_assignmentを指定した場合のみ更新されます。tag_assignmentを指定しない既存の明細行は、部門・メモタグ・セグメントと付与先が変更されません。</li>
+ *       <li>tag_assignmentにline（明細に個別付与）を指定すると、明細行のsection_id・tag_ids・segment_1〜3_tag_idの内容で置き換えられます。指定しなかった項目は空になります。</li>
+ *       <li>tag_assignmentにapplication（申請全体に付与）を指定すると、明細に個別付与した値を削除して申請全体の値を適用します。明細行のsection_id・tag_ids・segment_1〜3_tag_idは無視されるため、明細行ごとに値を変えたい場合はlineを指定してください。</li>
+ *     </ul>
+ *   </li>
  *   <li>本APIは条件分岐を含む申請経路にも対応しています。</li>
  * </ul>
  */
@@ -5647,6 +5746,15 @@ export const updateExpenseApplicationLineTemplate = <ThrowOnError extends boolea
  * <h2 id="_2">注意点</h2>
  * <ul>
  *   <li>本APIでは、支払依頼の一覧を取得することができます。</li>
+ *   <li>パラメータ status を指定しない場合、ステータスでは絞り込まず、すべてのステータスの支払依頼を返します。</li>
+ *   <li>
+ *     パラメータ status には申請ステータスと取引ステータスのどちらかを指定します。レスポンスでは申請ステータスを status、取引ステータスを deal_status として返します。
+ *     <ul>
+ *       <li>パラメータ status に <code>approved</code> を指定した場合は、取引が登録されていない承認済の支払依頼のみを返します。取引が登録された承認済の支払依頼は、<code>unsettled</code> または <code>settled</code> を指定すると取得できます。レスポンスの status は取引の有無に関わらず <code>approved</code> です。</li>
+ *       <li>例: パラメータ status に <code>settled</code> を指定した場合、レスポンスの status が <code>approved</code>、deal_status が <code>settled</code> の支払依頼を返します。</li>
+ *     </ul>
+ *   </li>
+ *   <li>後続の支払依頼が存在する場合でも、取得件数が limit より少なくなることがあります。</li>
  * </ul>
  */
 export const getPaymentRequests = <ThrowOnError extends boolean = true>(
@@ -6569,6 +6677,52 @@ export const createPurchaseRequestAction = <ThrowOnError extends boolean = true>
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * 購買申請の購買予算と予算消化の取得
+ *
+ * <h2 id="_1">概要</h2>
+ *
+ * <p>指定した購買申請に対する購買予算額と予算消化を取得します。</p>
+ *
+ * <h2 id="_2">金額</h2>
+ *
+ * <ul>
+ *   <li>金額の単位は円です。</li>
+ *   <li>consumed_amount は購買予算全体の税込消化額です。</li>
+ *   <li>budget_consumptions は予算を消化した全明細です。</li>
+ * </ul>
+ *
+ * <h2 id="_3">予算追跡状態</h2>
+ *
+ * <ul>
+ *   <li>in_progress と approved は購買予算の状態です。</li>
+ *   <li>下書き・差戻し・却下などの予算追跡対象外の場合は not_tracked です。</li>
+ * </ul>
+ *
+ * <h2 id="_4">権限</h2>
+ *
+ * <ul>
+ *   <li>対象購買申請の閲覧権限が必要です。</li>
+ *   <li>閲覧できない購買申請は存在しないものとして 404 を返します。</li>
+ * </ul>
+ */
+export const getPurchaseRequestPurchaseBudget = <ThrowOnError extends boolean = true>(
+  options: Options<GetPurchaseRequestPurchaseBudgetData, ThrowOnError>,
+): RequestResult<
+  GetPurchaseRequestPurchaseBudgetResponses,
+  GetPurchaseRequestPurchaseBudgetErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    GetPurchaseRequestPurchaseBudgetResponses,
+    GetPurchaseRequestPurchaseBudgetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/1/purchase_requests/{purchase_request_id}/purchase_budget",
+    ...options,
   });
 
 /**

@@ -165,6 +165,10 @@ export type DealCreateParams = {
    * ファイルボックス（証憑ファイル）ID（配列）
    */
   receipt_ids?: Array<number>;
+  /**
+   * 作成した取引を紐付ける各種申請のID。承認済みの各種申請を元に取引を作成する場合に指定します。作成した取引は指定した各種申請に紐付き、各種申請APIのレスポンスのdeal_idで確認できます。存在しない・閲覧権限のない各種申請、承認されていない各種申請、すでに取引・振替伝票と紐付いている各種申請を指定した場合はエラーになり、取引は作成されません。指定するには、各種申請を利用できるプランであること、各種申請を閲覧する権限、アプリに read または accounting:approval_requests:read のスコープが必要です (満たさない場合は 403 になります)。
+   */
+  parent_id?: number;
 };
 
 export type DealUpdateParams = {
@@ -368,6 +372,10 @@ export type ManualJournalCreateParams = {
    * 振替伝票に添付するファイルボックス（証憑ファイル）IDの一覧。操作ユーザーが参照可能なファイルを指定してください。
    */
   receipt_ids?: Array<number>;
+  /**
+   * 作成した振替伝票を紐付ける各種申請のID。承認済みの各種申請を元に振替伝票を作成する場合に指定します。作成した振替伝票は指定した各種申請に紐付き、各種申請APIのレスポンスのmanual_journal_idで確認できます。存在しない・閲覧権限のない各種申請、承認されていない各種申請、すでに取引・振替伝票と紐付いている各種申請を指定した場合はエラーになり、振替伝票は作成されません。指定するには、各種申請を利用できるプランであること、各種申請を閲覧する権限、アプリに read または accounting:approval_requests:read のスコープが必要です (満たさない場合は 403 になります)。
+   */
+  parent_id?: number;
 };
 
 export type ManualJournalUpdateParams = {
@@ -1204,6 +1212,50 @@ export type ExpenseApplicationCreateParams = {
          */
         value?: unknown;
       }>;
+      /**
+       * 明細行の部門・メモタグ・セグメントの付与先<br>
+       * <ul>
+       *   <li>application: 申請全体に付与（画面の「申請全体に合わせる」）。申請全体のsection_id・tag_ids・segment_1〜3_tag_idを明細行に適用します。明細行のsection_id・tag_ids・segment_1〜3_tag_idを指定しても無視します。</li>
+       *   <li>line: 明細に個別付与（画面の「個別付与」）。明細行のsection_id・tag_ids・segment_1〜3_tag_idを明細行に設定します。</li>
+       * </ul>
+       * 未指定またはnullの場合は申請全体に付与（application）として作成します。<br>
+       * 明細行のsection_id・tag_ids・segment_1〜3_tag_idを指定する場合は、lineを指定してください。tag_assignmentを指定せずにこれらを指定すると400エラーになります。<br>
+       * 上記以外の値を指定すると400エラーになります。
+       */
+      tag_assignment?: string | null;
+      /**
+       * 明細行の部門ID<br>
+       * tag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合は部門なしになります。<br>
+       * 存在しない部門や、申請者が利用できない部門を指定すると400エラーになります。
+       */
+      section_id?: number | null;
+      /**
+       * 明細行のメモタグID<br>
+       * tag_assignmentにlineを指定した場合のみ有効です。未指定の場合はメモタグなしになります。<br>
+       * 存在しないメモタグを指定すると400エラーになります。
+       */
+      tag_ids?: Array<number>;
+      /**
+       * 明細行のセグメント１タグID<br>
+       * tag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合はセグメント１タグなしになります。<br>
+       * セグメントタグ一覧の取得APIを利用して取得してください。事業所でセグメント１が利用可能なプラン契約・設定になっている必要があります。<br>
+       * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>
+       */
+      segment_1_tag_id?: number | null;
+      /**
+       * 明細行のセグメント２タグID<br>
+       * tag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合はセグメント２タグなしになります。<br>
+       * セグメントタグ一覧の取得APIを利用して取得してください。事業所でセグメント２が利用可能なプラン契約・設定になっている必要があります。<br>
+       * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>
+       */
+      segment_2_tag_id?: number | null;
+      /**
+       * 明細行のセグメント３タグID<br>
+       * tag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合はセグメント３タグなしになります。<br>
+       * セグメントタグ一覧の取得APIを利用して取得してください。事業所でセグメント３が利用可能なプラン契約・設定になっている必要があります。<br>
+       * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>
+       */
+      segment_3_tag_id?: number | null;
     }>;
   }>;
   /**
@@ -1322,11 +1374,15 @@ export type ExpenseApplicationUpdateParams = {
    */
   description?: string;
   /**
-   * 部門ID
+   * 部門ID<br>
+   * 未指定の場合は部門なしで更新されます。<br>
+   * 明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。
    */
   section_id?: number;
   /**
-   * メモタグID
+   * メモタグID<br>
+   * 未指定の場合はメモタグなしで更新されます。<br>
+   * 明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。
    */
   tag_ids?: Array<number>;
   /**
@@ -1453,6 +1509,52 @@ export type ExpenseApplicationUpdateParams = {
          */
         value?: unknown;
       }>;
+      /**
+       * 明細行の部門・メモタグ・セグメントの付与先<br>
+       * <ul>
+       *   <li>application: 申請全体に付与（画面の「申請全体に合わせる」）。申請全体のsection_id・tag_ids・segment_1〜3_tag_idを明細行に適用します。明細に個別付与した部門・メモタグ・セグメントは削除されます。明細行のsection_id・tag_ids・segment_1〜3_tag_idを指定しても無視します。</li>
+       *   <li>line: 明細に個別付与（画面の「個別付与」）。明細行の部門・メモタグ・セグメントを、明細行のsection_id・tag_ids・segment_1〜3_tag_idの内容で置き換えます。指定しなかった項目は空になるため、更新後も残したい値は必ず指定してください。</li>
+       * </ul>
+       * 未指定またはnullの場合、既存の明細行の部門・メモタグ・セグメントと付与先は変更しません（申請全体のsection_id・tag_ids・segment_1〜3_tag_idと異なり、省略しても削除されません）。新規に追加する明細行は申請全体に付与（application）として作成します。<br>
+       * ただし未指定またはnullの場合、経費科目の利用可否は明細行の部門ではなく申請全体のsection_idで判定します。個別付与した明細行で部門の利用制限がある経費科目を使っている場合に申請中（draft: false）にするときは、lineを指定し、明細行のsection_id・tag_ids・segment_1〜3_tag_idも指定してください。<br>
+       * 個別付与した明細行を申請全体に合わせるには、applicationを指定してください。<br>
+       * 明細行のsection_id・tag_ids・segment_1〜3_tag_idを指定する場合は、lineを指定してください。tag_assignmentを指定せずにこれらを指定すると400エラーになります。<br>
+       * 上記以外の値を指定すると400エラーになります。
+       */
+      tag_assignment?: string | null;
+      /**
+       * 明細行の部門ID<br>
+       * tag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合は部門なしになります。<br>
+       * 存在しない部門や、申請者が利用できない部門を指定すると400エラーになります。
+       */
+      section_id?: number | null;
+      /**
+       * 明細行のメモタグID<br>
+       * tag_assignmentにlineを指定した場合のみ有効です。未指定の場合はメモタグなしになります。<br>
+       * 存在しないメモタグを指定すると400エラーになります。
+       */
+      tag_ids?: Array<number>;
+      /**
+       * 明細行のセグメント１タグID<br>
+       * tag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合はセグメント１タグなしになります。<br>
+       * セグメントタグ一覧の取得APIを利用して取得してください。事業所でセグメント１が利用可能なプラン契約・設定になっている必要があります。<br>
+       * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>
+       */
+      segment_1_tag_id?: number | null;
+      /**
+       * 明細行のセグメント２タグID<br>
+       * tag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合はセグメント２タグなしになります。<br>
+       * セグメントタグ一覧の取得APIを利用して取得してください。事業所でセグメント２が利用可能なプラン契約・設定になっている必要があります。<br>
+       * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>
+       */
+      segment_2_tag_id?: number | null;
+      /**
+       * 明細行のセグメント３タグID<br>
+       * tag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合はセグメント３タグなしになります。<br>
+       * セグメントタグ一覧の取得APIを利用して取得してください。事業所でセグメント３が利用可能なプラン契約・設定になっている必要があります。<br>
+       * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a>
+       */
+      segment_3_tag_id?: number | null;
     }>;
   }>;
   /**
@@ -1531,6 +1633,8 @@ export type ExpenseApplicationUpdateParams = {
   parent_type?: string;
   /**
    * セグメント１タグID<br>
+   * 未指定の場合はセグメント１タグなしで更新されます。<br>
+   * 明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。<br>
    * セグメントタグ一覧の取得APIを利用して取得してください。<br>
    * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a><br>
    *
@@ -1538,6 +1642,8 @@ export type ExpenseApplicationUpdateParams = {
   segment_1_tag_id?: number;
   /**
    * セグメント２タグID<br>
+   * 未指定の場合はセグメント２タグなしで更新されます。<br>
+   * 明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。<br>
    * セグメントタグ一覧の取得APIを利用して取得してください。<br>
    * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a><br>
    *
@@ -1545,6 +1651,8 @@ export type ExpenseApplicationUpdateParams = {
   segment_2_tag_id?: number;
   /**
    * セグメント３タグID<br>
+   * 未指定の場合はセグメント３タグなしで更新されます。<br>
+   * 明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。<br>
    * セグメントタグ一覧の取得APIを利用して取得してください。<br>
    * <a href="https://support.freee.co.jp/hc/ja/articles/360020679611" target="_blank">セグメント（分析用タグ）の設定</a><br>
    *
@@ -3057,6 +3165,244 @@ export type JournalsResponse = {
     }>;
   };
 };
+
+/**
+ * 仕訳 (Transaction) 単位のレスポンス。
+ */
+export type ReportJournalsJournal = {
+  /**
+   * 仕訳ID。
+   */
+  id: number;
+  /**
+   * 取引ID。取引に紐づかない仕訳 (振替伝票のみ等) では null。
+   */
+  deal_id: number | null;
+  /**
+   * 発生日 (YYYY-MM-DD)。
+   */
+  txn_date: string;
+  /**
+   * 仕訳番号。仕訳番号を使用しない設定の事業所では常に null。英数字形式があるため文字列。
+   */
+  txn_number: string | null;
+  /**
+   * 決算整理仕訳フラグ。
+   */
+  adjustment: boolean;
+  /**
+   * 仕訳の承認ステータス
+   */
+  approval_status: "none" | "in_progress" | "approved";
+  /**
+   * 作成者ユーザーID。
+   */
+  create_user_id: number;
+  /**
+   * 最終承認者ユーザーID。未承認は null。
+   */
+  last_approver_user_id: number | null;
+  /**
+   * 現在の承認待ちユーザーIDのリスト。承認済み・フローなしは空配列。会計のロールを持たないユーザーは含まない。
+   */
+  current_approver_user_ids: Array<number>;
+  /**
+   * 管理番号 (ref_number)。
+   */
+  ref_number: string | null;
+  /**
+   * 取引の登録元表示ラベル (「手動」「自動で経理」「freee請求書」など)。
+   */
+  deal_origin_name: string | null;
+  /**
+   * 仕訳の作成日時。
+   */
+  created_at: string;
+  /**
+   * 仕訳の最終更新日時。
+   */
+  updated_at: string;
+  /**
+   * 紐づく証憑IDのリスト。閲覧権限がない場合は空配列。
+   */
+  receipt_ids: Array<number>;
+  /**
+   * 借方行のリスト。配列順が表示順。税抜経理事業所では消費税行 (line_type: tax) が末尾に付与されることがある。
+   */
+  debit: Array<{
+    /**
+     * 明細行ID。消費税行では null。
+     */
+    id: number | null;
+    /**
+     * 仕訳明細行の種別。detail は通常明細、tax は税抜経理事業所の消費税行。
+     */
+    line_type: "detail" | "tax";
+    /**
+     * 勘定科目ID。消費税行では仮払/仮受消費税勘定を指す。
+     */
+    account_item_id: number;
+    /**
+     * 表示金額。税込経理では税込金額、税抜経理では税抜金額。消費税行では集約された税額そのものが入る。
+     */
+    amount: number;
+    /**
+     * 税抜金額。経理方式によらず、その明細の税込金額から消費税額を引いた値。消費税行では null。
+     */
+    net_amount: number | null;
+    /**
+     * 消費税額。通常明細ではその明細の税額、消費税行では null。
+     */
+    vat: number | null;
+    /**
+     * 税区分コード。
+     */
+    tax_code: number | null;
+    /**
+     * 取引先ID。
+     */
+    partner_id: number | null;
+    /**
+     * 品目ID。消費税行では null。
+     */
+    item_id: number | null;
+    /**
+     * 部門ID。消費税行では、部門必須設定が「全科目」の事業所のときのみ集約キーとして設定される。
+     */
+    section_id: number | null;
+    /**
+     * セグメント1タグID。消費税行では null。
+     */
+    segment_tag_1_id: number | null;
+    /**
+     * セグメント2タグID。消費税行では null。
+     */
+    segment_tag_2_id: number | null;
+    /**
+     * セグメント3タグID。消費税行では null。
+     */
+    segment_tag_3_id: number | null;
+    /**
+     * メモタグIDのリスト。常に配列を返し、null は返さない。消費税行では空配列。
+     */
+    memo_tag_ids: Array<number>;
+    /**
+     * 行の備考。逆仕訳の確認等で利用可能。消費税行では null。
+     */
+    description: string | null;
+  }>;
+  /**
+   * 貸方行のリスト。配列順が表示順。税抜経理事業所では消費税行 (line_type: tax) が末尾に付与されることがある。
+   */
+  credit: Array<{
+    /**
+     * 明細行ID。消費税行では null。
+     */
+    id: number | null;
+    /**
+     * 仕訳明細行の種別。detail は通常明細、tax は税抜経理事業所の消費税行。
+     */
+    line_type: "detail" | "tax";
+    /**
+     * 勘定科目ID。消費税行では仮払/仮受消費税勘定を指す。
+     */
+    account_item_id: number;
+    /**
+     * 表示金額。税込経理では税込金額、税抜経理では税抜金額。消費税行では集約された税額そのものが入る。
+     */
+    amount: number;
+    /**
+     * 税抜金額。経理方式によらず、その明細の税込金額から消費税額を引いた値。消費税行では null。
+     */
+    net_amount: number | null;
+    /**
+     * 消費税額。通常明細ではその明細の税額、消費税行では null。
+     */
+    vat: number | null;
+    /**
+     * 税区分コード。
+     */
+    tax_code: number | null;
+    /**
+     * 取引先ID。
+     */
+    partner_id: number | null;
+    /**
+     * 品目ID。消費税行では null。
+     */
+    item_id: number | null;
+    /**
+     * 部門ID。消費税行では、部門必須設定が「全科目」の事業所のときのみ集約キーとして設定される。
+     */
+    section_id: number | null;
+    /**
+     * セグメント1タグID。消費税行では null。
+     */
+    segment_tag_1_id: number | null;
+    /**
+     * セグメント2タグID。消費税行では null。
+     */
+    segment_tag_2_id: number | null;
+    /**
+     * セグメント3タグID。消費税行では null。
+     */
+    segment_tag_3_id: number | null;
+    /**
+     * メモタグIDのリスト。常に配列を返し、null は返さない。消費税行では空配列。
+     */
+    memo_tag_ids: Array<number>;
+    /**
+     * 行の備考。逆仕訳の確認等で利用可能。消費税行では null。
+     */
+    description: string | null;
+  }>;
+};
+
+/**
+ * 仕訳の承認ステータス
+ */
+export type ReportJournalsApprovalStatus = "none" | "in_progress" | "approved";
+
+/**
+ * 明細金額絞り込みの基準。auto は検索期間に重なる全会計年度が税込経理のときのみ税込基準、それ以外は税抜基準。
+ */
+export type ReportJournalsDetailAmountBasis = "auto" | "tax_included";
+
+/**
+ * 決算整理仕訳による絞り込み
+ */
+export type ReportJournalsAdjustmentOption = "only" | "without";
+
+/**
+ * 証憑 (レシート) 添付有無による絞り込み
+ */
+export type ReportJournalsReceiptsOption = "only" | "without";
+
+/**
+ * 配賦仕訳による絞り込み。事業所で配賦機能が無効な場合に指定すると 400。
+ */
+export type ReportJournalsCostAllocationOption = "only" | "without";
+
+/**
+ * 逆仕訳・元仕訳による絞り込み。事業所で逆仕訳機能が無効な場合に指定すると 400。
+ */
+export type ReportJournalsReverseJournalOption =
+  "reverse" | "not_reverse" | "base" | "not_base" | "both" | "neither";
+
+/**
+ * コメントステータスによる絞り込み
+ */
+export type ReportJournalsCommentStatusOption = "posted" | "raised" | "resolved";
+
+/**
+ * 並び順のキー。値はレスポンスのフィールド名と揃えている。
+ */
+export type ReportJournalsOrderByOption = "txn_date" | "created_at";
+
+/**
+ * 並び順の方向
+ */
+export type ReportJournalsDirectionOption = "asc" | "desc";
 
 export type JournalStatusResponse = {
   journals: {
@@ -11574,7 +11920,7 @@ export type Receipt = {
      * 表示名
      */
     display_name?: string | null;
-  };
+  } | null;
   /**
    * 電子帳簿保存法の検索要件に対応するメタデータ（発行元・発行日・金額）
    */
@@ -11785,6 +12131,37 @@ export type ExpenseApplicationsIndexResponse = {
            */
           system_calc_amount?: number;
         } | null;
+        /**
+         * 明細行の部門・メモタグ・セグメントの付与先
+         * * `application` - 申請全体に付与（画面の「申請全体に合わせる」）
+         * * `line` - 明細に個別付与（画面の「個別付与」）
+         */
+        tag_assignment?: "application" | "line";
+        /**
+         * 明細行の部門ID
+         * tag_assignmentがapplicationの場合は申請全体のsection_idと同じ値を返します。部門が設定されていない場合はnullになります。
+         */
+        section_id?: number | null;
+        /**
+         * 明細行のメモタグID
+         * tag_assignmentがapplicationの場合は申請全体のtag_idsと同じ値を返します。
+         */
+        tag_ids?: Array<number>;
+        /**
+         * 明細行のセグメント１タグID
+         * tag_assignmentがapplicationの場合は申請全体のsegment_1_tag_idと同じ値を返します。タグが設定されていない場合はnullになります。
+         */
+        segment_1_tag_id?: number | null;
+        /**
+         * 明細行のセグメント２タグID
+         * tag_assignmentがapplicationの場合は申請全体のsegment_2_tag_idと同じ値を返します。タグが設定されていない場合はnullになります。
+         */
+        segment_2_tag_id?: number | null;
+        /**
+         * 明細行のセグメント３タグID
+         * tag_assignmentがapplicationの場合は申請全体のsegment_3_tag_idと同じ値を返します。タグが設定されていない場合はnullになります。
+         */
+        segment_3_tag_id?: number | null;
       }>;
     }>;
     /**
@@ -12019,6 +12396,37 @@ export type ExpenseApplicationResponse = {
             position_id: number | null;
           };
         } | null;
+        /**
+         * 明細行の部門・メモタグ・セグメントの付与先
+         * * `application` - 申請全体に付与（画面の「申請全体に合わせる」）
+         * * `line` - 明細に個別付与（画面の「個別付与」）
+         */
+        tag_assignment?: "application" | "line";
+        /**
+         * 明細行の部門ID
+         * tag_assignmentがapplicationの場合は申請全体のsection_idと同じ値を返します。部門が設定されていない場合はnullになります。
+         */
+        section_id?: number | null;
+        /**
+         * 明細行のメモタグID
+         * tag_assignmentがapplicationの場合は申請全体のtag_idsと同じ値を返します。
+         */
+        tag_ids?: Array<number>;
+        /**
+         * 明細行のセグメント１タグID
+         * tag_assignmentがapplicationの場合は申請全体のsegment_1_tag_idと同じ値を返します。タグが設定されていない場合はnullになります。
+         */
+        segment_1_tag_id?: number | null;
+        /**
+         * 明細行のセグメント２タグID
+         * tag_assignmentがapplicationの場合は申請全体のsegment_2_tag_idと同じ値を返します。タグが設定されていない場合はnullになります。
+         */
+        segment_2_tag_id?: number | null;
+        /**
+         * 明細行のセグメント３タグID
+         * tag_assignmentがapplicationの場合は申請全体のsegment_3_tag_idと同じ値を返します。タグが設定されていない場合はnullになります。
+         */
+        segment_3_tag_id?: number | null;
       }>;
     }>;
     /**
@@ -13445,6 +13853,10 @@ export type ExpenseApplicationForm = {
    */
   default_flow_route_src_id: number | null;
   /**
+   * 交通経路・交通系ICカードから作成した明細にデフォルトで選択する経費科目の source_line_template_id (未設定の場合は null)。経費科目一覧の取得API (`/api/1/expense_application_line_templates`) のレスポンス source_line_template_id と同じ値です。削除済みの経費科目を指していることがあります。更新では null と 0 のどちらも未設定に戻す指示になります。更新で省略した場合は現在の設定を変更しません。ただし更新で line_template_setting に disable を指定した場合は、省略しても未設定に戻します。
+   */
+  traffic_line_template_src_id?: number | null;
+  /**
    * 承認者以外の閲覧者追加の利用設定 (disable: 利用しない, enable: 利用する)
    */
   observer_addition: "disable" | "enable";
@@ -13527,6 +13939,10 @@ export type ExpenseApplicationFormParams = {
    * デフォルトで選択する申請経路のID (未設定の場合は null)。申請経路一覧の取得API (`/api/1/approval_flow_routes`) のレスポンス id と同じ値です。
    */
   default_flow_route_src_id: number | null;
+  /**
+   * 交通経路・交通系ICカードから作成した明細にデフォルトで選択する経費科目の source_line_template_id (未設定の場合は null)。経費科目一覧の取得API (`/api/1/expense_application_line_templates`) のレスポンス source_line_template_id と同じ値です。削除済みの経費科目を指していることがあります。更新では null と 0 のどちらも未設定に戻す指示になります。更新で省略した場合は現在の設定を変更しません。ただし更新で line_template_setting に disable を指定した場合は、省略しても未設定に戻します。
+   */
+  traffic_line_template_src_id?: number | null;
   /**
    * 承認者以外の閲覧者追加の利用設定 (disable: 利用しない, enable: 利用する)
    */
@@ -13840,7 +14256,7 @@ export type ApprovalRequestsIndexResponse = {
        */
       id: number;
       /**
-       * 項目タイプ(title: 申請タイトル, single_line: 自由記述形式 1行, multi_line: 自由記述形式 複数行, select: プルダウン, checkbox: 複数選択, date: 日付, amount: 金額, receipt: 添付ファイル, section: 部門ID, partner: 取引先ID, ninja_sign_document: 契約書（freeeサイン連携）)
+       * 項目タイプ(title: 申請タイトル, single_line: 自由記述形式 1行, multi_line: 自由記述形式 複数行, select: プルダウン, checkbox: 複数選択, date: 日付, amount: 金額, receipt: 添付ファイル, section: 部門ID, partner: 取引先ID, ninja_sign_document: 契約書（freeeサイン連携・旧方式）, freee_sign_document: 契約書（freeeサイン連携）)
        */
       type:
         | "title"
@@ -13853,7 +14269,8 @@ export type ApprovalRequestsIndexResponse = {
         | "receipt"
         | "section"
         | "partner"
-        | "ninja_sign_document";
+        | "ninja_sign_document"
+        | "freee_sign_document";
       /**
        * 項目の値
        */
@@ -13980,7 +14397,7 @@ export type ApprovalRequestResponse = {
        */
       id: number;
       /**
-       * 項目タイプ(title: 申請タイトル, single_line: 自由記述形式 1行, multi_line: 自由記述形式 複数行, select: プルダウン, checkbox: 複数選択, date: 日付, amount: 金額, receipt: 添付ファイル, section: 部門ID, partner: 取引先ID, ninja_sign_document: 契約書（freeeサイン連携）)
+       * 項目タイプ(title: 申請タイトル, single_line: 自由記述形式 1行, multi_line: 自由記述形式 複数行, select: プルダウン, checkbox: 複数選択, date: 日付, amount: 金額, receipt: 添付ファイル, section: 部門ID, partner: 取引先ID, ninja_sign_document: 契約書（freeeサイン連携・旧方式）, freee_sign_document: 契約書（freeeサイン連携）)
        */
       type:
         | "title"
@@ -13993,7 +14410,8 @@ export type ApprovalRequestResponse = {
         | "receipt"
         | "section"
         | "partner"
-        | "ninja_sign_document";
+        | "ninja_sign_document"
+        | "freee_sign_document";
       /**
        * 項目の値
        */
@@ -14063,7 +14481,7 @@ export type ApprovalRequestResponse = {
          */
         order?: number;
         /**
-         * 項目種別 (title: 申請タイトル, single_line: 自由記述形式 1行, multi_line: 自由記述形式 複数行, select: プルダウン, checkbox: 複数選択, date: 日付, amount: 金額, receipt: 添付ファイル, section: 部門ID, partner: 取引先ID, ninja_sign_document: 契約書（freeeサイン連携）)
+         * 項目種別 (title: 申請タイトル, single_line: 自由記述形式 1行, multi_line: 自由記述形式 複数行, select: プルダウン, checkbox: 複数選択, date: 日付, amount: 金額, receipt: 添付ファイル, section: 部門ID, partner: 取引先ID, ninja_sign_document: 契約書（freeeサイン連携・旧方式）, freee_sign_document: 契約書（freeeサイン連携）)
          */
         type?:
           | "title"
@@ -14076,7 +14494,8 @@ export type ApprovalRequestResponse = {
           | "receipt"
           | "section"
           | "partner"
-          | "ninja_sign_document";
+          | "ninja_sign_document"
+          | "freee_sign_document";
         /**
          * 項目名
          */
@@ -14210,7 +14629,7 @@ export type ApprovalRequestFormResponse = {
        */
       order?: number;
       /**
-       * 項目種別 (title: 申請タイトル, single_line: 自由記述形式 1行, multi_line: 自由記述形式 複数行, select: プルダウン, checkbox: 複数選択, date: 日付, amount: 金額, receipt: 添付ファイル, section: 部門ID, partner: 取引先ID, ninja_sign_document: 契約書（freeeサイン連携）)
+       * 項目種別 (title: 申請タイトル, single_line: 自由記述形式 1行, multi_line: 自由記述形式 複数行, select: プルダウン, checkbox: 複数選択, date: 日付, amount: 金額, receipt: 添付ファイル, section: 部門ID, partner: 取引先ID, ninja_sign_document: 契約書（freeeサイン連携・旧方式）, freee_sign_document: 契約書（freeeサイン連携）)
        */
       type?:
         | "title"
@@ -14223,7 +14642,8 @@ export type ApprovalRequestFormResponse = {
         | "receipt"
         | "section"
         | "partner"
-        | "ninja_sign_document";
+        | "ninja_sign_document"
+        | "freee_sign_document";
       /**
        * 項目名
        */
@@ -14547,7 +14967,7 @@ export type PurchaseRequestFormIndexResponse = {
     /**
      * 申請フォームの説明
      */
-    description: string;
+    description: string | null;
     /**
      * ステータス(draft: 申請で使用しない、active: 申請で使用する、deleted: 削除済み)
      */
@@ -15258,6 +15678,76 @@ export type PurchaseRequestUpdateParams = {
   }>;
 };
 
+/**
+ * 購買申請に対する購買予算、および予算消化
+ */
+export type PurchaseRequestPurchaseBudgetResponse = {
+  /**
+   * 予算追跡状態 (in_progress: 申請中, approved: 承認済み, not_tracked: 追跡対象外)
+   */
+  tracking_status: "in_progress" | "approved" | "not_tracked";
+  /**
+   * 対象の購買申請ID
+   */
+  purchase_request_id: number;
+  /**
+   * 購買予算ID。tracking_status が not_tracked の場合は null です
+   */
+  purchase_budget_id: number | null;
+  /**
+   * 購買予算額（円）。tracking_status が not_tracked の場合は null です
+   */
+  budget_amount: number | null;
+  /**
+   * 購買予算全体の税込消化額（円）。tracking_status が not_tracked の場合は null です
+   */
+  consumed_amount: number | null;
+  /**
+   * 購買予算全体の税抜消化額（円）。tracking_status が not_tracked の場合は null です
+   */
+  consumed_tax_excluded_amount: number | null;
+  /**
+   * 購買予算全体の消費税額（円）。tracking_status が not_tracked の場合は null です
+   */
+  consumed_tax_amount: number | null;
+  /**
+   * 予算消化。tracking_status が not_tracked の場合は空配列です
+   */
+  budget_consumptions: Array<{
+    /**
+     * 税込消化額（円）。取消や調整により負数になり得ます
+     */
+    amount: number;
+    /**
+     * 予算を消化した業務リソースの参照情報。表示名と状態は予算消化時点のスナップショットです
+     */
+    source: {
+      /**
+       * 消化元リソースの種別 (expense_application: 経費申請, payment_request: 支払依頼, freee_card_statement_line: freeeカード明細, sweeep_document: sweeep v2 の支払依頼, sweeep_invoice: sweeep v2 の請求書, deal: 取引)
+       */
+      type:
+        | "expense_application"
+        | "payment_request"
+        | "freee_card_statement_line"
+        | "sweeep_document"
+        | "sweeep_invoice"
+        | "deal";
+      /**
+       * 消化元サービスにおけるリソースID。リソース間で型が異なるため文字列で返します。取得できない場合は null です
+       */
+      id: string | null;
+      /**
+       * 消化元を人が識別するための表示名。取得できない場合は null です
+       */
+      display_name: string | null;
+      /**
+       * ワークフローを持つ消化元の状態 (in_progress: 申請中, approved: 承認済み, feedback: 差戻し)。対象外または取得できない場合は null です
+       */
+      workflow_status: "in_progress" | "approved" | "feedback";
+    };
+  }>;
+};
+
 export type ApprovalFlowRoutesIndexResponse = {
   /**
    * 申請経路の一覧
@@ -15624,7 +16114,7 @@ export type InvoiceIndexResponse = {
      */
     mail_sent_at: string | null;
     /**
-     * 郵送ステータス(unrequested: リクエスト前, preview_registered: プレビュー登録, preview_failed: プレビュー登録失敗, ordered: 注文中, order_failed: 注文失敗, printing: 印刷中, canceled: キャンセル, posted: 投函済み)
+     * 郵送ステータス(unrequested: リクエスト前, preview_registered: プレビュー登録, preview_failed: プレビュー登録失敗, ordered: 注文中, order_failed: 注文失敗, printing: 印刷中, canceled: キャンセル, posted: 投函済み, cancel: 注文前キャンセル, ordering: 注文処理中, bounced: 郵送不達)
      */
     posting_status:
       | ""
@@ -15635,7 +16125,10 @@ export type InvoiceIndexResponse = {
       | "order_failed"
       | "printing"
       | "canceled"
-      | "posted";
+      | "posted"
+      | "cancel"
+      | "ordering"
+      | "bounced";
     /**
      * 取引先名
      */
@@ -15968,7 +16461,7 @@ export type InvoiceResponse = {
      */
     mail_sent_at: string | null;
     /**
-     * 郵送ステータス(unrequested: リクエスト前, preview_registered: プレビュー登録, preview_failed: プレビュー登録失敗, ordered: 注文中, order_failed: 注文失敗, printing: 印刷中, canceled: キャンセル, posted: 投函済み)
+     * 郵送ステータス(unrequested: リクエスト前, preview_registered: プレビュー登録, preview_failed: プレビュー登録失敗, ordered: 注文中, order_failed: 注文失敗, printing: 印刷中, canceled: キャンセル, posted: 投函済み, cancel: 注文前キャンセル, ordering: 注文処理中, bounced: 郵送不達)
      */
     posting_status:
       | ""
@@ -15979,7 +16472,10 @@ export type InvoiceResponse = {
       | "order_failed"
       | "printing"
       | "canceled"
-      | "posted";
+      | "posted"
+      | "cancel"
+      | "ordering"
+      | "bounced";
     /**
      * 取引先名
      */
@@ -19565,10 +20061,6 @@ export type GetUsersCapabilitiesResponses = {
    *       <td style="padding: 5px">見積書・納品書・請求書・領収書・発注書</td>
    *     </tr>
    *     <tr>
-   *       <td style="padding: 5px">doc_postings</td>
-   *       <td style="padding: 5px">(請求書の)郵送</td>
-   *     </tr>
-   *     <tr>
    *       <td style="padding: 5px">receipts</td>
    *       <td style="padding: 5px">ファイルボックス</td>
    *     </tr>
@@ -19890,7 +20382,6 @@ export type GetUsersCapabilitiesResponses = {
     deal_linkage: UserCapability;
     transfers: UserCapabilityWithSelfOnly;
     docs: UserCapabilityWithSelfOnly;
-    doc_postings: UserCapabilityJustCreate;
     receipts: UserCapabilityWithSelfOnly;
     receipt_folders: UserCapabilityJustReadWrite;
     receipt_stream_editor: UserCapabilityJustRead;
@@ -20370,6 +20861,30 @@ export type ApiV1ItemsUpsertByCodeResponses = {
 
 export type ApiV1ItemsUpsertByCodeResponse =
   ApiV1ItemsUpsertByCodeResponses[keyof ApiV1ItemsUpsertByCodeResponses];
+
+export type GetTaxCodesData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/1/taxes/codes";
+};
+
+export type GetTaxCodesErrors = {
+  400: BadRequestError;
+  401: UnauthorizedError;
+  403: ForbiddenError;
+  500: InternalServerError;
+};
+
+export type GetTaxCodesError = GetTaxCodesErrors[keyof GetTaxCodesErrors];
+
+export type GetTaxCodesResponses = {
+  200: {
+    taxes: Array<Tax>;
+  };
+};
+
+export type GetTaxCodesResponse = GetTaxCodesResponses[keyof GetTaxCodesResponses];
 
 export type GetTaxCodeData = {
   body?: never;
@@ -21654,6 +22169,219 @@ export type DownloadJournalResponses = {
 };
 
 export type DownloadJournalResponse = DownloadJournalResponses[keyof DownloadJournalResponses];
+
+export type SearchReportJournalsData = {
+  body: {
+    /**
+     * 事業所ID
+     */
+    company_id: number;
+    /**
+     * 発生日 開始 (YYYY-MM-DD、両端含む)。deal_ids が指定されていない場合は必須。
+     */
+    start_issue_date?: string;
+    /**
+     * 発生日 終了 (YYYY-MM-DD、両端含む)。deal_ids が指定されていない場合は必須。
+     */
+    end_issue_date?: string;
+    /**
+     * 取引ID配列。最大 500 件で、超えた場合は 400。複数指定は OR。指定時は発生日範囲を省略可能。両方指定した場合は取引の仕訳のうち発生日範囲内のものだけが返る。
+     */
+    deal_ids?: Array<number>;
+    /**
+     * 作成日 開始 (YYYY-MM-DD、両端含む)。仕訳の作成日時 (created_at) を日付単位で絞り込む。
+     */
+    start_created_date?: string;
+    /**
+     * 作成日 終了 (YYYY-MM-DD、両端含む)。仕訳の作成日時 (created_at) を日付単位で絞り込む。
+     */
+    end_created_date?: string;
+    /**
+     * 勘定科目ID (単数)。仕訳帳画面と同様に単数指定のみ。指定した勘定科目が仮払消費税等 / 仮受消費税等の場合、税抜経理の期間は消費税行の元になる明細行 (税額があるもの) も検索対象に含まれます。
+     */
+    account_item_id?: number;
+    /**
+     * 取引先ID (単数)。
+     */
+    partner_id?: number;
+    /**
+     * 品目ID (単数)。
+     */
+    item_id?: number;
+    /**
+     * 部門ID (単数)。指定した部門が事業所に存在しない場合は 400。閲覧不可な部門を指定した場合は 0 件を返す。
+     */
+    section_id?: number;
+    /**
+     * メモタグID (単数)。
+     */
+    memo_tag_id?: number;
+    /**
+     * セグメント1タグID (単数)。事業所で当該セグメントが未契約の場合に指定すると 400。
+     */
+    segment_tag_1_id?: number;
+    /**
+     * セグメント2タグID (単数)。事業所で当該セグメントが未契約の場合に指定すると 400。
+     */
+    segment_tag_2_id?: number;
+    /**
+     * セグメント3タグID (単数)。事業所で当該セグメントが未契約の場合に指定すると 400。
+     */
+    segment_tag_3_id?: number;
+    /**
+     * 税区分コード。仕訳内のいずれかの明細行がこの税区分に一致する仕訳を返す。
+     */
+    tax_code?: number;
+    /**
+     * 明細金額の下限。基準は detail_amount_basis で指定。
+     */
+    detail_amount_min?: number;
+    /**
+     * 明細金額の上限。基準は detail_amount_basis で指定。
+     */
+    detail_amount_max?: number;
+    /**
+     * 明細金額絞り込みの基準。既定 auto。
+     */
+    detail_amount_basis?: ReportJournalsDetailAmountBasis;
+    /**
+     * 決算整理仕訳による絞り込み。
+     */
+    adjustment?: ReportJournalsAdjustmentOption;
+    /**
+     * 承認ステータスによる絞り込み。
+     */
+    approval_status?: ReportJournalsApprovalStatus;
+    /**
+     * 証憑 (レシート) 添付有無による絞り込み。
+     */
+    receipts?: ReportJournalsReceiptsOption;
+    /**
+     * 配賦仕訳による絞り込み。
+     */
+    cost_allocation?: ReportJournalsCostAllocationOption;
+    /**
+     * 逆仕訳・元仕訳による絞り込み。
+     */
+    reverse_journal?: ReportJournalsReverseJournalOption;
+    /**
+     * 作成者ユーザーID。
+     */
+    create_user_id?: number;
+    /**
+     * 現在の承認待ちユーザーID (承認申請中のものが対象)。
+     */
+    current_approver_user_id?: number;
+    /**
+     * 最終承認者ユーザーID (承認済みのものが対象)。
+     */
+    last_approver_user_id?: number;
+    /**
+     * コメントステータスによる絞り込み。
+     */
+    comment_status?: ReportJournalsCommentStatusOption;
+    /**
+     * 重要コメントで絞り込む。true のときのみ意味を持つ。false は指定なしと同義。
+     */
+    comment_important?: boolean;
+    /**
+     * コメント本文の部分一致検索。
+     */
+    comment_details?: string;
+    /**
+     * コメント投稿者ユーザーID。
+     */
+    comment_poster_user_id?: number;
+    /**
+     * コメント宛先ユーザーID。
+     */
+    comment_recipient_user_id?: number;
+    /**
+     * 証憑の発行元名で検索 (部分一致)。
+     */
+    receipt_partner_name?: string;
+    /**
+     * 管理番号 (ref_number) による前方一致検索。
+     */
+    ref_number?: string;
+    /**
+     * 仕訳番号 (txn_number) による完全一致検索。
+     */
+    txn_number?: string;
+    /**
+     * 明細行の備考による部分一致検索。行単位ではなく仕訳単位で返る。
+     */
+    description?: string;
+    /**
+     * 口座明細の取引内容による部分一致検索。口座明細から作られた仕訳のみが対象。
+     */
+    wallet_txn_description?: string;
+    /**
+     * 並び順のキー。既定は txn_date。
+     */
+    order_by?: ReportJournalsOrderByOption;
+    /**
+     * 並び順の方向。既定は asc。
+     */
+    direction?: ReportJournalsDirectionOption;
+    /**
+     * 最大取得件数。既定 100、範囲 1〜1000。
+     */
+    page_size?: number;
+    /**
+     * ページネーションのトークン。前レスポンスの next_page_token をそのまま渡す。不透明文字列。
+     */
+    page_token?: string;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/1/journals/search";
+};
+
+export type SearchReportJournalsErrors = {
+  /**
+   * クライアントエラー
+   */
+  400: BadRequestError;
+  /**
+   * 未認証
+   */
+  401: UnauthorizedError;
+  /**
+   * 未認可
+   */
+  403: ForbiddenError;
+  /**
+   * リソースが存在しない
+   */
+  404: BadRequestNotFoundError;
+  /**
+   * サーバーエラー
+   */
+  500: InternalServerError;
+};
+
+export type SearchReportJournalsError =
+  SearchReportJournalsErrors[keyof SearchReportJournalsErrors];
+
+export type SearchReportJournalsResponses = {
+  /**
+   * 仕訳帳の仕訳一覧取得レスポンス
+   */
+  200: {
+    /**
+     * 仕訳のリスト。
+     */
+    data: Array<ReportJournalsJournal>;
+    /**
+     * 次ページ取得のためのトークン。null の場合が最終ページ。
+     */
+    next_page_token: string | null;
+  };
+};
+
+export type SearchReportJournalsResponse =
+  SearchReportJournalsResponses[keyof SearchReportJournalsResponses];
 
 export type GetTrialBsData = {
   body?: never;
@@ -24638,6 +25366,28 @@ export type GetPaymentRequestsData = {
      */
     end_application_date?: string;
     /**
+     * 最新の承認日で絞込：開始日(yyyy-mm-dd)
+     * 最新の承認日は、支払依頼に対して行われた承認（特権承認を含む）のうち最も新しい承認の日付で、申請が承認済になった日とは限りません。そのため、承認済以外の支払依頼も対象になります。
+     * * 承認経路の途中のステップのみ承認された支払依頼は、そのステップの承認日
+     * * 承認後に差戻し・却下された支払依頼は、差戻し・却下前の承認日
+     * * 差戻し後に再度承認された支払依頼は、再承認日
+     * * 一度も承認されていない支払依頼は対象外
+     *
+     * 2026年10月20日以降に承認または更新された支払依頼のみが対象です。
+     */
+    start_last_approval_date?: string;
+    /**
+     * 最新の承認日で絞込：終了日(yyyy-mm-dd)
+     * 最新の承認日は、支払依頼に対して行われた承認（特権承認を含む）のうち最も新しい承認の日付で、申請が承認済になった日とは限りません。そのため、承認済以外の支払依頼も対象になります。
+     * * 承認経路の途中のステップのみ承認された支払依頼は、そのステップの承認日
+     * * 承認後に差戻し・却下された支払依頼は、差戻し・却下前の承認日
+     * * 差戻し後に再度承認された支払依頼は、再承認日
+     * * 一度も承認されていない支払依頼は対象外
+     *
+     * 2026年10月20日以降に承認または更新された支払依頼のみが対象です。
+     */
+    end_last_approval_date?: string;
+    /**
      * 発生日で絞込：開始日(yyyy-mm-dd)
      */
     start_issue_date?: string;
@@ -25468,6 +26218,42 @@ export type CreatePurchaseRequestActionResponses = {
 export type CreatePurchaseRequestActionResponse =
   CreatePurchaseRequestActionResponses[keyof CreatePurchaseRequestActionResponses];
 
+export type GetPurchaseRequestPurchaseBudgetData = {
+  body?: never;
+  path: {
+    /**
+     * 購買申請ID
+     */
+    purchase_request_id: number;
+  };
+  query: {
+    /**
+     * 事業所ID
+     */
+    company_id: number;
+  };
+  url: "/api/1/purchase_requests/{purchase_request_id}/purchase_budget";
+};
+
+export type GetPurchaseRequestPurchaseBudgetErrors = {
+  400: BadRequestError;
+  401: UnauthorizedError;
+  403: ForbiddenError;
+  404: BadRequestNotFoundError;
+  500: InternalServerError;
+  503: ServiceUnavailableError;
+};
+
+export type GetPurchaseRequestPurchaseBudgetError =
+  GetPurchaseRequestPurchaseBudgetErrors[keyof GetPurchaseRequestPurchaseBudgetErrors];
+
+export type GetPurchaseRequestPurchaseBudgetResponses = {
+  200: PurchaseRequestPurchaseBudgetResponse;
+};
+
+export type GetPurchaseRequestPurchaseBudgetResponse =
+  GetPurchaseRequestPurchaseBudgetResponses[keyof GetPurchaseRequestPurchaseBudgetResponses];
+
 export type GetApprovalFlowRoutesData = {
   body?: never;
   path?: never;
@@ -26039,7 +26825,7 @@ export type GetUserMatchersResponses = {
       /**
        * 説明文。明細の取引内容とのマッチングに使用される文字列です。condition=4(指定なし)の場合は空文字列が返ります。
        */
-      description: string;
+      description: string | null;
       /**
        * マッチ条件
        * * 0: 部分一致(partial)
@@ -26408,7 +27194,7 @@ export type CreateUserMatcherResponses = {
     /**
      * 説明文。明細の取引内容とのマッチングに使用される文字列です。condition=4(指定なし)の場合は空文字列が返ります。
      */
-    description: string;
+    description: string | null;
     /**
      * マッチ条件
      * * 0: 部分一致(partial)
@@ -26492,7 +27278,7 @@ export type CreateUserMatcherResponses = {
      * * 0: freeeシステムによる更新
      *
      */
-    last_updated_user_id: number;
+    last_updated_user_id: number | null;
     /**
      * 最終更新ユーザー名。表示名が未設定の場合はメールアドレスが返ります。freeeシステムによる更新の場合は「freee」、ユーザー情報を取得できない場合は「-」が返ります。
      */
@@ -26676,7 +27462,7 @@ export type GetUserMatcherResponses = {
     /**
      * 説明文。明細の取引内容とのマッチングに使用される文字列です。condition=4(指定なし)の場合は空文字列が返ります。
      */
-    description: string;
+    description: string | null;
     /**
      * マッチ条件
      * * 0: 部分一致(partial)
@@ -26760,7 +27546,7 @@ export type GetUserMatcherResponses = {
      * * 0: freeeシステムによる更新
      *
      */
-    last_updated_user_id: number;
+    last_updated_user_id: number | null;
     /**
      * 最終更新ユーザー名。表示名が未設定の場合はメールアドレスが返ります。freeeシステムによる更新の場合は「freee」、ユーザー情報を取得できない場合は「-」が返ります。
      */
@@ -27068,7 +27854,7 @@ export type UpdateUserMatcherResponses = {
     /**
      * 説明文。明細の取引内容とのマッチングに使用される文字列です。condition=4(指定なし)の場合は空文字列が返ります。
      */
-    description: string;
+    description: string | null;
     /**
      * マッチ条件
      * * 0: 部分一致(partial)
@@ -27152,7 +27938,7 @@ export type UpdateUserMatcherResponses = {
      * * 0: freeeシステムによる更新
      *
      */
-    last_updated_user_id: number;
+    last_updated_user_id: number | null;
     /**
      * 最終更新ユーザー名。表示名が未設定の場合はメールアドレスが返ります。freeeシステムによる更新の場合は「freee」、ユーザー情報を取得できない場合は「-」が返ります。
      */
