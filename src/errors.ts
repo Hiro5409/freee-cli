@@ -1,6 +1,5 @@
 export const errorHints = {
-  authentication:
-    'Run "freee auth login --profile <name>", complete browser authentication if prompted, then retry with --profile <name>.',
+  authentication: 'Run "freee auth login --profile <name>", then retry with --profile <name>.',
   company:
     'Run "freee company list", then pass --company-id or select it with "freee company switch".',
   positiveId: "Pass a positive integer ID. Use the corresponding list command to find one.",
@@ -23,7 +22,6 @@ export type CliErrorCode =
   | "INVALID_INPUT"
   | "NOT_FOUND"
   | "OUTCOME_UNKNOWN"
-  | "PARTIAL_SUCCESS"
   | "RATE_LIMITED"
   | "UNEXPECTED"
   | "UPSTREAM_FAILURE";

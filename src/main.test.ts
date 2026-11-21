@@ -29,19 +29,6 @@ async function runCliWithEmptyConfig(args: string[]): Promise<Result> {
 }
 
 describe("CLI integration", () => {
-  test("resources expose API and browser operations under the same command group", async () => {
-    for (const args of [
-      ["deal", "list"],
-      ["wallet-txn", "list"],
-      ["wallet-txn", "ignore"],
-      ["invoice", "register-deal"],
-    ]) {
-      const result = await runCli([...args, "--help"]);
-      expect(result.exitCode).toBe(0);
-      expect(result.stdout).toContain("--profile");
-    }
-  });
-
   test("freee --help shows usage with subcommands", async () => {
     const { stdout } = await runCli(["--help"]);
     expect(stdout.split("USAGE:").length - 1).toBe(1);
@@ -73,7 +60,6 @@ describe("CLI integration", () => {
   test("freee auth login --help shows login usage", async () => {
     const { stdout } = await runCli(["auth", "login", "--help"]);
     expect(stdout).toContain("login");
-    expect(stdout).toContain("--web");
     expect(stdout).toContain("freee auth login --profile");
   });
 

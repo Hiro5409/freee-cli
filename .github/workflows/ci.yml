@@ -71,7 +71,6 @@ jobs:
           bun init --yes
           bun add "$RUNNER_TEMP"/package/*.tgz
           ./node_modules/freee-cli/bin/freee --version
-          bun -e 'import { withFreeeWeb } from "freee-cli/experimental/web"; if (typeof withFreeeWeb !== "function") throw new Error("Invalid experimental Web export");'
 
       - name: Build standalone executable
         run: bun run build

@@ -18,7 +18,7 @@ freee-cli exists because we believe a CLI is the better interface for coding age
 A CLI gives agents the same interface used by developers, scripts, and CI.
 Commands can be discovered with `--help`, composed with files and pipes, and run directly when debugging.
 
-freee-cli therefore exposes small freee operations rather than application-specific workflows: every result is compact JSON on stdout, every error is one line of JSON on stderr, and `--dry-run` previews exist where they reveal more than the supplied arguments. `auth login` also writes its browser prompts to stderr as JSON lines.
+freee-cli therefore exposes small freee operations rather than application-specific workflows: every result is compact JSON on stdout, every error is one line of JSON on stderr, and `--dry-run` previews exist where they reveal more than the supplied arguments. `auth login` also writes its authorization URL to stderr as a JSON line.
 
 ## Generated from official schemas
 
@@ -133,7 +133,7 @@ Both return a summary without sensitive personal data. `--all-fields` returns th
 
 ### Processing account statements
 
-Statement processing uses the official Accounting API with API authentication. `register`, `settle`, and `transfer` accept the [official API request body](https://developer.freee.co.jp/reference/accounting) as `--body` JSON. The selected profile or `--company-id` supplies `company_id`, overriding that field in the body.
+`register`, `settle`, and `transfer` accept the [official API request body](https://developer.freee.co.jp/reference/accounting) as `--body` JSON. The selected profile or `--company-id` supplies `company_id`, overriding that field in the body.
 
 ```bash
 freee wallet-txn ignore --id 42
@@ -148,33 +148,6 @@ freee wallet-txn apply-rules --id 42 --id 43
 The CLI sends one request and returns the API result, without preflight reads, previews, dry-runs, or follow-up reads. freee validates accounting constraints and applies its defaults. `register` accepts all deal fields, `settle` supports multiple payments and an `adjustment_deal`, and `transfer` supports multiple destinations and `charge_lines`. `reset` returns a statement to unprocessed. `register-private` uses freee's company-specific private accounting treatment.
 
 Rule application requires 1–1,000 statement IDs and runs asynchronously. freee skips ineligible statements, including processed ones; the CLI does not filter or reject them based on their state. A `queued` result confirms acceptance, not completion or a match; read the selected statements to inspect the outcome. Writes are never retried automatically. An `OUTCOME_UNKNOWN` error requires inspecting the affected statement before retrying.
-
-### Browser-backed operations
-
-Invoice registration, invoice sending-status changes, and account synchronization use [Agent Browser](https://github.com/vercel-labs/agent-browser). Run `freee auth login --web --profile <name>` to open a dedicated browser and select the configured company. The CLI waits up to five minutes and saves only a verified, encrypted session. `freee auth status --profile <name>` reports API and browser access separately.
-
-```bash
-freee invoice register-deal --id 456
-freee invoice set-sending-status --id 456 --status sent
-freee walletable sync --id 42
-freee walletable sync --all
-```
-
-Account synchronization waits up to one hour. With `--all`, freee selects eligible wallets and the result identifies those whose synchronization started and completed.
-
-These operations depend on observed Web interfaces. See the [Web operations module](src/plugins/web-operations/README.md) for their scope. Authentication state belongs to freee-cli and remains outside the repository.
-
-Bun applications can resolve a connection profile and use the remaining Web operations directly:
-
-```ts
-import { withFreeeWeb } from "freee-cli/experimental/web";
-import { resolveFreeeScope } from "freee-cli/profiles";
-
-const scope = resolveFreeeScope("business");
-await withFreeeWeb(scope, async (web) => {
-  console.log(await web.walletableSummary());
-});
-```
 
 ## Calling from Agents
 

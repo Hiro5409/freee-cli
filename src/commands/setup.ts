@@ -148,7 +148,7 @@ async function runSetupFlow(options: SetupWizardOptions): Promise<void> {
   prompts.note(
     "Create or open the OAuth application used by this CLI.\n" +
       `Set its callback URL to http://localhost:8080/callback\n${DEVELOPER_APP_URL}`,
-    "1/4 · Create a freee application",
+    "1/3 · Create a freee application",
   );
   const openBrowser = options.openBrowser ?? openBrowserUrl;
   if (!openBrowser(DEVELOPER_APP_URL)) {
@@ -162,7 +162,7 @@ async function runSetupFlow(options: SetupWizardOptions): Promise<void> {
 
   prompts.note(
     "Credentials are stored only in the local freee CLI configuration directory.",
-    "2/4 · Save OAuth credentials",
+    "2/3 · Save OAuth credentials",
   );
   const storedOAuth = loadOAuthCredentials(dir);
   const keepStoredOAuth =
@@ -196,7 +196,7 @@ async function runSetupFlow(options: SetupWizardOptions): Promise<void> {
 
   prompts.note(
     "Authentication opens a browser and stores tokens in the local configuration directory.",
-    "3/4 · Authenticate and select a company",
+    "3/3 · Authenticate and select a company",
   );
   const profile = stringAnswer(
     await prompts.text({
@@ -229,24 +229,6 @@ async function runSetupFlow(options: SetupWizardOptions): Promise<void> {
     prompts,
   );
   await runCli(["company", "switch", "--profile", profile, "--id", companyId]);
-
-  prompts.note(
-    "These commands use freee's unsupported Web interface through an encrypted Agent Browser session and may require maintenance when freee changes.",
-    "4/4 · Browser authentication",
-  );
-  const loginWeb = booleanAnswer(
-    await prompts.confirm({
-      message: `Log in to freee Web for profile "${profile}" now?`,
-      initialValue: false,
-    }),
-    prompts,
-  );
-  if (loginWeb) await runCli(["auth", "login", "--web", "--profile", profile]);
-  else
-    prompts.note(
-      `Run "freee auth login --web --profile ${profile}" before using Web operations.`,
-      "Web login",
-    );
 
   prompts.outro("Setup complete.");
 }
