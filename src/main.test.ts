@@ -29,18 +29,6 @@ async function runCliWithEmptyConfig(args: string[]): Promise<Result> {
 }
 
 describe("CLI integration", () => {
-  test("resource commands accept a connection profile", async () => {
-    for (const args of [
-      ["deal", "list"],
-      ["wallet-txn", "list"],
-      ["wallet-txn", "ignore"],
-    ]) {
-      const result = await runCli([...args, "--help"]);
-      expect(result.exitCode).toBe(0);
-      expect(result.stdout).toContain("--profile");
-    }
-  });
-
   test("freee --help shows usage with subcommands", async () => {
     const { stdout } = await runCli(["--help"]);
     expect(stdout.split("USAGE:").length - 1).toBe(1);

@@ -133,7 +133,7 @@ Both return a summary without sensitive personal data. `--all-fields` returns th
 
 ### Processing account statements
 
-Statement processing uses the official Accounting API. `register`, `settle`, and `transfer` accept the [official API request body](https://developer.freee.co.jp/reference/accounting) as `--body` JSON. The selected profile or `--company-id` supplies `company_id`, overriding that field in the body.
+`register`, `settle`, and `transfer` accept the [official API request body](https://developer.freee.co.jp/reference/accounting) as `--body` JSON. The selected profile or `--company-id` supplies `company_id`, overriding that field in the body.
 
 ```bash
 freee wallet-txn ignore --id 42
