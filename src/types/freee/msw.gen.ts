@@ -147,7 +147,6 @@ import type {
   GetTagResponses,
   GetTagsResponses,
   GetTaxCodeResponses,
-  GetTaxCodesResponses,
   GetTaxesCompaniesResponses,
   GetTransferResponses,
   GetTransfersResponses,
@@ -254,9 +253,6 @@ export type HandleGetPartnersResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/partners` operation.
- */
 export function handleGetPartners(
   response?: HandleGetPartnersResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -288,9 +284,6 @@ export type HandleCreatePartnerResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/partners` operation.
- */
 export function handleCreatePartner(
   response?: HandleCreatePartnerResponse | HttpResponseResolver<never, CreatePartnerData["body"]>,
   options?: RequestHandlerOptions,
@@ -322,9 +315,6 @@ export type HandleDestroyPartnerResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/partners/{id}` operation.
- */
 export function handleDestroyPartner(
   response?:
     | HandleDestroyPartnerResponse
@@ -368,9 +358,6 @@ export type HandleGetPartnerResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/partners/{id}` operation.
- */
 export function handleGetPartner(
   response?:
     | HandleGetPartnerResponse
@@ -414,9 +401,6 @@ export type HandleUpdatePartnerResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/partners/{id}` operation.
- */
 export function handleUpdatePartner(
   response?:
     | HandleUpdatePartnerResponse
@@ -460,9 +444,6 @@ export type HandleUpdatePartnerByCodeResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/partners/code/{code}` operation.
- */
 export function handleUpdatePartnerByCode(
   response?:
     | HandleUpdatePartnerByCodeResponse
@@ -513,9 +494,6 @@ type ToResponseUnion<T> = {
   };
 }[Extract<keyof T, number>];
 
-/**
- * Handler for the `PUT /api/1/partners/upsert_by_code` operation.
- */
 export function handleApiV1PartnersUpsertByCode(
   response?:
     | HandleApiV1PartnersUpsertByCodeResponse
@@ -550,9 +528,6 @@ export type HandleGetFormsSelectablesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/forms/selectables` operation.
- */
 export function handleGetFormsSelectables(
   response?: HandleGetFormsSelectablesResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -584,9 +559,6 @@ export type HandleDestroyAccountItemResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/account_items/{id}` operation.
- */
 export function handleDestroyAccountItem(
   response?:
     | HandleDestroyAccountItemResponse
@@ -630,9 +602,6 @@ export type HandleGetAccountItemResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/account_items/{id}` operation.
- */
 export function handleGetAccountItem(
   response?:
     | HandleGetAccountItemResponse
@@ -676,9 +645,6 @@ export type HandleUpdateAccountItemResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/account_items/{id}` operation.
- */
 export function handleUpdateAccountItem(
   response?:
     | HandleUpdateAccountItemResponse
@@ -722,9 +688,6 @@ export type HandleGetAccountItemsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/account_items` operation.
- */
 export function handleGetAccountItems(
   response?: HandleGetAccountItemsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -756,9 +719,6 @@ export type HandleCreateAccountItemResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/account_items` operation.
- */
 export function handleCreateAccountItem(
   response?:
     HandleCreateAccountItemResponse | HttpResponseResolver<never, CreateAccountItemData["body"]>,
@@ -791,9 +751,6 @@ export type HandleApiV1AccountItemsUpsertByCodeResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/account_items/code/upsert` operation.
- */
 export function handleApiV1AccountItemsUpsertByCode(
   response?:
     | HandleApiV1AccountItemsUpsertByCodeResponse
@@ -828,9 +785,6 @@ export type HandleGetTagsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/tags` operation.
- */
 export function handleGetTags(
   response?: HandleGetTagsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -862,9 +816,6 @@ export type HandleCreateTagResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/tags` operation.
- */
 export function handleCreateTag(
   response?: HandleCreateTagResponse | HttpResponseResolver<never, CreateTagData["body"]>,
   options?: RequestHandlerOptions,
@@ -896,9 +847,6 @@ export type HandleDestroyTagResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/tags/{id}` operation.
- */
 export function handleDestroyTag(
   response?:
     | HandleDestroyTagResponse
@@ -942,9 +890,6 @@ export type HandleGetTagResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/tags/{id}` operation.
- */
 export function handleGetTag(
   response?:
     | HandleGetTagResponse
@@ -988,9 +933,6 @@ export type HandleUpdateTagResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/tags/{id}` operation.
- */
 export function handleUpdateTag(
   response?:
     | HandleUpdateTagResponse
@@ -1034,9 +976,6 @@ export type HandleGetSectionsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/sections` operation.
- */
 export function handleGetSections(
   response?: HandleGetSectionsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -1068,9 +1007,6 @@ export type HandleCreateSectionResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/sections` operation.
- */
 export function handleCreateSection(
   response?: HandleCreateSectionResponse | HttpResponseResolver<never, CreateSectionData["body"]>,
   options?: RequestHandlerOptions,
@@ -1102,9 +1038,6 @@ export type HandleDestroySectionResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/sections/{id}` operation.
- */
 export function handleDestroySection(
   response?:
     | HandleDestroySectionResponse
@@ -1148,9 +1081,6 @@ export type HandleGetSectionResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/sections/{id}` operation.
- */
 export function handleGetSection(
   response?:
     | HandleGetSectionResponse
@@ -1194,9 +1124,6 @@ export type HandleUpdateSectionResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/sections/{id}` operation.
- */
 export function handleUpdateSection(
   response?:
     | HandleUpdateSectionResponse
@@ -1240,9 +1167,6 @@ export type HandleApiV1SectionsUpsertByCodeResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/sections/code/upsert` operation.
- */
 export function handleApiV1SectionsUpsertByCode(
   response?:
     | HandleApiV1SectionsUpsertByCodeResponse
@@ -1277,9 +1201,6 @@ export type HandleGetInvoicesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/invoices` operation.
- */
 export function handleGetInvoices(
   response?: HandleGetInvoicesResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -1311,9 +1232,6 @@ export type HandleGetInvoiceResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/invoices/{id}` operation.
- */
 export function handleGetInvoice(
   response?:
     | HandleGetInvoiceResponse
@@ -1357,9 +1275,6 @@ export type HandleGetQuotationsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/quotations` operation.
- */
 export function handleGetQuotations(
   response?: HandleGetQuotationsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -1391,9 +1306,6 @@ export type HandleGetQuotationResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/quotations/{id}` operation.
- */
 export function handleGetQuotation(
   response?:
     | HandleGetQuotationResponse
@@ -1437,9 +1349,6 @@ export type HandleGetDealsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/deals` operation.
- */
 export function handleGetDeals(
   response?: HandleGetDealsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -1471,9 +1380,6 @@ export type HandleCreateDealResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/deals` operation.
- */
 export function handleCreateDeal(
   response?: HandleCreateDealResponse | HttpResponseResolver<never, CreateDealData["body"]>,
   options?: RequestHandlerOptions,
@@ -1505,9 +1411,6 @@ export type HandleDestroyDealResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/deals/{id}` operation.
- */
 export function handleDestroyDeal(
   response?:
     | HandleDestroyDealResponse
@@ -1551,9 +1454,6 @@ export type HandleGetDealResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/deals/{id}` operation.
- */
 export function handleGetDeal(
   response?:
     | HandleGetDealResponse
@@ -1597,9 +1497,6 @@ export type HandleUpdateDealResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/deals/{id}` operation.
- */
 export function handleUpdateDeal(
   response?:
     | HandleUpdateDealResponse
@@ -1643,9 +1540,6 @@ export type HandleCreateDealRenewResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/deals/{id}/renews` operation.
- */
 export function handleCreateDealRenew(
   response?:
     | HandleCreateDealRenewResponse
@@ -1689,9 +1583,6 @@ export type HandleDeleteDealRenewResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `DELETE /api/1/deals/{id}/renews/{renew_id}` operation.
- */
 export function handleDeleteDealRenew(
   response?:
     | HandleDeleteDealRenewResponse
@@ -1737,9 +1628,6 @@ export type HandleUpdateDealRenewResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/deals/{id}/renews/{renew_id}` operation.
- */
 export function handleUpdateDealRenew(
   response?:
     | HandleUpdateDealRenewResponse
@@ -1785,9 +1673,6 @@ export type HandleCreateDealPaymentResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/deals/{id}/payments` operation.
- */
 export function handleCreateDealPayment(
   response?:
     | HandleCreateDealPaymentResponse
@@ -1831,9 +1716,6 @@ export type HandleDestroyDealPaymentResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/deals/{id}/payments/{payment_id}` operation.
- */
 export function handleDestroyDealPayment(
   response?:
     | HandleDestroyDealPaymentResponse
@@ -1879,9 +1761,6 @@ export type HandleUpdateDealPaymentResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/deals/{id}/payments/{payment_id}` operation.
- */
 export function handleUpdateDealPayment(
   response?:
     | HandleUpdateDealPaymentResponse
@@ -1927,9 +1806,6 @@ export type HandleGetManualJournalsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/manual_journals` operation.
- */
 export function handleGetManualJournals(
   response?: HandleGetManualJournalsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -1961,9 +1837,6 @@ export type HandleCreateManualJournalResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/manual_journals` operation.
- */
 export function handleCreateManualJournal(
   response?:
     | HandleCreateManualJournalResponse
@@ -1997,9 +1870,6 @@ export type HandleDestroyManualJournalResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/manual_journals/{id}` operation.
- */
 export function handleDestroyManualJournal(
   response?:
     | HandleDestroyManualJournalResponse
@@ -2043,9 +1913,6 @@ export type HandleGetManualJournalResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/manual_journals/{id}` operation.
- */
 export function handleGetManualJournal(
   response?:
     | HandleGetManualJournalResponse
@@ -2089,9 +1956,6 @@ export type HandleUpdateManualJournalResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/manual_journals/{id}` operation.
- */
 export function handleUpdateManualJournal(
   response?:
     | HandleUpdateManualJournalResponse
@@ -2135,9 +1999,6 @@ export type HandleGetUsersResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/users` operation.
- */
 export function handleGetUsers(
   response?: HandleGetUsersResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -2169,9 +2030,6 @@ export type HandleGetUsersMeResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/users/me` operation.
- */
 export function handleGetUsersMe(
   response?: HandleGetUsersMeResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -2203,9 +2061,6 @@ export type HandleUpdateUserResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/users/me` operation.
- */
 export function handleUpdateUser(
   response?: HandleUpdateUserResponse | HttpResponseResolver<never, UpdateUserData["body"]>,
   options?: RequestHandlerOptions,
@@ -2237,9 +2092,6 @@ export type HandleGetUsersCapabilitiesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/users/capabilities` operation.
- */
 export function handleGetUsersCapabilities(
   response?: HandleGetUsersCapabilitiesResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -2271,9 +2123,6 @@ export type HandleGetCompaniesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/companies` operation.
- */
 export function handleGetCompanies(
   response?: HandleGetCompaniesResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -2305,9 +2154,6 @@ export type HandleGetCompanyResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/companies/{id}` operation.
- */
 export function handleGetCompany(
   response?:
     | HandleGetCompanyResponse
@@ -2351,9 +2197,6 @@ export type HandleGetItemsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/items` operation.
- */
 export function handleGetItems(
   response?: HandleGetItemsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -2385,9 +2228,6 @@ export type HandleCreateItemResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/items` operation.
- */
 export function handleCreateItem(
   response?: HandleCreateItemResponse | HttpResponseResolver<never, CreateItemData["body"]>,
   options?: RequestHandlerOptions,
@@ -2419,9 +2259,6 @@ export type HandleDestroyItemResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/items/{id}` operation.
- */
 export function handleDestroyItem(
   response?:
     | HandleDestroyItemResponse
@@ -2465,9 +2302,6 @@ export type HandleGetItemResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/items/{id}` operation.
- */
 export function handleGetItem(
   response?:
     | HandleGetItemResponse
@@ -2511,9 +2345,6 @@ export type HandleUpdateItemResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/items/{id}` operation.
- */
 export function handleUpdateItem(
   response?:
     | HandleUpdateItemResponse
@@ -2557,9 +2388,6 @@ export type HandleApiV1ItemsUpsertByCodeResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/items/code/upsert` operation.
- */
 export function handleApiV1ItemsUpsertByCode(
   response?:
     | HandleApiV1ItemsUpsertByCodeResponse
@@ -2589,48 +2417,11 @@ export function handleApiV1ItemsUpsertByCode(
   );
 }
 
-export type HandleGetTaxCodesResponse = {
-  body: GetTaxCodesResponses[200];
-  status?: 200;
-};
-
-/**
- * Handler for the `GET /api/1/taxes/codes` operation.
- */
-export function handleGetTaxCodes(
-  response?: HandleGetTaxCodesResponse | HttpResponseResolver<never, never>,
-  options?: RequestHandlerOptions,
-): HttpHandler {
-  return http.get<never, never>(
-    `${options?.baseUrl ?? "*"}/api/1/taxes/codes`,
-    (info) => {
-      if (typeof response === "function") {
-        return response(info);
-      }
-      const body = response?.body;
-      if (body !== undefined) {
-        return HttpResponse.json(body, { status: response?.status ?? 200 });
-      }
-      if (options?.responseFallback === "passthrough") {
-        return;
-      }
-      return new Response("Not Implemented", {
-        status: 501,
-        statusText: "Not Implemented",
-      });
-    },
-    options,
-  );
-}
-
 export type HandleGetTaxCodeResponse = {
   body: GetTaxCodeResponses[200];
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/taxes/codes/{code}` operation.
- */
 export function handleGetTaxCode(
   response?:
     | HandleGetTaxCodeResponse
@@ -2674,9 +2465,6 @@ export type HandleGetTaxesCompaniesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/taxes/companies/{company_id}` operation.
- */
 export function handleGetTaxesCompanies(
   response?:
     | HandleGetTaxesCompaniesResponse
@@ -2720,9 +2508,6 @@ export type HandleGetWalletablesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/walletables` operation.
- */
 export function handleGetWalletables(
   response?: HandleGetWalletablesResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -2754,9 +2539,6 @@ export type HandleCreateWalletableResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/walletables` operation.
- */
 export function handleCreateWalletable(
   response?:
     HandleCreateWalletableResponse | HttpResponseResolver<never, CreateWalletableData["body"]>,
@@ -2789,9 +2571,6 @@ export type HandleDestroyWalletableResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/walletables/{type}/{id}` operation.
- */
 export function handleDestroyWalletable(
   response?:
     | HandleDestroyWalletableResponse
@@ -2837,9 +2616,6 @@ export type HandleGetWalletableResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/walletables/{type}/{id}` operation.
- */
 export function handleGetWalletable(
   response?:
     | HandleGetWalletableResponse
@@ -2885,9 +2661,6 @@ export type HandleUpdateWalletableResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/walletables/{type}/{id}` operation.
- */
 export function handleUpdateWalletable(
   response?:
     | HandleUpdateWalletableResponse
@@ -2933,9 +2706,6 @@ export type HandleGetBanksResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/banks` operation.
- */
 export function handleGetBanks(
   response?: HandleGetBanksResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -2967,9 +2737,6 @@ export type HandleGetBankResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/banks/{id}` operation.
- */
 export function handleGetBank(
   response?:
     | HandleGetBankResponse
@@ -3013,9 +2780,6 @@ export type HandleGetTransfersResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/transfers` operation.
- */
 export function handleGetTransfers(
   response?: HandleGetTransfersResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -3047,9 +2811,6 @@ export type HandleCreateTransferResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/transfers` operation.
- */
 export function handleCreateTransfer(
   response?: HandleCreateTransferResponse | HttpResponseResolver<never, CreateTransferData["body"]>,
   options?: RequestHandlerOptions,
@@ -3081,9 +2842,6 @@ export type HandleDestroyTransferResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/transfers/{id}` operation.
- */
 export function handleDestroyTransfer(
   response?:
     | HandleDestroyTransferResponse
@@ -3127,9 +2885,6 @@ export type HandleGetTransferResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/transfers/{id}` operation.
- */
 export function handleGetTransfer(
   response?:
     | HandleGetTransferResponse
@@ -3173,9 +2928,6 @@ export type HandleUpdateTransferResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/transfers/{id}` operation.
- */
 export function handleUpdateTransfer(
   response?:
     | HandleUpdateTransferResponse
@@ -3219,9 +2971,6 @@ export type HandleGetWalletTxnsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/wallet_txns` operation.
- */
 export function handleGetWalletTxns(
   response?: HandleGetWalletTxnsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -3253,9 +3002,6 @@ export type HandleCreateWalletTxnResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/wallet_txns` operation.
- */
 export function handleCreateWalletTxn(
   response?:
     HandleCreateWalletTxnResponse | HttpResponseResolver<never, CreateWalletTxnData["body"]>,
@@ -3288,9 +3034,6 @@ export type HandleDestroyWalletTxnResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/wallet_txns/{id}` operation.
- */
 export function handleDestroyWalletTxn(
   response?:
     | HandleDestroyWalletTxnResponse
@@ -3334,9 +3077,6 @@ export type HandleGetWalletTxnResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/wallet_txns/{id}` operation.
- */
 export function handleGetWalletTxn(
   response?:
     | HandleGetWalletTxnResponse
@@ -3380,9 +3120,6 @@ export type HandleReconcileWalletTxnResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `POST /api/1/wallet_txns/{id}/reconcile` operation.
- */
 export function handleReconcileWalletTxn(
   response?:
     | HandleReconcileWalletTxnResponse
@@ -3426,9 +3163,6 @@ export type HandleCreateWalletTxnDealResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `POST /api/1/wallet_txns/{id}/create_deal` operation.
- */
 export function handleCreateWalletTxnDeal(
   response?:
     | HandleCreateWalletTxnDealResponse
@@ -3472,9 +3206,6 @@ export type HandleCreateWalletTxnTransferResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `POST /api/1/wallet_txns/{id}/create_transfer` operation.
- */
 export function handleCreateWalletTxnTransfer(
   response?:
     | HandleCreateWalletTxnTransferResponse
@@ -3518,9 +3249,6 @@ export type HandleCreateWalletTxnPrivateDealResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `POST /api/1/wallet_txns/{id}/create_private_deal` operation.
- */
 export function handleCreateWalletTxnPrivateDeal(
   response?:
     | HandleCreateWalletTxnPrivateDealResponse
@@ -3564,9 +3292,6 @@ export type HandleIgnoreWalletTxnResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `POST /api/1/wallet_txns/{id}/ignore` operation.
- */
 export function handleIgnoreWalletTxn(
   response?:
     | HandleIgnoreWalletTxnResponse
@@ -3610,9 +3335,6 @@ export type HandleResetWalletTxnResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `POST /api/1/wallet_txns/{id}/reset` operation.
- */
 export function handleResetWalletTxn(
   response?:
     | HandleResetWalletTxnResponse
@@ -3656,9 +3378,6 @@ export type HandleGetJournalsResponse = {
   status?: 202;
 };
 
-/**
- * Handler for the `GET /api/1/journals` operation.
- */
 export function handleGetJournals(
   response?: HandleGetJournalsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -3690,9 +3409,6 @@ export type HandleGetJournalStatusResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/journals/reports/{id}/status` operation.
- */
 export function handleGetJournalStatus(
   response?:
     | HandleGetJournalStatusResponse
@@ -3736,9 +3452,6 @@ export type HandleDownloadJournalResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/journals/reports/{id}/download` operation.
- */
 export function handleDownloadJournal(
   response?:
     | HandleDownloadJournalResponse
@@ -3784,9 +3497,6 @@ export type HandleSearchReportJournalsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `POST /api/1/journals/search` operation.
- */
 export function handleSearchReportJournals(
   response?:
     | HandleSearchReportJournalsResponse
@@ -3820,9 +3530,6 @@ export type HandleGetTrialBsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/reports/trial_bs` operation.
- */
 export function handleGetTrialBs(
   response?: HandleGetTrialBsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -3854,9 +3561,6 @@ export type HandleGetTrialBsTwoYearsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/reports/trial_bs_two_years` operation.
- */
 export function handleGetTrialBsTwoYears(
   response?: HandleGetTrialBsTwoYearsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -3888,9 +3592,6 @@ export type HandleGetTrialBsThreeYearsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/reports/trial_bs_three_years` operation.
- */
 export function handleGetTrialBsThreeYears(
   response?: HandleGetTrialBsThreeYearsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -3922,9 +3623,6 @@ export type HandleGetTrialPlResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/reports/trial_pl` operation.
- */
 export function handleGetTrialPl(
   response?: HandleGetTrialPlResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -3956,9 +3654,6 @@ export type HandleGetTrialPlTwoYearsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/reports/trial_pl_two_years` operation.
- */
 export function handleGetTrialPlTwoYears(
   response?: HandleGetTrialPlTwoYearsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -3990,9 +3685,6 @@ export type HandleGetTrialPlThreeYearsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/reports/trial_pl_three_years` operation.
- */
 export function handleGetTrialPlThreeYears(
   response?: HandleGetTrialPlThreeYearsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -4024,9 +3716,6 @@ export type HandleGetTrialPlSectionsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/reports/trial_pl_sections` operation.
- */
 export function handleGetTrialPlSections(
   response?: HandleGetTrialPlSectionsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -4058,9 +3747,6 @@ export type HandleGetTrialPlSegment1TagsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/reports/trial_pl_segment_1_tags` operation.
- */
 export function handleGetTrialPlSegment1Tags(
   response?: HandleGetTrialPlSegment1TagsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -4092,9 +3778,6 @@ export type HandleGetTrialPlSegment2TagsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/reports/trial_pl_segment_2_tags` operation.
- */
 export function handleGetTrialPlSegment2Tags(
   response?: HandleGetTrialPlSegment2TagsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -4126,9 +3809,6 @@ export type HandleGetTrialPlSegment3TagsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/reports/trial_pl_segment_3_tags` operation.
- */
 export function handleGetTrialPlSegment3Tags(
   response?: HandleGetTrialPlSegment3TagsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -4160,9 +3840,6 @@ export type HandleGetTrialCrResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/reports/trial_cr` operation.
- */
 export function handleGetTrialCr(
   response?: HandleGetTrialCrResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -4194,9 +3871,6 @@ export type HandleGetTrialCrTwoYearsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/reports/trial_cr_two_years` operation.
- */
 export function handleGetTrialCrTwoYears(
   response?: HandleGetTrialCrTwoYearsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -4228,9 +3902,6 @@ export type HandleGetTrialCrThreeYearsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/reports/trial_cr_three_years` operation.
- */
 export function handleGetTrialCrThreeYears(
   response?: HandleGetTrialCrThreeYearsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -4262,9 +3933,6 @@ export type HandleGetTrialCrSectionsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/reports/trial_cr_sections` operation.
- */
 export function handleGetTrialCrSections(
   response?: HandleGetTrialCrSectionsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -4296,9 +3964,6 @@ export type HandleGetTrialCrSegment1TagsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/reports/trial_cr_segment_1_tags` operation.
- */
 export function handleGetTrialCrSegment1Tags(
   response?: HandleGetTrialCrSegment1TagsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -4330,9 +3995,6 @@ export type HandleGetTrialCrSegment2TagsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/reports/trial_cr_segment_2_tags` operation.
- */
 export function handleGetTrialCrSegment2Tags(
   response?: HandleGetTrialCrSegment2TagsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -4364,9 +4026,6 @@ export type HandleGetTrialCrSegment3TagsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/reports/trial_cr_segment_3_tags` operation.
- */
 export function handleGetTrialCrSegment3Tags(
   response?: HandleGetTrialCrSegment3TagsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -4398,9 +4057,6 @@ export type HandleGetGeneralLedgersResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/reports/general_ledgers` operation.
- */
 export function handleGetGeneralLedgers(
   response?: HandleGetGeneralLedgersResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -4432,9 +4088,6 @@ export type HandleGetReceiptsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/receipts` operation.
- */
 export function handleGetReceipts(
   response?: HandleGetReceiptsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -4466,9 +4119,6 @@ export type HandleCreateReceiptResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/receipts` operation.
- */
 export function handleCreateReceipt(
   response?: HandleCreateReceiptResponse | HttpResponseResolver<never, CreateReceiptData["body"]>,
   options?: RequestHandlerOptions,
@@ -4500,9 +4150,6 @@ export type HandleDestroyReceiptResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/receipts/{id}` operation.
- */
 export function handleDestroyReceipt(
   response?:
     | HandleDestroyReceiptResponse
@@ -4546,9 +4193,6 @@ export type HandleGetReceiptResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/receipts/{id}` operation.
- */
 export function handleGetReceipt(
   response?:
     | HandleGetReceiptResponse
@@ -4592,9 +4236,6 @@ export type HandleUpdateReceiptResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/receipts/{id}` operation.
- */
 export function handleUpdateReceipt(
   response?:
     | HandleUpdateReceiptResponse
@@ -4638,9 +4279,6 @@ export type HandleDownloadReceiptResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/receipts/{id}/download` operation.
- */
 export function handleDownloadReceipt(
   response?:
     | HandleDownloadReceiptResponse
@@ -4686,9 +4324,6 @@ export type HandleGetExpenseApplicationsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/expense_applications` operation.
- */
 export function handleGetExpenseApplications(
   response?: HandleGetExpenseApplicationsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -4720,9 +4355,6 @@ export type HandleCreateExpenseApplicationResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/expense_applications` operation.
- */
 export function handleCreateExpenseApplication(
   response?:
     | HandleCreateExpenseApplicationResponse
@@ -4756,9 +4388,6 @@ export type HandleDestroyExpenseApplicationResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/expense_applications/{id}` operation.
- */
 export function handleDestroyExpenseApplication(
   response?:
     | HandleDestroyExpenseApplicationResponse
@@ -4802,9 +4431,6 @@ export type HandleGetExpenseApplicationResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/expense_applications/{id}` operation.
- */
 export function handleGetExpenseApplication(
   response?:
     | HandleGetExpenseApplicationResponse
@@ -4848,9 +4474,6 @@ export type HandleUpdateExpenseApplicationResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/expense_applications/{id}` operation.
- */
 export function handleUpdateExpenseApplication(
   response?:
     | HandleUpdateExpenseApplicationResponse
@@ -4894,9 +4517,6 @@ export type HandleUpdateExpenseApplicationActionResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/expense_applications/{id}/actions` operation.
- */
 export function handleUpdateExpenseApplicationAction(
   response?:
     | HandleUpdateExpenseApplicationActionResponse
@@ -4940,9 +4560,6 @@ export type HandleUpdateExpenseApplicationParentApprovableRequestsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/expense_applications/{id}/parent_approvable_requests` operation.
- */
 export function handleUpdateExpenseApplicationParentApprovableRequests(
   response?:
     | HandleUpdateExpenseApplicationParentApprovableRequestsResponse
@@ -4986,9 +4603,6 @@ export type HandleListExpenseApplicationCurrenciesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/expense_applications/currencies` operation.
- */
 export function handleListExpenseApplicationCurrencies(
   response?: HandleListExpenseApplicationCurrenciesResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -5020,9 +4634,6 @@ export type HandleCreateExpenseApplicationCurrencyResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/expense_applications/currencies` operation.
- */
 export function handleCreateExpenseApplicationCurrency(
   response?:
     | HandleCreateExpenseApplicationCurrencyResponse
@@ -5056,9 +4667,6 @@ export type HandleDeleteExpenseApplicationCurrencyResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/expense_applications/currencies/{id}` operation.
- */
 export function handleDeleteExpenseApplicationCurrency(
   response?:
     | HandleDeleteExpenseApplicationCurrencyResponse
@@ -5102,9 +4710,6 @@ export type HandleGetExpenseApplicationCurrencyResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/expense_applications/currencies/{id}` operation.
- */
 export function handleGetExpenseApplicationCurrency(
   response?:
     | HandleGetExpenseApplicationCurrencyResponse
@@ -5148,9 +4753,6 @@ export type HandleUpdateExpenseApplicationCurrencyResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/expense_applications/currencies/{id}` operation.
- */
 export function handleUpdateExpenseApplicationCurrency(
   response?:
     | HandleUpdateExpenseApplicationCurrencyResponse
@@ -5194,9 +4796,6 @@ export type HandleGetExpenseApplicationFormResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/expense_applications/form` operation.
- */
 export function handleGetExpenseApplicationForm(
   response?: HandleGetExpenseApplicationFormResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -5228,9 +4827,6 @@ export type HandleUpdateExpenseApplicationFormResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/expense_applications/form` operation.
- */
 export function handleUpdateExpenseApplicationForm(
   response?:
     | HandleUpdateExpenseApplicationFormResponse
@@ -5264,9 +4860,6 @@ export type HandleCreateExpenseApplicationAmountCalculationResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `POST /api/1/expense_applications/amount_calculations` operation.
- */
 export function handleCreateExpenseApplicationAmountCalculation(
   response?:
     | HandleCreateExpenseApplicationAmountCalculationResponse
@@ -5300,9 +4893,6 @@ export type HandleGetExpenseApplicationLineTemplatesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/expense_application_line_templates` operation.
- */
 export function handleGetExpenseApplicationLineTemplates(
   response?: HandleGetExpenseApplicationLineTemplatesResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -5334,9 +4924,6 @@ export type HandleCreateExpenseApplicationLineTemplateResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/expense_application_line_templates` operation.
- */
 export function handleCreateExpenseApplicationLineTemplate(
   response?:
     | HandleCreateExpenseApplicationLineTemplateResponse
@@ -5370,9 +4957,6 @@ export type HandleDestroyExpenseApplicationLineTemplateResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/expense_application_line_templates/{id}` operation.
- */
 export function handleDestroyExpenseApplicationLineTemplate(
   response?:
     | HandleDestroyExpenseApplicationLineTemplateResponse
@@ -5416,9 +5000,6 @@ export type HandleGetExpenseApplicationLineTemplateResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/expense_application_line_templates/{id}` operation.
- */
 export function handleGetExpenseApplicationLineTemplate(
   response?:
     | HandleGetExpenseApplicationLineTemplateResponse
@@ -5462,9 +5043,6 @@ export type HandleUpdateExpenseApplicationLineTemplateResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/expense_application_line_templates/{id}` operation.
- */
 export function handleUpdateExpenseApplicationLineTemplate(
   response?:
     | HandleUpdateExpenseApplicationLineTemplateResponse
@@ -5508,9 +5086,6 @@ export type HandleGetPaymentRequestsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/payment_requests` operation.
- */
 export function handleGetPaymentRequests(
   response?: HandleGetPaymentRequestsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -5542,9 +5117,6 @@ export type HandleCreatePaymentRequestResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/payment_requests` operation.
- */
 export function handleCreatePaymentRequest(
   response?:
     | HandleCreatePaymentRequestResponse
@@ -5578,9 +5150,6 @@ export type HandleDestroyPaymentRequestResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/payment_requests/{id}` operation.
- */
 export function handleDestroyPaymentRequest(
   response?:
     | HandleDestroyPaymentRequestResponse
@@ -5624,9 +5193,6 @@ export type HandleGetPaymentRequestResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/payment_requests/{id}` operation.
- */
 export function handleGetPaymentRequest(
   response?:
     | HandleGetPaymentRequestResponse
@@ -5670,9 +5236,6 @@ export type HandleUpdatePaymentRequestResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/payment_requests/{id}` operation.
- */
 export function handleUpdatePaymentRequest(
   response?:
     | HandleUpdatePaymentRequestResponse
@@ -5716,9 +5279,6 @@ export type HandleUpdatePaymentRequestActionResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/payment_requests/{id}/actions` operation.
- */
 export function handleUpdatePaymentRequestAction(
   response?:
     | HandleUpdatePaymentRequestActionResponse
@@ -5762,9 +5322,6 @@ export type HandleGetApprovalRequestsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/approval_requests` operation.
- */
 export function handleGetApprovalRequests(
   response?: HandleGetApprovalRequestsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -5796,9 +5353,6 @@ export type HandleCreateApprovalRequestResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/approval_requests` operation.
- */
 export function handleCreateApprovalRequest(
   response?:
     | HandleCreateApprovalRequestResponse
@@ -5832,9 +5386,6 @@ export type HandleDestroyApprovalRequestResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/approval_requests/{id}` operation.
- */
 export function handleDestroyApprovalRequest(
   response?:
     | HandleDestroyApprovalRequestResponse
@@ -5878,9 +5429,6 @@ export type HandleGetApprovalRequestResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/approval_requests/{id}` operation.
- */
 export function handleGetApprovalRequest(
   response?:
     | HandleGetApprovalRequestResponse
@@ -5924,9 +5472,6 @@ export type HandleUpdateApprovalRequestResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/approval_requests/{id}` operation.
- */
 export function handleUpdateApprovalRequest(
   response?:
     | HandleUpdateApprovalRequestResponse
@@ -5970,9 +5515,6 @@ export type HandleUpdateApprovalRequestActionResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/approval_requests/{id}/actions` operation.
- */
 export function handleUpdateApprovalRequestAction(
   response?:
     | HandleUpdateApprovalRequestActionResponse
@@ -6016,9 +5558,6 @@ export type HandleGetApprovalRequestFormsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/approval_requests/forms` operation.
- */
 export function handleGetApprovalRequestForms(
   response?: HandleGetApprovalRequestFormsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -6050,9 +5589,6 @@ export type HandleGetApprovalRequestFormResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/approval_requests/forms/{id}` operation.
- */
 export function handleGetApprovalRequestForm(
   response?:
     | HandleGetApprovalRequestFormResponse
@@ -6096,9 +5632,6 @@ export type HandleGetPurchaseRequestsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/purchase_requests` operation.
- */
 export function handleGetPurchaseRequests(
   response?: HandleGetPurchaseRequestsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -6130,9 +5663,6 @@ export type HandleCreatePurchaseRequestResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `POST /api/1/purchase_requests` operation.
- */
 export function handleCreatePurchaseRequest(
   response?:
     | HandleCreatePurchaseRequestResponse
@@ -6166,9 +5696,6 @@ export type HandleDestroyPurchaseRequestResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/purchase_requests/{id}` operation.
- */
 export function handleDestroyPurchaseRequest(
   response?:
     | HandleDestroyPurchaseRequestResponse
@@ -6212,9 +5739,6 @@ export type HandleGetPurchaseRequestResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/purchase_requests/{id}` operation.
- */
 export function handleGetPurchaseRequest(
   response?:
     | HandleGetPurchaseRequestResponse
@@ -6258,9 +5782,6 @@ export type HandleUpdatePurchaseRequestResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/purchase_requests/{id}` operation.
- */
 export function handleUpdatePurchaseRequest(
   response?:
     | HandleUpdatePurchaseRequestResponse
@@ -6304,9 +5825,6 @@ export type HandleGetPurchaseRequestsFormsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/purchase_requests/forms` operation.
- */
 export function handleGetPurchaseRequestsForms(
   response?: HandleGetPurchaseRequestsFormsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -6338,9 +5856,6 @@ export type HandleGetPurchaseRequestsFormResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/purchase_requests/forms/{id}` operation.
- */
 export function handleGetPurchaseRequestsForm(
   response?:
     | HandleGetPurchaseRequestsFormResponse
@@ -6384,9 +5899,6 @@ export type HandleCreatePurchaseRequestActionResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `POST /api/1/purchase_requests/{id}/actions` operation.
- */
 export function handleCreatePurchaseRequestAction(
   response?:
     | HandleCreatePurchaseRequestActionResponse
@@ -6430,9 +5942,6 @@ export type HandleGetPurchaseRequestPurchaseBudgetResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/purchase_requests/{purchase_request_id}/purchase_budget` operation.
- */
 export function handleGetPurchaseRequestPurchaseBudget(
   response?:
     | HandleGetPurchaseRequestPurchaseBudgetResponse
@@ -6476,9 +5985,6 @@ export type HandleGetApprovalFlowRoutesResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/approval_flow_routes` operation.
- */
 export function handleGetApprovalFlowRoutes(
   response?: HandleGetApprovalFlowRoutesResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -6510,9 +6016,6 @@ export type HandleGetApprovalFlowRouteResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/approval_flow_routes/{id}` operation.
- */
 export function handleGetApprovalFlowRoute(
   response?:
     | HandleGetApprovalFlowRouteResponse
@@ -6556,9 +6059,6 @@ export type HandleGetSegmentTagsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/segments/{segment_id}/tags` operation.
- */
 export function handleGetSegmentTags(
   response?:
     | HandleGetSegmentTagsResponse
@@ -6602,9 +6102,6 @@ export type HandleCreateSegmentTagResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/segments/{segment_id}/tags` operation.
- */
 export function handleCreateSegmentTag(
   response?:
     | HandleCreateSegmentTagResponse
@@ -6648,9 +6145,6 @@ export type HandleDestroySegmentsTagResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/segments/{segment_id}/tags/{id}` operation.
- */
 export function handleDestroySegmentsTag(
   response?:
     | HandleDestroySegmentsTagResponse
@@ -6696,9 +6190,6 @@ export type HandleUpdateSegmentTagResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/segments/{segment_id}/tags/{id}` operation.
- */
 export function handleUpdateSegmentTag(
   response?:
     | HandleUpdateSegmentTagResponse
@@ -6744,9 +6235,6 @@ export type HandleUpsertSegmentTagResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/segments/{segment_id}/tags/code/upsert` operation.
- */
 export function handleUpsertSegmentTag(
   response?:
     | HandleUpsertSegmentTagResponse
@@ -6791,9 +6279,6 @@ export type HandleGetFixedAssetsResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/fixed_assets` operation.
- */
 export function handleGetFixedAssets(
   response?: HandleGetFixedAssetsResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -6825,9 +6310,6 @@ export type HandleCreateAccountGroupResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/account_groups` operation.
- */
 export function handleCreateAccountGroup(
   response?:
     HandleCreateAccountGroupResponse | HttpResponseResolver<never, CreateAccountGroupData["body"]>,
@@ -6860,9 +6342,6 @@ export type HandleGetUserMatchersResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/user_matchers` operation.
- */
 export function handleGetUserMatchers(
   response?: HandleGetUserMatchersResponse | HttpResponseResolver<never, never>,
   options?: RequestHandlerOptions,
@@ -6894,9 +6373,6 @@ export type HandleCreateUserMatcherResponse = {
   status?: 201;
 };
 
-/**
- * Handler for the `POST /api/1/user_matchers` operation.
- */
 export function handleCreateUserMatcher(
   response?:
     HandleCreateUserMatcherResponse | HttpResponseResolver<never, CreateUserMatcherData["body"]>,
@@ -6929,9 +6405,6 @@ export type HandleDestroyUserMatcherResponse = {
   status?: 204;
 };
 
-/**
- * Handler for the `DELETE /api/1/user_matchers/{id}` operation.
- */
 export function handleDestroyUserMatcher(
   response?:
     | HandleDestroyUserMatcherResponse
@@ -6975,9 +6448,6 @@ export type HandleGetUserMatcherResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `GET /api/1/user_matchers/{id}` operation.
- */
 export function handleGetUserMatcher(
   response?:
     | HandleGetUserMatcherResponse
@@ -7021,9 +6491,6 @@ export type HandleUpdateUserMatcherResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `PUT /api/1/user_matchers/{id}` operation.
- */
 export function handleUpdateUserMatcher(
   response?:
     | HandleUpdateUserMatcherResponse
@@ -7067,9 +6534,6 @@ export type HandleApplyUserMatchersResponse = {
   status?: 200;
 };
 
-/**
- * Handler for the `POST /api/1/user_matchers/apply` operation.
- */
 export function handleApplyUserMatchers(
   response?:
     HandleApplyUserMatchersResponse | HttpResponseResolver<never, ApplyUserMatchersData["body"]>,
@@ -7098,677 +6562,172 @@ export function handleApplyUserMatchers(
 }
 
 export type MswHandlerFactories = {
-  /**
-   * Handler for the `GET /api/1/partners` operation.
-   */
   getPartners: typeof handleGetPartners;
-  /**
-   * Handler for the `POST /api/1/partners` operation.
-   */
   createPartner: typeof handleCreatePartner;
-  /**
-   * Handler for the `DELETE /api/1/partners/{id}` operation.
-   */
   destroyPartner: typeof handleDestroyPartner;
-  /**
-   * Handler for the `GET /api/1/partners/{id}` operation.
-   */
   getPartner: typeof handleGetPartner;
-  /**
-   * Handler for the `PUT /api/1/partners/{id}` operation.
-   */
   updatePartner: typeof handleUpdatePartner;
-  /**
-   * Handler for the `PUT /api/1/partners/code/{code}` operation.
-   */
   updatePartnerByCode: typeof handleUpdatePartnerByCode;
-  /**
-   * Handler for the `PUT /api/1/partners/upsert_by_code` operation.
-   */
   apiV1PartnersUpsertByCode: typeof handleApiV1PartnersUpsertByCode;
-  /**
-   * Handler for the `GET /api/1/forms/selectables` operation.
-   */
   getFormsSelectables: typeof handleGetFormsSelectables;
-  /**
-   * Handler for the `DELETE /api/1/account_items/{id}` operation.
-   */
   destroyAccountItem: typeof handleDestroyAccountItem;
-  /**
-   * Handler for the `GET /api/1/account_items/{id}` operation.
-   */
   getAccountItem: typeof handleGetAccountItem;
-  /**
-   * Handler for the `PUT /api/1/account_items/{id}` operation.
-   */
   updateAccountItem: typeof handleUpdateAccountItem;
-  /**
-   * Handler for the `GET /api/1/account_items` operation.
-   */
   getAccountItems: typeof handleGetAccountItems;
-  /**
-   * Handler for the `POST /api/1/account_items` operation.
-   */
   createAccountItem: typeof handleCreateAccountItem;
-  /**
-   * Handler for the `PUT /api/1/account_items/code/upsert` operation.
-   */
   apiV1AccountItemsUpsertByCode: typeof handleApiV1AccountItemsUpsertByCode;
-  /**
-   * Handler for the `GET /api/1/tags` operation.
-   */
   getTags: typeof handleGetTags;
-  /**
-   * Handler for the `POST /api/1/tags` operation.
-   */
   createTag: typeof handleCreateTag;
-  /**
-   * Handler for the `DELETE /api/1/tags/{id}` operation.
-   */
   destroyTag: typeof handleDestroyTag;
-  /**
-   * Handler for the `GET /api/1/tags/{id}` operation.
-   */
   getTag: typeof handleGetTag;
-  /**
-   * Handler for the `PUT /api/1/tags/{id}` operation.
-   */
   updateTag: typeof handleUpdateTag;
-  /**
-   * Handler for the `GET /api/1/sections` operation.
-   */
   getSections: typeof handleGetSections;
-  /**
-   * Handler for the `POST /api/1/sections` operation.
-   */
   createSection: typeof handleCreateSection;
-  /**
-   * Handler for the `DELETE /api/1/sections/{id}` operation.
-   */
   destroySection: typeof handleDestroySection;
-  /**
-   * Handler for the `GET /api/1/sections/{id}` operation.
-   */
   getSection: typeof handleGetSection;
-  /**
-   * Handler for the `PUT /api/1/sections/{id}` operation.
-   */
   updateSection: typeof handleUpdateSection;
-  /**
-   * Handler for the `PUT /api/1/sections/code/upsert` operation.
-   */
   apiV1SectionsUpsertByCode: typeof handleApiV1SectionsUpsertByCode;
-  /**
-   * Handler for the `GET /api/1/invoices` operation.
-   */
   getInvoices: typeof handleGetInvoices;
-  /**
-   * Handler for the `GET /api/1/invoices/{id}` operation.
-   */
   getInvoice: typeof handleGetInvoice;
-  /**
-   * Handler for the `GET /api/1/quotations` operation.
-   */
   getQuotations: typeof handleGetQuotations;
-  /**
-   * Handler for the `GET /api/1/quotations/{id}` operation.
-   */
   getQuotation: typeof handleGetQuotation;
-  /**
-   * Handler for the `GET /api/1/deals` operation.
-   */
   getDeals: typeof handleGetDeals;
-  /**
-   * Handler for the `POST /api/1/deals` operation.
-   */
   createDeal: typeof handleCreateDeal;
-  /**
-   * Handler for the `DELETE /api/1/deals/{id}` operation.
-   */
   destroyDeal: typeof handleDestroyDeal;
-  /**
-   * Handler for the `GET /api/1/deals/{id}` operation.
-   */
   getDeal: typeof handleGetDeal;
-  /**
-   * Handler for the `PUT /api/1/deals/{id}` operation.
-   */
   updateDeal: typeof handleUpdateDeal;
-  /**
-   * Handler for the `POST /api/1/deals/{id}/renews` operation.
-   */
   createDealRenew: typeof handleCreateDealRenew;
-  /**
-   * Handler for the `DELETE /api/1/deals/{id}/renews/{renew_id}` operation.
-   */
   deleteDealRenew: typeof handleDeleteDealRenew;
-  /**
-   * Handler for the `PUT /api/1/deals/{id}/renews/{renew_id}` operation.
-   */
   updateDealRenew: typeof handleUpdateDealRenew;
-  /**
-   * Handler for the `POST /api/1/deals/{id}/payments` operation.
-   */
   createDealPayment: typeof handleCreateDealPayment;
-  /**
-   * Handler for the `DELETE /api/1/deals/{id}/payments/{payment_id}` operation.
-   */
   destroyDealPayment: typeof handleDestroyDealPayment;
-  /**
-   * Handler for the `PUT /api/1/deals/{id}/payments/{payment_id}` operation.
-   */
   updateDealPayment: typeof handleUpdateDealPayment;
-  /**
-   * Handler for the `GET /api/1/manual_journals` operation.
-   */
   getManualJournals: typeof handleGetManualJournals;
-  /**
-   * Handler for the `POST /api/1/manual_journals` operation.
-   */
   createManualJournal: typeof handleCreateManualJournal;
-  /**
-   * Handler for the `DELETE /api/1/manual_journals/{id}` operation.
-   */
   destroyManualJournal: typeof handleDestroyManualJournal;
-  /**
-   * Handler for the `GET /api/1/manual_journals/{id}` operation.
-   */
   getManualJournal: typeof handleGetManualJournal;
-  /**
-   * Handler for the `PUT /api/1/manual_journals/{id}` operation.
-   */
   updateManualJournal: typeof handleUpdateManualJournal;
-  /**
-   * Handler for the `GET /api/1/users` operation.
-   */
   getUsers: typeof handleGetUsers;
-  /**
-   * Handler for the `GET /api/1/users/me` operation.
-   */
   getUsersMe: typeof handleGetUsersMe;
-  /**
-   * Handler for the `PUT /api/1/users/me` operation.
-   */
   updateUser: typeof handleUpdateUser;
-  /**
-   * Handler for the `GET /api/1/users/capabilities` operation.
-   */
   getUsersCapabilities: typeof handleGetUsersCapabilities;
-  /**
-   * Handler for the `GET /api/1/companies` operation.
-   */
   getCompanies: typeof handleGetCompanies;
-  /**
-   * Handler for the `GET /api/1/companies/{id}` operation.
-   */
   getCompany: typeof handleGetCompany;
-  /**
-   * Handler for the `GET /api/1/items` operation.
-   */
   getItems: typeof handleGetItems;
-  /**
-   * Handler for the `POST /api/1/items` operation.
-   */
   createItem: typeof handleCreateItem;
-  /**
-   * Handler for the `DELETE /api/1/items/{id}` operation.
-   */
   destroyItem: typeof handleDestroyItem;
-  /**
-   * Handler for the `GET /api/1/items/{id}` operation.
-   */
   getItem: typeof handleGetItem;
-  /**
-   * Handler for the `PUT /api/1/items/{id}` operation.
-   */
   updateItem: typeof handleUpdateItem;
-  /**
-   * Handler for the `PUT /api/1/items/code/upsert` operation.
-   */
   apiV1ItemsUpsertByCode: typeof handleApiV1ItemsUpsertByCode;
-  /**
-   * Handler for the `GET /api/1/taxes/codes` operation.
-   */
-  getTaxCodes: typeof handleGetTaxCodes;
-  /**
-   * Handler for the `GET /api/1/taxes/codes/{code}` operation.
-   */
   getTaxCode: typeof handleGetTaxCode;
-  /**
-   * Handler for the `GET /api/1/taxes/companies/{company_id}` operation.
-   */
   getTaxesCompanies: typeof handleGetTaxesCompanies;
-  /**
-   * Handler for the `GET /api/1/walletables` operation.
-   */
   getWalletables: typeof handleGetWalletables;
-  /**
-   * Handler for the `POST /api/1/walletables` operation.
-   */
   createWalletable: typeof handleCreateWalletable;
-  /**
-   * Handler for the `DELETE /api/1/walletables/{type}/{id}` operation.
-   */
   destroyWalletable: typeof handleDestroyWalletable;
-  /**
-   * Handler for the `GET /api/1/walletables/{type}/{id}` operation.
-   */
   getWalletable: typeof handleGetWalletable;
-  /**
-   * Handler for the `PUT /api/1/walletables/{type}/{id}` operation.
-   */
   updateWalletable: typeof handleUpdateWalletable;
-  /**
-   * Handler for the `GET /api/1/banks` operation.
-   */
   getBanks: typeof handleGetBanks;
-  /**
-   * Handler for the `GET /api/1/banks/{id}` operation.
-   */
   getBank: typeof handleGetBank;
-  /**
-   * Handler for the `GET /api/1/transfers` operation.
-   */
   getTransfers: typeof handleGetTransfers;
-  /**
-   * Handler for the `POST /api/1/transfers` operation.
-   */
   createTransfer: typeof handleCreateTransfer;
-  /**
-   * Handler for the `DELETE /api/1/transfers/{id}` operation.
-   */
   destroyTransfer: typeof handleDestroyTransfer;
-  /**
-   * Handler for the `GET /api/1/transfers/{id}` operation.
-   */
   getTransfer: typeof handleGetTransfer;
-  /**
-   * Handler for the `PUT /api/1/transfers/{id}` operation.
-   */
   updateTransfer: typeof handleUpdateTransfer;
-  /**
-   * Handler for the `GET /api/1/wallet_txns` operation.
-   */
   getWalletTxns: typeof handleGetWalletTxns;
-  /**
-   * Handler for the `POST /api/1/wallet_txns` operation.
-   */
   createWalletTxn: typeof handleCreateWalletTxn;
-  /**
-   * Handler for the `DELETE /api/1/wallet_txns/{id}` operation.
-   */
   destroyWalletTxn: typeof handleDestroyWalletTxn;
-  /**
-   * Handler for the `GET /api/1/wallet_txns/{id}` operation.
-   */
   getWalletTxn: typeof handleGetWalletTxn;
-  /**
-   * Handler for the `POST /api/1/wallet_txns/{id}/reconcile` operation.
-   */
   reconcileWalletTxn: typeof handleReconcileWalletTxn;
-  /**
-   * Handler for the `POST /api/1/wallet_txns/{id}/create_deal` operation.
-   */
   createWalletTxnDeal: typeof handleCreateWalletTxnDeal;
-  /**
-   * Handler for the `POST /api/1/wallet_txns/{id}/create_transfer` operation.
-   */
   createWalletTxnTransfer: typeof handleCreateWalletTxnTransfer;
-  /**
-   * Handler for the `POST /api/1/wallet_txns/{id}/create_private_deal` operation.
-   */
   createWalletTxnPrivateDeal: typeof handleCreateWalletTxnPrivateDeal;
-  /**
-   * Handler for the `POST /api/1/wallet_txns/{id}/ignore` operation.
-   */
   ignoreWalletTxn: typeof handleIgnoreWalletTxn;
-  /**
-   * Handler for the `POST /api/1/wallet_txns/{id}/reset` operation.
-   */
   resetWalletTxn: typeof handleResetWalletTxn;
-  /**
-   * Handler for the `GET /api/1/journals` operation.
-   */
   getJournals: typeof handleGetJournals;
-  /**
-   * Handler for the `GET /api/1/journals/reports/{id}/status` operation.
-   */
   getJournalStatus: typeof handleGetJournalStatus;
-  /**
-   * Handler for the `GET /api/1/journals/reports/{id}/download` operation.
-   */
   downloadJournal: typeof handleDownloadJournal;
-  /**
-   * Handler for the `POST /api/1/journals/search` operation.
-   */
   searchReportJournals: typeof handleSearchReportJournals;
-  /**
-   * Handler for the `GET /api/1/reports/trial_bs` operation.
-   */
   getTrialBs: typeof handleGetTrialBs;
-  /**
-   * Handler for the `GET /api/1/reports/trial_bs_two_years` operation.
-   */
   getTrialBsTwoYears: typeof handleGetTrialBsTwoYears;
-  /**
-   * Handler for the `GET /api/1/reports/trial_bs_three_years` operation.
-   */
   getTrialBsThreeYears: typeof handleGetTrialBsThreeYears;
-  /**
-   * Handler for the `GET /api/1/reports/trial_pl` operation.
-   */
   getTrialPl: typeof handleGetTrialPl;
-  /**
-   * Handler for the `GET /api/1/reports/trial_pl_two_years` operation.
-   */
   getTrialPlTwoYears: typeof handleGetTrialPlTwoYears;
-  /**
-   * Handler for the `GET /api/1/reports/trial_pl_three_years` operation.
-   */
   getTrialPlThreeYears: typeof handleGetTrialPlThreeYears;
-  /**
-   * Handler for the `GET /api/1/reports/trial_pl_sections` operation.
-   */
   getTrialPlSections: typeof handleGetTrialPlSections;
-  /**
-   * Handler for the `GET /api/1/reports/trial_pl_segment_1_tags` operation.
-   */
   getTrialPlSegment1Tags: typeof handleGetTrialPlSegment1Tags;
-  /**
-   * Handler for the `GET /api/1/reports/trial_pl_segment_2_tags` operation.
-   */
   getTrialPlSegment2Tags: typeof handleGetTrialPlSegment2Tags;
-  /**
-   * Handler for the `GET /api/1/reports/trial_pl_segment_3_tags` operation.
-   */
   getTrialPlSegment3Tags: typeof handleGetTrialPlSegment3Tags;
-  /**
-   * Handler for the `GET /api/1/reports/trial_cr` operation.
-   */
   getTrialCr: typeof handleGetTrialCr;
-  /**
-   * Handler for the `GET /api/1/reports/trial_cr_two_years` operation.
-   */
   getTrialCrTwoYears: typeof handleGetTrialCrTwoYears;
-  /**
-   * Handler for the `GET /api/1/reports/trial_cr_three_years` operation.
-   */
   getTrialCrThreeYears: typeof handleGetTrialCrThreeYears;
-  /**
-   * Handler for the `GET /api/1/reports/trial_cr_sections` operation.
-   */
   getTrialCrSections: typeof handleGetTrialCrSections;
-  /**
-   * Handler for the `GET /api/1/reports/trial_cr_segment_1_tags` operation.
-   */
   getTrialCrSegment1Tags: typeof handleGetTrialCrSegment1Tags;
-  /**
-   * Handler for the `GET /api/1/reports/trial_cr_segment_2_tags` operation.
-   */
   getTrialCrSegment2Tags: typeof handleGetTrialCrSegment2Tags;
-  /**
-   * Handler for the `GET /api/1/reports/trial_cr_segment_3_tags` operation.
-   */
   getTrialCrSegment3Tags: typeof handleGetTrialCrSegment3Tags;
-  /**
-   * Handler for the `GET /api/1/reports/general_ledgers` operation.
-   */
   getGeneralLedgers: typeof handleGetGeneralLedgers;
-  /**
-   * Handler for the `GET /api/1/receipts` operation.
-   */
   getReceipts: typeof handleGetReceipts;
-  /**
-   * Handler for the `POST /api/1/receipts` operation.
-   */
   createReceipt: typeof handleCreateReceipt;
-  /**
-   * Handler for the `DELETE /api/1/receipts/{id}` operation.
-   */
   destroyReceipt: typeof handleDestroyReceipt;
-  /**
-   * Handler for the `GET /api/1/receipts/{id}` operation.
-   */
   getReceipt: typeof handleGetReceipt;
-  /**
-   * Handler for the `PUT /api/1/receipts/{id}` operation.
-   */
   updateReceipt: typeof handleUpdateReceipt;
-  /**
-   * Handler for the `GET /api/1/receipts/{id}/download` operation.
-   */
   downloadReceipt: typeof handleDownloadReceipt;
-  /**
-   * Handler for the `GET /api/1/expense_applications` operation.
-   */
   getExpenseApplications: typeof handleGetExpenseApplications;
-  /**
-   * Handler for the `POST /api/1/expense_applications` operation.
-   */
   createExpenseApplication: typeof handleCreateExpenseApplication;
-  /**
-   * Handler for the `DELETE /api/1/expense_applications/{id}` operation.
-   */
   destroyExpenseApplication: typeof handleDestroyExpenseApplication;
-  /**
-   * Handler for the `GET /api/1/expense_applications/{id}` operation.
-   */
   getExpenseApplication: typeof handleGetExpenseApplication;
-  /**
-   * Handler for the `PUT /api/1/expense_applications/{id}` operation.
-   */
   updateExpenseApplication: typeof handleUpdateExpenseApplication;
-  /**
-   * Handler for the `POST /api/1/expense_applications/{id}/actions` operation.
-   */
   updateExpenseApplicationAction: typeof handleUpdateExpenseApplicationAction;
-  /**
-   * Handler for the `PUT /api/1/expense_applications/{id}/parent_approvable_requests` operation.
-   */
   updateExpenseApplicationParentApprovableRequests: typeof handleUpdateExpenseApplicationParentApprovableRequests;
-  /**
-   * Handler for the `GET /api/1/expense_applications/currencies` operation.
-   */
   listExpenseApplicationCurrencies: typeof handleListExpenseApplicationCurrencies;
-  /**
-   * Handler for the `POST /api/1/expense_applications/currencies` operation.
-   */
   createExpenseApplicationCurrency: typeof handleCreateExpenseApplicationCurrency;
-  /**
-   * Handler for the `DELETE /api/1/expense_applications/currencies/{id}` operation.
-   */
   deleteExpenseApplicationCurrency: typeof handleDeleteExpenseApplicationCurrency;
-  /**
-   * Handler for the `GET /api/1/expense_applications/currencies/{id}` operation.
-   */
   getExpenseApplicationCurrency: typeof handleGetExpenseApplicationCurrency;
-  /**
-   * Handler for the `PUT /api/1/expense_applications/currencies/{id}` operation.
-   */
   updateExpenseApplicationCurrency: typeof handleUpdateExpenseApplicationCurrency;
-  /**
-   * Handler for the `GET /api/1/expense_applications/form` operation.
-   */
   getExpenseApplicationForm: typeof handleGetExpenseApplicationForm;
-  /**
-   * Handler for the `PUT /api/1/expense_applications/form` operation.
-   */
   updateExpenseApplicationForm: typeof handleUpdateExpenseApplicationForm;
-  /**
-   * Handler for the `POST /api/1/expense_applications/amount_calculations` operation.
-   */
   createExpenseApplicationAmountCalculation: typeof handleCreateExpenseApplicationAmountCalculation;
-  /**
-   * Handler for the `GET /api/1/expense_application_line_templates` operation.
-   */
   getExpenseApplicationLineTemplates: typeof handleGetExpenseApplicationLineTemplates;
-  /**
-   * Handler for the `POST /api/1/expense_application_line_templates` operation.
-   */
   createExpenseApplicationLineTemplate: typeof handleCreateExpenseApplicationLineTemplate;
-  /**
-   * Handler for the `DELETE /api/1/expense_application_line_templates/{id}` operation.
-   */
   destroyExpenseApplicationLineTemplate: typeof handleDestroyExpenseApplicationLineTemplate;
-  /**
-   * Handler for the `GET /api/1/expense_application_line_templates/{id}` operation.
-   */
   getExpenseApplicationLineTemplate: typeof handleGetExpenseApplicationLineTemplate;
-  /**
-   * Handler for the `PUT /api/1/expense_application_line_templates/{id}` operation.
-   */
   updateExpenseApplicationLineTemplate: typeof handleUpdateExpenseApplicationLineTemplate;
-  /**
-   * Handler for the `GET /api/1/payment_requests` operation.
-   */
   getPaymentRequests: typeof handleGetPaymentRequests;
-  /**
-   * Handler for the `POST /api/1/payment_requests` operation.
-   */
   createPaymentRequest: typeof handleCreatePaymentRequest;
-  /**
-   * Handler for the `DELETE /api/1/payment_requests/{id}` operation.
-   */
   destroyPaymentRequest: typeof handleDestroyPaymentRequest;
-  /**
-   * Handler for the `GET /api/1/payment_requests/{id}` operation.
-   */
   getPaymentRequest: typeof handleGetPaymentRequest;
-  /**
-   * Handler for the `PUT /api/1/payment_requests/{id}` operation.
-   */
   updatePaymentRequest: typeof handleUpdatePaymentRequest;
-  /**
-   * Handler for the `POST /api/1/payment_requests/{id}/actions` operation.
-   */
   updatePaymentRequestAction: typeof handleUpdatePaymentRequestAction;
-  /**
-   * Handler for the `GET /api/1/approval_requests` operation.
-   */
   getApprovalRequests: typeof handleGetApprovalRequests;
-  /**
-   * Handler for the `POST /api/1/approval_requests` operation.
-   */
   createApprovalRequest: typeof handleCreateApprovalRequest;
-  /**
-   * Handler for the `DELETE /api/1/approval_requests/{id}` operation.
-   */
   destroyApprovalRequest: typeof handleDestroyApprovalRequest;
-  /**
-   * Handler for the `GET /api/1/approval_requests/{id}` operation.
-   */
   getApprovalRequest: typeof handleGetApprovalRequest;
-  /**
-   * Handler for the `PUT /api/1/approval_requests/{id}` operation.
-   */
   updateApprovalRequest: typeof handleUpdateApprovalRequest;
-  /**
-   * Handler for the `POST /api/1/approval_requests/{id}/actions` operation.
-   */
   updateApprovalRequestAction: typeof handleUpdateApprovalRequestAction;
-  /**
-   * Handler for the `GET /api/1/approval_requests/forms` operation.
-   */
   getApprovalRequestForms: typeof handleGetApprovalRequestForms;
-  /**
-   * Handler for the `GET /api/1/approval_requests/forms/{id}` operation.
-   */
   getApprovalRequestForm: typeof handleGetApprovalRequestForm;
-  /**
-   * Handler for the `GET /api/1/purchase_requests` operation.
-   */
   getPurchaseRequests: typeof handleGetPurchaseRequests;
-  /**
-   * Handler for the `POST /api/1/purchase_requests` operation.
-   */
   createPurchaseRequest: typeof handleCreatePurchaseRequest;
-  /**
-   * Handler for the `DELETE /api/1/purchase_requests/{id}` operation.
-   */
   destroyPurchaseRequest: typeof handleDestroyPurchaseRequest;
-  /**
-   * Handler for the `GET /api/1/purchase_requests/{id}` operation.
-   */
   getPurchaseRequest: typeof handleGetPurchaseRequest;
-  /**
-   * Handler for the `PUT /api/1/purchase_requests/{id}` operation.
-   */
   updatePurchaseRequest: typeof handleUpdatePurchaseRequest;
-  /**
-   * Handler for the `GET /api/1/purchase_requests/forms` operation.
-   */
   getPurchaseRequestsForms: typeof handleGetPurchaseRequestsForms;
-  /**
-   * Handler for the `GET /api/1/purchase_requests/forms/{id}` operation.
-   */
   getPurchaseRequestsForm: typeof handleGetPurchaseRequestsForm;
-  /**
-   * Handler for the `POST /api/1/purchase_requests/{id}/actions` operation.
-   */
   createPurchaseRequestAction: typeof handleCreatePurchaseRequestAction;
-  /**
-   * Handler for the `GET /api/1/purchase_requests/{purchase_request_id}/purchase_budget` operation.
-   */
   getPurchaseRequestPurchaseBudget: typeof handleGetPurchaseRequestPurchaseBudget;
-  /**
-   * Handler for the `GET /api/1/approval_flow_routes` operation.
-   */
   getApprovalFlowRoutes: typeof handleGetApprovalFlowRoutes;
-  /**
-   * Handler for the `GET /api/1/approval_flow_routes/{id}` operation.
-   */
   getApprovalFlowRoute: typeof handleGetApprovalFlowRoute;
-  /**
-   * Handler for the `GET /api/1/segments/{segment_id}/tags` operation.
-   */
   getSegmentTags: typeof handleGetSegmentTags;
-  /**
-   * Handler for the `POST /api/1/segments/{segment_id}/tags` operation.
-   */
   createSegmentTag: typeof handleCreateSegmentTag;
-  /**
-   * Handler for the `DELETE /api/1/segments/{segment_id}/tags/{id}` operation.
-   */
   destroySegmentsTag: typeof handleDestroySegmentsTag;
-  /**
-   * Handler for the `PUT /api/1/segments/{segment_id}/tags/{id}` operation.
-   */
   updateSegmentTag: typeof handleUpdateSegmentTag;
-  /**
-   * Handler for the `PUT /api/1/segments/{segment_id}/tags/code/upsert` operation.
-   */
   upsertSegmentTag: typeof handleUpsertSegmentTag;
-  /**
-   * Handler for the `GET /api/1/fixed_assets` operation.
-   */
   getFixedAssets: typeof handleGetFixedAssets;
-  /**
-   * Handler for the `POST /api/1/account_groups` operation.
-   */
   createAccountGroup: typeof handleCreateAccountGroup;
-  /**
-   * Handler for the `GET /api/1/user_matchers` operation.
-   */
   getUserMatchers: typeof handleGetUserMatchers;
-  /**
-   * Handler for the `POST /api/1/user_matchers` operation.
-   */
   createUserMatcher: typeof handleCreateUserMatcher;
-  /**
-   * Handler for the `DELETE /api/1/user_matchers/{id}` operation.
-   */
   destroyUserMatcher: typeof handleDestroyUserMatcher;
-  /**
-   * Handler for the `GET /api/1/user_matchers/{id}` operation.
-   */
   getUserMatcher: typeof handleGetUserMatcher;
-  /**
-   * Handler for the `PUT /api/1/user_matchers/{id}` operation.
-   */
   updateUserMatcher: typeof handleUpdateUserMatcher;
-  /**
-   * Handler for the `POST /api/1/user_matchers/apply` operation.
-   */
   applyUserMatchers: typeof handleApplyUserMatchers;
 };
 
@@ -7845,7 +6804,6 @@ export function createMswHandlers(config: RequestHandlerOptions = {}): CreateMsw
     getItem: wrap(handleGetItem),
     updateItem: wrap(handleUpdateItem),
     apiV1ItemsUpsertByCode: wrap(handleApiV1ItemsUpsertByCode),
-    getTaxCodes: wrap(handleGetTaxCodes),
     getTaxCode: wrap(handleGetTaxCode),
     getTaxesCompanies: wrap(handleGetTaxesCompanies),
     getWalletables: wrap(handleGetWalletables),
@@ -8016,7 +6974,6 @@ export function createMswHandlers(config: RequestHandlerOptions = {}): CreateMsw
       invoke(pick.getUsersMe, overrides.getUsersMe),
       invoke(pick.updateUser, overrides.updateUser),
       invoke(pick.getUsersCapabilities, overrides.getUsersCapabilities),
-      invoke(pick.getTaxCodes, overrides.getTaxCodes),
       invoke(pick.searchReportJournals, overrides.searchReportJournals),
       invoke(pick.getTrialBs, overrides.getTrialBs),
       invoke(pick.getTrialBsTwoYears, overrides.getTrialBsTwoYears),

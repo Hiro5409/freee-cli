@@ -1,7 +1,7 @@
 export const errorHints = {
   authentication: 'Run "freee auth login --profile <name>", then retry with --profile <name>.',
   company:
-    'Run "freee company list", then pass --company-id or select it with "freee company switch".',
+    'Run "freee accounting company list", then pass --company-id or select it with "freee company switch".',
   positiveId: "Pass a positive integer ID. Use the corresponding list command to find one.",
   invalidValue: "Correct the value shown in the error and retry the command.",
   oneIdentifier: "Pass exactly one of the supported identifiers and retry the command.",

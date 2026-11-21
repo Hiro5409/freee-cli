@@ -91,9 +91,7 @@ export function saveOAuthCredentials(dir: string, credentials: OAuthCredentials)
   } catch (error) {
     try {
       unlinkSync(tempPath);
-    } catch {
-      // Best-effort cleanup if the temporary file still exists.
-    }
+    } catch {}
     throw error;
   }
 }

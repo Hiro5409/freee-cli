@@ -3,7 +3,6 @@ lefthook: mise exec -- lefthook
 pre-commit:
   piped: true
   jobs:
-    # Lint fixes come before formatting, so the staged result is formatted.
     - name: lint
       glob: "*.ts"
       run: bun run lint --fix --no-error-on-unmatched-pattern {staged_files}

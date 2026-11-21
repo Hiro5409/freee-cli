@@ -4,12 +4,19 @@ import { configDir, loadConfig } from "./config/config.ts";
 import { CliError, errorHints } from "./errors.ts";
 import { resolveConfiguredProfile, resolveConfiguredProfileName } from "./profiles.ts";
 
-export function initCommand(ctx: { values: Record<string, unknown> }): { companyId: number } {
+type CommandContext = { values: Record<string, unknown> };
+
+export function initClient(ctx: CommandContext): { dir: string; profile: string } {
   const dir = configDir();
   const profile = ctx.values["dry-run"]
     ? resolveConfiguredProfileName(ctx.values.profile, dir)
     : resolveConfiguredProfile(ctx.values.profile, dir);
   configureClient(dir, profile);
+  return { dir, profile };
+}
+
+export function initCommand(ctx: CommandContext): { companyId: number } {
+  const { dir, profile } = initClient(ctx);
 
   let companyId = ctx.values["company-id"];
   if (!companyId) {
@@ -25,15 +32,4 @@ export function initCommand(ctx: { values: Record<string, unknown> }): { company
   }
 
   return { companyId: parseCliInput(PositiveIntegerSchema, companyId, { label: "--company-id" }) };
-}
-
-export function monthToDateRange({ year, month: monthNumber }: { year: number; month: number }): {
-  start: string;
-  end: string;
-} {
-  const paddedMonth = String(monthNumber).padStart(2, "0");
-  const start = `${year}-${paddedMonth}-01`;
-  const lastDay = new Date(year, monthNumber, 0).getDate();
-  const end = `${year}-${paddedMonth}-${String(lastDay).padStart(2, "0")}`;
-  return { start, end };
 }

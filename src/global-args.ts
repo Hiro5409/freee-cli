@@ -1,4 +1,4 @@
-import { args, boolean, integer, merge, string, withDefault } from "gunshi/combinators";
+import { args, integer, merge, string } from "gunshi/combinators";
 
 export const globalArgs = args({
   profile: string({
@@ -14,26 +14,5 @@ export const companyArgs = merge(
       max: Number.MAX_SAFE_INTEGER,
       description: "Override company ID from config",
     }),
-  }),
-);
-
-export const listArgs = merge(
-  companyArgs,
-  args({
-    limit: integer({
-      min: 1,
-      max: Number.MAX_SAFE_INTEGER,
-      description: "Maximum number of results",
-    }),
-  }),
-);
-
-export const dryRunArgs = merge(
-  companyArgs,
-  args({
-    "dry-run": withDefault(
-      boolean({ description: "Preview the exact write request without writing to freee" }),
-      false,
-    ),
   }),
 );

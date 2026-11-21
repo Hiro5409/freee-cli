@@ -5,1538 +5,458 @@ export type ClientOptions = {
 };
 
 export type ApiV1EmployeeUpdateRequestSerializer = {
-  /**
-   * 従業員番号<br>
-   * 従業員を判別しやすいよう管理することができます。（例: 1人目の正社員を A-001 と入力）
-   */
   num?: string;
-  /**
-   * 従業員名（freee人事労務上での表示にのみ使用される名前です。出力書類には姓名が使用されます。）
-   * - 給与計算対象外の従業員情報の場合は必須になります。
-   */
   display_name?: string;
-  /**
-   * 基礎年金番号 数値文字列10桁固定長 例: 1111111111
-   */
   base_pension_num?: string;
-  /**
-   * 被保険者番号（雇用保険） 数値文字列11桁固定長 例: 11111111111
-   * - 給与計算対象外の従業員情報の場合に指定するとエラーになります。
-   */
   employment_insurance_reference_number?: string;
-  /**
-   * 生年月日 null不可
-   */
   birth_date: string;
-  /**
-   * 入社日 null不可
-   */
   entry_date: string;
-  /**
-   * 退職日
-   * - 退職していない場合は指定不要です。
-   * - 指定する場合はentry_date以降の日付を指定してください。
-   * - retire_dateをクリアする場合、nullを指定してください。
-   */
   retire_date?: string | null;
-  /**
-   * <a href="https://support.freee.co.jp/hc/ja/articles/360000666303-締め日支払い日を変更する方法は-" target="_blank">締め日支払い日グループ名</a>
-   * で設定した締め日支払い日を指定してください。
-   * - 未指定の際は、締め日支払い日は変わりません。
-   * - 指定した従業員が給与計算対象外の場合、指定するとエラーになります。
-   */
   company_reference_date_rule_name?: string;
 };
 
 export type ApiV1EmployeePayrollStatementsEmployeeAttendanceItemSerializer = {
-  /**
-   * 項目名
-   */
   name?: string;
-  /**
-   * 時間
-   */
   time?: string;
-  /**
-   * 控除額
-   */
   amount?: string;
 };
 
 export type ApiV1EmployeePayrollStatementsEmployeePayrollStatementItemSerializer = {
-  /**
-   * 項目名
-   */
   name?: string;
-  /**
-   * 金額
-   */
   amount?: string;
 };
 
 export type ApiV1EmployeePayrollStatementsEmployeeOvertimePayItemSerializer = {
-  /**
-   * 項目名
-   */
   name?: string;
-  /**
-   * 時間(単位: 分)。固定残業代の場合、nullになります。
-   */
   time?: string | null;
-  /**
-   * 手当金額
-   */
   amount?: string;
-  /**
-   * コード（事業所毎に設定可能な小文字英数最大10桁のコード）
-   */
   code?: string | null;
 };
 
 export type ApiV1EmployeeCreateRequestSerializer = {
-  /**
-   * 従業員番号<br>
-   * 従業員を判別しやすいよう管理することができます。（例: 1人目の正社員を A-001 と入力）
-   */
   num?: string;
-  /**
-   * <a href="https://support.freee.co.jp/hc/ja/articles/360000562403-労働時間制度と勤務-賃金設定について" target="_blank">勤務・賃金設定名</a>
-   * で設定した名称を指定してください。
-   * - 未指定の際は、最初に登録したデータが利用されます。
-   * - 入力パラメータのno_payroll_calculationがtrueの場合に指定するとエラーになります。
-   */
   working_hours_system_name?: string;
-  /**
-   * <a href="https://support.freee.co.jp/hc/ja/articles/360000666303-締め日支払い日を変更する方法は-" target="_blank">締め日支払い日グループ名</a>
-   * で設定した締め日支払い日を指定してください。
-   * - 未指定の際は、最初に登録したデータが利用されます。
-   * - 入力パラメータのno_payroll_calculationがtrueの場合に指定するとエラーになります。
-   */
   company_reference_date_rule_name?: string;
-  /**
-   * 姓（必須）<br>
-   * last_nameとfirst_nameを空白文字で結合した文字列がdisplay_nameとして登録されます。
-   * - 例）last_name=田中、first_name＝太郎の場合、display_name＝田中 太郎
-   * - display_nameはput apiで更新可能です。
-   */
   last_name: string;
-  /**
-   * 名（必須）<br>
-   * last_nameとfirst_nameを空白文字で結合した文字列がdisplay_nameとして登録されます。
-   * - 例）last_name=田中、first_name＝太郎の場合、display_name＝田中 太郎
-   * - display_nameはput apiで更新可能です。
-   */
   first_name: string;
-  /**
-   * 姓カナ（必須）
-   */
   last_name_kana: string;
-  /**
-   * 名カナ（必須）
-   */
   first_name_kana: string;
-  /**
-   * 生年月日（必須）
-   */
   birth_date: string;
-  /**
-   * 入社日（必須）
-   */
   entry_date: string;
-  /**
-   * 給与方式 monthly: 月給, daily: 日給, hourly: 時給
-   * - フレックスタイム制を使用している場合はmonthly以外指定できません。
-   * - 入力パラメータのno_payroll_calculationがfalseの場合は必須になります。
-   * - 入力パラメータのno_payroll_calculationがtrueの場合に指定するとエラーになります。
-   */
   pay_calc_type?: "monthly" | "daily" | "hourly";
-  /**
-   * 基本給
-   * - 入力パラメータのno_payroll_calculationがfalseの場合は必須になります。
-   * - 入力パラメータのno_payroll_calculationがtrueの場合に指定するとエラーになります。
-   */
   pay_amount?: number;
-  /**
-   * 性別　unselected: 未選択, male: 男性, female: 女性（デフォルト: unselected: 未選択）
-   */
   gender?: "unselected" | "male" | "female";
-  /**
-   * 配偶者の有無（デフォルト: false）
-   */
   married?: boolean;
-  /**
-   * 給与計算対象外の従業員情報を作成する場合はtrueを指定します
-   */
   no_payroll_calculation?: boolean;
 };
 
 export type ApiV1GroupMembershipSerializer = {
-  /**
-   * 開始日
-   */
   start_date?: string;
-  /**
-   * 終了日
-   */
   end_date?: string;
-  /**
-   * 上司ID
-   */
   boss_id?: number | null;
-  /**
-   * 主務
-   */
   main_duty?: "unspecified" | "sub_duty" | "main_duty";
-  /**
-   * 部門ID
-   */
   group_id?: number;
-  /**
-   * 部門コード
-   */
   group_code?: string;
-  /**
-   * 部門名称
-   */
   group_name?: string;
-  /**
-   * 部門階層レベル
-   */
   level?: number;
-  /**
-   * 役職ID
-   */
   position_id?: number | null;
-  /**
-   * 役職コード
-   */
   position_code?: string | null;
-  /**
-   * 役職名称
-   */
   position_name?: string | null;
-  /**
-   * 親部門ID
-   */
   parent_group_id?: number | null;
-  /**
-   * 親部門コード
-   */
   parent_group_code?: string | null;
-  /**
-   * 親部門名称
-   */
   parent_group_name?: string | null;
 };
 
 export type ApiV1SalariesEmployeePayrollStatementSerializer = {
-  /**
-   * 給与明細ID
-   */
   id?: number;
-  /**
-   * 事業所ID
-   */
   company_id?: number;
-  /**
-   * 従業員ID
-   */
   employee_id?: number;
-  /**
-   * 従業員の姓名
-   */
   employee_name?: string;
-  /**
-   * 従業員の表示名
-   */
   employee_display_name?: string;
-  /**
-   * 従業員番号
-   */
   employee_num?: string;
-  /**
-   * 支払日
-   */
   pay_date?: string;
-  /**
-   * 給与計算開始日（固定給）
-   */
   start_date?: string;
-  /**
-   * 給与計算締日（固定給）
-   */
   closing_date?: string;
-  /**
-   * 給与計算開始日（変動給） 残業手当、遅刻早退・欠勤などの計算に使われる期間
-   */
   variable_pay_start_date?: string;
-  /**
-   * 給与計算締日（変動給）
-   */
   variable_pay_closing_date?: string;
-  /**
-   * 給与明細が確定されているかどうか
-   */
   fixed?: boolean;
-  /**
-   * 計算状況ステータス calculating: 計算中, calculated: 計算完了, overwritten: 直接編集, imported: インポート, error: エラー
-   */
   calc_status?: string;
-  /**
-   * 計算状況ステータスの更新日
-   */
   calculated_at?: string | null;
-  /**
-   * 給与形態 monthly: 月給, daily: 日給, hourly: 時給, (空文字列): 計算中
-   */
   pay_calc_type?: "monthly" | "daily" | "hourly" | "";
-  /**
-   * 役員報酬
-   */
   board_member_remuneration_amount?: string | null;
-  /**
-   * 基本給
-   */
   basic_pay_amount?: string | null;
-  /**
-   * 労働日数
-   */
   work_days?: string | null;
-  /**
-   * 労働時間のうち、所定労働時間に該当するもの
-   */
   normal_work_time?: string | null;
-  /**
-   * 所定労働出勤日数
-   */
   normal_work_days?: string | null;
-  /**
-   * 有給休暇時間数
-   */
   work_mins_by_paid_holiday?: string | null;
-  /**
-   * 有給日数
-   */
   num_paid_holidays?: string | null;
-  /**
-   * 役員かどうか
-   */
   is_board_member?: boolean;
-  /**
-   * 勤怠控除額合計
-   */
   total_attendance_deduction_amount?: string | null;
-  /**
-   * 支給手当額合計
-   */
   total_allowance_amount?: string | null;
-  /**
-   * 控除額合計
-   */
   total_deduction_amount?: string | null;
-  /**
-   * 法定福利費の会社負担分の合計（健康保険、厚生年金、雇用保険等）
-   */
   total_deduction_employer_share?: string | null;
-  /**
-   * 差引支給額(手取り額)
-   */
   net_payment_amount?: string | null;
-  /**
-   * 総支給額(額面)
-   */
   gross_payment_amount?: string | null;
-  /**
-   * 平日と休日の合計労働日数（日給用）
-   */
   total_worked_days_count?: string | null;
-  /**
-   * 課税対象支給額
-   */
   total_taxable_payment_amount?: string | null;
-  /**
-   * 総経費精算額
-   */
   total_expense_amount?: string | null;
-  /**
-   * 総振込額
-   */
   total_transfer_amount?: string | null;
-  /**
-   * 課税支給累計額
-   */
   total_annual_payment_amount?: string | null;
-  /**
-   * 支給項目（基本給、残業代、通勤手当等）
-   */
   payments?: Array<ApiV1EmployeePayrollStatementsEmployeePayrollStatementItemSerializer>;
-  /**
-   * 控除項目（健康保険、厚生年金、雇用保険等）
-   */
   deductions?: Array<ApiV1EmployeePayrollStatementsEmployeePayrollStatementItemSerializer>;
-  /**
-   * 法定福利費の会社負担分（健康保険、厚生年金、雇用保険等）
-   */
   deductions_employer_share?: Array<ApiV1EmployeePayrollStatementsEmployeePayrollStatementItemSerializer>;
-  /**
-   * 勤怠控除項目（遅刻早退控除、欠勤控除等）
-   */
   attendances?: Array<ApiV1EmployeePayrollStatementsEmployeeAttendanceItemSerializer>;
-  /**
-   * 時間外労働項目(法定内残業、時間外労働、法定休日労働、深夜労働等)
-   */
   overtime_pays?: Array<ApiV1EmployeePayrollStatementsEmployeeOvertimePayItemSerializer> | null;
-  /**
-   * 備考
-   */
   remark?: string | null;
 };
 
 export type ApiV1HolidaysAndHoursSerializer = {
-  /**
-   * 日数 0.5は半休を表す
-   */
   days?: number;
-  /**
-   * 時間数
-   */
   hours?: number;
 };
 
 export type ApiV1EmployeesIndexSerializer = {
   employees?: Array<ApiV1EmployeeSerializer>;
-  /**
-   * 合計件数
-   */
   total_count?: number;
 };
 
 export type ApiV1GroupsIndexResponse = {
   groups: Array<ApiV1GroupResponseParams>;
-  /**
-   * 合計件数
-   */
   total_count: number;
 };
 
 export type ApiV1GroupResponseParams = {
-  /**
-   * 部門ID
-   */
   id: number;
-  /**
-   * 部門コード
-   */
   code?: string | null;
-  /**
-   * 部門名称
-   */
   name: string;
-  /**
-   * 部門階層レベル（数字が大きいほど階層が深いです。）
-   */
   level: number;
-  /**
-   * 親部門ID
-   */
   parent_group_id?: number | null;
-  /**
-   * 親部門コード
-   */
   parent_group_code?: string | null;
-  /**
-   * 親部門名称
-   */
   parent_group_name?: string | null;
 };
 
 export type ApiV1GroupCreateRequestParams = {
-  /**
-   * 部門コード（入力しない場合、空文字が入力されます。）
-   */
   code?: string | null;
-  /**
-   * 部門名称（必須）
-   */
   name: string;
-  /**
-   * 親部門ID（部門階層レベルが10以内になるように親部門IDを指定してください。）
-   */
   parent_group_id?: number | null;
 };
 
 export type ApiV1GroupUpdateRequestParams = {
-  /**
-   * 部門コード（入力しない場合、空文字が入力されます。）
-   */
   code?: string | null;
-  /**
-   * 部門名称
-   */
   name: string;
 };
 
 export type ApiV1PositionIndexResponse = {
   positions: Array<ApiV1PositionResponseParams>;
-  /**
-   * 合計件数
-   */
   total_count: number;
 };
 
 export type ApiV1PositionResponseParams = {
-  /**
-   * 役職ID
-   */
   id: number;
-  /**
-   * 役職コード
-   */
   code?: string | null;
-  /**
-   * 役職名称
-   */
   name: string;
 };
 
 export type ApiV1PositionRequestParams = {
-  /**
-   * 役職コード（入力しない場合、空文字が入力されます。）
-   */
   code?: string | null;
-  /**
-   * 役職名称（必須）
-   */
   name: string;
 };
 
 export type ApiV1EmployeeGroupMembershipSerializer = {
-  /**
-   * 従業員ID
-   */
   id?: number;
-  /**
-   * 従業員番号
-   */
   num?: string;
-  /**
-   * 従業員名（表示名）
-   */
   display_name?: string;
-  /**
-   * 入社日
-   */
   entry_date?: string;
-  /**
-   * 退職日
-   */
   retire_date?: string | null;
-  /**
-   * ユーザーID(従業員詳細未設定の場合、nullになります。)
-   */
   user_id?: number | null;
-  /**
-   * ログイン用メールアドレス(従業員詳細未設定の場合、nullになります。)
-   */
   login_email?: string | null;
-  /**
-   * 生年月日
-   */
   birth_date?: string;
-  /**
-   * 性別　unselected: 未選択, male: 男性, female: 女性
-   */
   gender?: "unselected" | "male" | "female";
-  /**
-   * 給与計算対象従業員の場合trueを返します
-   */
   payroll_calculation?: boolean;
   group_memberships?: Array<ApiV1GroupMembershipSerializer>;
 };
 
 export type ApiV1MonthlyAttendanceIndexResponseParams = {
-  /**
-   * 申請ID
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 申請No
-   */
   application_number: number;
-  /**
-   * 申請者のユーザーID
-   */
   applicant_id: number;
-  /**
-   * 代理申請者のユーザーID
-   */
   proxy_applicant_id?: number | null;
-  /**
-   * 承認者のユーザーID配列<br>
-   * 次の場合、空配列になります。
-   * - 指定なしの申請経路を利用した、申請ステータスが承認済み以外の申請
-   * - 申請が差戻された
-   */
   approver_ids?: Array<number | null>;
-  /**
-   * 対象日
-   */
   target_date: string;
-  /**
-   * 申請日
-   */
   issue_date: string;
-  /**
-   * 申請ステータス。（draft:下書き、in_progress:申請中、approved:承認済、feedback:差戻し）
-   */
   status: "draft" | "in_progress" | "approved" | "feedback";
-  /**
-   * 自動チェック結果
-   */
   passed_auto_check: boolean;
 };
 
 export type ApiV1MonthlyAttendanceResponseParams = {
-  /**
-   * 申請ID
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 申請No
-   */
   application_number: number;
-  /**
-   * 申請者のユーザーID
-   */
   applicant_id: number;
-  /**
-   * 代理申請者のユーザーID
-   */
   proxy_applicant_id?: number | null;
-  /**
-   * 承認者のユーザーID配列<br>
-   * 次の場合、空配列になります。
-   * - 指定なしの申請経路を利用した、申請ステータスが承認済み以外の申請
-   * - 申請が差戻された
-   */
   approver_ids?: Array<number | null>;
-  /**
-   * 対象日
-   */
   target_date: string;
-  /**
-   * 申請日
-   */
   issue_date: string;
-  /**
-   * 申請ステータス。（draft:下書き、in_progress:申請中、approved:承認済、feedback:差戻し）
-   */
   status: "draft" | "in_progress" | "approved" | "feedback";
-  /**
-   * 自動チェック結果
-   */
   passed_auto_check: boolean;
-  /**
-   * 申請経路ID
-   */
   approval_flow_route_id: number;
-  /**
-   * 申請経路名
-   */
   approval_flow_route_name: string;
-  /**
-   * 承認履歴
-   */
   approval_flow_logs: Array<ApiV1ApprovalFlowLogsParams>;
-  /**
-   * 申請についたコメント（投稿順）<br>
-   * 申請者・代理申請者・承認者・管理者が書いたコメントだけを返します。自動で付くコメントは含みません。
-   */
   comments: Array<ApiV1ApprovalFlowCommentsParams>;
-  /**
-   * 現在承認ステップID<br>
-   * 申請を差戻した場合、nullになります。
-   */
   current_step_id?: number | null;
-  /**
-   * 現在のround。差戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。
-   */
   current_round: number;
 };
 
 export type ApiV1PaidHolidayIndexResponseParams = {
-  /**
-   * 申請ID
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 申請No
-   */
   application_number: number;
-  /**
-   * 申請者のユーザーID
-   */
   applicant_id: number;
-  /**
-   * 承認者のユーザーID配列<br>
-   * 次の場合、空配列になります。
-   * - 指定なしの申請経路を利用した、申請ステータスが承認済み以外の申請
-   * - 申請が差戻された
-   */
   approver_ids?: Array<number | null>;
-  /**
-   * 対象日
-   */
   target_date: string;
   values: Array<{
-    /**
-     * 取得単位。（full:全休、half:半休、morning:午前休、 afternoon:午後休、hourly:時間休）
-     */
     type: "full" | "half" | "morning" | "afternoon" | "hourly";
-    /**
-     * 取得予定開始時間
-     */
     start_at?: string | null;
-    /**
-     * 取得予定終了時間
-     */
     end_at?: string | null;
   }>;
-  /**
-   * 申請日
-   */
   issue_date: string;
-  /**
-   * 申請理由
-   */
   comment?: string | null;
-  /**
-   * 申請ステータス。（draft:下書き、in_progress:申請中、approved:承認済、feedback:差戻し）
-   */
   status: "draft" | "in_progress" | "approved" | "feedback";
-  /**
-   * 取消申請ステータス。（null:取消申請されてない、revoking:取消中、revoked:取消済）
-   */
   revoke_status: "revoking" | "revoked";
-  /**
-   * 自動チェック結果
-   */
   passed_auto_check: boolean;
-  /**
-   * 代理申請者のユーザーID
-   */
   proxy_applicant_id?: number | null;
 };
 
 export type LegacyApiV1PaidHolidayIndexResponseParams = {
-  /**
-   * 申請ID
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 申請No
-   */
   application_number: number;
-  /**
-   * 申請者のユーザーID
-   */
   applicant_id: number;
-  /**
-   * 承認者のユーザーID配列<br>
-   * 次の場合、空配列になります。
-   * - 指定なしの申請経路を利用した、申請ステータスが承認済み以外の申請
-   * - 申請が差戻された
-   */
   approver_ids?: Array<number | null>;
-  /**
-   * 対象日
-   */
   target_date: string;
-  /**
-   * [deprecated] 取得単位。（full:全休、half:半休、morning:午前休、 afternoon:午後休、hour:時間休）※ 削除予定のため paid_holiday->values->type を参照してください
-   */
   holiday_type: "full" | "half" | "morning" | "afternoon" | "hour";
-  /**
-   * [deprecated] 取得予定開始時間 ※ 削除予定のため paid_holiday->values->start_at を参照してください
-   */
   start_at?: string | null;
-  /**
-   * [deprecated] 取得予定終了時間 ※ 削除予定のため paid_holiday->values->end_at を参照してください
-   */
   end_at?: string | null;
-  /**
-   * 申請日
-   */
   issue_date: string;
-  /**
-   * 申請理由
-   */
   comment?: string | null;
-  /**
-   * 申請ステータス。（draft:下書き、in_progress:申請中、approved:承認済、feedback:差戻し）
-   */
   status: "draft" | "in_progress" | "approved" | "feedback";
-  /**
-   * 取消申請ステータス。（null:取消申請されてない、revoking:取消中、revoked:取消済）
-   */
   revoke_status: "revoking" | "revoked";
-  /**
-   * 自動チェック結果
-   */
   passed_auto_check: boolean;
-  /**
-   * 代理申請者のユーザーID
-   */
   proxy_applicant_id?: number | null;
 };
 
 export type ApiV1PaidHolidayResponseParams = {
-  /**
-   * 申請ID
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 申請No
-   */
   application_number: number;
-  /**
-   * 申請者のユーザーID
-   */
   applicant_id: number;
-  /**
-   * 承認者のユーザーID配列<br>
-   * 次の場合、空配列になります。
-   * - 指定なしの申請経路を利用した、申請ステータスが承認済み以外の申請
-   * - 申請が差戻された
-   */
   approver_ids?: Array<number | null>;
-  /**
-   * 対象日
-   */
   target_date: string;
   values: Array<{
-    /**
-     * 取得単位。（full:全休、half:半休、morning:午前休、 afternoon:午後休、hourly:時間休）
-     */
     type: "full" | "half" | "morning" | "afternoon" | "hourly";
-    /**
-     * 取得予定開始時間
-     */
     start_at?: string | null;
-    /**
-     * 取得予定終了時間
-     */
     end_at?: string | null;
   }>;
-  /**
-   * 申請日
-   */
   issue_date: string;
-  /**
-   * 申請理由
-   */
   comment?: string | null;
-  /**
-   * 申請ステータス。（draft:下書き、in_progress:申請中、approved:承認済、feedback:差戻し）
-   */
   status: "draft" | "in_progress" | "approved" | "feedback";
-  /**
-   * 取消申請ステータス。（null:取消申請されてない、revoking:取消中、revoked:取消済）
-   */
   revoke_status: "revoking" | "revoked";
-  /**
-   * 自動チェック結果
-   */
   passed_auto_check: boolean;
-  /**
-   * 申請経路ID
-   */
   approval_flow_route_id: number;
-  /**
-   * 申請経路名
-   */
   approval_flow_route_name: string;
-  /**
-   * 承認履歴
-   */
   approval_flow_logs: Array<ApiV1ApprovalFlowLogsParams>;
-  /**
-   * 申請についたコメント（投稿順）<br>
-   * 申請者・代理申請者・承認者・管理者が書いたコメントだけを返します。自動で付くコメントは含みません。
-   */
   comments: Array<ApiV1ApprovalFlowCommentsParams>;
-  /**
-   * 現在承認ステップID<br>
-   * 申請を差戻した場合、nullになります。
-   */
   current_step_id?: number | null;
-  /**
-   * 現在のround。差戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。
-   */
   current_round: number;
-  /**
-   * 代理申請者のユーザーID
-   */
   proxy_applicant_id?: number | null;
 };
 
 export type LegacyApiV1PaidHolidayResponseParams = {
-  /**
-   * 申請ID
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 申請No
-   */
   application_number: number;
-  /**
-   * 申請者のユーザーID
-   */
   applicant_id: number;
-  /**
-   * 承認者のユーザーID配列<br>
-   * 次の場合、空配列になります。
-   * - 指定なしの申請経路を利用した、申請ステータスが承認済み以外の申請
-   * - 申請が差戻された
-   */
   approver_ids?: Array<number | null>;
-  /**
-   * 対象日
-   */
   target_date: string;
-  /**
-   * [deprecated] 取得単位。（full:全休、half:半休、morning:午前休、 afternoon:午後休、hour:時間休）※ 削除予定のため paid_holiday->values->type を参照してください
-   */
   holiday_type: "full" | "half" | "morning" | "afternoon" | "hour";
-  /**
-   * [deprecated] 取得予定開始時間 ※ 削除予定のため paid_holiday->values->start_at を参照してください
-   */
   start_at?: string | null;
-  /**
-   * [deprecated] 取得予定終了時間 ※ 削除予定のため paid_holiday->values->end_at を参照してください
-   */
   end_at?: string | null;
-  /**
-   * 申請日
-   */
   issue_date: string;
-  /**
-   * 申請理由
-   */
   comment?: string | null;
-  /**
-   * 申請ステータス。（draft:下書き、in_progress:申請中、approved:承認済、feedback:差戻し）
-   */
   status: "draft" | "in_progress" | "approved" | "feedback";
-  /**
-   * 取消申請ステータス。（null:取消申請されてない、revoking:取消中、revoked:取消済）
-   */
   revoke_status: "revoking" | "revoked";
-  /**
-   * 自動チェック結果
-   */
   passed_auto_check: boolean;
-  /**
-   * 申請経路ID
-   */
   approval_flow_route_id: number;
-  /**
-   * 申請経路名
-   */
   approval_flow_route_name: string;
-  /**
-   * 承認履歴
-   */
   approval_flow_logs: Array<ApiV1ApprovalFlowLogsParams>;
-  /**
-   * 申請についたコメント（投稿順）<br>
-   * 申請者・代理申請者・承認者・管理者が書いたコメントだけを返します。自動で付くコメントは含みません。
-   */
   comments: Array<ApiV1ApprovalFlowCommentsParams>;
-  /**
-   * 現在承認ステップID<br>
-   * 申請を差戻した場合、nullになります。
-   */
   current_step_id?: number | null;
-  /**
-   * 現在のround。差戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。
-   */
   current_round: number;
-  /**
-   * 代理申請者のユーザーID
-   */
   proxy_applicant_id?: number | null;
 };
 
 export type ApiV1OvertimeWorkIndexResponseParams = {
-  /**
-   * 申請ID
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 申請No
-   */
   application_number: number;
-  /**
-   * 申請者のユーザーID
-   */
   applicant_id: number;
-  /**
-   * 代理申請者のユーザーID
-   */
   proxy_applicant_id?: number | null;
-  /**
-   * 承認者のユーザーID配列<br>
-   * 次の場合、空配列になります。
-   * - 指定なしの申請経路を利用した、申請ステータスが承認済み以外の申請
-   * - 申請が差戻された
-   */
   approver_ids?: Array<number | null>;
-  /**
-   * 対象日
-   */
   target_date: string;
-  /**
-   * 取得予定開始時間（必須）
-   */
   start_at?: string;
-  /**
-   * 取得予定終了時間（必須）
-   */
   end_at?: string;
-  /**
-   * 申請日
-   */
   issue_date: string;
-  /**
-   * 申請理由
-   */
   comment?: string | null;
-  /**
-   * 申請ステータス。（draft:下書き、in_progress:申請中、approved:承認済、feedback:差戻し）
-   */
   status: "draft" | "in_progress" | "approved" | "feedback";
-  /**
-   * 取消申請ステータス。（null:取消申請されてない、revoking:取消中、revoked:取消済）
-   */
   revoke_status: "revoking" | "revoked";
-  /**
-   * 自動チェック結果
-   */
   passed_auto_check: boolean;
 };
 
 export type ApiV1OvertimeWorkResponseParams = {
-  /**
-   * 申請ID
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 申請No
-   */
   application_number: number;
-  /**
-   * 申請者のユーザーID
-   */
   applicant_id: number;
-  /**
-   * 代理申請者のユーザーID
-   */
   proxy_applicant_id?: number | null;
-  /**
-   * 承認者のユーザーID配列<br>
-   * 次の場合、空配列になります。
-   * - 指定なしの申請経路を利用した、申請ステータスが承認済み以外の申請
-   * - 申請が差戻された
-   */
   approver_ids?: Array<number | null>;
-  /**
-   * 対象日
-   */
   target_date: string;
-  /**
-   * 取得予定開始時間（必須）
-   */
   start_at?: string;
-  /**
-   * 取得予定終了時間（必須）
-   */
   end_at?: string;
-  /**
-   * 申請日
-   */
   issue_date: string;
-  /**
-   * 申請理由
-   */
   comment?: string | null;
-  /**
-   * 申請ステータス。（draft:下書き、in_progress:申請中、approved:承認済、feedback:差戻し）
-   */
   status: "draft" | "in_progress" | "approved" | "feedback";
-  /**
-   * 取消申請ステータス。（null:取消申請されてない、revoking:取消中、revoked:取消済）
-   */
   revoke_status: "revoking" | "revoked";
-  /**
-   * 自動チェック結果
-   */
   passed_auto_check: boolean;
-  /**
-   * 申請経路ID
-   */
   approval_flow_route_id: number;
-  /**
-   * 申請経路名
-   */
   approval_flow_route_name: string;
-  /**
-   * 承認履歴
-   */
   approval_flow_logs: Array<ApiV1ApprovalFlowLogsParams>;
-  /**
-   * 申請についたコメント（投稿順）<br>
-   * 申請者・代理申請者・承認者・管理者が書いたコメントだけを返します。自動で付くコメントは含みません。
-   */
   comments: Array<ApiV1ApprovalFlowCommentsParams>;
-  /**
-   * 現在承認ステップID<br>
-   * 申請を差戻した場合、nullになります。
-   */
   current_step_id?: number | null;
-  /**
-   * 現在のround。差戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。
-   */
   current_round: number;
 };
 
 export type ApiV1ApprovalFlowLogsParams = {
-  /**
-   * 申請操作をしたユーザーのユーザーID
-   */
   user_id?: number;
-  /**
-   * 申請操作。（apply:申請する、approve:承認、cancel:取り消し、feedback:差戻し）
-   */
   action?: "apply" | "approve" | "cancel" | "feedback";
-  /**
-   * 申請操作をした日付時間
-   */
   update_at?: string;
 };
 
 export type ApiV1ApprovalFlowCommentsParams = {
-  /**
-   * コメント本文
-   */
   comment: string;
-  /**
-   * コメントを書いたユーザーのユーザーID<br>
-   * 次の場合、nullになります。
-   * - 従業員に紐付かない管理者が書いた
-   * - 書いた従業員が削除されている
-   * - 書いた従業員がユーザーアカウントに紐付いていない（招待の解除など）
-   */
   user_id: number | null;
-  /**
-   * コメントを書いた日付時間
-   */
   posted_at: string;
 };
 
 export type ApiV1EmployeeSerializer = {
-  /**
-   * 従業員ID
-   */
   id?: number;
-  /**
-   * 事業所ID
-   */
   company_id?: number;
-  /**
-   * 従業員番号
-   */
   num?: string;
-  /**
-   * 従業員名（表示名）
-   */
   display_name?: string;
-  /**
-   * 基礎年金番号
-   */
   base_pension_num?: string | null;
-  /**
-   * 被保険者番号（雇用保険）
-   */
   employment_insurance_reference_number?: string;
-  /**
-   * 生年月日
-   */
   birth_date?: string;
-  /**
-   * 入社日
-   */
   entry_date?: string;
-  /**
-   * 退職日
-   */
   retire_date?: string | null;
-  /**
-   * ユーザーID(従業員詳細未設定の場合、nullになります。)
-   */
   user_id?: number | null;
   profile_rule?: ApiV1EmployeesProfileRuleSerializer;
   health_insurance_rule?: ApiV1EmployeesHealthInsuranceRuleSerializer;
   welfare_pension_insurance_rule?: ApiV1EmployeesWelfarePensionInsuranceRuleSerializer;
-  /**
-   * 家族情報
-   */
   dependent_rules?: Array<ApiV1EmployeesDependentRuleSerializer>;
   bank_account_rule?: ApiV1EmployeesBankAccountRuleSerializer;
   basic_pay_rule?: ApiV1EmployeesBasicPayRuleSerializer;
-  /**
-   * 給与計算対象従業員の場合trueを返します
-   */
   payroll_calculation?: boolean;
-  /**
-   * 締め日支払い日グループ名(給与計算対象外従業員の場合、nullを返します)
-   */
   company_reference_date_rule_name?: string | null;
 };
 
 export type ApiV1UsersCompanySerializer = {
-  /**
-   * 事業所ID
-   */
   id?: number;
-  /**
-   * 事業所名
-   */
   name?: string;
-  /**
-   * 事業所におけるロール。
-   *
-   * - `company_admin`: 管理者
-   * - `self_only`: 一般
-   * - `attendance_manager`: 勤怠管理者
-   * - `physician`: 産業医
-   * - `shift_admin`: AIシフト担当者
-   * - `time_clock_device_setter`: 打刻機設定者
-   *
-   * [各権限でできることは各アカウントの権限についてのヘルプページを参照してください。](https://support.freee.co.jp/hc/ja/articles/204087410#3)
-   */
   role?: string;
-  /**
-   * 事業所番号(半角英数字10桁)
-   */
   external_cid?: string;
-  /**
-   * 事業所に所属する従業員としての従業員ID、従業員情報が未登録の場合はnullになります。
-   */
   employee_id?: number | null;
-  /**
-   * 事業所に所属する従業員の表示名
-   */
   display_name?: string | null;
 };
 
 export type ApiV1UsersMeSerializer = {
-  /**
-   * ユーザーID
-   */
   id?: number;
-  /**
-   * ユーザーが属する事業所の一覧
-   */
   companies?: Array<ApiV1UsersCompanySerializer>;
 };
 
 export type ApiV1EmployeeGroupMembershipsIndexSerializer = {
   employee_group_memberships?: Array<ApiV1EmployeeGroupMembershipSerializer>;
-  /**
-   * 合計件数
-   */
   total_count?: number;
 };
 
 export type ApiV1BonusesEmployeePayrollStatementsIndexSerializer = {
   employee_payroll_statements?: Array<ApiV1BonusesEmployeePayrollStatementSerializer>;
-  /**
-   * 合計件数
-   */
   total_count?: number;
 };
 
 export type ApiV1BonusesEmployeePayrollStatementSerializer = {
-  /**
-   * 賞与明細ID
-   */
   id?: number;
-  /**
-   * 事業所ID
-   */
   company_id?: number;
-  /**
-   * 従業員ID
-   */
   employee_id?: number;
-  /**
-   * 従業員の姓名
-   */
   employee_name?: string;
-  /**
-   * 従業員の表示名
-   */
   employee_display_name?: string;
-  /**
-   * 従業員番号
-   */
   employee_num?: string;
-  /**
-   * 確定日
-   */
   closing_date?: string;
-  /**
-   * 支払日
-   */
   pay_date?: string;
-  /**
-   * 賞与明細が確定されているかどうか
-   */
   fixed?: boolean;
-  /**
-   * 計算状況ステータス calculating: 計算中, calculated: 計算完了, error: エラー
-   */
   calc_status?: string;
-  /**
-   * 計算状況ステータスの更新日
-   */
   calculated_at?: string | null;
-  /**
-   * 賞与額
-   */
   bonus_amount?: string | null;
-  /**
-   * 手当額合計
-   */
   total_allowance_amount?: string | null;
-  /**
-   * 控除額合計
-   */
   total_deduction_amount?: string | null;
-  /**
-   * 差引支給額(手取り額)
-   */
   net_payment_amount?: string | null;
-  /**
-   * 総支給額(額面)
-   */
   gross_payment_amount?: string | null;
-  /**
-   * 課税対象支給額
-   */
   total_taxable_payment_amount?: string | null;
-  /**
-   * 手当
-   */
   allowances?: Array<ApiV1EmployeePayrollStatementsEmployeePayrollStatementItemSerializer>;
-  /**
-   * 控除項目（所得税、社会保険料等）
-   */
   deductions?: Array<ApiV1EmployeePayrollStatementsEmployeePayrollStatementItemSerializer>;
-  /**
-   * 備考
-   */
   remark?: string;
 };
 
 export type ApiV1CompaniesEmployeeSerializer = {
-  /**
-   * 従業員ID
-   */
   id?: number;
-  /**
-   * 従業員番号
-   */
   num?: string;
-  /**
-   * 従業員名（表示名）
-   */
   display_name?: string;
-  /**
-   * 入社日
-   */
   entry_date?: string;
-  /**
-   * 退職日
-   */
   retire_date?: string | null;
-  /**
-   * ユーザーID(従業員詳細未設定の場合、nullになります。)
-   */
   user_id?: number | null;
-  /**
-   * ログイン用メールアドレス(従業員詳細未設定の場合、nullになります。)
-   */
   email?: string | null;
-  /**
-   * 給与計算対象従業員の場合trueを返します
-   */
   payroll_calculation?: boolean;
-  /**
-   * 締め日(給与計算対象外従業員の場合、nullを返します)
-   */
   closing_day?: number | null;
-  /**
-   * 支払日(給与計算対象外従業員の場合、nullを返します)
-   */
   pay_day?: number | null;
-  /**
-   * 翌月払いか、当月払いか(給与計算対象外従業員の場合、nullを返します)
-   */
   month_of_pay_day?: string | null;
 };
 
 export type ApiV1EmployeesProfileRuleUpdateRequestSerializer = {
-  /**
-   * 姓 null不可
-   */
   last_name: string;
-  /**
-   * 名 null不可
-   */
   first_name: string;
-  /**
-   * 姓カナ
-   */
   last_name_kana: string;
-  /**
-   * 名カナ
-   */
   first_name_kana: string;
-  /**
-   * 住民票住所の郵便番号1
-   */
   zipcode1?: string;
-  /**
-   * 住民票住所の郵便番号2
-   */
   zipcode2?: string;
-  /**
-   * 住民票住所の都道府県コード（-1: 設定しない、0: 北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄)
-   */
   prefecture_code?: number;
-  /**
-   * 住民票住所の市区町村以降の住所
-   */
   address?: string;
-  /**
-   * 住民票住所の市区町村以降の住所カナ
-   */
   address_kana?: string;
-  /**
-   * 電話番号1（先頭番号、例:03-1111-222x の03部分）
-   */
   phone1?: string;
-  /**
-   * 電話番号2（中間番号、例:03-1111-222x の1111部分）
-   */
   phone2?: string;
-  /**
-   * 電話番号3（末尾番号、例:03-1111-222x の222x部分）
-   */
   phone3?: string;
-  /**
-   * 現住所の郵便番号１
-   */
   residential_zipcode1?: string;
-  /**
-   * 現住所の郵便番号２
-   */
   residential_zipcode2?: string;
-  /**
-   * 現住所の都道府県コード（-1: 設定しない、0: 北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄)
-   */
   residential_prefecture_code?: number;
-  /**
-   * 現住所の住所
-   */
   residential_address?: string;
-  /**
-   * 現住所の住所カナ
-   */
   residential_address_kana?: string;
-  /**
-   * 雇用形態 board-member: 役員, regular: 正社員, fixed-term: 契約社員, part-time: アルバイト・パート, temporary: 派遣社員, (空文字列): その他
-   */
   employment_type?: "board-member" | "regular" | "fixed-term" | "part-time" | "temporary" | "";
-  /**
-   * 肩書
-   */
   title?: string;
-  /**
-   * 性別　unselected: 未選択, male: 男性, female: 女性（デフォルト: unselected: 未選択）
-   */
   gender?: "unselected" | "male" | "female";
-  /**
-   * null不可 配偶者の有無
-   */
   married?: boolean;
-  /**
-   * null不可 勤労学生かどうか
-   */
   is_working_student?: boolean;
-  /**
-   * 寡夫／寡婦かどうか null不可 na: 空白, widower: 寡夫, widow: 寡婦, special_widow: 特別寡婦, one_parent: ひとり親
-   */
   widow_type?: "na" | "widower" | "widow" | "special_widow" | "one_parent";
-  /**
-   * 障害者かどうか null不可 na: 空白, general: 障害者, heavy: 特別障害者
-   */
   disability_type?: "na" | "general" | "heavy";
-  /**
-   * メールアドレス
-   */
   email?: string | null;
-  /**
-   * 世帯主の名前<br>世帯主の続柄に myself:本人 を指定している場合は、世帯主の名前は自動で従業員名で更新するため指定できません。
-   */
   householder_name?: string;
-  /**
-   * 世帯主の続柄 myself:本人, husband:夫, wife:妻, father:父, mother:母, child:子供, senior_brother:兄, junior_brother:弟, senior_sister:姉, junior_sister:妹, grandchild:孫, grandfather:祖父, grandmother:祖母, father_in_law:義父, mother_in_law:義母, grandfather_in_law:義祖父, grandmother_in_law:義祖母, other:その他
-   */
   householder?:
     | "myself"
     | "husband"
@@ -1559,47 +479,20 @@ export type ApiV1EmployeesProfileRuleUpdateRequestSerializer = {
 };
 
 export type ApiV1EmployeesEmployeeMultiHourlyWageWorkRecordSummarySerializer = {
-  /**
-   * 時給名
-   */
   name?: string;
-  /**
-   * 所定内労働時間（分）
-   */
   total_normal_time_mins?: number;
 };
 
 export type ApiV1EmployeesWorkRecordTimeRangeSerializer = {
-  /**
-   * 開始時刻
-   */
   clock_in_at: string;
-  /**
-   * 終了時刻
-   */
   clock_out_at: string;
 };
 
 export type ApiV1EmployeesWorkRecordTimeRangeResponseSerializer = {
-  /**
-   * 開始時刻
-   */
   clock_in_at?: string;
-  /**
-   * 終了時刻
-   */
   clock_out_at?: string;
 };
 
-/**
- * 休暇の内訳。
- * full、morning_off、afternoon_off では mins と time_ranges を指定しません。
- * annual_paid_holiday と有給の special_holiday の half では mins を指定します。無給の special_holiday の half では mins を指定できません。
- * half を2つ組み合わせて全休にする場合は、どちらの half でも mins を指定できません。
- * compensatory_holiday では mins と time_ranges を指定しません。
- * annual_paid_holiday と special_holiday の hourly では、対象日に適用される勤務賃金設定の時間休の入力方式に従い、時間数方式の場合は mins、時間帯方式の場合は time_ranges を指定します。
- * hourly の mins は60分単位です。
- */
 export type ApiV1EmployeesWorkRecordHolidayRequest =
   | ({
       holiday_category: "annual_paid_holiday";
@@ -1611,13 +504,6 @@ export type ApiV1EmployeesWorkRecordHolidayRequest =
       holiday_category: "compensatory_holiday";
     } & ApiV1EmployeesWorkRecordCompensatoryHolidayRequest);
 
-/**
- * 休暇の内訳。
- * full では mins と time_ranges を返しません。
- * half では mins を返します。
- * morning_off、afternoon_off では mins を返さず、時間帯を持つ実績の場合は time_ranges を返します。
- * hourly では mins を返し、時間帯を持つ実績の場合は time_ranges も返します。
- */
 export type ApiV1EmployeesWorkRecordHolidayResponse =
   | ({
       holiday_category: "annual_paid_holiday";
@@ -1629,38 +515,20 @@ export type ApiV1EmployeesWorkRecordHolidayResponse =
       holiday_category: "compensatory_holiday";
     } & ApiV1EmployeesWorkRecordCompensatoryHolidayResponse);
 
-/**
- * 年次有給休暇
- */
 export type ApiV1EmployeesWorkRecordAnnualPaidHolidayRequest =
   ApiV1EmployeesWorkRecordHolidayTypeFields &
     ApiV1EmployeesWorkRecordHolidayTimeRequestFields & {
-      /**
-       * 休暇カテゴリ
-       */
       holiday_category: "annual_paid_holiday";
     };
 
-/**
- * 特別休暇
- */
 export type ApiV1EmployeesWorkRecordSpecialHolidayRequest =
   ApiV1EmployeesWorkRecordHolidayTypeFields &
     ApiV1EmployeesWorkRecordHolidayTimeRequestFields & {
-      /**
-       * 休暇カテゴリ
-       */
       holiday_category: "special_holiday";
       special_holiday_setting_id: ApiV1EmployeesWorkRecordSpecialHolidaySettingId;
     };
 
-/**
- * 代休
- */
 export type ApiV1EmployeesWorkRecordCompensatoryHolidayRequest = {
-  /**
-   * 休暇カテゴリ
-   */
   holiday_category: "compensatory_holiday";
   holiday_type: ApiV1EmployeesWorkRecordCompensatoryHolidayType;
   source_date: ApiV1EmployeesWorkRecordCompensatoryHolidaySourceDate;
@@ -1675,38 +543,20 @@ export type ApiV1EmployeesWorkRecordHolidayTimeRequestFields = {
   time_ranges?: ApiV1EmployeesWorkRecordHolidayTimeRangesRequest;
 };
 
-/**
- * 年次有給休暇
- */
 export type ApiV1EmployeesWorkRecordAnnualPaidHolidayResponse =
   ApiV1EmployeesWorkRecordHolidayTypeFields &
     ApiV1EmployeesWorkRecordHolidayTimeResponseFields & {
-      /**
-       * 休暇カテゴリ
-       */
       holiday_category: "annual_paid_holiday";
     };
 
-/**
- * 特別休暇
- */
 export type ApiV1EmployeesWorkRecordSpecialHolidayResponse =
   ApiV1EmployeesWorkRecordHolidayTypeFields &
     ApiV1EmployeesWorkRecordHolidayTimeResponseFields & {
-      /**
-       * 休暇カテゴリ
-       */
       holiday_category: "special_holiday";
       special_holiday_setting_id: ApiV1EmployeesWorkRecordSpecialHolidaySettingId;
     };
 
-/**
- * 代休
- */
 export type ApiV1EmployeesWorkRecordCompensatoryHolidayResponse = {
-  /**
-   * 休暇カテゴリ
-   */
   holiday_category: "compensatory_holiday";
   holiday_type: ApiV1EmployeesWorkRecordCompensatoryHolidayType;
   source_date: ApiV1EmployeesWorkRecordCompensatoryHolidaySourceDate;
@@ -1717,339 +567,108 @@ export type ApiV1EmployeesWorkRecordHolidayTimeResponseFields = {
   time_ranges?: ApiV1EmployeesWorkRecordHolidayTimeRangesResponse;
 };
 
-/**
- * 取得単位（全休: full、半休: half、午前休: morning_off、午後休: afternoon_off、時間休: hourly）
- */
 export type ApiV1EmployeesWorkRecordHolidayType =
   "full" | "half" | "morning_off" | "afternoon_off" | "hourly";
 
-/**
- * 取得単位（全休: full、半休: half、午前休: morning_off、午後休: afternoon_off）
- */
 export type ApiV1EmployeesWorkRecordCompensatoryHolidayType =
   "full" | "half" | "morning_off" | "afternoon_off";
 
-/**
- * 休暇により計上する時間（分単位）
- */
 export type ApiV1EmployeesWorkRecordHolidayMins = number;
 
-/**
- * 時間休の取得時間帯
- */
 export type ApiV1EmployeesWorkRecordHolidayTimeRangesRequest =
   Array<ApiV1EmployeesWorkRecordHolidayTimeRangeRequest>;
 
-/**
- * 時間休の取得時間帯
- */
 export type ApiV1EmployeesWorkRecordHolidayTimeRangesResponse =
   Array<ApiV1EmployeesWorkRecordHolidayTimeRangeResponse>;
 
-/**
- * 特別休暇設定ID
- */
 export type ApiV1EmployeesWorkRecordSpecialHolidaySettingId = number;
 
-/**
- * 代休の元となる休日出勤日
- */
 export type ApiV1EmployeesWorkRecordCompensatoryHolidaySourceDate = string;
 
 export type ApiV1EmployeesWorkRecordHolidayTimeRangeRequest = {
-  /**
-   * 取得開始時刻
-   */
   start_at: string;
-  /**
-   * 取得終了時刻
-   */
   end_at: string;
 };
 
 export type ApiV1EmployeesWorkRecordHolidayTimeRangeResponse = {
-  /**
-   * 取得開始時刻
-   */
   start_at: string;
-  /**
-   * 取得終了時刻
-   */
   end_at: string;
 };
 
 export type ApiV1EmployeesWelfarePensionInsuranceRuleSerializer = {
   id?: number;
-  /**
-   * 賞与計算時の子ども・子育て拠出金の計算方法
-   */
   child_allowance_contribution_bonus_calc_type?: "auto" | "manual";
-  /**
-   * 給与計算時の子ども・子育て拠出金の計算方法
-   */
   child_allowance_contribution_salary_calc_type?: "auto" | "manual";
-  /**
-   * 事業所ID
-   */
   company_id?: number;
-  /**
-   * 従業員ID
-   */
   employee_id?: number;
-  /**
-   * 厚生年金保険に加入しているかどうか
-   */
   entried?: boolean;
-  /**
-   * 賞与計算時の子ども・子育て拠出金の直接指定金額
-   */
   manual_child_allowance_contribution_amount_bonus?: number | null;
-  /**
-   * 給与計算時の子ども・子育て拠出金の直接指定金額
-   */
   manual_child_allowance_contribution_amount_salary?: number | null;
-  /**
-   * 賞与計算時の厚生年金保険料の直接指定金額（会社負担分）
-   */
   manual_welfare_pension_insurance_amount_of_company_bonus?: number | null;
-  /**
-   * 給与計算時の厚生年金保険料の直接指定金額（会社負担分）
-   */
   manual_welfare_pension_insurance_amount_of_company_salary?: number | null;
-  /**
-   * 賞与計算時の厚生年金保険料の直接指定金額（従業員負担分）
-   */
   manual_welfare_pension_insurance_amount_of_employee_bonus?: number | null;
-  /**
-   * 給与計算時の厚生年金保険料の直接指定金額（従業員負担分）
-   */
   manual_welfare_pension_insurance_amount_of_employee_salary?: number | null;
-  /**
-   * 厚生年金保険の被保険者整理番号
-   */
   reference_num?: string | null;
-  /**
-   * 標準報酬月額
-   */
   standard_monthly_remuneration?: number;
-  /**
-   * 賞与計算時の厚生年金保険料の計算方法
-   */
   welfare_pension_insurance_bonus_calc_type?: "auto" | "manual";
-  /**
-   * 給与計算時の厚生年金保険料の計算方法
-   */
   welfare_pension_insurance_salary_calc_type?: "auto" | "manual";
 } | null;
 
 export type ApiV1EmployeesHealthInsuranceRuleUpdateRequestSerializer = {
-  /**
-   * 健康保険に加入しているかどうか null不可
-   */
   entried?: boolean;
-  /**
-   * 給与計算時の健康保険料の計算方法
-   */
   health_insurance_salary_calc_type?: "auto" | "manual";
-  /**
-   * 賞与計算時の健康保険料の計算方法
-   */
   health_insurance_bonus_calc_type?: "auto" | "manual";
-  /**
-   * 給与計算時の健康保険料の直接指定金額（従業員負担分）
-   */
   manual_health_insurance_amount_of_employee_salary?: number | null;
-  /**
-   * 賞与計算時の健康保険料の直接指定金額（従業員負担分）
-   */
   manual_health_insurance_amount_of_employee_bonus?: number | null;
-  /**
-   * 給与計算時の健康保険料の直接指定金額（会社負担分）
-   */
   manual_health_insurance_amount_of_company_salary?: number | null;
-  /**
-   * 賞与計算時の健康保険料の直接指定金額（会社負担分）
-   */
   manual_health_insurance_amount_of_company_bonus?: number | null;
-  /**
-   * 給与計算時の介護保険料の計算方法
-   */
   care_insurance_salary_calc_type?: "auto" | "manual";
-  /**
-   * 賞与計算時の介護保険料の計算方法
-   */
   care_insurance_bonus_calc_type?: "auto" | "manual";
-  /**
-   * 給与計算時の介護保険料の直接指定金額（従業員負担分）
-   */
   manual_care_insurance_amount_of_employee_salary?: number | null;
-  /**
-   * 賞与計算時の介護保険料の直接指定金額（従業員負担分）
-   */
   manual_care_insurance_amount_of_employee_bonus?: number | null;
-  /**
-   * 給与計算時の介護保険料の直接指定金額（会社負担分）
-   */
   manual_care_insurance_amount_of_company_salary?: number | null;
-  /**
-   * 賞与計算時の介護保険料の直接指定金額（会社負担分）
-   */
   manual_care_insurance_amount_of_company_bonus?: number | null;
-  /**
-   * 給与計算時の子ども・子育て支援金の計算方法
-   */
   child_support_fund_salary_calc_type?: "auto" | "manual";
-  /**
-   * 賞与計算時の子ども・子育て支援金の計算方法
-   */
   child_support_fund_bonus_calc_type?: "auto" | "manual";
-  /**
-   * 給与計算時の子ども・子育て支援金の直接指定金額（従業員負担分）
-   */
   manual_child_support_fund_amount_of_employee_salary?: number | null;
-  /**
-   * 賞与計算時の子ども・子育て支援金の直接指定金額（従業員負担分）
-   */
   manual_child_support_fund_amount_of_employee_bonus?: number | null;
-  /**
-   * 給与計算時の子ども・子育て支援金の直接指定金額（会社負担分）
-   */
   manual_child_support_fund_amount_of_company_salary?: number | null;
-  /**
-   * 賞与計算時の子ども・子育て支援金の直接指定金額（会社負担分）
-   */
   manual_child_support_fund_amount_of_company_bonus?: number | null;
-  /**
-   * 健康保険の被保険者整理番号
-   */
   reference_num?: string;
-  /**
-   * 標準報酬月額 null不可
-   */
   standard_monthly_remuneration: number;
-  /**
-   * 健康保険の資格確認書の発行が必要かどうか
-   */
   health_insurance_qualification_required?: boolean;
 };
 
 export type ApiV1EmployeesProfileRuleSerializer = {
   id?: number;
-  /**
-   * 事業所ID
-   */
   company_id?: number;
-  /**
-   * 従業員ID
-   */
   employee_id?: number;
-  /**
-   * 姓
-   */
   last_name?: string;
-  /**
-   * 名
-   */
   first_name?: string;
-  /**
-   * 姓カナ
-   */
   last_name_kana?: string;
-  /**
-   * 名カナ
-   */
   first_name_kana?: string;
-  /**
-   * 住民票住所の郵便番号1
-   */
   zipcode1?: string | null;
-  /**
-   * 住民票住所の郵便番号2
-   */
   zipcode2?: string | null;
-  /**
-   * 住民票住所の都道府県コード（-1: 設定しない、0: 北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄)
-   */
   prefecture_code?: number | null;
-  /**
-   * 住民票住所の市区町村以降の住所
-   */
   address?: string | null;
-  /**
-   * 住民票住所の市区町村以降の住所カナ
-   */
   address_kana?: string;
-  /**
-   * 電話番号1（先頭番号、例:03-1111-222x の03部分）
-   */
   phone1?: string | null;
-  /**
-   * 電話番号2（中間番号、例:03-1111-222x の1111部分）
-   */
   phone2?: string | null;
-  /**
-   * 電話番号3（末尾番号、例:03-1111-222x の222x部分）
-   */
   phone3?: string | null;
-  /**
-   * 現住所の郵便番号１
-   */
   residential_zipcode1?: string | null;
-  /**
-   * 現住所の郵便番号２
-   */
   residential_zipcode2?: string | null;
-  /**
-   * 現住所の都道府県コード（-1: 設定しない、0: 北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄)
-   */
   residential_prefecture_code?: number | null;
-  /**
-   * 現住所の住所
-   */
   residential_address?: string | null;
-  /**
-   * 現住所の住所カナ
-   */
   residential_address_kana?: string | null;
-  /**
-   * 雇用形態 board-member: 役員, regular: 正社員, fixed-term: 契約社員, part-time: アルバイト・パート, temporary: 派遣社員, (空文字列): その他
-   */
   employment_type?: string | null;
-  /**
-   * 肩書
-   */
   title?: string | null;
-  /**
-   * 性別　unselected: 未選択, male: 男性, female: 女性
-   */
   gender?: "unselected" | "male" | "female";
-  /**
-   * 配偶者の有無
-   */
   married?: boolean;
-  /**
-   * 勤労学生かどうか
-   */
   is_working_student?: boolean;
-  /**
-   * 寡夫／寡婦かどうか na: 空白, widower: 寡夫, widow: 寡婦, special_widow: 特別寡婦, one_parent: ひとり親
-   */
   widow_type?: string;
-  /**
-   * 障害者かどうか na: 空白, general: 障害者, heavy: 特別障害者
-   */
   disability_type?: string;
-  /**
-   * メールアドレス
-   */
   email?: string | null;
-  /**
-   * 世帯主の名前 世帯主の続柄がmyselfの場合は空白
-   */
   householder_name?: string;
-  /**
-   * 世帯主の続柄 myself:本人, husband:夫, wife:妻, father:父, mother:母, child:子供, senior_brother:兄, junior_brother:弟, senior_sister:姉, junior_sister:妹, grandchild:孫, grandfather:祖父, grandmother:祖母, father_in_law:義父, mother_in_law:義母, grandfather_in_law:義祖父, grandmother_in_law:義祖母, other:その他
-   */
   householder?:
     | "myself"
     | "husband"
@@ -2072,33 +691,12 @@ export type ApiV1EmployeesProfileRuleSerializer = {
 } | null;
 
 export type ApiV1EmployeesDependentRuleUpdateRequestSerializer = {
-  /**
-   * 家族情報ルールID（idがない場合は新規作成になる)
-   */
   id?: number;
-  /**
-   * 姓 null不可
-   */
   last_name: string;
-  /**
-   * 名 null不可
-   */
   first_name: string;
-  /**
-   * 姓カナ
-   */
   last_name_kana?: string;
-  /**
-   * 名カナ
-   */
   first_name_kana?: string;
-  /**
-   * 性別　unselected: 未選択, male: 男性, female: 女性（デフォルト: unselected: 未選択）
-   */
   gender: "unselected" | "male" | "female";
-  /**
-   * 続柄 null不可 spouse: 配偶者, father: 父, mother: 母, child: 子, senior_brother: 兄, junior_brother: 弟, senior_sister: 姉, junior_sister: 妹, grandchild: 孫, grandfather: 祖父, grandmother: 祖母, father_in_law: 義父, mother_in_law: 義母, grandfather_in_law: 義祖父, grandmother_in_law: 義祖母, other: その他, great_grandfather: 曽祖父, great_grandmother: 曽祖母, spouses_child: 配偶者の連れ子
-   */
   relationship:
     | "spouse"
     | "father"
@@ -2119,115 +717,34 @@ export type ApiV1EmployeesDependentRuleUpdateRequestSerializer = {
     | "great_grandfather"
     | "great_grandmother"
     | "spouses_child";
-  /**
-   * 生年月日 null不可
-   */
   birth_date: string;
-  /**
-   * 同居・別居 null不可 live_in: 同居, resident: 別居(国内), non_resident: 別居(国外)
-   */
   residence_type: "live_in" | "resident" | "non_resident";
-  /**
-   * 住民票住所の郵便番号1
-   */
   zipcode1?: string;
-  /**
-   * 住民票住所の郵便番号2
-   */
   zipcode2?: string;
-  /**
-   * 住民票住所の都道府県コード（-1: 設定しない、0: 北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄)
-   */
   prefecture_code?: number;
-  /**
-   * 住民票住所の市区町村以降の住所
-   */
   address?: string;
-  /**
-   * 住民票住所の市区町村以降の住所カナ
-   */
   address_kana?: string;
-  /**
-   * 基礎年金番号
-   */
   base_pension_num?: string;
-  /**
-   * 年間所得 null不可
-   */
   income: number;
-  /**
-   * 年間収入 null不可
-   */
   annual_revenue: number;
-  /**
-   * 障害に該当するか null不可 na: 障害なし, general: 一般の障害者, heavy: 特別障害者
-   */
   disability_type: "na" | "general" | "heavy";
-  /**
-   * 職業
-   */
   occupation?: string;
-  /**
-   * 一年間の送金額
-   */
   annual_remittance_amount?: number;
-  /**
-   * 雇用保険受給の有無
-   * - unselected 未選択
-   * - receiving_employment_insurance 雇用保険受給有り
-   * - not_receiving_employment_insurance 雇用保険受給無し
-   * - pending_employment_insurance 申請中
-   */
   employment_insurance_receive_status?:
     | "unselected"
     | "receiving_employment_insurance"
     | "not_receiving_employment_insurance"
     | "pending_employment_insurance";
-  /**
-   * 雇用保険受給開始年月日 employment_insurance_receive_statusが未選択、無しの場合は指定できません。
-   */
   employment_insurance_receives_from?: string | null;
-  /**
-   * 健康保険の資格確認書の発行が必要かどうか
-   */
   health_insurance_qualification_required?: boolean;
-  /**
-   * 電話番号の種別
-   * - unselected 未選択
-   * - home 自宅
-   * - office 勤務先
-   * - mobile 携帯
-   * - other その他
-   */
   phone_type?: "unselected" | "home" | "office" | "mobile" | "other";
-  /**
-   * 電話番号1（先頭番号、例:03-1111-222x の03部分）
-   */
   phone1?: string | null;
-  /**
-   * 電話番号2（中間番号、例:03-1111-222x の1111部分）
-   */
   phone2?: string | null;
-  /**
-   * 電話番号3（末尾番号、例:03-1111-222x の222x部分）
-   */
   phone3?: string | null;
-  /**
-   * 家族情報を削除するか
-   */
   destroy?: boolean;
-  /**
-   * 扶養状況 social_insurance_and_tax: 所得税・住民税と社会保険, tax_only: 所得税・住民税のみ, social_insurance_only: 社会保険のみ, not_dependent: 扶養していない
-   */
   social_insurance_and_tax_dependent:
     "social_insurance_and_tax" | "tax_only" | "social_insurance_only" | "not_dependent";
-  /**
-   * 社会保険の扶養加入日
-   */
   social_insurance_dependent_acquisition_date?: string | null;
-  /**
-   * 社会保険の扶養加入理由 配偶者の場合 "": 未選択, start_working: 配偶者の就職, marriage: 婚姻, turnover: 離職, decrease_in_income: 収入減少, other: その他 配偶者以外の場合 "": 未選択, birth: 出生, turnover: 離職, decrease_in_income: 収入減, live_in: 同居, other: その他
-   */
   social_insurance_dependent_acquisition_reason?:
     | ""
     | "start_working"
@@ -2237,17 +754,8 @@ export type ApiV1EmployeesDependentRuleUpdateRequestSerializer = {
     | "other"
     | "birth"
     | "live_in";
-  /**
-   * 社会保険のその他の扶養加入理由
-   */
   social_insurance_other_dependent_acquisition_reason?: string | null;
-  /**
-   * 社会保険の扶養喪失日
-   */
   social_insurance_dependent_disqualification_date?: string | null;
-  /**
-   * 社会保険の扶養喪失理由 配偶者の場合 "": 未選択, death: 死亡, divorce: 離婚, start_working_or_increase_in_income: 就職・収入増加, reach_75_years_old: 歳到達, disability: 障害認定, other: その他 配偶者以外の場合 "": 未選択, death: 死亡, start_working: 就職, increase_in_income: 収入増加, reach_75_years_old: ７５歳到達, disability: 障害認定, other: その他
-   */
   social_insurance_dependent_disqualification_reason?:
     | ""
     | "death"
@@ -2258,17 +766,8 @@ export type ApiV1EmployeesDependentRuleUpdateRequestSerializer = {
     | "other"
     | "start_working"
     | "increase_in_income";
-  /**
-   * 社会保険のその他の扶養喪失理由
-   */
   social_insurance_other_dependent_disqualification_reason?: string | null;
-  /**
-   * 税扶養の加入日
-   */
   tax_dependent_acquisition_date?: string | null;
-  /**
-   * 税扶養の加入理由 配偶者の場合 "": 未選択, start_working: 配偶者の就職, marriage: 婚姻, turnover: 離職, decrease_in_income: 収入減少, other: その他 配偶者以外の場合 "": birth: 出生, turnover: 離職, decrease_in_income: 収入減, live_in: 同居, other: その他
-   */
   tax_dependent_acquisition_reason?:
     | ""
     | "start_working"
@@ -2278,17 +777,8 @@ export type ApiV1EmployeesDependentRuleUpdateRequestSerializer = {
     | "other"
     | "birth"
     | "live_in";
-  /**
-   * 税扶養のその他の加入理由
-   */
   tax_other_dependent_acquisition_reason?: string | null;
-  /**
-   * 税扶養の喪失日
-   */
   tax_dependent_disqualification_date?: string | null;
-  /**
-   * 税扶養の喪失理由 配偶者の場合 "": 未選択, death: 死亡, divorce: 離婚, start_working_or_increase_in_income: 就職・収入増加, reach_75_years_old: 歳到達, disability: 障害認定, other: その他 配偶者以外の場合 "": 未選択, death: 死亡, start_working: 就職, increase_in_income: 収入増加, reach_75_years_old: ７５歳到達, disability: 障害認定, other: その他
-   */
   tax_dependent_disqualification_reason?:
     | ""
     | "death"
@@ -2299,203 +789,62 @@ export type ApiV1EmployeesDependentRuleUpdateRequestSerializer = {
     | "other"
     | "start_working"
     | "increase_in_income";
-  /**
-   * 税扶養のその他の喪失理由
-   */
   tax_other_dependent_disqualification_reason?: string | null;
-  /**
-   * 非居住者である親族の条件 none: なし, over_16_to_under_30_or_over_70: 16歳以上30歳未満又は70歳以上, study_abroad: 留学, handicapped: 障害者, over_38_man: 38万円以上の支払
-   */
   non_resident_dependents_reason?:
     "none" | "over_16_to_under_30_or_over_70" | "study_abroad" | "handicapped" | "over_38_man";
 };
 
 export type ApiV1EmployeesTimeClockSerializer = {
-  /**
-   * 打刻ID
-   */
   id?: number;
-  /**
-   * 打刻日
-   */
   date?: string;
-  /**
-   * 打刻種別(clock_in:出勤, break_begin:休憩開始, break_end:休憩終了, clock_out:退勤)
-   */
   type?: "clock_in" | "break_begin" | "break_end" | "clock_out";
-  /**
-   * 打刻時刻
-   */
   datetime?: string;
-  /**
-   * オリジナルの打刻時間
-   */
   original_datetime?: string;
-  /**
-   * 打刻メモ
-   */
   note?: string;
 };
 
 export type ApiV1EmployeesWorkRecordSummarySerializer = {
-  /**
-   * 給与支払い年
-   */
   year?: number;
-  /**
-   * 給与支払い月
-   */
   month?: number;
-  /**
-   * 集計開始日
-   */
   start_date?: string;
-  /**
-   * 集計終了日
-   */
   end_date?: string;
-  /**
-   * 労働日数
-   */
   work_days?: number;
-  /**
-   * 総勤務時間（分）
-   */
   total_work_mins?: number;
-  /**
-   * 所定内労働時間（分）
-   */
   total_normal_work_mins?: number;
-  /**
-   * [deprecated] 給与計算に用いられる法定内残業時間（分） ※ 削除予定のため total_overtime_within_statutory_work_mins を参照してください
-   *
-   * @deprecated
-   */
   total_excess_statutory_work_mins?: number;
-  /**
-   * 給与計算に用いられる法定内残業時間（分）
-   */
   total_overtime_within_statutory_work_mins?: number;
-  /**
-   * 所定外法定外労働時間
-   */
   total_overtime_except_normal_work_mins?: number;
-  /**
-   * 所定内法定外労働時間（裁量労働制の場合はみなしベース）
-   */
   total_overtime_within_normal_work_mins?: number;
-  /**
-   * 所定休日労働時間（分）
-   */
   total_prescribed_holiday_work_mins?: number;
-  /**
-   * 法定休日労働時間（分）
-   */
   total_holiday_work_mins?: number;
-  /**
-   * 深夜労働allow(company)時間（分）
-   */
   total_latenight_work_mins?: number;
-  /**
-   * 欠勤日数
-   */
   num_absences?: number;
-  /**
-   * 有給取得日数
-   */
   num_paid_holidays?: number;
   num_paid_holidays_and_hours?: ApiV1HolidaysAndHoursSerializer;
-  /**
-   * 有給残日数
-   */
   num_paid_holidays_left?: number;
   num_paid_holidays_and_hours_left?: ApiV1HolidaysAndHoursSerializer;
-  /**
-   * 振替休日の使用日数
-   */
   num_substitute_holidays_used?: number;
-  /**
-   * 代休の使用日数
-   */
   num_compensatory_holidays_used?: number;
-  /**
-   * 特別休暇の使用日数
-   */
   num_special_holidays_used?: number;
   num_special_holidays_and_hours_used?: ApiV1HolidaysAndHoursSerializer;
-  /**
-   * 遅刻早退時間（分）
-   */
   total_lateness_and_early_leaving_mins?: number;
-  /**
-   * 複数時給の労働時間の内訳（複数時給を設定している従業員のみ）
-   */
   multi_hourly_wages?: Array<ApiV1EmployeesEmployeeMultiHourlyWageWorkRecordSummarySerializer>;
-  /**
-   * 日々の勤怠情報
-   */
   work_records?: Array<
     ApiV1EmployeesWorkRecordSerializer | LegacyApiV1EmployeesWorkRecordSerializer
   >;
-  /**
-   * 不足時間（分）
-   */
   total_shortage_work_mins?: number | null;
-  /**
-   * [deprecated] みなし外の法定内残業時間（分） ※ 削除予定のため total_deemed_paid_overtime_within_statutory_work_mins を参照してください
-   *
-   * @deprecated
-   */
   total_deemed_paid_excess_statutory_work_mins?: number | null;
-  /**
-   * みなし外の法定内残業時間（分）
-   */
   total_deemed_paid_overtime_within_statutory_work_mins?: number | null;
-  /**
-   * みなし外の時間外労働時間（分）
-   */
   total_deemed_paid_overtime_except_normal_work_mins?: number | null;
 };
 
 export type ApiV1EmployeesWorkRecordSerializer = {
-  /**
-   * 休憩時間のリスト
-   */
   break_records?: Array<ApiV1EmployeesWorkRecordTimeRangeResponseSerializer>;
-  /**
-   * 出退勤のリスト
-   *   - 登録されている全ての出退勤時間のリストを返します。
-   */
   work_record_segments?: Array<ApiV1EmployeesWorkRecordTimeRangeResponseSerializer>;
-  /**
-   * 出勤時刻
-   *   - 出勤時刻を返します。出退勤が複数登録されている場合は、最初の出退勤の出勤時間を返します。
-   */
   clock_in_at?: string | null;
-  /**
-   * 退勤時刻
-   *   - 退勤時刻を返します。出退勤が複数登録されている場合は、最後の出退勤の退勤時間を返します。
-   */
   clock_out_at?: string | null;
-  /**
-   * 対象日付
-   */
   date?: string;
-  /**
-   * 勤務パターン
-   * - normal_day: 所定労働日
-   * - prescribed_holiday: 所定休日
-   * - legal_holiday: 法定休日
-   */
   day_pattern?: "normal_day" | "prescribed_holiday" | "legal_holiday";
-  /**
-   * スケジュールパターン
-   * - substitute_holiday_work: 振替出勤
-   * - substitute_holiday: 振替休日
-   * - compensatory_holiday_work: 代休出勤
-   * - compensatory_holiday: 代休
-   * - special_holiday: 特別休暇
-   */
   schedule_pattern?:
     | ""
     | "substitute_holiday_work"
@@ -2503,209 +852,50 @@ export type ApiV1EmployeesWorkRecordSerializer = {
     | "compensatory_holiday_work"
     | "compensatory_holiday"
     | "special_holiday";
-  /**
-   * 早退分の時間（分単位）
-   */
   early_leaving_mins?: number;
-  /**
-   * [deprecated] 有給休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
-   *
-   * @deprecated
-   */
   half_paid_holiday_mins?: number;
-  /**
-   * [deprecated] 特別休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
-   *
-   * @deprecated
-   */
   half_special_holiday_mins?: number;
-  /**
-   * [deprecated] 有給休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
-   *
-   * @deprecated
-   */
   hourly_paid_holiday_mins?: number;
-  /**
-   * [deprecated] 特別休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
-   *
-   * @deprecated
-   */
   hourly_special_holiday_mins?: number;
-  /**
-   * 欠勤かどうか
-   */
   is_absence?: boolean;
-  /**
-   * 勤怠データが編集可能かどうか
-   */
   is_editable?: boolean;
-  /**
-   * 遅刻分の時間（分単位）
-   */
   lateness_mins?: number;
-  /**
-   * 所定労働開始時刻
-   */
   normal_work_clock_in_at?: string | null;
-  /**
-   * 所定労働終了時刻
-   */
   normal_work_clock_out_at?: string | null;
-  /**
-   * 所定労働時間
-   */
   normal_work_mins?: number;
-  /**
-   * 勤怠メモ
-   */
   note?: string;
-  /**
-   * [deprecated] この日に対する有給取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_paid_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_paid_holiday_minsを参照してください。 ※ 削除予定のため holidays を参照してください
-   *
-   * @deprecated
-   */
   paid_holiday?: number;
-  /**
-   * [deprecated] 年次有給休暇の実績 ※ 削除予定のため holidays を参照してください
-   *
-   * @deprecated
-   */
   paid_holidays?: Array<{
-    /**
-     * 有給休暇の種別取得単位（full:全休、half:半休、morning_off:午前休、 afternoon_off:午後休、hourly:時間休）
-     */
     type: "full" | "half" | "morning_off" | "afternoon_off" | "hourly";
-    /**
-     * 年次有給休暇の休暇時間（分単位）
-     */
     mins: number;
-    /**
-     * 年次有給休暇の消化日数（全休：1, 半日単位：0.5, 時間休：0）
-     */
     days: number;
   }>;
-  /**
-   * 休暇の内訳（年次有給休暇、特別休暇、代休）。
-   * full では mins と time_ranges を返しません。half では mins を返します。
-   * morning_off、afternoon_off では mins を返さず、時間帯を持つ実績の場合は time_ranges を返します。
-   * hourly は年休・特休のみで、mins を返し、時間帯を持つ実績の場合は time_ranges も返します。
-   */
   holidays?: Array<ApiV1EmployeesWorkRecordHolidayResponse>;
-  /**
-   * [deprecated] この日に対する特別休暇取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_special_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_special_holiday_minsを参照してください。 ※ 削除予定のため holidays を参照してください
-   *
-   * @deprecated
-   */
   special_holiday?: number;
-  /**
-   * [deprecated] 特別休暇設定ID ※ 削除予定のため holidays を参照してください
-   *
-   * @deprecated
-   */
   special_holiday_setting_id?: number | null;
-  /**
-   * 欠勤・遅刻・早退を控除対象時間に算入するかどうか
-   */
   use_attendance_deduction?: boolean;
-  /**
-   * デフォルトの勤務時間設定を使っているかどうか
-   */
   use_default_work_pattern?: boolean;
-  /**
-   * [deprecated] 代休の半休を利用したかどうか ※ 削除予定のため holidays を参照してください
-   *
-   * @deprecated
-   */
   use_half_compensatory_holiday?: boolean;
-  /**
-   * 時間外労働時間（分）（Webの勤怠登録画面にて詳細項目の「勤務時間の長さを自動で計算しない」にチェックを入れた場合0が返却されます。時間外労働時間はtotal_overtime_except_normal_work_minsを参照してください。）
-   */
   total_overtime_work_mins?: number;
-  /**
-   * 所定休日労働時間（分）
-   */
   total_prescribed_holiday_work_mins?: number;
-  /**
-   * 法定休日労働時間（分）
-   */
   total_holiday_work_mins?: number;
-  /**
-   * 深夜労働時間（分）
-   */
   total_latenight_work_mins?: number;
-  /**
-   * 勤怠登録時に勤務時間の長さを自動で計算しないかどうか
-   */
   not_auto_calc_work_time?: boolean;
-  /**
-   * [deprecated] 法定内残業時間（分） ※ 削除予定のため total_overtime_within_statutory_work_mins を参照してください
-   *
-   * @deprecated
-   */
   total_excess_statutory_work_mins?: number;
-  /**
-   * [deprecated] 深夜の法定内残業時間（分） ※ 削除予定のため total_latenight_overtime_within_statutory_work_mins を参照してください
-   *
-   * @deprecated
-   */
   total_latenight_excess_statutory_work_mins?: number;
-  /**
-   * 法定内残業時間（分）
-   */
   total_overtime_within_statutory_work_mins?: number;
-  /**
-   * 深夜の法定内残業時間（分）
-   */
   total_latenight_overtime_within_statutory_work_mins?: number;
-  /**
-   * 所定外法定外労働時間（分）
-   */
   total_overtime_except_normal_work_mins?: number;
-  /**
-   * 深夜の所定外法定外労働時間（分）
-   */
   total_latenight_overtime_except_normal_work_mins?: number;
 };
 
 export type LegacyApiV1EmployeesWorkRecordSerializer = {
-  /**
-   * 休憩時間のリスト
-   */
   break_records?: Array<ApiV1EmployeesWorkRecordTimeRangeResponseSerializer>;
-  /**
-   * 出退勤のリスト
-   *   - 登録されている全ての出退勤時間のリストを返します。
-   */
   work_record_segments?: Array<ApiV1EmployeesWorkRecordTimeRangeResponseSerializer>;
-  /**
-   * 出勤時刻
-   *   - 出勤時刻を返します。出退勤が複数登録されている場合は、最初の出退勤の出勤時間を返します。
-   */
   clock_in_at?: string | null;
-  /**
-   * 退勤時刻
-   *   - 退勤時刻を返します。出退勤が複数登録されている場合は、最後の出退勤の退勤時間を返します。
-   */
   clock_out_at?: string | null;
-  /**
-   * 対象日付
-   */
   date?: string;
-  /**
-   * 勤務パターン
-   * - normal_day: 所定労働日
-   * - prescribed_holiday: 所定休日
-   * - legal_holiday: 法定休日
-   */
   day_pattern?: "normal_day" | "prescribed_holiday" | "legal_holiday";
-  /**
-   * スケジュールパターン
-   * - substitute_holiday_work: 振替出勤
-   * - substitute_holiday: 振替休日
-   * - compensatory_holiday_work: 代休出勤
-   * - compensatory_holiday: 代休
-   * - special_holiday: 特別休暇
-   */
   schedule_pattern?:
     | ""
     | "substitute_holiday_work"
@@ -2713,544 +903,149 @@ export type LegacyApiV1EmployeesWorkRecordSerializer = {
     | "compensatory_holiday_work"
     | "compensatory_holiday"
     | "special_holiday";
-  /**
-   * 早退分の時間（分単位）
-   */
   early_leaving_mins?: number;
-  /**
-   * [deprecated] 有給休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
-   *
-   * @deprecated
-   */
   half_paid_holiday_mins?: number;
-  /**
-   * [deprecated] 特別休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
-   *
-   * @deprecated
-   */
   half_special_holiday_mins?: number;
-  /**
-   * [deprecated] 有給休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
-   *
-   * @deprecated
-   */
   hourly_paid_holiday_mins?: number;
-  /**
-   * [deprecated] 特別休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
-   *
-   * @deprecated
-   */
   hourly_special_holiday_mins?: number;
-  /**
-   * 欠勤かどうか
-   */
   is_absence?: boolean;
-  /**
-   * 勤怠データが編集可能かどうか
-   */
   is_editable?: boolean;
-  /**
-   * 遅刻分の時間（分単位）
-   */
   lateness_mins?: number;
-  /**
-   * 所定労働開始時刻
-   */
   normal_work_clock_in_at?: string | null;
-  /**
-   * 所定労働終了時刻
-   */
   normal_work_clock_out_at?: string | null;
-  /**
-   * 所定労働時間
-   */
   normal_work_mins?: number;
-  /**
-   * 勤怠メモ
-   */
   note?: string;
-  /**
-   * [deprecated] この日に対する有給取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_paid_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_paid_holiday_minsを参照してください。 ※ 削除予定のため holidays を参照してください
-   *
-   * @deprecated
-   */
   paid_holiday?: number;
-  /**
-   * [deprecated] この日に対する特別休暇取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_special_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_special_holiday_minsを参照してください。 ※ 削除予定のため holidays を参照してください
-   *
-   * @deprecated
-   */
   special_holiday?: number;
-  /**
-   * [deprecated] 特別休暇設定ID ※ 削除予定のため holidays を参照してください
-   *
-   * @deprecated
-   */
   special_holiday_setting_id?: number | null;
-  /**
-   * 欠勤・遅刻・早退を控除対象時間に算入するかどうか
-   */
   use_attendance_deduction?: boolean;
-  /**
-   * デフォルトの勤務時間設定を使っているかどうか
-   */
   use_default_work_pattern?: boolean;
-  /**
-   * [deprecated] 代休の半休を利用したかどうか ※ 削除予定のため holidays を参照してください
-   *
-   * @deprecated
-   */
   use_half_compensatory_holiday?: boolean;
-  /**
-   * 時間外労働時間（分）（Webの勤怠登録画面にて詳細項目の「勤務時間の長さを自動で計算しない」にチェックを入れた場合0が返却されます。時間外労働時間はtotal_overtime_except_normal_work_minsを参照してください。）
-   */
   total_overtime_work_mins?: number;
-  /**
-   * 所定休日労働時間（分）
-   */
   total_prescribed_holiday_work_mins?: number;
-  /**
-   * 法定休日労働時間（分）
-   */
   total_holiday_work_mins?: number;
-  /**
-   * 深夜労働時間（分）
-   */
   total_latenight_work_mins?: number;
-  /**
-   * 勤怠登録時に勤務時間の長さを自動で計算しないかどうか
-   */
   not_auto_calc_work_time?: boolean;
-  /**
-   * [deprecated] 法定内残業時間（分） ※ 削除予定のため total_overtime_within_statutory_work_mins を参照してください
-   *
-   * @deprecated
-   */
   total_excess_statutory_work_mins?: number;
-  /**
-   * [deprecated] 深夜の法定内残業時間（分） ※ 削除予定のため total_latenight_overtime_within_statutory_work_mins を参照してください
-   *
-   * @deprecated
-   */
   total_latenight_excess_statutory_work_mins?: number;
-  /**
-   * 法定内残業時間（分）
-   */
   total_overtime_within_statutory_work_mins?: number;
-  /**
-   * 深夜の法定内残業時間（分）
-   */
   total_latenight_overtime_within_statutory_work_mins?: number;
-  /**
-   * 所定外法定外労働時間（分）
-   */
   total_overtime_except_normal_work_mins?: number;
-  /**
-   * 深夜の所定外法定外労働時間（分）
-   */
   total_latenight_overtime_except_normal_work_mins?: number;
 };
 
 export type ApiV1EmployeesWelfarePensionInsuranceRuleUpdateRequestSerializer = {
-  /**
-   * 厚生年金保険に加入しているかどうか null不可
-   */
   entried?: boolean;
-  /**
-   * 給与計算時の厚生年金保険料の計算方法
-   */
   welfare_pension_insurance_salary_calc_type?: "auto" | "manual";
-  /**
-   * 賞与計算時の厚生年金保険料の計算方法
-   */
   welfare_pension_insurance_bonus_calc_type?: "auto" | "manual";
-  /**
-   * 給与計算時の厚生年金保険料の直接指定金額（従業員負担分）
-   */
   manual_welfare_pension_insurance_amount_of_employee_salary?: number | null;
-  /**
-   * 賞与計算時の厚生年金保険料の直接指定金額（従業員負担分）
-   */
   manual_welfare_pension_insurance_amount_of_employee_bonus?: number | null;
-  /**
-   * 給与計算時の厚生年金保険料の直接指定金額（会社負担分）
-   */
   manual_welfare_pension_insurance_amount_of_company_salary?: number | null;
-  /**
-   * 賞与計算時の厚生年金保険料の直接指定金額（会社負担分）
-   */
   manual_welfare_pension_insurance_amount_of_company_bonus?: number | null;
-  /**
-   * 給与計算時の子ども・子育て拠出金の計算方法
-   */
   child_allowance_contribution_salary_calc_type?: "auto" | "manual";
-  /**
-   * 賞与計算時の子ども・子育て拠出金の計算方法
-   */
   child_allowance_contribution_bonus_calc_type?: "auto" | "manual";
-  /**
-   * 給与計算時の子ども・子育て拠出金の直接指定金額
-   */
   manual_child_allowance_contribution_amount_salary?: number | null;
-  /**
-   * 賞与計算時の子ども・子育て拠出金の直接指定金額
-   */
   manual_child_allowance_contribution_amount_bonus?: number | null;
-  /**
-   * 厚生年金保険の被保険者整理番号
-   */
   reference_num?: string;
-  /**
-   * 標準報酬月額 null不可
-   */
   standard_monthly_remuneration: number;
 };
 
 export type ApiV1EmployeesBankAccountRuleUpdateRequestSerializer = {
-  /**
-   * 金融機関名
-   */
   bank_name?: string;
-  /**
-   * 金融機関名カナ 英字カナのみ
-   */
   bank_name_kana?: string;
-  /**
-   * 金融機関コード 数値文字列4桁
-   */
   bank_code?: string;
-  /**
-   * 支店名
-   */
   branch_name?: string;
-  /**
-   * 支店名カナ　英字カナのみ
-   */
   branch_name_kana?: string;
-  /**
-   * 支店コード 数値文字列3桁
-   */
   branch_code?: string;
-  /**
-   * 口座番号 数値文字列7桁
-   */
   account_number?: string;
-  /**
-   * 口座名義カナ　英字カナのみ
-   */
   account_name?: string;
-  /**
-   * 預金種類 ordinary: 普通預金, current: 当座預金, saving: 貯蓄預金
-   */
   account_type?: "ordinary" | "current" | "saving";
 };
 
 export type ApiV1EmployeesBasicPayRuleUpdateRequestSerializer = {
-  /**
-   * 給与方式 null不可 monthly: 月給, daily: 日給, hourly: 時給
-   */
   pay_calc_type: "monthly" | "daily" | "hourly";
-  /**
-   * 基本給 null不可
-   */
   pay_amount: number;
 };
 
 export type ApiV1EmployeesHealthInsuranceRuleSerializer = {
-  /**
-   * 健康保険ルールID
-   */
   id?: number;
-  /**
-   * 事業所ID
-   */
   company_id?: number;
-  /**
-   * 従業員ID
-   */
   employee_id?: number;
-  /**
-   * 健康保険に加入しているかどうか
-   */
   entried?: boolean;
-  /**
-   * 給与計算時の健康保険料の計算方法
-   */
   health_insurance_salary_calc_type?: "auto" | "manual";
-  /**
-   * 賞与計算時の健康保険料の計算方法
-   */
   health_insurance_bonus_calc_type?: "auto" | "manual";
-  /**
-   * 健康保険の資格確認書の発行が必要かどうか
-   */
   health_insurance_qualification_required?: boolean;
-  /**
-   * 給与計算時の健康保険料の直接指定金額（従業員負担分）
-   */
   manual_health_insurance_amount_of_employee_salary?: number | null;
-  /**
-   * 賞与計算時の健康保険料の直接指定金額（従業員負担分）
-   */
   manual_health_insurance_amount_of_employee_bonus?: number | null;
-  /**
-   * 給与計算時の健康保険料の直接指定金額（会社負担分）
-   */
   manual_health_insurance_amount_of_company_salary?: number | null;
-  /**
-   * 賞与計算時の健康保険料の直接指定金額（会社負担分）
-   */
   manual_health_insurance_amount_of_company_bonus?: number | null;
-  /**
-   * 給与計算時の介護保険料の計算方法
-   */
   care_insurance_salary_calc_type?: "auto" | "manual";
-  /**
-   * 賞与計算時の介護保険料の計算方法
-   */
   care_insurance_bonus_calc_type?: "auto" | "manual";
-  /**
-   * 給与計算時の介護保険料の直接指定金額（従業員負担分）
-   */
   manual_care_insurance_amount_of_employee_salary?: number | null;
-  /**
-   * 賞与計算時の介護保険料の直接指定金額（従業員負担分）
-   */
   manual_care_insurance_amount_of_employee_bonus?: number | null;
-  /**
-   * 給与計算時の介護保険料の直接指定金額（会社負担分）
-   */
   manual_care_insurance_amount_of_company_salary?: number | null;
-  /**
-   * 賞与計算時の介護保険料の直接指定金額（会社負担分）
-   */
   manual_care_insurance_amount_of_company_bonus?: number | null;
-  /**
-   * 給与計算時の子ども・子育て支援金の計算方法
-   */
   child_support_fund_salary_calc_type?: "auto" | "manual";
-  /**
-   * 賞与計算時の子ども・子育て支援金の計算方法
-   */
   child_support_fund_bonus_calc_type?: "auto" | "manual";
-  /**
-   * 給与計算時の子ども・子育て支援金の直接指定金額（従業員負担分）
-   */
   manual_child_support_fund_amount_of_employee_salary?: number | null;
-  /**
-   * 賞与計算時の子ども・子育て支援金の直接指定金額（従業員負担分）
-   */
   manual_child_support_fund_amount_of_employee_bonus?: number | null;
-  /**
-   * 給与計算時の子ども・子育て支援金の直接指定金額（会社負担分）
-   */
   manual_child_support_fund_amount_of_company_salary?: number | null;
-  /**
-   * 賞与計算時の子ども・子育て支援金の直接指定金額（会社負担分）
-   */
   manual_child_support_fund_amount_of_company_bonus?: number | null;
-  /**
-   * 健康保険の被保険者整理番号
-   */
   reference_num?: string | null;
-  /**
-   * 標準報酬月額
-   */
   standard_monthly_remuneration?: number;
 } | null;
 
 export type ApiV1EmployeesBankAccountRuleSerializer = {
-  /**
-   * 銀行口座ルールID
-   */
   id?: number;
-  /**
-   * 事業所ID
-   */
   company_id?: number;
-  /**
-   * 従業員ID
-   */
   employee_id?: number;
-  /**
-   * 金融機関名
-   */
   bank_name?: string | null;
-  /**
-   * 金融機関名カナ
-   */
   bank_name_kana?: string | null;
-  /**
-   * 金融機関コード
-   */
   bank_code?: string | null;
-  /**
-   * 支店名
-   */
   branch_name?: string | null;
-  /**
-   * 支店名カナ
-   */
   branch_name_kana?: string | null;
-  /**
-   * 支店コード
-   */
   branch_code?: string | null;
-  /**
-   * 口座番号
-   */
   account_number?: string | null;
-  /**
-   * 口座名義カナ
-   */
   account_name?: string | null;
-  /**
-   * 預金種類 ordinary: 普通預金, current: 当座預金, saving: 貯蓄預金
-   */
   account_type?: string | null;
 } | null;
 
 export type ApiV1EmployeesDependentRuleSerializer = {
-  /**
-   * 家族情報ルールID
-   */
   id?: number;
-  /**
-   * 事業所ID
-   */
   company_id?: number;
-  /**
-   * 従業員ID
-   */
   employee_id?: number;
-  /**
-   * 姓
-   */
   last_name?: string;
-  /**
-   * 名
-   */
   first_name?: string;
-  /**
-   * 姓カナ
-   */
   last_name_kana?: string | null;
-  /**
-   * 名カナ
-   */
   first_name_kana?: string | null;
-  /**
-   * 性別　unselected: 未選択, male: 男性, female: 女性
-   */
   gender?: "unselected" | "male" | "female";
-  /**
-   * 続柄 spouse: 配偶者, father: 父, mother: 母, child: 子, senior_brother: 兄, junior_brother: 弟, senior_sister: 姉, junior_sister: 妹, grandchild: 孫, grandfather: 祖父, grandmother: 祖母, father_in_law: 義父, mother_in_law: 義母, grandfather_in_law: 義祖父, grandmother_in_law: 義祖母, other: その他, great_grandfather: 曽祖父, great_grandmother: 曽祖母, spouses_child: 配偶者の連れ子
-   */
   relationship?: string;
-  /**
-   * 生年月日
-   */
   birth_date?: string;
-  /**
-   * 同居・別居 live_in: 同居, resident: 別居(国内), non_resident: 別居(国外)
-   */
   residence_type?: string;
-  /**
-   * 住民票住所の郵便番号1
-   */
   zipcode1?: string | null;
-  /**
-   * 住民票住所の郵便番号2
-   */
   zipcode2?: string | null;
-  /**
-   * 住民票住所の都道府県コード（-1: 設定しない、0: 北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄)
-   */
   prefecture_code?: number | null;
-  /**
-   * 住民票住所の市区町村以降の住所
-   */
   address?: string | null;
-  /**
-   * 住民票住所の市区町村以降の住所カナ
-   */
   address_kana?: string | null;
-  /**
-   * 基礎年金番号
-   */
   base_pension_num?: string | null;
-  /**
-   * 年間所得
-   */
   income?: number;
-  /**
-   * 年間収入
-   */
   annual_revenue?: number;
-  /**
-   * 障害に該当するか na: 障害なし, general: 一般の障害者, heavy: 特別障害者
-   */
   disability_type?: string;
-  /**
-   * 職業
-   */
   occupation?: string | null;
-  /**
-   * 一年間の送金額
-   */
   annual_remittance_amount?: number;
-  /**
-   * 雇用保険受給の有無
-   * - unselected 未選択
-   * - receiving_employment_insurance 雇用保険受給有り
-   * - not_receiving_employment_insurance 雇用保険受給無し
-   * - pending_employment_insurance 申請中
-   */
   employment_insurance_receive_status?:
     | "unselected"
     | "receiving_employment_insurance"
     | "not_receiving_employment_insurance"
     | "pending_employment_insurance";
-  /**
-   * 雇用保険受給開始年月日 employment_insurance_receive_statusが未選択、無しの場合は指定できません。
-   */
   employment_insurance_receives_from?: string | null;
-  /**
-   * 健康保険の資格確認書の発行が必要かどうか
-   */
   health_insurance_qualification_required?: boolean;
-  /**
-   * 電話番号の種別
-   * - unselected 未選択
-   * - home 自宅
-   * - office 勤務先
-   * - mobile 携帯
-   * - other その他
-   */
   phone_type?: "unselected" | "home" | "office" | "mobile" | "other";
-  /**
-   * 電話番号1（先頭番号、例:03-1111-222x の03部分）
-   */
   phone1?: string | null;
-  /**
-   * 電話番号2（中間番号、例:03-1111-222x の1111部分）
-   */
   phone2?: string | null;
-  /**
-   * 電話番号3（末尾番号、例:03-1111-222x の222x部分）
-   */
   phone3?: string | null;
-  /**
-   * 扶養状況 social_insurance_and_tax: 所得税・住民税と社会保険, tax_only: 所得税・住民税のみ, social_insurance_only: 社会保険のみ
-   */
   social_insurance_and_tax_dependent?: string;
-  /**
-   * 社会保険の扶養加入日
-   */
   social_insurance_dependent_acquisition_date?: string | null;
-  /**
-   * 社会保険の扶養加入理由 配偶者の場合 "": 未選択, start_working: 配偶者の就職, marriage: 婚姻, turnover: 離職, decrease_in_income: 収入減少, other: その他 配偶者以外の場合 "": 未選択, birth: 出生, turnover: 離職, decrease_in_income: 収入減, live_in: 同居, other: その他
-   */
   social_insurance_dependent_acquisition_reason?:
     | ""
     | "start_working"
@@ -3260,17 +1055,8 @@ export type ApiV1EmployeesDependentRuleSerializer = {
     | "other"
     | "birth"
     | "live_in";
-  /**
-   * 社会保険のその他の扶養加入理由
-   */
   social_insurance_other_dependent_acquisition_reason?: string | null;
-  /**
-   * 社会保険の扶養喪失日
-   */
   social_insurance_dependent_disqualification_date?: string | null;
-  /**
-   * 社会保険の扶養喪失理由 配偶者の場合 "": 未選択, death: 死亡, divorce: 離婚, start_working_or_increase_in_income: 就職・収入増加, reach_75_years_old: 歳到達, disability: 障害認定, other: その他 配偶者以外の場合 "": 未選択, death: 死亡, start_working: 就職, increase_in_income: 収入増加, reach_75_years_old: ７５歳到達, disability: 障害認定, other: その他
-   */
   social_insurance_dependent_disqualification_reason?:
     | ""
     | "death"
@@ -3281,17 +1067,8 @@ export type ApiV1EmployeesDependentRuleSerializer = {
     | "other"
     | "start_working"
     | "increase_in_income";
-  /**
-   * 社会保険のその他の扶養喪失理由
-   */
   social_insurance_other_dependent_disqualification_reason?: string | null;
-  /**
-   * 税扶養の加入日
-   */
   tax_dependent_acquisition_date?: string | null;
-  /**
-   * 税扶養の加入理由 配偶者の場合 "": 未選択, start_working: 配偶者の就職, marriage: 婚姻, turnover: 離職, decrease_in_income: 収入減少, other: その他 配偶者以外の場合 "": birth: 出生, turnover: 離職, decrease_in_income: 収入減, live_in: 同居, other: その他
-   */
   tax_dependent_acquisition_reason?:
     | ""
     | "start_working"
@@ -3301,17 +1078,8 @@ export type ApiV1EmployeesDependentRuleSerializer = {
     | "other"
     | "birth"
     | "live_in";
-  /**
-   * 税扶養のその他の加入理由
-   */
   tax_other_dependent_acquisition_reason?: string | null;
-  /**
-   * 税扶養の喪失日
-   */
   tax_dependent_disqualification_date?: string | null;
-  /**
-   * 税扶養の喪失理由 配偶者の場合 "": 未選択, death: 死亡, divorce: 離婚, start_working_or_increase_in_income: 就職・収入増加, reach_75_years_old: 歳到達, disability: 障害認定, other: その他 配偶者以外の場合 "": 未選択, death: 死亡, start_working: 就職, increase_in_income: 収入増加, reach_75_years_old: ７５歳到達, disability: 障害認定, other: その他
-   */
   tax_dependent_disqualification_reason?:
     | ""
     | "death"
@@ -3322,75 +1090,30 @@ export type ApiV1EmployeesDependentRuleSerializer = {
     | "other"
     | "start_working"
     | "increase_in_income";
-  /**
-   * 税扶養のその他の喪失理由
-   */
   tax_other_dependent_disqualification_reason?: string | null;
-  /**
-   * 非居住者である親族の条件 none: なし, over_16_to_under_30_or_over_70: 16歳以上30歳未満又は70歳以上, study_abroad: 留学, handicapped: 障害者, over_38_man: 38万円以上の支払
-   */
   non_resident_dependents_reason?:
     "none" | "over_16_to_under_30_or_over_70" | "study_abroad" | "handicapped" | "over_38_man";
 };
 
 export type ApiV1EmployeesBasicPayRuleSerializer = {
-  /**
-   * 従業員の基本給ID
-   */
   id?: number;
-  /**
-   * 事業所ID
-   */
   company_id?: number;
-  /**
-   * 従業員ID
-   */
   employee_id?: number;
-  /**
-   * 給与方式 monthly: 月給, daily: 日給, hourly: 時給
-   */
   pay_calc_type?: "monthly" | "daily" | "hourly";
-  /**
-   * 基本給
-   */
   pay_amount?: number;
 } | null;
 
 export type ApiV1ProfileCustomFieldGroupSerializer = {
-  /**
-   * グループID
-   */
   id?: number;
-  /**
-   * グループ名
-   */
   name?: string;
-  /**
-   * カスタム項目
-   */
   profile_custom_field_rules?: Array<ApiV1EmployeeProfileCustomFieldSerializer>;
 };
 
 export type ApiV1EmployeeProfileCustomFieldSerializer = {
-  /**
-   * カスタム項目ID
-   */
   id?: number;
-  /**
-   * 項目タイプ file: ファイル, text: テキスト, number: 数値, date: 日付, selector: セレクター, time: 時間
-   */
   field_type?: "file" | "text" | "number" | "date" | "selector" | "time";
-  /**
-   * 項目名
-   */
   name?: string;
-  /**
-   * 値（項目タイプがfileの場合、nullを返します）
-   */
   value?: string | null;
-  /**
-   * ファイル名（項目タイプがfile以外の場合、nullを返します）
-   */
   file_name?: string | null;
 };
 
@@ -3407,9 +1130,6 @@ export type ApiV1EmployeesControllerCreateResponse = {
 };
 
 export type ApiV1EmployeesControllerCreateBody = {
-  /**
-   * 作成対象事業所ID（必須）
-   */
   company_id: number;
   employee: ApiV1EmployeeCreateRequestSerializer;
 };
@@ -3419,21 +1139,8 @@ export type ApiV1EmployeesControllerUpdateResponse = {
 };
 
 export type ApiV1EmployeesControllerUpdateBody = {
-  /**
-   * 更新対象事業所ID（必須）
-   */
   company_id: number;
-  /**
-   * 更新対象年
-   * - 給与計算対象の従業員情報の場合は必須になります。
-   */
   year?: number;
-  /**
-   * 更新対象月
-   * - 給与計算対象の従業員情報の場合は必須になります。
-   * - 締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が更新されます。
-   * - 翌月払いの従業員の2022/01の従業員情報を更新する場合は、year=2021,month=12を指定してください。
-   */
   month?: number;
   employee: ApiV1EmployeeUpdateRequestSerializer;
 };
@@ -3447,19 +1154,8 @@ export type ApiV1EmployeesProfileRulesControllerUpdateResponse = {
 };
 
 export type ApiV1EmployeesProfileRulesControllerUpdateBody = {
-  /**
-   * 更新対象事業所ID（必須）
-   */
   company_id: number;
-  /**
-   * 更新対象年（必須）
-   */
   year: number;
-  /**
-   * 更新対象月（必須）<br>
-   * 締め日支払い日設定が翌月払いの従業員情報の場合は、指定したmonth + 1の値が更新されます。<br>
-   * 翌月払いの従業員の2022/01の従業員情報を更新する場合は、year=2021,month=12を指定してください。<br>
-   */
   month: number;
   employee_profile_rule: ApiV1EmployeesProfileRuleUpdateRequestSerializer;
 };
@@ -3473,19 +1169,8 @@ export type ApiV1EmployeesHealthInsuranceRulesControllerUpdateResponse = {
 };
 
 export type ApiV1EmployeesHealthInsuranceRulesControllerUpdateBody = {
-  /**
-   * 更新対象事業所ID（必須）
-   */
   company_id: number;
-  /**
-   * 更新対象年（必須）
-   */
   year: number;
-  /**
-   * 更新対象月（必須）<br>
-   * 締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が更新されます。<br>
-   * 翌月払いの従業員の2022/01の従業員情報を更新する場合は、year=2021,month=12を指定してください。<br>
-   */
   month: number;
   employee_health_insurance_rule: ApiV1EmployeesHealthInsuranceRuleUpdateRequestSerializer;
 };
@@ -3499,19 +1184,8 @@ export type ApiV1EmployeesWelfarePensionInsuranceRulesControllerUpdateResponse =
 };
 
 export type ApiV1EmployeesWelfarePensionInsuranceRulesControllerUpdateBody = {
-  /**
-   * 更新対象事業所ID（必須）
-   */
   company_id: number;
-  /**
-   * 更新対象年（必須）
-   */
   year: number;
-  /**
-   * 更新対象月（必須）<br>
-   * 締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が更新されます。<br>
-   * 翌月払いの従業員の2022/01の従業員情報を更新する場合は、year=2021,month=12を指定してください。<br>
-   */
   month: number;
   employee_welfare_pension_insurance_rule: ApiV1EmployeesWelfarePensionInsuranceRuleUpdateRequestSerializer;
 };
@@ -3521,30 +1195,13 @@ export type ApiV1EmployeesDependentRulesControllerIndexResponse = {
 };
 
 export type ApiV1EmployeesDependentRulesControllerBulkUpdateResponse = {
-  /**
-   * 家族情報ルール
-   */
   employee_dependent_rules?: Array<ApiV1EmployeesDependentRuleSerializer>;
 };
 
 export type ApiV1EmployeesDependentRulesControllerBulkUpdateBody = {
-  /**
-   * 更新対象事業所ID（必須）
-   */
   company_id: number;
-  /**
-   * 更新対象年（必須）
-   */
   year: number;
-  /**
-   * 更新対象月（必須）<br>
-   * 締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が更新されます。<br>
-   * 翌月払いの従業員の2022/01の従業員情報を更新する場合は、year=2021,month=12を指定してください。<br>
-   */
   month: number;
-  /**
-   * 家族情報ルール
-   */
   employee_dependent_rules: Array<ApiV1EmployeesDependentRuleUpdateRequestSerializer>;
 };
 
@@ -3557,19 +1214,8 @@ export type ApiV1EmployeesBankAccountRulesControllerUpdateResponse = {
 };
 
 export type ApiV1EmployeesBankAccountRulesControllerUpdateBody = {
-  /**
-   * 更新対象事業所ID（必須）
-   */
   company_id: number;
-  /**
-   * 更新対象年（必須）
-   */
   year: number;
-  /**
-   * 更新対象月（必須）<br>
-   * 締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が更新されます。<br>
-   * 翌月払いの従業員の2022/01の従業員情報を更新する場合は、year=2021,month=12を指定してください。<br>
-   */
   month: number;
   employee_bank_account_rule: ApiV1EmployeesBankAccountRuleUpdateRequestSerializer;
 };
@@ -3583,422 +1229,91 @@ export type ApiV1EmployeesBasicPayRulesControllerUpdateResponse = {
 };
 
 export type ApiV1EmployeesBasicPayRulesControllerUpdateBody = {
-  /**
-   * 更新対象事業所ID（必須）
-   */
   company_id: number;
-  /**
-   * 更新対象年（必須）
-   */
   year: number;
-  /**
-   * 更新対象月（必須）<br>
-   * 締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が更新されます<br>
-   * 翌月払いの従業員の2022/01の従業員情報を更新する場合は、year=2021,month=12を指定してください。<br>
-   */
   month: number;
   employee_basic_pay_rule: ApiV1EmployeesBasicPayRuleUpdateRequestSerializer;
 };
 
 export type ApiV1EmployeesWorkRecordsControllerUpdateBody = {
-  /**
-   * 事業所ID（必須）
-   */
   company_id: number;
-  /**
-   * 休憩時間のリスト
-   */
   break_records?: Array<ApiV1EmployeesWorkRecordTimeRangeSerializer>;
-  /**
-   * 出退勤のリスト
-   */
   work_record_segments?: Array<ApiV1EmployeesWorkRecordTimeRangeSerializer>;
-  /**
-   * 出勤時刻
-   *
-   * 複数の出退勤を指定できないため非推奨です。 `work_record_segments` を利用してください。
-   */
   clock_in_at?: string;
-  /**
-   * 退勤時刻
-   *
-   * 複数の出退勤を指定できないため非推奨です。 `work_record_segments` を利用してください。
-   */
   clock_out_at?: string;
-  /**
-   * 勤務パターン（所定労働日: normal_day, 所定休日: prescribed_holiday, 法定休日: legal_holiday）
-   *
-   * prescribed_holiday、legal_holidayを指定すると、以下のパラメータについて、指定した値が反映されず無視されます。
-   * - early_leaving_mins
-   * - lateness_mins
-   * - paid_holiday
-   */
   day_pattern?: "normal_day" | "prescribed_holiday" | "legal_holiday";
-  /**
-   * 早退分の時間（分単位）
-   */
   early_leaving_mins?: number;
-  /**
-   * 欠勤かどうか
-   *
-   * is_absenceにtrueを指定すると、以下のパラメータについて、指定した値が反映されず無視されます。
-   * - break_records
-   *   - clock_in_at
-   *   - clock_out_at
-   * - clock_in_at
-   * - clock_out_at
-   * - early_leaving_mins
-   * - lateness_mins
-   * - normal_work_clock_in_at
-   * - normal_work_clock_out_at
-   * - normal_work_mins
-   *
-   * ただし、休暇（holidays、paid_holidays、special_holiday、half_special_holiday_mins、hourly_special_holiday_mins）を指定した場合は休暇の登録が優先され、is_absence の指定は無視されます。
-   */
   is_absence?: boolean;
-  /**
-   * 遅刻分の時間（分単位）
-   */
   lateness_mins?: number;
-  /**
-   * 所定労働開始時刻。指定しない場合はデフォルト設定が使用されます。（デフォルト設定は従業員に設定した勤務賃金設定の出退勤時刻と労働時間の設定を参照して値が決まります。）
-   */
   normal_work_clock_in_at?: string;
-  /**
-   * 所定労働終了時刻。指定しない場合はデフォルト設定が使用されます。（デフォルト設定は従業員に設定した勤務賃金設定の出退勤時刻と労働時間の設定を参照して値が決まります。）
-   */
   normal_work_clock_out_at?: string;
-  /**
-   * 所定労働時間。指定しない場合はデフォルト設定が使用されます。（デフォルト設定は従業員に設定した勤務賃金設定の出退勤時刻と労働時間の設定を参照して値が決まります。）
-   */
   normal_work_mins?: number;
-  /**
-   * 勤怠メモ
-   */
   note?: string;
-  /**
-   * [deprecated] 年次有給休暇の内訳 ※ 削除予定のため holidays をご利用ください
-   *
-   * @deprecated
-   */
   paid_holidays?: Array<{
-    /**
-     * 有給休暇の種別を指定します（全休：full, 半休：half, 午前休：morning_off, 午後休：afternoon_off, 時間休：hourly）
-     */
     type: "full" | "half" | "morning_off" | "afternoon_off" | "hourly";
-    /**
-     * 有給休暇を利用した時間（分単位） ※ 全休の場合や午前休、午後休の場合にはこちらの値は参照されません
-     */
     mins?: number;
   }>;
-  /**
-   * 休暇の内訳。年次有給休暇、特別休暇、代休を指定できます。
-   * full、morning_off、afternoon_off では mins と time_ranges を指定しません。年休と有給の特休の half では mins を指定します。無給の特休の half では mins を指定できません。
-   * half を2つ組み合わせて全休にする場合は、どちらの half でも mins を指定できません。
-   * 年休・特休の hourly は、対象日に適用される勤務賃金設定の時間休の入力方式に従い、時間数方式の場合は mins、時間帯方式の場合は time_ranges を指定します。mins は60分単位です。代休では holiday_type にかかわらず mins と time_ranges を指定しません。
-   * 特別休暇では special_holiday_setting_id、代休では source_date が必須です。
-   */
   holidays?: Array<ApiV1EmployeesWorkRecordHolidayRequest>;
-  /**
-   * [deprecated] この日の特別休暇取得日数。1日単位で指定します。 ※ 削除予定のため holidays をご利用ください
-   *
-   * @deprecated
-   */
   special_holiday?: 0 | 1;
-  /**
-   * [deprecated] 特別休暇設定ID ※ 削除予定のため holidays をご利用ください
-   *
-   * @deprecated
-   */
   special_holiday_setting_id?: number | null;
-  /**
-   * [deprecated] 特別休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays をご利用ください
-   *
-   * @deprecated
-   */
   half_special_holiday_mins?: number;
-  /**
-   * [deprecated] 特別休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays をご利用ください
-   *
-   * @deprecated
-   */
   hourly_special_holiday_mins?: number;
-  /**
-   * 欠勤・遅刻・早退を控除対象時間に算入するかどうか
-   */
   use_attendance_deduction?: boolean;
-  /**
-   * デフォルトの勤務設定を使うかどうか。
-   *
-   * trueを指定した場合、以下のパラメータについて、指定した値に関係なく、従業員に設定した勤務賃金設定の休日の設定を参照して値が決まります
-   * - day_pattern
-   *
-   * trueを指定した場合、以下のパラメータについて、指定した値に関係なく、従業員に設定した勤務賃金設定の出退勤時刻と労働時間の設定を参照して値が決まります。
-   * - normal_work_clock_in_at
-   * - normal_work_clock_out_at
-   * - normal_work_mins
-   */
   use_default_work_pattern?: boolean;
 };
 
 export type LegacyApiV1EmployeesWorkRecordsControllerUpdateBody = {
-  /**
-   * 事業所ID（必須）
-   */
   company_id?: number;
-  /**
-   * 休憩時間のリスト
-   */
   break_records?: Array<ApiV1EmployeesWorkRecordTimeRangeSerializer>;
-  /**
-   * 出退勤のリスト
-   */
   work_record_segments?: Array<ApiV1EmployeesWorkRecordTimeRangeSerializer>;
-  /**
-   * 出勤時刻
-   *
-   * 複数の出退勤を指定できないため非推奨です。 `work_record_segments` を利用してください。
-   */
   clock_in_at?: string;
-  /**
-   * 退勤時刻
-   *
-   * 複数の出退勤を指定できないため非推奨です。 `work_record_segments` を利用してください。
-   */
   clock_out_at?: string;
-  /**
-   * 勤務パターン（所定労働日: normal_day, 所定休日: prescribed_holiday, 法定休日: legal_holiday）
-   *
-   * prescribed_holiday、legal_holidayを指定すると、以下のパラメータについて、指定した値が反映されず無視されます。
-   * - early_leaving_mins
-   * - lateness_mins
-   * - paid_holiday
-   */
   day_pattern?: "normal_day" | "prescribed_holiday" | "legal_holiday";
-  /**
-   * 早退分の時間（分単位）
-   */
   early_leaving_mins?: number;
-  /**
-   * 欠勤かどうか
-   *
-   * is_absenceにtrueを指定すると、以下のパラメータについて、指定した値が反映されず無視されます。
-   * - break_records
-   *   - clock_in_at
-   *   - clock_out_at
-   * - clock_in_at
-   * - clock_out_at
-   * - early_leaving_mins
-   * - lateness_mins
-   * - normal_work_clock_in_at
-   * - normal_work_clock_out_at
-   * - normal_work_mins
-   *
-   * ただし、休暇（paid_holiday、half_paid_holiday_mins、hourly_paid_holiday_mins、special_holiday、half_special_holiday_mins、hourly_special_holiday_mins）を指定した場合は休暇の登録が優先され、is_absence の指定は無視されます。
-   */
   is_absence?: boolean;
-  /**
-   * 遅刻分の時間（分単位）
-   */
   lateness_mins?: number;
-  /**
-   * 所定労働開始時刻。指定しない場合はデフォルト設定が使用されます。（デフォルト設定は従業員に設定した勤務賃金設定の出退勤時刻と労働時間の設定を参照して値が決まります。）
-   */
   normal_work_clock_in_at?: string;
-  /**
-   * 所定労働終了時刻。指定しない場合はデフォルト設定が使用されます。（デフォルト設定は従業員に設定した勤務賃金設定の出退勤時刻と労働時間の設定を参照して値が決まります。）
-   */
   normal_work_clock_out_at?: string;
-  /**
-   * 所定労働時間。指定しない場合はデフォルト設定が使用されます。（デフォルト設定は従業員に設定した勤務賃金設定の出退勤時刻と労働時間の設定を参照して値が決まります。）
-   */
   normal_work_mins?: number;
-  /**
-   * 勤怠メモ
-   */
   note?: string;
-  /**
-   * [deprecated] この日の有休取得日数。1日単位で指定します。 ※ paid_holidays を指定する場合にはこちらの値は参照されません ※ 削除予定のため holidays をご利用ください
-   *
-   * @deprecated
-   */
   paid_holiday?: 0 | 1;
-  /**
-   * [deprecated] 有給休暇の半休を利用した時間（分単位） ※ paid_holidaysを指定する場合にはこちらの値は参照されません ※ 削除予定のため holidays をご利用ください
-   *
-   * @deprecated
-   */
   half_paid_holiday_mins?: number;
-  /**
-   * [deprecated] 有給休暇の時間休を利用した時間（分単位） ※ paid_holidaysを指定する場合にはこちらの値は参照されません ※ 削除予定のため holidays をご利用ください
-   *
-   * @deprecated
-   */
   hourly_paid_holiday_mins?: number;
-  /**
-   * [deprecated] この日の特別休暇取得日数。1日単位で指定します。 ※ 削除予定のため holidays をご利用ください
-   *
-   * @deprecated
-   */
   special_holiday?: 0 | 1;
-  /**
-   * [deprecated] 特別休暇設定ID ※ 削除予定のため holidays をご利用ください
-   *
-   * @deprecated
-   */
   special_holiday_setting_id?: number | null;
-  /**
-   * [deprecated] 特別休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays をご利用ください
-   *
-   * @deprecated
-   */
   half_special_holiday_mins?: number;
-  /**
-   * [deprecated] 特別休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays をご利用ください
-   *
-   * @deprecated
-   */
   hourly_special_holiday_mins?: number;
-  /**
-   * 欠勤・遅刻・早退を控除対象時間に算入するかどうか
-   */
   use_attendance_deduction?: boolean;
-  /**
-   * デフォルトの勤務設定を使うかどうか。
-   *
-   * trueを指定した場合、以下のパラメータについて、指定した値に関係なく、従業員に設定した勤務賃金設定の休日の設定を参照して値が決まります
-   * - day_pattern
-   *
-   * trueを指定した場合、以下のパラメータについて、指定した値に関係なく、従業員に設定した勤務賃金設定の出退勤時刻と労働時間の設定を参照して値が決まります。
-   * - normal_work_clock_in_at
-   * - normal_work_clock_out_at
-   * - normal_work_mins
-   */
   use_default_work_pattern?: boolean;
 };
 
 export type ApiV1EmployeesWorkRecordSummaryControllerUpdateBody = {
-  /**
-   * 事業所ID（必須）
-   */
   company_id: number;
-  /**
-   * 総勤務日数
-   */
   work_days?: number;
-  /**
-   * 所定労働日の勤務日数
-   */
   work_days_on_weekdays?: number;
-  /**
-   * 所定休日の勤務日数
-   */
   work_days_on_prescribed_holidays?: number;
-  /**
-   * 法定休日の勤務日数
-   */
   work_days_on_legal_holidays?: number;
-  /**
-   * 労働時間（分）
-   */
   total_work_mins?: number;
-  /**
-   * 所定労働時間（分）
-   */
   total_normal_work_mins?: number;
-  /**
-   * [deprecated] 給与計算に用いられる法定内残業時間（分） ※ 削除予定のため total_overtime_within_statutory_work_mins を指定してください。両方指定した場合はエラーになります
-   *
-   * @deprecated
-   */
   total_excess_statutory_work_mins?: number;
-  /**
-   * 給与計算に用いられる法定内残業時間（分）
-   */
   total_overtime_within_statutory_work_mins?: number;
-  /**
-   * 法定休日労働時間（分）
-   */
   total_holiday_work_mins?: number;
-  /**
-   * 深夜労働時間（分）
-   */
   total_latenight_work_mins?: number;
-  /**
-   * [deprecated] 実労働時間ベースの法定内残業時間（分） ※ 削除予定のため total_actual_overtime_within_statutory_work_mins を指定してください。両方指定した場合はエラーになります
-   *
-   * @deprecated
-   */
   total_actual_excess_statutory_work_mins?: number;
-  /**
-   * 実労働時間ベースの法定内残業時間（分）
-   */
   total_actual_overtime_within_statutory_work_mins?: number;
-  /**
-   * [deprecated] 時間外労働時間（分） ※ 削除予定のため total_overtime_excess_statutory_work_mins を指定してください。両方指定した場合はエラーになります
-   *
-   * @deprecated
-   */
   total_overtime_work_mins?: number;
-  /**
-   * 時間外労働時間（分）
-   */
   total_overtime_excess_statutory_work_mins?: number;
-  /**
-   * 所定休日労働時間（分）
-   */
   total_prescribed_holiday_work_mins?: number;
-  /**
-   * 欠勤日数
-   */
   num_absences?: number;
-  /**
-   * 控除対象の欠勤日数
-   *
-   * フレックスタイム制の場合は、指定した値が反映されず無視されます。
-   */
   num_absences_for_deduction?: number;
-  /**
-   * 遅刻時間（分）
-   */
   total_lateness_mins?: number;
-  /**
-   * 控除対象の遅刻時間（分）
-   *
-   * フレックスタイム制と裁量労働制の場合は、指定した値が反映されず無視されます。
-   */
   total_lateness_mins_for_deduction?: number;
-  /**
-   * 早退時間（分）
-   */
   total_early_leaving_mins?: number;
-  /**
-   * 控除対象の早退時間（分）
-   *
-   * フレックスタイム制と裁量労働制の場合は、指定した値が反映されず無視されます。
-   */
   total_early_leaving_mins_for_deduction?: number;
-  /**
-   * 有給取得日数
-   */
   num_paid_holidays?: number;
-  /**
-   * 不足時間（分）（フレックスタイム制でのみ使用）
-   */
   total_shortage_work_mins?: number;
-  /**
-   * [deprecated] みなし外の法定内残業時間（分）（裁量労働制でのみ使用） ※ 削除予定のため total_deemed_paid_overtime_within_statutory_work_mins を指定してください。両方指定した場合はエラーになります
-   *
-   * @deprecated
-   */
   total_deemed_paid_excess_statutory_work_mins?: number;
-  /**
-   * みなし外の法定内残業時間（分）（裁量労働制でのみ使用）
-   */
   total_deemed_paid_overtime_within_statutory_work_mins?: number;
-  /**
-   * みなし外の時間外労働時間（分）（裁量労働制でのみ使用）
-   */
   total_deemed_paid_overtime_except_normal_work_mins?: number;
 };
 
@@ -4010,13 +1325,7 @@ export type ApiV1EmployeesTimeClocksControllerShowResponse = {
 };
 
 export type ApiV1EmployeesTimeClocksControllerAvailableTypesResponse = {
-  /**
-   * 打刻可能種別(clock_in:出勤, break_begin:休憩開始, break_end:休憩終了, clock_out:退勤)
-   */
   available_types?: Array<"clock_in" | "break_begin" | "break_end" | "clock_out">;
-  /**
-   * 打刻基準日
-   */
   base_date?: string;
 };
 
@@ -4025,29 +1334,14 @@ export type ApiV1EmployeesTimeClocksControllerCreateResponse = {
 };
 
 export type ApiV1EmployeesTimeClocksControllerCreateBody = {
-  /**
-   * (required)
-   */
   company_id: number;
-  /**
-   * 打刻種別（required）[clock_in:出勤, break_begin:休憩開始, break_end:休憩終了, clock_out:退勤]の何れか
-   */
   type: "clock_in" | "break_begin" | "break_end" | "clock_out";
-  /**
-   * 打刻日。打刻が日をまたぐ場合に、前日の日付を指定します。(YYYY-MM-DD)(例:2018-07-31)
-   */
   base_date?: string;
-  /**
-   * 打刻時刻。(YYYY-MM-DD&nbsp;HH:MM:SS)(例:2018-07-31&nbsp;08:00:00)
-   */
   datetime?: string;
 };
 
 export type ApiV1SalariesEmployeePayrollStatementsControllerIndexResponse = {
   employee_payroll_statements?: Array<ApiV1SalariesEmployeePayrollStatementSerializer>;
-  /**
-   * 指定した年月に支払いのある給与明細の合計件数
-   */
   total_count?: number;
 };
 
@@ -4060,9 +1354,6 @@ export type ApiV1BonusesEmployeePayrollStatementsControllerShowResponse = {
 };
 
 export type ApiV1GroupCreateRequest = {
-  /**
-   * 作成対象事業所ID（必須）
-   */
   company_id: number;
   group: ApiV1GroupCreateRequestParams;
 };
@@ -4072,9 +1363,6 @@ export type ApiV1GroupResponse = {
 };
 
 export type ApiV1GroupUpdateRequest = {
-  /**
-   * 作成対象事業所ID（必須）
-   */
   company_id: number;
   group: ApiV1GroupUpdateRequestParams;
 };
@@ -4084,18 +1372,12 @@ export type ApiV1PositionResponse = {
 };
 
 export type ApiV1PositionRequest = {
-  /**
-   * 作成対象事業所ID（必須）
-   */
   company_id: number;
   position: ApiV1PositionRequestParams;
 };
 
 export type ApiV1MonthlyAttendanceIndexResponse = {
   monthly_attendances: Array<ApiV1MonthlyAttendanceIndexResponseParams>;
-  /**
-   * 合計件数
-   */
   total_count: number;
 };
 
@@ -4104,264 +1386,76 @@ export type ApiV1MonthlyAttendanceResponse = {
 };
 
 export type ApiV1MonthlyAttendanceCreateRequest = {
-  /**
-   * 事業所ID（必須）
-   */
   company_id: number;
-  /**
-   * 対象年（必須）
-   */
   target_year: number;
-  /**
-   * 対象月（必須）
-   */
   target_month: number;
-  /**
-   * 申請経路ID（必須）
-   */
   approval_flow_route_id: number;
-  /**
-   * 承認者のユーザーID
-   */
   approver_id?: number;
 };
 
 export type ApiV1MonthlyAttendanceUpdateRequest = {
-  /**
-   * 事業所ID（必須）
-   */
   company_id: number;
-  /**
-   * 申請経路ID（必須）
-   */
   approval_flow_route_id: number;
-  /**
-   * 承認者のユーザーID
-   */
   approver_id?: number;
 };
 
 export type ApiV1WorkTimeIndexResponseParams = {
-  /**
-   * 申請ID
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 申請No
-   */
   application_number: number;
-  /**
-   * 申請者のユーザーID
-   */
   applicant_id: number;
-  /**
-   * 承認者のユーザーID配列
-   * 次の場合、空配列になります。
-   * - 指定なしの申請経路を利用した、申請ステータスが承認済み以外の申請
-   * - 申請が差戻された
-   */
   approver_ids?: Array<number | null>;
-  /**
-   * 対象日
-   */
   target_date: string;
-  /**
-   * 勤務時間削除フラグ（false:勤務時間を修正する、true:勤務時間を削除する）
-   */
   clear_work_time: boolean;
-  /**
-   * 勤務開始時間
-   *   - 勤務時間が複数登録されている場合は、最初の勤務の出勤時間を返します。
-   */
   clock_in_at?: string | null;
-  /**
-   * 勤務終了時間
-   *   - 勤務時間が複数登録されている場合は、最後の勤務の退勤時間を返します。
-   */
   clock_out_at?: string | null;
-  /**
-   * 勤務時間のリスト
-   *   - 登録されている全ての勤務時間のリストを返します。
-   */
   work_records?: Array<{
-    /**
-     * 開始時刻
-     */
     clock_in_at: string;
-    /**
-     * 終了時刻
-     */
     clock_out_at: string;
   }>;
-  /**
-   * 遅刻分の時間（分単位）
-   */
   lateness_mins: number;
-  /**
-   * 早退分の時間（分単位）
-   */
   early_leaving_mins: number;
-  /**
-   * 休憩時間のリスト
-   */
   break_records?: Array<{
-    /**
-     * 開始時刻
-     */
     clock_in_at: string;
-    /**
-     * 終了時刻
-     */
     clock_out_at: string;
   }>;
-  /**
-   * 申請日
-   */
   issue_date: string;
-  /**
-   * 申請理由
-   */
   comment?: string | null;
-  /**
-   * 申請ステータス。（draft:下書き、in_progress:申請中、approved:承認済、feedback:差戻し）
-   */
   status: "draft" | "in_progress" | "approved" | "feedback";
-  /**
-   * 自動チェック結果
-   */
   passed_auto_check: boolean;
-  /**
-   * 代理申請者のユーザーID
-   */
   proxy_applicant_id?: number | null;
 };
 
 export type ApiV1WorkTimeResponseParams = {
-  /**
-   * 申請ID
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 申請No
-   */
   application_number: number;
-  /**
-   * 申請者のユーザーID
-   */
   applicant_id: number;
-  /**
-   * 承認者のユーザーID配列
-   * 次の場合、空配列になります。
-   * - 指定なしの申請経路を利用した、申請ステータスが承認済み以外の申請
-   * - 申請が差戻された
-   */
   approver_ids?: Array<number | null>;
-  /**
-   * 対象日
-   */
   target_date: string;
-  /**
-   * 勤務時間削除フラグ（false:勤務時間を修正する、true:勤務時間を削除する）
-   */
   clear_work_time: boolean;
-  /**
-   * 勤務開始時間
-   *   - 勤務が複数登録されている場合は、最初の勤務の出勤時間を返します。
-   */
   clock_in_at?: string | null;
-  /**
-   * 勤務終了時間
-   *   - 勤務が複数登録されている場合は、最後の勤務の退勤時間を返します。
-   */
   clock_out_at?: string | null;
-  /**
-   * 勤務時間のリスト
-   *   - 登録されている全ての勤務時間のリストを返します。
-   */
   work_records?: Array<{
-    /**
-     * 開始時刻
-     */
     clock_in_at: string;
-    /**
-     * 終了時刻
-     */
     clock_out_at: string;
   }>;
-  /**
-   * 遅刻分の時間（分単位）
-   */
   lateness_mins: number;
-  /**
-   * 早退分の時間（分単位）
-   */
   early_leaving_mins: number;
-  /**
-   * 休憩時間のリスト
-   */
   break_records?: Array<{
-    /**
-     * 開始時刻
-     */
     clock_in_at: string;
-    /**
-     * 終了時刻
-     */
     clock_out_at: string;
   }>;
-  /**
-   * 申請日
-   */
   issue_date: string;
-  /**
-   * 申請理由
-   */
   comment?: string | null;
-  /**
-   * 申請ステータス。（draft:下書き、in_progress:申請中、approved:承認済、feedback:差戻し）
-   */
   status: "draft" | "in_progress" | "approved" | "feedback";
-  /**
-   * 自動チェック結果
-   */
   passed_auto_check: boolean;
-  /**
-   * 申請経路ID
-   */
   approval_flow_route_id: number;
-  /**
-   * 申請経路名
-   */
   approval_flow_route_name: string;
-  /**
-   * 承認履歴
-   */
   approval_flow_logs: Array<ApiV1ApprovalFlowLogsParams>;
-  /**
-   * 申請についたコメント（投稿順）<br>
-   * 申請者・代理申請者・承認者・管理者が書いたコメントだけを返します。自動で付くコメントは含みません。
-   */
   comments: Array<ApiV1ApprovalFlowCommentsParams>;
-  /**
-   * 現在承認ステップID<br>
-   * 申請を差戻した場合、nullになります。
-   */
   current_step_id?: number | null;
-  /**
-   * 現在のround。差戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。
-   */
   current_round: number;
-  /**
-   * 代理申請者のユーザーID
-   */
   proxy_applicant_id?: number | null;
 };
 
@@ -4369,9 +1463,6 @@ export type ApiV1PaidHolidayIndexResponse = {
   paid_holidays: Array<
     ApiV1PaidHolidayIndexResponseParams | LegacyApiV1PaidHolidayIndexResponseParams
   >;
-  /**
-   * 合計件数
-   */
   total_count: number;
 };
 
@@ -4380,305 +1471,94 @@ export type ApiV1PaidHolidayResponse = {
 };
 
 export type ApiV1PaidHolidayRequest = {
-  /**
-   * 事業所ID（必須）
-   */
   company_id: number;
-  /**
-   * 対象日（必須）
-   */
   target_date: string;
   values: Array<{
-    /**
-     * 取得単位。（full:全休、half:半休、morning:午前休、 afternoon:午後休、hourly:時間休）
-     */
     type: "full" | "half" | "morning" | "afternoon" | "hourly";
-    /**
-     * 取得予定開始時間 ※ 全休の場合や午前休、午後休の場合にはこちらの値は参照されません
-     */
     start_at?: string | null;
-    /**
-     * 取得予定終了時間 ※ 全休の場合や午前休、午後休の場合にはこちらの値は参照されません
-     */
     end_at?: string | null;
   }>;
-  /**
-   * 申請理由
-   */
   comment?: string;
-  /**
-   * 申請経路ID（必須）
-   */
   approval_flow_route_id: number;
-  /**
-   * 承認者のユーザーID
-   */
   approver_id?: number;
 };
 
 export type LegacyApiV1PaidHolidayRequest = {
-  /**
-   * 事業所ID（必須）
-   */
   company_id: number;
-  /**
-   * 対象日（必須）
-   */
   target_date: string;
-  /**
-   * [deprecated] 取得単位。（full:全休、half:半休、morning:午前休、 afternoon:午後休、hour:時間休） ※ paid_holidays->values を指定している場合にはこちらの値は参照されません ※ 削除予定のためvalues->type を指定してください
-   */
   holiday_type: "full" | "half" | "morning" | "afternoon" | "hour";
-  /**
-   * [deprecated] 取得予定開始時間 ※ paid_holidays->values を指定している場合にはこちらの値は参照されません ※ 削除予定のため values->start_at を指定してください
-   */
   start_at?: string;
-  /**
-   * [deprecated] 取得予定終了時間 ※ paid_holidays->values を指定している場合にはこちらの値は参照されません ※ 削除予定のため values->end_at を指定してください
-   */
   end_at?: string;
-  /**
-   * 申請理由
-   */
   comment?: string;
-  /**
-   * 申請経路ID（必須）
-   */
   approval_flow_route_id: number;
-  /**
-   * 承認者のユーザーID
-   */
   approver_id?: number;
 };
 
 export type ApiV1SpecialHolidayIndexResponse = {
   special_holidays: Array<{
-    /**
-     * 申請ID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請No
-     */
     application_number: number;
-    /**
-     * 申請者のユーザーID
-     */
     applicant_id: number;
-    /**
-     * 承認者のユーザーID配列<br>
-     * 次の場合、空配列になります。
-     * - 指定なしの申請経路を利用した、申請ステータスが承認済み以外の申請
-     * - 申請が差戻された
-     */
     approver_ids?: Array<number | null>;
-    /**
-     * 対象日
-     */
     target_date: string;
-    /**
-     * 特別休暇設定ID
-     */
     special_holiday_setting_id: number;
-    /**
-     * 特別休暇名称
-     */
     special_holiday_name: string;
-    /**
-     * 取得単位。（full:全休、half:半休、morning:午前休、afternoon:午後休、hour:時間休）
-     */
     holiday_type: "full" | "half" | "morning" | "afternoon" | "hour";
-    /**
-     * 取得予定開始時間
-     */
     start_at?: string | null;
-    /**
-     * 取得予定終了時間
-     */
     end_at?: string | null;
-    /**
-     * 申請日
-     */
     issue_date: string;
-    /**
-     * 申請理由
-     */
     comment?: string | null;
-    /**
-     * 申請ステータス。（draft:下書き、in_progress:申請中、approved:承認済、feedback:差戻し）
-     */
     status: "draft" | "in_progress" | "approved" | "feedback";
-    /**
-     * 取消申請ステータス。（null:取消申請されてない、revoking:取消中、revoked:取消済）
-     */
     revoke_status: "revoking" | "revoked";
-    /**
-     * 自動チェック結果
-     */
     passed_auto_check: boolean;
-    /**
-     * 代理申請者のユーザーID
-     */
     proxy_applicant_id?: number | null;
   }>;
-  /**
-   * 合計件数
-   */
   total_count: number;
 };
 
 export type ApiV1SpecialHolidayResponse = {
   special_holiday: {
-    /**
-     * 申請ID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請No
-     */
     application_number: number;
-    /**
-     * 申請者のユーザーID
-     */
     applicant_id: number;
-    /**
-     * 承認者のユーザーID配列<br>
-     * 次の場合、空配列になります。
-     * - 指定なしの申請経路を利用した、申請ステータスが承認済み以外の申請
-     * - 申請が差戻された
-     */
     approver_ids?: Array<number | null>;
-    /**
-     * 対象日
-     */
     target_date: string;
-    /**
-     * 特別休暇設定ID
-     */
     special_holiday_setting_id: number;
-    /**
-     * 特別休暇名称
-     */
     special_holiday_name: string;
-    /**
-     * 取得単位。（full:全休、half:半休、morning:午前休、afternoon:午後休、hour:時間休）
-     */
     holiday_type: "full" | "half" | "morning" | "afternoon" | "hour";
-    /**
-     * 取得予定開始時間
-     */
     start_at?: string | null;
-    /**
-     * 取得予定終了時間
-     */
     end_at?: string | null;
-    /**
-     * 申請日
-     */
     issue_date: string;
-    /**
-     * 申請理由
-     */
     comment?: string | null;
-    /**
-     * 申請ステータス。（draft:下書き、in_progress:申請中、approved:承認済、feedback:差戻し）
-     */
     status: "draft" | "in_progress" | "approved" | "feedback";
-    /**
-     * 取消申請ステータス。（null:取消申請されてない、revoking:取消中、revoked:取消済）
-     */
     revoke_status: "revoking" | "revoked";
-    /**
-     * 自動チェック結果
-     */
     passed_auto_check: boolean;
-    /**
-     * 申請経路ID
-     */
     approval_flow_route_id: number;
-    /**
-     * 申請経路名
-     */
     approval_flow_route_name: string;
-    /**
-     * 承認履歴
-     */
     approval_flow_logs: Array<ApiV1ApprovalFlowLogsParams>;
-    /**
-     * 申請についたコメント（投稿順）<br>
-     * 申請者・代理申請者・承認者・管理者が書いたコメントだけを返します。自動で付くコメントは含みません。
-     */
     comments: Array<ApiV1ApprovalFlowCommentsParams>;
-    /**
-     * 現在承認ステップID<br>
-     * 申請を差戻した場合、nullになります。
-     */
     current_step_id?: number | null;
-    /**
-     * 現在のround。差戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。
-     */
     current_round: number;
-    /**
-     * 代理申請者のユーザーID
-     */
     proxy_applicant_id?: number | null;
   };
 };
 
 export type ApiV1SpecialHolidayRequest = {
-  /**
-   * 事業所ID（必須）
-   */
   company_id: number;
-  /**
-   * 対象日（必須）
-   */
   target_date: string;
-  /**
-   * 特別休暇設定ID（必須）
-   */
   special_holiday_setting_id: number;
-  /**
-   * 取得単位（必須）（full:全休、half:半休、morning:午前休、 afternoon:午後休、hour:時間休）
-   */
   holiday_type: "full" | "half" | "morning" | "afternoon" | "hour";
-  /**
-   * 取得予定開始時間（条件付き必須）
-   * 取得単位が半休、時間休の場合は必須
-   */
   start_at?: string;
-  /**
-   * 取得予定終了時間（条件付き必須）
-   * 取得単位が半休、時間休の場合は必須
-   */
   end_at?: string;
-  /**
-   * 申請理由
-   */
   comment?: string;
-  /**
-   * 申請経路ID（必須）
-   */
   approval_flow_route_id: number;
-  /**
-   * 承認者のユーザーID
-   */
   approver_id?: number;
 };
 
 export type ApiV1OvertimeWorkIndexResponse = {
   overtime_works: Array<ApiV1OvertimeWorkIndexResponseParams>;
-  /**
-   * 合計件数
-   */
   total_count: number;
 };
 
@@ -4687,76 +1567,24 @@ export type ApiV1OvertimeWorkResponse = {
 };
 
 export type ApiV1OvertimeWorkRequest = {
-  /**
-   * 事業所ID（必須）
-   */
   company_id: number;
-  /**
-   * 対象日（必須）
-   */
   target_date: string;
-  /**
-   * 取得予定開始時間
-   */
   start_at?: string;
-  /**
-   * 取得予定終了時間
-   */
   end_at?: string;
-  /**
-   * 実績反映ありの早出申請の開始予定時刻
-   * 実績反映ありの早出申請する場合は必須
-   */
   early_work_start_at?: string | null;
-  /**
-   * 実績反映ありの早出申請の終了予定時刻
-   * 実績反映ありの早出申請する場合は必須
-   */
   early_work_end_at?: string | null;
-  /**
-   * 実績反映ありの残業申請の開始予定時刻
-   * 実績反映ありの残業申請する場合は必須
-   */
   overtime_work_start_at?: string | null;
-  /**
-   * 実績反映ありの残業申請の終了予定時刻
-   * 実績反映ありの残業申請する場合は必須
-   */
   overtime_work_end_at?: string | null;
-  /**
-   * 申請理由
-   */
   comment?: string;
-  /**
-   * 申請経路ID（必須）
-   */
   approval_flow_route_id: number;
-  /**
-   * 承認者のユーザーID
-   */
   approver_id?: number;
 };
 
 export type ApiV1ApprovalActionRequest = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 申請操作。（approve:承認、cancel:取り消し、feedback:差戻し、force_feedback:承認取り消し）
-   */
   approval_action: "approve" | "cancel" | "feedback" | "force_feedback";
-  /**
-   * 対象round。差戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。取得APIレスポンス.current_roundを送信してください。
-   */
   target_round: number | null;
-  /**
-   * 対象承認ステップID。取得APIレスポンス.current_step_idを送信してください。
-   */
   target_step_id: number | null;
-  /**
-   * 次のステップの承認者のユーザーID
-   */
   next_approver_id?: number | null;
 };
 
@@ -4765,35 +1593,12 @@ export type ApiV1ApprovalFlowRoutesIndexResponse = {
 };
 
 export type ApiV1ApprovalFlowRouteIndexResponseParams = {
-  /**
-   * 申請経路ID
-   */
   id: number;
-  /**
-   * 申請経路名
-   */
   name?: string;
-  /**
-   * 申請経路の説明
-   */
   description?: string;
-  /**
-   * 更新したユーザーのユーザーID
-   */
   user_id?: number | null;
-  /**
-   * システム作成の申請経路かどうか
-   */
   definition_system?: boolean;
-  /**
-   * 最初の承認ステップのID
-   */
   first_step_id?: number;
-  /**
-   * 申請種別（申請経路を使用できる申請種別を示します。例えば、AttendanceWorkflow の場合は、勤怠申請で使用できる申請経路です。）
-   * - AttendanceWorkflow - 勤怠申請
-   * - PersonalDataWorkflow - 身上変更申請
-   */
   usages?: Array<"AttendanceWorkflow" | "PersonalDataWorkflow">;
 };
 
@@ -4802,54 +1607,19 @@ export type ApiV1ApprovalFlowRouteResponse = {
 };
 
 export type ApiV1ApprovalFlowRouteResponseParams = {
-  /**
-   * 申請経路ID
-   */
   id: number;
-  /**
-   * 申請経路名
-   */
   name?: string;
-  /**
-   * 申請経路の説明
-   */
   description?: string;
-  /**
-   * 更新したユーザーのユーザーID
-   */
   user_id?: number | null;
-  /**
-   * システム作成の申請経路かどうか
-   */
   definition_system?: boolean;
-  /**
-   * 最初の承認ステップのID
-   */
   first_step_id?: number;
-  /**
-   * 申請種別（申請経路を使用できる申請種別を示します。例えば、AttendanceWorkflow の場合は、勤怠申請で使用できる申請経路です。）
-   * - AttendanceWorkflow - 勤怠申請
-   * - PersonalDataWorkflow - 身上変更申請
-   */
   usages?: Array<"AttendanceWorkflow" | "PersonalDataWorkflow">;
   steps?: ApiV1FlowRouteStepSrializer;
 };
 
-/**
- * 承認ステップ（配列）
- */
 export type ApiV1FlowRouteStepSrializer = Array<{
-  /**
-   * 承認ステップID
-   */
   id: number;
-  /**
-   * 次の承認ステップID
-   */
   next_step_id: number | null;
-  /**
-   * 承認方法( predefined_user: メンバー指定 (1人), selected_user: 申請時にメンバー指定,unspecified: 指定なし, and_resource: メンバー指定 (複数、全員の承認), or_resource: メンバー指定 (複数、1人の承認), and_position: 役職指定 (複数、全員の承認), or_position: 役職指定 (複数、1人の承認) )
-   */
   resource_type:
     | "predefined_user"
     | "selected_user"
@@ -4858,129 +1628,45 @@ export type ApiV1FlowRouteStepSrializer = Array<{
     | "or_resource"
     | "and_position"
     | "or_position";
-  /**
-   * 承認者のユーザーID (配列)
-   */
   user_ids?: Array<number>;
 }>;
 
 export type ApiV1EmployeeYearendAdjustmentControllerIndexResponse = {
   employees?: Array<ApiV1EmployeeYearendAdjustmentParams>;
-  /**
-   * 合計件数
-   */
   total_count?: number;
 };
 
 export type ApiV1EmployeeYearendAdjustmentParams = {
-  /**
-   * 従業員ID
-   */
   employee_id?: number;
-  /**
-   * 従業員番号
-   */
   num?: string;
-  /**
-   * 従業員名
-   */
   employee_display_name?: string;
-  /**
-   * 年末調整対象外
-   * - true - 年末調整対象外
-   * - false - 年末調整対象
-   */
   is_not_adjust?: boolean;
-  /**
-   * 年末調整ステータス
-   * - initialized - 入力依頼前
-   * - in_employee_progress - 従業員入力中
-   * - submitted - 従業員入力済
-   * - fixed - 確定
-   */
   status?: "initialized" | "in_employee_progress" | "submitted" | "fixed";
 };
 
 export type ApiV1EmployeeYearendAdjustmentControllerUpdateEmployeeBody = {
-  /**
-   * 更新対象事業所ID（必須）
-   */
   company_id: number;
   employee: ApiV1EmployeeYearendAdjustmentEmployeeUpdateRequestSerializer;
 };
 
 export type ApiV1EmployeeYearendAdjustmentEmployeeUpdateRequestSerializer = {
-  /**
-   * 姓 null不可
-   */
   last_name: string;
-  /**
-   * 名 null不可
-   */
   first_name: string;
-  /**
-   * 姓カナ
-   */
   last_name_kana: string;
-  /**
-   * 名カナ
-   */
   first_name_kana: string;
-  /**
-   * 住民票住所の郵便番号1
-   */
   zipcode1: string;
-  /**
-   * 住民票住所の郵便番号2
-   */
   zipcode2: string;
-  /**
-   * 住民票住所の都道府県コード（-1: 設定しない、0: 北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄)
-   */
   prefecture_code: number;
-  /**
-   * 住民票住所の市区町村以降の住所
-   */
   address: string;
-  /**
-   * 住民票住所の市区町村以降の住所カナ
-   */
   address_kana?: string;
-  /**
-   * 所得税納税者区分 kou: 甲, otsu: 乙, hei: 丙
-   */
   payer_type?: "kou" | "otsu" | "hei";
-  /**
-   * 寡夫／寡婦かどうか null不可 na: 空白, widow: 寡婦, one_parent: ひとり親
-   */
   widow_type?: "na" | "widow" | "one_parent";
-  /**
-   * 障害者かどうか null不可 na: 空白, general: 障害者, heavy: 特別障害者
-   */
   disability_type?: "na" | "general" | "heavy";
-  /**
-   * 配偶者の有無 null不可
-   */
   married?: boolean;
-  /**
-   * 勤労学生かどうか null不可
-   */
   is_working_student?: boolean;
-  /**
-   * 外国人かどうか null不可
-   */
   is_foreigner?: boolean;
-  /**
-   * その他の事業所の給与収入
-   */
   other_company_revenue?: number | null;
-  /**
-   * 給与以外の所得
-   */
   all_other_income?: number | null;
-  /**
-   * 世帯主の続柄 myself: 本人, husband: 夫, wife: 妻, father: 父, mother: 母, child: 子, senior_brother: 兄, junior_brother: 弟, senior_sister: 姉, junior_sister: 妹, grandchild: 孫, grandfather: 祖父, grandmother: 祖母, father_in_law: 義父, mother_in_law: 義母, grandfather_in_law: 義祖父, grandmother_in_law: 義祖母, other: その他
-   */
   householder?:
     | "myself"
     | "husband"
@@ -5000,9 +1686,6 @@ export type ApiV1EmployeeYearendAdjustmentEmployeeUpdateRequestSerializer = {
     | "grandfather_in_law"
     | "grandmother_in_law"
     | "other";
-  /**
-   * 世帯主の名前
-   */
   householder_name?: string;
 };
 
@@ -5011,106 +1694,30 @@ export type ApiV1EmployeeYearendAdjustmentControllerUpdateEmployeeResponse = {
 };
 
 export type ApiV1EmployeeYearendAdjustmentEmployeeSerializer = {
-  /**
-   * 従業員ID
-   */
   employee_id?: number;
-  /**
-   * 従業員番号<br>
-   * 従業員を判別しやすいよう管理することができます。（例: 1人目の正社員を A-001 と入力）
-   */
   num?: string;
-  /**
-   * 姓 null不可
-   */
   last_name?: string;
-  /**
-   * 名 null不可
-   */
   first_name?: string;
-  /**
-   * 姓カナ
-   */
   last_name_kana?: string;
-  /**
-   * 名カナ
-   */
   first_name_kana?: string;
-  /**
-   * 生年月日
-   */
   birth_date?: string;
-  /**
-   * 入社日
-   */
   entry_date?: string;
-  /**
-   * 退職日
-   */
   retire_date?: string | null;
-  /**
-   * 雇用形態 board-member: 役員, regular: 正社員, fixed-term: 契約社員, part-time: アルバイト・パート, temporary: 派遣社員, (空文字列): その他
-   */
   employment_type?: string | null;
-  /**
-   * 肩書
-   */
   title?: string | null;
-  /**
-   * 住民票住所の郵便番号1
-   */
   zipcode1?: string | null;
-  /**
-   * 住民票住所の郵便番号2
-   */
   zipcode2?: string | null;
-  /**
-   * 住民票住所の都道府県コード（-1: 設定しない、0: 北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄)
-   */
   prefecture_code?: number | null;
-  /**
-   * 住民票住所の市区町村以降の住所
-   */
   address?: string | null;
-  /**
-   * 住民票住所の市区町村以降の住所カナ
-   */
   address_kana?: string;
-  /**
-   * 所得税納税者区分 kou: 甲, otsu: 乙, hei: 丙
-   */
   payer_type?: "kou" | "otsu" | "hei";
-  /**
-   * 寡夫／寡婦かどうか null不可 na: 空白, widow: 寡婦, one_parent: ひとり親
-   */
   widow_type?: "na" | "widow" | "one_parent";
-  /**
-   * 障害者かどうか na: 空白, general: 障害者, heavy: 特別障害者
-   */
   disability_type?: "na" | "general" | "heavy";
-  /**
-   * 配偶者の有無
-   */
   married?: boolean;
-  /**
-   * 勤労学生かどうか
-   */
   is_working_student?: boolean;
-  /**
-   * 外国人かどうか
-   */
   is_foreigner?: boolean;
-  /**
-   * その他の事業所の給与収入
-   */
   other_company_revenue?: number | null;
-  /**
-   * 給与以外の所得
-   */
   all_other_income?: number | null;
-  /**
-   * 世帯主の続柄 myself: 本人, husband: 夫, wife: 妻, father: 父, mother: 母, child: 子, senior_brother: 兄, junior_brother: 弟, senior_sister: 姉, junior_sister: 妹, grandchild: 孫, grandfather: 祖父, grandmother: 祖母, father_in_law: 義父, mother_in_law: 義母, grandfather_in_law: 義祖父, grandmother_in_law: 義祖母, other: その他
-   */
   householder?:
     | "myself"
     | "husband"
@@ -5130,120 +1737,45 @@ export type ApiV1EmployeeYearendAdjustmentEmployeeSerializer = {
     | "grandfather_in_law"
     | "grandmother_in_law"
     | "other";
-  /**
-   * 世帯主の名前
-   */
   householder_name?: string;
-  /**
-   * 所得税の計算対象かどうか
-   */
   is_calc_income_tax?: boolean;
 };
 
 export type ApiV1EmployeeYearendAdjustmentControllerShowResponse = {
   employee?: ApiV1EmployeeYearendAdjustmentEmployeeSerializer;
-  /**
-   * 家族情報(年末調整対象外の場合は取得できません。)
-   */
   dependents?: Array<ApiV1EmployeeYearendAdjustmentDependentSerializer>;
-  /**
-   * 保険料情報(年末調整対象外の場合は取得できません。)
-   */
   insurances?: Array<ApiV1EmployeeYearendAdjustmentInsuranceSerializer>;
-  /**
-   * 住宅借入金等特別控除(年末調整対象外の場合は取得できません。)
-   */
   housing_loan_deduction?: number;
-  /**
-   * 住宅ローン(年末調整対象外の場合は取得できません。)
-   */
   housing_loans?: Array<ApiV1EmployeeYearendAdjustmentHousingLoanSerializer>;
   payroll_and_bonus?: ApiV1EmployeeYearendAdjustmentPayrollAndBonusSerializer;
   previous_job?: ApiV1EmployeeYearendAdjustmentPreviousJobSerializer;
 };
 
 export type ApiV1EmployeeYearendAdjustmentPayrollAndBonusSerializer = {
-  /**
-   * 確定給与額
-   */
   fixed_payroll?: number;
-  /**
-   * 確定給与控除額
-   */
   fixed_payroll_deduction?: number;
-  /**
-   * 確定給与所得税額
-   */
   fixed_payroll_income_tax?: number;
-  /**
-   * 確定賞与額
-   */
   fixed_bonus?: number;
-  /**
-   * 確定賞与控除額
-   */
   fixed_bonus_deduction?: number;
-  /**
-   * 確定賞与所得税額
-   */
   fixed_bonus_income_tax?: number;
-  /**
-   * 未入力給与額
-   */
   unentered_payroll_amount?: number;
-  /**
-   * 未入力給与控除額
-   */
   unentered_payroll_deduction_amount?: number;
-  /**
-   * 未入力給与所得税額
-   */
   unentered_payroll_income_tax_amount?: number;
-  /**
-   * 未入力賞与額
-   */
   unentered_bonus_amount?: number;
-  /**
-   * 未入力賞与控除額
-   */
   unentered_bonus_deduction_amount?: number;
-  /**
-   * 未入力賞与所得税額
-   */
   unentered_bonus_income_tax_amount?: number;
 };
 
 export type ApiV1EmployeeYearendAdjustmentPayrollAndBonusUpdateRequestSerializer = {
-  /**
-   * 未入力給与額
-   */
   unentered_payroll_amount?: number;
-  /**
-   * 未入力給与控除額
-   */
   unentered_payroll_deduction_amount?: number;
-  /**
-   * 未入力給与所得税額
-   */
   unentered_payroll_income_tax_amount?: number;
-  /**
-   * 未入力賞与額
-   */
   unentered_bonus_amount?: number;
-  /**
-   * 未入力賞与控除額
-   */
   unentered_bonus_deduction_amount?: number;
-  /**
-   * 未入力賞与所得税額
-   */
   unentered_bonus_income_tax_amount?: number;
 };
 
 export type ApiV1EmployeeYearendAdjustmentControllerUpdatePayrollAndBonusBody = {
-  /**
-   * 更新対象事業所ID（必須）
-   */
   company_id: number;
   payroll_and_bonus: ApiV1EmployeeYearendAdjustmentPayrollAndBonusUpdateRequestSerializer;
 };
@@ -5253,44 +1785,17 @@ export type ApiV1EmployeeYearendAdjustmentControllerUpdatePayrollAndBonusRespons
 };
 
 export type ApiV1EmployeeYearendAdjustmentControllerUpdateDependentsBody = {
-  /**
-   * 更新対象事業所ID（必須）
-   */
   company_id: number;
-  /**
-   * 家族情報
-   */
   dependents: Array<ApiV1EmployeeYearendAdjustmentDependentUpdateRequestSerializer>;
 };
 
 export type ApiV1EmployeeYearendAdjustmentDependentUpdateRequestSerializer = {
-  /**
-   * 家族情報ID（idがない場合は新規作成になる)
-   */
   id?: number;
-  /**
-   * 家族情報を削除するか true: 削除する, false: 削除しない
-   */
   destroy?: boolean;
-  /**
-   * 姓 null不可
-   */
   last_name: string;
-  /**
-   * 名 null不可
-   */
   first_name: string;
-  /**
-   * 姓カナ
-   */
   last_name_kana?: string;
-  /**
-   * 名カナ
-   */
   first_name_kana?: string;
-  /**
-   * 続柄 null不可 spouse: 配偶者, father: 父, mother: 母, child: 子, senior_brother: 兄, junior_brother: 弟, senior_sister: 姉, junior_sister: 妹, grandchild: 孫, grandfather: 祖父, grandmother: 祖母, father_in_law: 義父, mother_in_law: 義母, grandfather_in_law: 義祖父, grandmother_in_law: 義祖母, other: その他, great_grandfather: 曽祖父, great_grandmother: 曽祖母, spouses_child: 配偶者の連れ子
-   */
   relationship:
     | "spouse"
     | "father"
@@ -5311,105 +1816,36 @@ export type ApiV1EmployeeYearendAdjustmentDependentUpdateRequestSerializer = {
     | "great_grandfather"
     | "great_grandmother"
     | "spouses_child";
-  /**
-   * 生年月日 null不可 1900年1月1日から現在年+5の12月31日まで登録可能
-   */
   birth_date: string;
-  /**
-   * 扶養状況 social_insurance_and_tax: 所得税・住民税と社会保険, tax_only: 所得税・住民税のみ, social_insurance_only: 社会保険のみ, not_dependent: 扶養していない
-   */
   social_insurance_and_tax_dependent:
     "social_insurance_and_tax" | "tax_only" | "social_insurance_only" | "not_dependent";
-  /**
-   * 所得 配偶者は「扶養状況」がsocial_insurance_only又はnot_dependentの場合のみ更新可能。配偶者以外は更新可能。 配偶者で「扶養状況」がsocial_insurance_and_tax又はtax_onlyの場合、「給与収入」、「給与以外の所得」から自動で「所得」が計算されます。
-   */
   income?: number;
-  /**
-   * 給与収入 配偶者は「扶養状況」がsocial_insurance_and_tax又はtax_onlyの場合のみ更新可能。配偶者以外は更新不可。更新不可の場合は0となります。
-   */
   employment_revenue?: number;
-  /**
-   * 給与以外の所得 配偶者は「扶養状況」がsocial_insurance_and_tax又はtax_onlyの場合のみ更新可能。配偶者以外は更新不可。更新不可の場合は0となります。
-   */
   all_other_income?: number;
-  /**
-   * 障害に該当するか null不可 na: 障害なし, general: 一般の障害者, heavy: 特別障害者
-   */
   disability_type: "na" | "general" | "heavy";
-  /**
-   * 同居・別居 null不可 live_in: 同居, resident: 別居(国内), non_resident: 別居(国外)
-   */
   residence_type: "live_in" | "resident" | "non_resident";
-  /**
-   * 住民票住所の郵便番号1 「同居・別居」が「同居」の場合は「年末調整従業員情報」の「住民票住所の郵便番号1」を登録
-   */
   zipcode1?: string | null;
-  /**
-   * 住民票住所の郵便番号2 「同居・別居」が「同居」の場合は「年末調整従業員情報」の「住民票住所の郵便番号2」を登録
-   */
   zipcode2?: string | null;
-  /**
-   * 住民票住所の都道府県コード（-1: 設定しない、0: 北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄)  「同居・別居」が「同居」の場合は「年末調整従業員情報」の「住民票住所の都道府県コード」を登録
-   */
   prefecture_code?: number;
-  /**
-   * 住民票住所の市区町村以降の住所 「同居・別居」が「同居」の場合は「年末調整従業員情報」の「住民票住所の市区町村以降の住所」を登録
-   */
   address?: string;
-  /**
-   * 住民票住所の市区町村以降の住所カナ 「同居・別居」が「同居」の場合は「年末調整従業員情報」の「住民票住所の市区町村以降の住所カナ」を登録
-   */
   address_kana?: string;
-  /**
-   * 国外居住親族への年間の送金額 「同居・別居」が「同居」、「別居(国内)」の場合は登録不可
-   */
   annual_remittance_amount?: number;
-  /**
-   * 非居住者である親族の条件 none: なし, over_16_to_under_30_or_over_70: 16歳以上30歳未満又は70歳以上, study_abroad: 留学, handicapped: 障害者, over_38_man: 38万円以上の支払 続柄が「配偶者」または「同居・別居」が「同居」、「別居(国内)」の場合は登録不可
-   */
   non_resident_dependents_reason?:
     "none" | "over_16_to_under_30_or_over_70" | "study_abroad" | "handicapped" | "over_38_man";
-  /**
-   * 住民税のみの控除対象かどうか 2025年以前の年末調整でのみ更新可能。2026年以降の年末調整では入力された所得額から住民税の控除対象かどうかが自動判定されるため、指定しても無視されます。
-   */
   is_resident_tax_only_deduction?: boolean;
-  /**
-   * 退職所得
-   */
   retirement_income?: number;
 };
 
 export type ApiV1EmployeeYearendAdjustmentControllerUpdateDependentsResponse = {
-  /**
-   * 家族情報
-   */
   dependents?: Array<ApiV1EmployeeYearendAdjustmentDependentSerializer>;
 };
 
 export type ApiV1EmployeeYearendAdjustmentDependentSerializer = {
-  /**
-   * 家族情報ID
-   */
   id?: number;
-  /**
-   * 姓 null不可
-   */
   last_name?: string;
-  /**
-   * 名 null不可
-   */
   first_name?: string;
-  /**
-   * 姓カナ
-   */
   last_name_kana?: string;
-  /**
-   * 名カナ
-   */
   first_name_kana?: string;
-  /**
-   * 続柄 null不可 spouse: 配偶者, father: 父, mother: 母, child: 子, senior_brother: 兄, junior_brother: 弟, senior_sister: 姉, junior_sister: 妹, grandchild: 孫, grandfather: 祖父, grandmother: 祖母, father_in_law: 義父, mother_in_law: 義母, grandfather_in_law: 義祖父, grandmother_in_law: 義祖母, other: その他, great_grandfather: 曽祖父, great_grandmother: 曽祖母, spouses_child: 配偶者の連れ子
-   */
   relationship?:
     | "spouse"
     | "father"
@@ -5430,110 +1866,37 @@ export type ApiV1EmployeeYearendAdjustmentDependentSerializer = {
     | "great_grandfather"
     | "great_grandmother"
     | "spouses_child";
-  /**
-   * 生年月日 null不可 1900年1月1日から現在年+5年12月31日まで登録可能
-   */
   birth_date?: string;
-  /**
-   * 扶養状況 social_insurance_and_tax: 所得税・住民税と社会保険, tax_only: 所得税・住民税のみ, social_insurance_only: 社会保険のみ, not_dependent: 扶養していない
-   */
   social_insurance_and_tax_dependent?:
     "social_insurance_and_tax" | "tax_only" | "social_insurance_only" | "not_dependent";
-  /**
-   * 所得 配偶者は「扶養状況」がsocial_insurance_only又はnot_dependentの場合のみ更新可能。配偶者以外は更新可能。
-   * 配偶者で「扶養状況」がsocial_insurance_and_tax又はtax_onlyの場合、「給与収入」、「給与以外の所得」から自動で「所得」が計算されます。<br>
-   * <br>
-   * 2026年以降の年末調整で、freee人事労務の年末調整画面から「公的年金収入」を入力している場合、公的年金等の所得は「給与以外の所得」に合算して返却されます。
-   * この場合、「所得」は「給与所得と年金所得の双方を有する者に対する所得金額調整控除」を適用した後の金額となるため、「給与収入」と「給与以外の所得」から算出した金額とは一致しないことがあります。
-   */
   income?: number;
-  /**
-   * 給与収入 配偶者は「扶養状況」がsocial_insurance_and_tax又はtax_onlyの場合のみ更新可能。配偶者以外は更新不可。更新不可の場合は0となります。
-   */
   employment_revenue?: number;
-  /**
-   * 給与以外の所得 配偶者は「扶養状況」がsocial_insurance_and_tax又はtax_onlyの場合のみ更新可能。配偶者以外は更新不可。更新不可の場合は0となります。
-   */
   all_other_income?: number;
-  /**
-   * 障害に該当するか null不可 na: 障害なし, general: 一般の障害者, heavy: 特別障害者
-   */
   disability_type?: "na" | "general" | "heavy";
-  /**
-   * 同居・別居 null不可 live_in: 同居, resident: 別居(国内), non_resident: 別居(国外)
-   */
   residence_type?: "live_in" | "resident" | "non_resident";
-  /**
-   * 住民票住所の郵便番号1 「同居・別居」が「同居」の場合は「年末調整従業員情報」の「住民票住所の郵便番号1」を登録
-   */
   zipcode1?: string | null;
-  /**
-   * 住民票住所の郵便番号2 「同居・別居」が「同居」の場合は「年末調整従業員情報」の「住民票住所の郵便番号2」を登録
-   */
   zipcode2?: string | null;
-  /**
-   * 住民票住所の都道府県コード（-1: 設定しない、0: 北海道、1:青森、2:岩手、3:宮城、4:秋田、5:山形、6:福島、7:茨城、8:栃木、9:群馬、10:埼玉、11:千葉、12:東京、13:神奈川、14:新潟、15:富山、16:石川、17:福井、18:山梨、19:長野、20:岐阜、21:静岡、22:愛知、23:三重、24:滋賀、25:京都、26:大阪、27:兵庫、28:奈良、29:和歌山、30:鳥取、31:島根、32:岡山、33:広島、34:山口、35:徳島、36:香川、37:愛媛、38:高知、39:福岡、40:佐賀、41:長崎、42:熊本、43:大分、44:宮崎、45:鹿児島、46:沖縄)  「同居・別居」が「同居」の場合は「年末調整従業員情報」の「住民票住所の都道府県コード」を登録
-   */
   prefecture_code?: number;
-  /**
-   * 住民票住所の市区町村以降の住所 「同居・別居」が「同居」の場合は「年末調整従業員情報」の「住民票住所の市区町村以降の住所」を登録
-   */
   address?: string;
-  /**
-   * 住民票住所の市区町村以降の住所カナ 「同居・別居」が「同居」の場合は「年末調整従業員情報」の「住民票住所の市区町村以降の住所カナ」を登録
-   */
   address_kana?: string;
-  /**
-   * 国外居住親族への年間の送金額 「同居・別居」が「同居」、「別居(国内)」の場合は登録不可
-   */
   annual_remittance_amount?: number;
-  /**
-   * 非居住者である親族の条件 none: なし, over_16_to_under_30_or_over_70: 16歳以上30歳未満又は70歳以上, study_abroad: 留学, handicapped: 障害者, over_38_man: 38万円以上の支払 続柄が「配偶者」または「同居・別居」が「同居」、「別居(国内)」の場合は登録不可
-   */
   non_resident_dependents_reason?:
     "none" | "over_16_to_under_30_or_over_70" | "study_abroad" | "handicapped" | "over_38_man";
-  /**
-   * 住民税のみの控除対象かどうか 2025年以前の年末調整でのみ返却されます。2026年以降の年末調整では入力された所得額から住民税の控除対象かどうかが自動判定されるため、レスポンスに含まれません。
-   */
   is_resident_tax_only_deduction?: boolean;
-  /**
-   * 退職所得
-   */
   retirement_income?: number;
 };
 
 export type ApiV1EmployeeYearendAdjustmentControllerUpdatePreviousJobBody = {
-  /**
-   * 更新対象事業所ID（必須）
-   */
   company_id: number;
   previous_job: ApiV1EmployeeYearendAdjustmentPreviousJobUpdateRequestSerializer;
 };
 
 export type ApiV1EmployeeYearendAdjustmentPreviousJobUpdateRequestSerializer = {
-  /**
-   * 前職の支払金額
-   */
   income: number;
-  /**
-   * 前職の社会保険料等の金額
-   */
   deduction: number;
-  /**
-   * 前職の源泉徴収額
-   */
   withholding_tax_amount: number;
-  /**
-   * 前職の社名
-   */
   company_name: string;
-  /**
-   * 前職の事業所住所
-   */
   company_address: string;
-  /**
-   * 前職の退職日 現在年-10年1月1日から現在年+5年12月31日まで登録可能
-   */
   retire_date: string;
 };
 
@@ -5542,75 +1905,25 @@ export type ApiV1EmployeeYearendAdjustmentControllerUpdatePreviousJobResponse = 
 };
 
 export type ApiV1EmployeeYearendAdjustmentPreviousJobSerializer = {
-  /**
-   * 前職の支払金額
-   */
   income?: number;
-  /**
-   * 前職の社会保険料等の金額
-   */
   deduction?: number;
-  /**
-   * 前職の源泉徴収額
-   */
   withholding_tax_amount?: number;
-  /**
-   * 前職の社名
-   */
   company_name?: string;
-  /**
-   * 前職の事業所住所
-   */
   company_address?: string;
-  /**
-   * 前職の退職日 現在年-10年1月1日から現在年+5年12月31日まで登録可能
-   */
   retire_date?: string | null;
 } | null;
 
 export type ApiV1EmployeeYearendAdjustmentControllerUpdateInsuranceBody = {
-  /**
-   * 更新対象事業所ID（必須）
-   */
   company_id: number;
   insurance: ApiV1EmployeeYearendAdjustmentInsuranceUpdateRequestSerializer;
 };
 
 export type ApiV1EmployeeYearendAdjustmentInsuranceUpdateRequestSerializer = {
-  /**
-   * 保険の種類 life_care_pension_insurance: 生命保険・介護医療保険・個人年金保険, earthquake_non_life_insurance: 地震保険・旧長期損害保険, social_insurance: 社会保険, other_insurance: その他の保険（小規模企業共済等）
-   */
   type:
     | "life_care_pension_insurance"
     | "earthquake_non_life_insurance"
     | "social_insurance"
     | "other_insurance";
-  /**
-   * 区分<br>
-   * 保険会社等が発行する証明書類に基づいて区分を設定してください。<br>
-   * 保険の種類によって設定可能な値が変わります。<br>
-   * ・life_care_pension_insurance<br>
-   * 　life: 生命保険<br>
-   * 　care: 介護保険<br>
-   * 　pension: 個人年金保険<br>
-   * ・earthquake_non_life_insurance<br>
-   * 　earthquake: 地震保険<br>
-   * 　old_long_term_non_life: 旧長期損害保険<br>
-   * ・social_insurance<br>
-   * 　national_pension: 国民年金<br>
-   * 　national_pension_fund_premium: 国民年金基金<br>
-   * 　national_health: 国民健康保険<br>
-   * 　health: 健康保険<br>
-   * 　care_insurance_deduction_of_pension: 介護保険<br>
-   * 　employee_pension: 厚生年金<br>
-   * 　advanced_elderly_medical: 後期高齢者医療保険<br>
-   * 　none: その他（印刷後に手書き）<br>
-   * ・other_insurance<br>
-   * 　sema: 独立行政法人中小企業基盤整備機構の共済契約の掛金<br>
-   * 　idc: 個人型確定拠出年金（iDeCo）<br>
-   * 　cdc: 企業型確定拠出年金<br>
-   * 　dsma: 心身障害者扶養共済制度に関する契約の掛金<br>
-   */
   category:
     | "life"
     | "care"
@@ -5629,29 +1942,9 @@ export type ApiV1EmployeeYearendAdjustmentInsuranceUpdateRequestSerializer = {
     | "cdc"
     | "dsma"
     | "none";
-  /**
-   * 新旧区分<br>
-   * 区分が生命保険または個人年金保険の時のみ、新制度なら new を、旧制度なら old を指定します。<br>
-   * 上記以外の保険では none を指定してください。
-   */
   new_or_old: "new" | "old" | "none";
-  /**
-   * 保険会社等の名称<br>
-   * 保険の種類にて、生命保険・介護医療保険・個人年金保険または地震保険・旧長期損害保険を選択している時のみ、入力した値が反映されます。<br>
-   * 上記以外の保険では入力した値は反映されません。
-   */
   company_name?: string | null;
-  /**
-   * 保険等の種類（目的）<br>
-   * 保険の種類にて、生命保険・介護医療保険・個人年金保険または地震保険・旧長期損害保険を選択している時のみ、入力した値が反映されます。<br>
-   * 上記以外の保険では入力した値は反映されません。
-   */
   kind_of_purpose?: string | null;
-  /**
-   * 保険期間又は年金支払期間（終身、0年〜100年、0ヶ月〜11ヶ月のいずれか）<br>
-   * 保険の種類にて、生命保険・介護医療保険・個人年金保険または地震保険・旧長期損害保険を選択している時のみ、入力した値が反映されます。<br>
-   * 上記以外の保険では入力した値は反映されません。
-   */
   period?:
     | "終身"
     | "0年"
@@ -5768,35 +2061,10 @@ export type ApiV1EmployeeYearendAdjustmentInsuranceUpdateRequestSerializer = {
     | "10ヶ月"
     | "11ヶ月"
     | "";
-  /**
-   * 保険等の契約者 姓<br>
-   * 保険の種類にて、生命保険・介護医療保険・個人年金保険または地震保険・旧長期損害保険を選択している時のみ、入力した値が反映されます。<br>
-   * 上記以外の保険では入力した値は反映されません。
-   */
   policyholder_last_name?: string | null;
-  /**
-   * 保険等の契約者 名<br>
-   * 保険の種類にて、生命保険・介護医療保険・個人年金保険または地震保険・旧長期損害保険を選択している時のみ、入力した値が反映されます。<br>
-   * 上記以外の保険では入力した値は反映されません。
-   */
   policyholder_first_name?: string | null;
-  /**
-   * 保険金等の受取人 姓<br>
-   * 保険の種類にて、生命保険・介護医療保険・個人年金保険、地震保険・旧長期損害保険または社会保険を選択している時のみ、入力した値が反映されます。<br>
-   * 上記以外の保険では入力した値は反映されません。
-   */
   recipient_last_name?: string | null;
-  /**
-   * 保険金等の受取人 名<br>
-   * 保険の種類にて、生命保険・介護医療保険・個人年金保険、地震保険・旧長期損害保険または社会保険を選択している時のみ、入力した値が反映されます。<br>
-   * 上記以外の保険では入力した値は反映されません。
-   */
   recipient_first_name?: string | null;
-  /**
-   * 保険金等の受取人 あなたとの続柄 myself: 本人, husband: 夫, wife: 妻, father: 父, mother: 母, child: 子, senior_brother: 兄, junior_brother: 弟, senior_sister: 姉, junior_sister: 妹, grandchild: 孫, grandfather: 祖父, grandmother: 祖母, father_in_law: 義父, mother_in_law: 義母, grandfather_in_law: 義祖父, grandmother_in_law: 義祖母, other: その他, "": 空欄<br>
-   * 保険の種類にて、生命保険・介護医療保険・個人年金保険、地震保険・旧長期損害保険または社会保険を選択している時のみ、入力した値が反映されます。<br>
-   * 上記以外の保険では入力した値は反映されません。
-   */
   recipient_relationship?:
     | "myself"
     | "husband"
@@ -5817,19 +2085,8 @@ export type ApiV1EmployeeYearendAdjustmentInsuranceUpdateRequestSerializer = {
     | "grandmother_in_law"
     | "other"
     | "";
-  /**
-   * 年金の支払開始日 1900年1月1日から現在年+100の12月31日まで登録可能。<br>
-   * 区分が個人年金保険の時のみ、入力した値が反映されます。<br>
-   * 上記以外の保険では入力した値は反映されません。
-   */
   payment_start_date?: string | null;
-  /**
-   * 保険料額
-   */
   amount: number;
-  /**
-   * 団体保険に該当するかどうか
-   */
   is_group_insurance?: boolean | null;
 };
 
@@ -5838,44 +2095,12 @@ export type ApiV1EmployeeYearendAdjustmentControllerUpdateInsuranceResponse = {
 };
 
 export type ApiV1EmployeeYearendAdjustmentInsuranceSerializer = {
-  /**
-   * 保険料id
-   */
   id?: number;
-  /**
-   * 保険の種類 life_care_pension_insurance: 生命保険・介護医療保険・個人年金保険, earthquake_non_life_insurance: 地震保険・旧長期損害保険, social_insurance: 社会保険, other_insurance: その他の保険（小規模企業共済等）
-   */
   type?:
     | "life_care_pension_insurance"
     | "earthquake_non_life_insurance"
     | "social_insurance"
     | "other_insurance";
-  /**
-   * 区分<br>
-   * 保険会社等が発行する証明書類に基づいて区分を設定してください。<br>
-   * 保険の種類によって設定可能な値が変わります。<br>
-   * ・life_care_pension_insurance<br>
-   * 　life: 生命保険<br>
-   * 　care: 介護保険<br>
-   * 　pension: 個人年金保険<br>
-   * ・earthquake_non_life_insurance<br>
-   * 　earthquake: 地震保険<br>
-   * 　old_long_term_non_life: 旧長期損害保険<br>
-   * ・social_insurance<br>
-   * 　national_pension: 国民年金<br>
-   * 　national_pension_fund_premium: 国民年金基金<br>
-   * 　national_health: 国民健康保険<br>
-   * 　health: 健康保険<br>
-   * 　care_insurance_deduction_of_pension: 介護保険<br>
-   * 　employee_pension: 厚生年金<br>
-   * 　advanced_elderly_medical: 後期高齢者医療保険<br>
-   * 　none: その他（印刷後に手書き）<br>
-   * ・other_insurance<br>
-   * 　sema: 独立行政法人中小企業基盤整備機構の共済契約の掛金<br>
-   * 　idc: 個人型確定拠出年金（iDeCo）<br>
-   * 　cdc: 企業型確定拠出年金<br>
-   * 　dsma: 心身障害者扶養共済制度に関する契約の掛金<br>
-   */
   category?:
     | "life"
     | "care"
@@ -5894,29 +2119,9 @@ export type ApiV1EmployeeYearendAdjustmentInsuranceSerializer = {
     | "cdc"
     | "dsma"
     | "none";
-  /**
-   * 新旧区分<br>
-   * 区分が生命保険または個人年金保険の時のみ、新制度なら new を、旧制度なら old を指定します。<br>
-   * 上記以外の保険では none を指定してください。
-   */
   new_or_old?: "new" | "old" | "none";
-  /**
-   * 保険会社等の名称<br>
-   * 保険の種類にて、生命保険・介護医療保険・個人年金保険または地震保険・旧長期損害保険を選択している時のみ、入力した値が反映されます。<br>
-   * 上記以外の保険では入力した値は反映されません。
-   */
   company_name?: string | null;
-  /**
-   * 保険等の種類（目的）<br>
-   * 保険の種類にて、生命保険・介護医療保険・個人年金保険または地震保険・旧長期損害保険を選択している時のみ、入力した値が反映されます。<br>
-   * 上記以外の保険では入力した値は反映されません。
-   */
   kind_of_purpose?: string | null;
-  /**
-   * 保険期間又は年金支払期間（終身、0年〜100年、0ヶ月〜11ヶ月のいずれか）<br>
-   * 保険の種類にて、生命保険・介護医療保険・個人年金保険または地震保険・旧長期損害保険を選択している時のみ、入力した値が反映されます。<br>
-   * 上記以外の保険では入力した値は反映されません。
-   */
   period?:
     | "終身"
     | "0年"
@@ -6033,35 +2238,10 @@ export type ApiV1EmployeeYearendAdjustmentInsuranceSerializer = {
     | "10ヶ月"
     | "11ヶ月"
     | "";
-  /**
-   * 保険等の契約者 姓<br>
-   * 保険の種類にて、生命保険・介護医療保険・個人年金保険または地震保険・旧長期損害保険を選択している時のみ、入力した値が反映されます。<br>
-   * 上記以外の保険では入力した値は反映されません。
-   */
   policyholder_last_name?: string | null;
-  /**
-   * 保険等の契約者 名<br>
-   * 保険の種類にて、生命保険・介護医療保険・個人年金保険または地震保険・旧長期損害保険を選択している時のみ、入力した値が反映されます。<br>
-   * 上記以外の保険では入力した値は反映されません。
-   */
   policyholder_first_name?: string | null;
-  /**
-   * 保険金等の受取人 姓<br>
-   * 保険の種類にて、生命保険・介護医療保険・個人年金保険、地震保険・旧長期損害保険または社会保険を選択している時のみ、入力した値が反映されます。<br>
-   * 上記以外の保険では入力した値は反映されません。
-   */
   recipient_last_name?: string | null;
-  /**
-   * 保険金等の受取人 名<br>
-   * 保険の種類にて、生命保険・介護医療保険・個人年金保険、地震保険・旧長期損害保険または社会保険を選択している時のみ、入力した値が反映されます。<br>
-   * 上記以外の保険では入力した値は反映されません。
-   */
   recipient_first_name?: string | null;
-  /**
-   * 保険金等の受取人 あなたとの続柄 myself: 本人, husband: 夫, wife: 妻, father: 父, mother: 母, child: 子, senior_brother: 兄, junior_brother: 弟, senior_sister: 姉, junior_sister: 妹, grandchild: 孫, grandfather: 祖父, grandmother: 祖母, father_in_law: 義父, mother_in_law: 義母, grandfather_in_law: 義祖父, grandmother_in_law: 義祖母, other: その他, "": 空欄<br>
-   * 保険の種類にて、生命保険・介護医療保険・個人年金保険、地震保険・旧長期損害保険または社会保険を選択している時のみ、入力した値が反映されます。<br>
-   * 上記以外の保険では入力した値は反映されません。
-   */
   recipient_relationship?:
     | "myself"
     | "husband"
@@ -6082,51 +2262,21 @@ export type ApiV1EmployeeYearendAdjustmentInsuranceSerializer = {
     | "grandmother_in_law"
     | "other"
     | "";
-  /**
-   * 年金の支払開始日 1900年1月1日から現在年+100の12月31日まで登録可能。<br>
-   * 区分が個人年金保険の時のみ、入力した値が反映されます。<br>
-   * 上記以外の保険では入力した値は反映されません。
-   */
   payment_start_date?: string | null;
-  /**
-   * 保険料額
-   */
   amount?: number;
-  /**
-   * 電子的控除証明書などの認証方法を利用した場合、その認証方法が反映されます。<br>
-   * xml: 電子的控除証明書を利用。証明書画像データの提出が免除されます。またrecipient_first_name、recipient_last_name、recipient_relationship以外のカラムが更新不可となります。
-   */
   certification_type?: "xml";
-  /**
-   * 団体保険に該当するかどうか
-   */
   is_group_insurance?: boolean | null;
 };
 
 export type ApiV1EmployeeYearendAdjustmentControllerUpdateHousingLoanBody = {
-  /**
-   * 更新対象事業所ID（必須）
-   */
   company_id: number;
   housing_loan: ApiV1EmployeeYearendAdjustmentHousingLoanUpdateRequestSerializer;
 };
 
 export type ApiV1EmployeeYearendAdjustmentHousingLoanUpdateRequestSerializer = {
-  /**
-   * 居住開始の年月日 2000年1月1日から現在年+5の12月31日まで登録可能
-   */
   residence_start_date: string;
-  /**
-   * 住宅借入金等年末残高
-   */
   remaining_balance_at_yearend: number;
-  /**
-   * 住宅借入金等特別控除区分 general: 住: 一般の住宅借入金等, qualified: 認: 認定住宅の新築等, extension: 増: 特定増改築等, earthquake: 震: 震災特例法による特別控除 extensionは2025年以前の年末調整でのみ登録可能。2026年以降の年末調整では特定増改築等住宅借入金等特別控除の廃止により指定するとエラーになります。
-   */
   category: "general" | "qualified" | "extension" | "earthquake";
-  /**
-   * 特定取得/特別特定取得 not_qualified: 該当しない, specified: 特定取得, special_specified_or_special_exception: 特別特定取得または特別特例取得, exception_special_exception: 特例特別特例取得 special_residential_house 特家
-   */
   specific_case_type:
     | "not_qualified"
     | "specified"
@@ -6136,36 +2286,15 @@ export type ApiV1EmployeeYearendAdjustmentHousingLoanUpdateRequestSerializer = {
 };
 
 export type ApiV1EmployeeYearendAdjustmentControllerUpdateHousingLoanResponse = {
-  /**
-   * 住宅借入金等特別控除
-   */
   housing_loan_deduction?: number;
-  /**
-   * 住宅ローン
-   */
   housing_loans?: Array<ApiV1EmployeeYearendAdjustmentHousingLoanSerializer>;
 };
 
 export type ApiV1EmployeeYearendAdjustmentHousingLoanSerializer = {
-  /**
-   * 住宅ローンID
-   */
   id?: number;
-  /**
-   * 居住開始の年月日
-   */
   residence_start_date?: string;
-  /**
-   * 住宅借入金等年末残高
-   */
   remaining_balance_at_yearend?: number;
-  /**
-   * 住宅借入金等特別控除区分 general: 住: 一般の住宅借入金等, qualified: 認: 認定住宅の新築等, extension: 増: 特定増改築等, earthquake: 震: 震災特例法による特別控除 extensionは2025年以前の年末調整でのみ返却されます。2026年以降の年末調整では特定増改築等住宅借入金等特別控除の廃止により登録できません。
-   */
   category?: "general" | "qualified" | "extension" | "earthquake";
-  /**
-   * 特定取得/特別特定取得 not_qualified: 該当しない, specified: 特定取得, special_specified_or_special_exception: 特別特定取得または特別特例取得, exception_special_exception: 特例特別特例取得 special_residential_house 特家
-   */
   specific_case_type?:
     | "not_qualified"
     | "specified"
@@ -6176,92 +2305,35 @@ export type ApiV1EmployeeYearendAdjustmentHousingLoanSerializer = {
 
 export type ApiV1EmployeesAssignedAttendanceTagSerializer = {
   attendance_tag: {
-    /**
-     * 勤怠タグID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 勤怠タグ名称
-     */
     name: string;
-    /**
-     * 勤怠タグ備考
-     */
     description: string;
-    /**
-     * 勤怠タグ回数上限
-     */
     max_amount: number;
-    /**
-     * 勤怠タグ公開ステータス
-     */
     published: boolean;
-    /**
-     * 対象従業員が利用可能かどうか
-     */
     is_employee_usable: boolean;
   };
-  /**
-   * 勤怠タグ回数
-   */
   amount: number;
 };
 
 export type ApiV1EmployeesAssignedAttendanceMinsTagSerializer = {
   attendance_mins_tag: ApiV1EmployeesAttendanceMinsTagSerializer;
-  /**
-   * 勤怠タグ時間数（分）
-   */
   mins: number;
 };
 
 export type ApiV1EmployeesAttendanceMinsTagSerializer = {
-  /**
-   * 勤怠タグID
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 勤怠タグ名称
-   */
   name: string;
-  /**
-   * 勤怠タグ備考
-   */
   description: string;
-  /**
-   * 勤怠タグ時間数入力単位（分）
-   */
   input_unit_mins: 1 | 5 | 10 | 15 | 30 | 60;
-  /**
-   * 勤怠タグ時間数上限（分）
-   */
   max_mins: number;
-  /**
-   * 勤怠タグ公開ステータス
-   */
   published: boolean;
-  /**
-   * 対象従業員が利用可能かどうか
-   */
   is_employee_usable: boolean;
 };
 
 export type ApiV1EmployeesAttendanceMinsTagUpdateRequestSerializer = {
-  /**
-   * 勤怠タグID
-   */
   attendance_tag_id: number;
-  /**
-   * 勤怠タグ時間数（分）
-   */
   mins: number;
 };
 
@@ -6276,17 +2348,8 @@ export type ApiV1EmployeesAttendanceTagsControllerShowResponse = {
 };
 
 export type ApiV1EmployeesAttendanceTagsControllerUpdateBody = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 更新対象の勤怠タグのリスト
-   */
   employee_attendance_tags?: Array<ApiV1EmployeesAttendanceTagUpdateRequestSerializer>;
-  /**
-   * 更新対象の勤怠時間数タグのリスト
-   */
   employee_attendance_mins_tags?: Array<ApiV1EmployeesAttendanceMinsTagUpdateRequestSerializer>;
 };
 
@@ -6296,44 +2359,17 @@ export type ApiV1EmployeesAttendanceTagsControllerUpdateResponse = {
 };
 
 export type ApiV1EmployeesAttendanceTagSerializer = {
-  /**
-   * 勤怠タグID
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 勤怠タグ名称
-   */
   name: string;
-  /**
-   * 勤怠タグ備考
-   */
   description: string;
-  /**
-   * 勤怠タグ回数上限
-   */
   max_amount: number;
-  /**
-   * 勤怠タグ公開ステータス
-   */
   published: boolean;
-  /**
-   * 対象従業員が利用可能かどうか
-   */
   is_employee_usable: boolean;
 };
 
 export type ApiV1EmployeesAttendanceTagUpdateRequestSerializer = {
-  /**
-   * 勤怠タグID
-   */
   attendance_tag_id: number;
-  /**
-   * 勤怠タグ回数
-   */
   amount: number;
 };
 
@@ -6343,17 +2379,8 @@ export type ApiV1EmployeesAttendanceTagSummariesControllerShowResponse = {
 };
 
 export type ApiV1EmployeesAttendanceTagSummariesControllerUpdateBody = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 更新対象の勤怠タグサマリのリスト
-   */
   employee_attendance_tag_summaries?: Array<ApiV1EmployeesAttendanceTagSummaryUpdateRequestSerializer>;
-  /**
-   * 更新対象の時間数タグサマリのリスト
-   */
   employee_attendance_mins_tag_summaries?: Array<ApiV1EmployeesAttendanceMinsTagSummaryUpdateRequestSerializer>;
 };
 
@@ -6364,203 +2391,69 @@ export type ApiV1EmployeesAttendanceTagSummariesControllerUpdateResponse = {
 
 export type ApiV1EmployeesAttendanceMinsTagSummary = {
   attendance_mins_tag: {
-    /**
-     * 勤怠タグID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 勤怠タグ名称
-     */
     name: string;
-    /**
-     * 勤怠タグ備考
-     */
     description: string;
-    /**
-     * 時間数入力単位（分）
-     */
     input_unit_mins: 1 | 5 | 10 | 15 | 30 | 60;
-    /**
-     * 時間数上限（分）
-     */
     max_mins: number;
-    /**
-     * 勤怠タグ公開ステータス
-     */
     published: boolean;
-    /**
-     * 対象従業員が利用可能かどうか
-     */
     is_employee_usable: boolean;
   };
-  /**
-   * 勤怠タグ時間数（分）
-   */
   mins: number;
 };
 
 export type ApiV1EmployeesAttendanceMinsTagSummaryUpdateRequestSerializer = {
-  /**
-   * 勤怠タグID
-   */
   attendance_tag_id: number;
-  /**
-   * 勤怠タグ時間数（分）
-   */
   mins: number;
 };
 
 export type ApiV1EmployeesAttendanceTagSummary = {
   attendance_tag: {
-    /**
-     * 勤怠タグID
-     */
     id: number;
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 勤怠タグ名称
-     */
     name: string;
-    /**
-     * 勤怠タグ備考
-     */
     description: string;
-    /**
-     * 勤怠タグ回数上限
-     */
     max_amount: number;
-    /**
-     * 勤怠タグ公開ステータス
-     */
     published: boolean;
-    /**
-     * 対象従業員が利用可能かどうか
-     */
     is_employee_usable: boolean;
   };
-  /**
-   * 勤怠タグ回数
-   */
   amount: number;
 };
 
 export type ApiV1EmployeesAttendanceTagSummaryUpdateRequestSerializer = {
-  /**
-   * 勤怠タグID
-   */
   attendance_tag_id: number;
-  /**
-   * 勤怠タグ回数
-   */
   amount: number;
 };
 
 export type ApiV1EmployeesGroupMembershipsIndexSerializer = {
   group_memberships: Array<{
-    /**
-     * グループ所属ID
-     */
     id: number;
-    /**
-     * 開始日
-     */
     start_date: string;
-    /**
-     * 終了日
-     */
     end_date: string | null;
-    /**
-     * 上司ID
-     */
     boss_id?: number | null;
-    /**
-     * 主務
-     */
     main_duty: "unspecified" | "sub_duty" | "main_duty";
-    /**
-     * 部門ID
-     */
     group_id: number;
-    /**
-     * 部門コード
-     */
     group_code: string;
-    /**
-     * 部門名称
-     */
     group_name: string;
-    /**
-     * 役職ID
-     */
     position_id?: number | null;
-    /**
-     * 役職コード
-     */
     position_code?: string | null;
-    /**
-     * 役職名称
-     */
     position_name?: string | null;
   }>;
-  /**
-   * 合計件数
-   */
   total_count: number;
 };
 
 export type ApiV1AllowanceSerializer = {
-  /**
-   * その他手当ID
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * その他手当名
-   */
   name: string;
-  /**
-   * 説明
-   */
   description?: string | null;
-  /**
-   * 支給タイミング
-   */
   frequency: "salary_this_month" | "salary_monthly" | "bonus";
-  /**
-   * 計算タイプ
-   */
   calc_type: "fixed" | "variable" | "custom" | "attendance_day_tag" | "attendance_time_tag";
-  /**
-   * 表示状態
-   */
   is_active: boolean;
-  /**
-   * 金額（変動手当の場合はnull）
-   */
   amount?: number | null;
-  /**
-   * 金額ソース
-   */
   amount_source: "direct" | "system_overtime_charge" | "system_deduction_charge";
-  /**
-   * 日割り計算対象フラグ（calc_typeがfixed以外の場合はfalse）
-   */
   is_daily_prorated: boolean;
-  /**
-   * [deprecated] 計算の基となる勤怠項目・カスタム項目の識別子（calc_typeがfixedの場合はnull） ※ 削除予定のため formula_element_code を参照してください
-   *
-   * @deprecated
-   */
   formula_element?:
     | "num_absences"
     | "num_paid_holidays"
@@ -6585,9 +2478,6 @@ export type ApiV1AllowanceSerializer = {
     | "attendance_tag_total_normal_work_mins"
     | "attendance_tag_total_overtime_work_mins"
     | "attendance_tag_total_work_mins";
-  /**
-   * 計算の基となる勤怠項目・カスタム項目の識別子（calc_typeがfixedの場合はnull）
-   */
   formula_element_code?:
     | "num_absences"
     | "num_paid_holidays"
@@ -6612,53 +2502,20 @@ export type ApiV1AllowanceSerializer = {
     | "attendance_tag_total_normal_work_mins"
     | "attendance_tag_total_overtime_excess_statutory_work_mins"
     | "attendance_tag_total_work_mins";
-  /**
-   * 端数処理（calc_typeがfixedの場合はnull）
-   */
   round_type?: "round" | "floor" | "ceil";
-  /**
-   * 乗数（amount_sourceがsystem_deduction_charge/system_overtime_chargeの場合のみ）
-   */
   rate_multiplier?: number | null;
-  /**
-   * カスタム項目ID（calc_typeがcustomの場合のみ）
-   */
   company_profile_custom_field_id?: number | null;
-  /**
-   * 勤怠タグID（calc_typeがattendance_day_tag/attendance_time_tagの場合のみ）
-   */
   attendance_tag_id?: number | null;
-  /**
-   * 所得税の計算に含める
-   */
   is_affect_income_tax: boolean;
-  /**
-   * 社会保険料の計算に含める
-   */
   is_affect_employment_insurance: boolean;
-  /**
-   * 労働保険料の計算に含める
-   */
   is_affect_labor_insurance: boolean;
-  /**
-   * 割増賃金の計算に含める（frequencyがbonusの場合は常にfalse）
-   */
   is_affect_overtime_wage_base: boolean;
-  /**
-   * 勤怠控除の基礎に含める（frequencyがbonusの場合は常にfalse）
-   */
   is_affect_attendance_deduction_base: boolean;
-  /**
-   * 固定的賃金の計算に含める（frequencyがbonusの場合は常にfalse）
-   */
   is_affect_fixed_wage: boolean;
 };
 
 export type ApiV1AllowancesIndexResponse = {
   allowances: Array<ApiV1AllowanceSerializer>;
-  /**
-   * 合計件数
-   */
   total_count: number;
 };
 
@@ -6667,53 +2524,20 @@ export type ApiV1AllowanceResponse = {
 };
 
 export type ApiV1DeductionSerializer = {
-  /**
-   * 控除ID
-   */
   id: number;
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 控除名
-   */
   name: string;
-  /**
-   * 説明
-   */
   description?: string | null;
-  /**
-   * 控除タイミング
-   */
   frequency: "salary_this_month" | "salary_monthly" | "bonus";
-  /**
-   * 計算タイプ
-   */
   calc_type: "fixed" | "attendance_day_tag";
-  /**
-   * 表示状態
-   */
   is_active: boolean;
-  /**
-   * 金額
-   */
   amount: number | null;
-  /**
-   * 所得税の計算に含める
-   */
   is_affect_income_tax: boolean;
-  /**
-   * 勤怠タグID（calc_typeがattendance_day_tagの場合のみ）
-   */
   attendance_tag_id?: number | null;
 };
 
 export type ApiV1DeductionsIndexResponse = {
   deductions: Array<ApiV1DeductionSerializer>;
-  /**
-   * 合計件数
-   */
   total_count: number;
 };
 
@@ -6722,188 +2546,68 @@ export type ApiV1DeductionResponse = {
 };
 
 export type ApiV1DeductionCreateRequestSerializer = {
-  /**
-   * 控除名。最大240文字、給与控除グループまたは賞与控除グループ内で重複不可
-   */
   name: string;
-  /**
-   * 説明。最大255文字
-   */
   description?: string | null;
-  /**
-   * 控除タイミング
-   */
   frequency: "salary_this_month" | "salary_monthly" | "bonus";
-  /**
-   * 計算タイプ
-   */
   calc_type: "fixed";
-  /**
-   * 金額。-100,000,000 より大きく 100,000,000 未満
-   */
   amount: number;
-  /**
-   * 所得税の計算に含める
-   */
   is_affect_income_tax: boolean;
 };
 
 export type ApiV1DeductionsControllerCreateBody = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
   deduction: ApiV1DeductionCreateRequestSerializer;
 };
 
 export type ApiV1AllowanceCreateRequestSerializer = {
-  /**
-   * その他手当名。最大240文字、同一 frequency 内（salary_this_month/salary_monthly または bonus）で重複不可
-   */
   name: string;
-  /**
-   * 説明。最大255文字
-   */
   description?: string | null;
-  /**
-   * 支給タイミング（bonus は指定不可）
-   */
   frequency: "salary_this_month" | "salary_monthly";
-  /**
-   * 計算タイプ（fixed のみ対応）
-   */
   calc_type: "fixed";
-  /**
-   * 金額ソース（direct のみ対応）
-   */
   amount_source: "direct";
-  /**
-   * 金額。-100,000,000 より大きく 100,000,000 未満
-   */
   amount: number;
-  /**
-   * 日割り計算対象フラグ（デフォルト false）
-   */
   is_daily_prorated?: boolean;
-  /**
-   * 所得税の計算に含める（デフォルト true）
-   */
   is_affect_income_tax?: boolean;
-  /**
-   * 社会保険料の計算に含める（デフォルト true）
-   */
   is_affect_employment_insurance?: boolean;
-  /**
-   * 労働保険料の計算に含める（デフォルト true）
-   */
   is_affect_labor_insurance?: boolean;
-  /**
-   * 割増賃金の計算に含める（デフォルト true）
-   */
   is_affect_overtime_wage_base?: boolean;
-  /**
-   * 勤怠控除の基礎に含める（デフォルト true）
-   */
   is_affect_attendance_deduction_base?: boolean;
-  /**
-   * 固定的賃金の計算に含める（デフォルト true）
-   */
   is_affect_fixed_wage?: boolean;
 };
 
 export type ApiV1AllowancesControllerCreateBody = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
   allowance: ApiV1AllowanceCreateRequestSerializer;
 };
 
 export type ApiV1EmployeesAllowanceRuleSerializer = {
-  /**
-   * 従業員手当ID
-   */
   id: number;
-  /**
-   * 従業員ID
-   */
   employee_id: number;
-  /**
-   * 手当ID
-   */
   allowance_id: number;
-  /**
-   * 手当名
-   */
   allowance_name: string;
-  /**
-   * 手当の金額（勤怠に応じた手当・カスタム項目手当の場合は単価）
-   */
   amount?: number | null;
-  /**
-   * 支給タイミング
-   */
   frequency: "salary_this_month" | "salary_monthly" | "bonus";
-  /**
-   * 計算タイプ
-   */
   calc_type: "fixed" | "variable" | "custom" | "attendance_day_tag" | "attendance_time_tag";
 };
 
 export type ApiV1EmployeesDeductionRuleSerializer = {
-  /**
-   * 従業員控除ID
-   */
   id: number;
-  /**
-   * 従業員ID
-   */
   employee_id: number;
-  /**
-   * 控除ID
-   */
   deduction_id: number;
-  /**
-   * 控除名
-   */
   deduction_name: string;
-  /**
-   * 控除の金額
-   */
   amount?: number;
-  /**
-   * 控除タイミング
-   */
   frequency: "salary_this_month" | "salary_monthly" | "bonus";
-  /**
-   * 計算タイプ
-   */
   calc_type: "fixed" | "attendance_day_tag";
 };
 
 export type ApiV1EmployeesDeductionRuleUpdateRequestSerializer = {
-  /**
-   * 控除ID
-   */
   deduction_id: number;
-  /**
-   * 金額（数値のみ）
-   */
   amount: number;
 };
 
 export type ApiV1EmployeesDeductionRulesControllerUpdateBody = {
-  /**
-   * 事業所ID
-   */
   company_id: number;
-  /**
-   * 対象年
-   */
   year: number;
-  /**
-   * 対象月
-   */
   month: number;
   employee_deduction_rule: ApiV1EmployeesDeductionRuleUpdateRequestSerializer;
 };
@@ -6972,9 +2676,6 @@ export type GetUsersMeErrors = {
 export type GetUsersMeError = GetUsersMeErrors[keyof GetUsersMeErrors];
 
 export type GetUsersMeResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1UsersMeSerializer;
 };
 
@@ -6983,23 +2684,11 @@ export type GetUsersMeResponse = GetUsersMeResponses[keyof GetUsersMeResponses];
 export type GetCompanyEmployeesData = {
   body?: never;
   path: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   query?: {
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 100)
-     */
     limit?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
-    /**
-     * trueを指定すると給与計算対象外の従業員情報をレスポンスに含めます。
-     */
     with_no_payroll_calculation?: boolean;
   };
   url: "/api/v1/companies/{company_id}/employees";
@@ -7015,9 +2704,6 @@ export type GetCompanyEmployeesErrors = {
 export type GetCompanyEmployeesError = GetCompanyEmployeesErrors[keyof GetCompanyEmployeesErrors];
 
 export type GetCompanyEmployeesResponses = {
-  /**
-   * successful operation
-   */
   200: Array<ApiV1CompaniesEmployeeSerializer>;
 };
 
@@ -7028,31 +2714,11 @@ export type GetEmployeesData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 従業員情報を取得したい年
-     */
     year: number;
-    /**
-     * 従業員情報を取得したい月<br>
-     * 締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が検索結果として返します。<br>
-     * 翌月払いの従業員の2022/01の従業員情報を取得する場合は、year=2021,month=12を指定してください。<br>
-     */
     month: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 100)
-     */
     limit?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
-    /**
-     * trueを指定すると給与計算対象外の従業員情報をレスポンスに含めます。
-     */
     with_no_payroll_calculation?: boolean;
   };
   url: "/api/v1/employees";
@@ -7068,9 +2734,6 @@ export type GetEmployeesErrors = {
 export type GetEmployeesError = GetEmployeesErrors[keyof GetEmployeesErrors];
 
 export type GetEmployeesResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesIndexSerializer;
 };
 
@@ -7093,9 +2756,6 @@ export type CreateEmployeeErrors = {
 export type CreateEmployeeError = CreateEmployeeErrors[keyof CreateEmployeeErrors];
 
 export type CreateEmployeeResponses = {
-  /**
-   * successful operation
-   */
   201: ApiV1EmployeesControllerCreateResponse;
 };
 
@@ -7104,15 +2764,9 @@ export type CreateEmployeeResponse = CreateEmployeeResponses[keyof CreateEmploye
 export type DestroyEmployeeData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/employees/{id}";
@@ -7129,9 +2783,6 @@ export type DestroyEmployeeErrors = {
 export type DestroyEmployeeError = DestroyEmployeeErrors[keyof DestroyEmployeeErrors];
 
 export type DestroyEmployeeResponses = {
-  /**
-   * successful operation
-   */
   204: void;
 };
 
@@ -7140,25 +2791,11 @@ export type DestroyEmployeeResponse = DestroyEmployeeResponses[keyof DestroyEmpl
 export type GetEmployeeData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 従業員情報を取得したい年
-     */
     year: number;
-    /**
-     * 従業員情報を取得したい月<br>
-     * 締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が検索結果として返します。<br>
-     * 翌月払いの従業員の2022/01の従業員情報を取得する場合は、year=2021,month=12を指定してください。<br>
-     */
     month: number;
   };
   url: "/api/v1/employees/{id}";
@@ -7175,9 +2812,6 @@ export type GetEmployeeErrors = {
 export type GetEmployeeError = GetEmployeeErrors[keyof GetEmployeeErrors];
 
 export type GetEmployeeResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesControllerShowResponse;
 };
 
@@ -7186,9 +2820,6 @@ export type GetEmployeeResponse = GetEmployeeResponses[keyof GetEmployeeResponse
 export type UpdateEmployeeData = {
   body?: ApiV1EmployeesControllerUpdateBody;
   path: {
-    /**
-     * 従業員ID
-     */
     id: number;
   };
   query?: never;
@@ -7206,9 +2837,6 @@ export type UpdateEmployeeErrors = {
 export type UpdateEmployeeError = UpdateEmployeeErrors[keyof UpdateEmployeeErrors];
 
 export type UpdateEmployeeResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesControllerUpdateResponse;
 };
 
@@ -7217,25 +2845,11 @@ export type UpdateEmployeeResponse = UpdateEmployeeResponses[keyof UpdateEmploye
 export type GetEmployeeProfileRuleData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 従業員情報を取得したい年
-     */
     year: number;
-    /**
-     * 従業員情報を取得したい月<br>
-     * 締め日支払い日設定が翌月払いの従業員情報の場合は、指定したmonth + 1の値が検索結果として返します。<br>
-     * 翌月払いの従業員の2022/01の従業員情報を取得する場合は、year=2021,month=12を指定してください。<br>
-     */
     month: number;
   };
   url: "/api/v1/employees/{employee_id}/profile_rule";
@@ -7252,9 +2866,6 @@ export type GetEmployeeProfileRuleError =
   GetEmployeeProfileRuleErrors[keyof GetEmployeeProfileRuleErrors];
 
 export type GetEmployeeProfileRuleResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesProfileRulesControllerShowResponse;
 };
 
@@ -7264,9 +2875,6 @@ export type GetEmployeeProfileRuleResponse =
 export type UpdateEmployeeProfileRuleData = {
   body?: ApiV1EmployeesProfileRulesControllerUpdateBody;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query?: never;
@@ -7284,9 +2892,6 @@ export type UpdateEmployeeProfileRuleError =
   UpdateEmployeeProfileRuleErrors[keyof UpdateEmployeeProfileRuleErrors];
 
 export type UpdateEmployeeProfileRuleResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesProfileRulesControllerUpdateResponse;
 };
 
@@ -7296,25 +2901,11 @@ export type UpdateEmployeeProfileRuleResponse =
 export type GetEmployeeHealthInsuranceRuleData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 従業員情報を取得したい年
-     */
     year: number;
-    /**
-     * 従業員情報を取得したい月<br>
-     * 締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が検索結果として返します。<br>
-     * 翌月払いの従業員の2022/01の従業員情報を取得する場合は、year=2021,month=12を指定してください。<br>
-     */
     month: number;
   };
   url: "/api/v1/employees/{employee_id}/health_insurance_rule";
@@ -7331,9 +2922,6 @@ export type GetEmployeeHealthInsuranceRuleError =
   GetEmployeeHealthInsuranceRuleErrors[keyof GetEmployeeHealthInsuranceRuleErrors];
 
 export type GetEmployeeHealthInsuranceRuleResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesHealthInsuranceRulesControllerShowResponse;
 };
 
@@ -7343,9 +2931,6 @@ export type GetEmployeeHealthInsuranceRuleResponse =
 export type UpdateEmployeeHealthInsuranceRuleData = {
   body?: ApiV1EmployeesHealthInsuranceRulesControllerUpdateBody;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query?: never;
@@ -7363,9 +2948,6 @@ export type UpdateEmployeeHealthInsuranceRuleError =
   UpdateEmployeeHealthInsuranceRuleErrors[keyof UpdateEmployeeHealthInsuranceRuleErrors];
 
 export type UpdateEmployeeHealthInsuranceRuleResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesHealthInsuranceRulesControllerUpdateResponse;
 };
 
@@ -7375,25 +2957,11 @@ export type UpdateEmployeeHealthInsuranceRuleResponse =
 export type GetEmployeeWelfarePensionInsuranceRuleData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 従業員情報を取得したい年
-     */
     year: number;
-    /**
-     * 従業員情報を取得したい月<br>
-     * 締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が検索結果として返します。<br>
-     * 翌月払いの従業員の2022/01の従業員情報を取得する場合は、year=2021,month=12を指定してください。<br>
-     */
     month: number;
   };
   url: "/api/v1/employees/{employee_id}/welfare_pension_insurance_rule";
@@ -7410,9 +2978,6 @@ export type GetEmployeeWelfarePensionInsuranceRuleError =
   GetEmployeeWelfarePensionInsuranceRuleErrors[keyof GetEmployeeWelfarePensionInsuranceRuleErrors];
 
 export type GetEmployeeWelfarePensionInsuranceRuleResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesWelfarePensionInsuranceRulesControllerShowResponse;
 };
 
@@ -7422,9 +2987,6 @@ export type GetEmployeeWelfarePensionInsuranceRuleResponse =
 export type UpdateEmployeeWelfarePensionInsuranceRuleData = {
   body?: ApiV1EmployeesWelfarePensionInsuranceRulesControllerUpdateBody;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query?: never;
@@ -7442,9 +3004,6 @@ export type UpdateEmployeeWelfarePensionInsuranceRuleError =
   UpdateEmployeeWelfarePensionInsuranceRuleErrors[keyof UpdateEmployeeWelfarePensionInsuranceRuleErrors];
 
 export type UpdateEmployeeWelfarePensionInsuranceRuleResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesWelfarePensionInsuranceRulesControllerUpdateResponse;
 };
 
@@ -7454,25 +3013,11 @@ export type UpdateEmployeeWelfarePensionInsuranceRuleResponse =
 export type GetEmployeeDependentRulesData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 従業員情報を取得したい年
-     */
     year: number;
-    /**
-     * 従業員情報を取得したい月<br>
-     * 締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が検索結果として返します。<br>
-     * 翌月払いの従業員の2022/01の従業員情報を取得する場合は、year=2021,month=12を指定してください。<br>
-     */
     month: number;
   };
   url: "/api/v1/employees/{employee_id}/dependent_rules";
@@ -7489,9 +3034,6 @@ export type GetEmployeeDependentRulesError =
   GetEmployeeDependentRulesErrors[keyof GetEmployeeDependentRulesErrors];
 
 export type GetEmployeeDependentRulesResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesDependentRulesControllerIndexResponse;
 };
 
@@ -7501,9 +3043,6 @@ export type GetEmployeeDependentRulesResponse =
 export type BulkUpdateEmployeeDependentRulesData = {
   body?: ApiV1EmployeesDependentRulesControllerBulkUpdateBody;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query?: never;
@@ -7521,9 +3060,6 @@ export type BulkUpdateEmployeeDependentRulesError =
   BulkUpdateEmployeeDependentRulesErrors[keyof BulkUpdateEmployeeDependentRulesErrors];
 
 export type BulkUpdateEmployeeDependentRulesResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesDependentRulesControllerBulkUpdateResponse;
 };
 
@@ -7533,25 +3069,11 @@ export type BulkUpdateEmployeeDependentRulesResponse =
 export type GetEmployeeBankAccountRuleData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 従業員情報を取得したい年
-     */
     year: number;
-    /**
-     * 従業員情報を取得したい月<br>
-     * 締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が検索結果として返します。<br>
-     * 翌月払いの従業員の2022/01の従業員情報を取得する場合は、year=2021,month=12を指定してください。<br>
-     */
     month: number;
   };
   url: "/api/v1/employees/{employee_id}/bank_account_rule";
@@ -7568,9 +3090,6 @@ export type GetEmployeeBankAccountRuleError =
   GetEmployeeBankAccountRuleErrors[keyof GetEmployeeBankAccountRuleErrors];
 
 export type GetEmployeeBankAccountRuleResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesBankAccountRulesControllerShowResponse;
 };
 
@@ -7580,9 +3099,6 @@ export type GetEmployeeBankAccountRuleResponse =
 export type UpdateEmployeeBankAccountRuleData = {
   body?: ApiV1EmployeesBankAccountRulesControllerUpdateBody;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query?: never;
@@ -7600,9 +3116,6 @@ export type UpdateEmployeeBankAccountRuleError =
   UpdateEmployeeBankAccountRuleErrors[keyof UpdateEmployeeBankAccountRuleErrors];
 
 export type UpdateEmployeeBankAccountRuleResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesBankAccountRulesControllerUpdateResponse;
 };
 
@@ -7612,25 +3125,11 @@ export type UpdateEmployeeBankAccountRuleResponse =
 export type GetEmployeeBasicPayRuleData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 従業員情報を取得したい年
-     */
     year: number;
-    /**
-     * 従業員情報を取得したい月<br>
-     * 締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が検索結果として返します。<br>
-     * 翌月払いの従業員の2022/01の従業員情報を取得する場合は、year=2021,month=12を指定してください。<br>
-     */
     month: number;
   };
   url: "/api/v1/employees/{employee_id}/basic_pay_rule";
@@ -7647,9 +3146,6 @@ export type GetEmployeeBasicPayRuleError =
   GetEmployeeBasicPayRuleErrors[keyof GetEmployeeBasicPayRuleErrors];
 
 export type GetEmployeeBasicPayRuleResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesBasicPayRulesControllerShowResponse;
 };
 
@@ -7659,9 +3155,6 @@ export type GetEmployeeBasicPayRuleResponse =
 export type UpdateEmployeeBasicPayRuleData = {
   body?: ApiV1EmployeesBasicPayRulesControllerUpdateBody;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query?: never;
@@ -7679,9 +3172,6 @@ export type UpdateEmployeeBasicPayRuleError =
   UpdateEmployeeBasicPayRuleErrors[keyof UpdateEmployeeBasicPayRuleErrors];
 
 export type UpdateEmployeeBasicPayRuleResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesBasicPayRulesControllerUpdateResponse;
 };
 
@@ -7691,25 +3181,11 @@ export type UpdateEmployeeBasicPayRuleResponse =
 export type GetEmployeeAllowanceRulesData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 従業員情報を取得したい年
-     */
     year: number;
-    /**
-     * 従業員情報を取得したい月<br>
-     * 締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が検索結果として返します。<br>
-     * 翌月払いの従業員の2022/01の従業員情報を取得する場合は、year=2021,month=12を指定してください。<br>
-     */
     month: number;
   };
   url: "/api/v1/employees/{employee_id}/allowance_rules";
@@ -7727,9 +3203,6 @@ export type GetEmployeeAllowanceRulesError =
   GetEmployeeAllowanceRulesErrors[keyof GetEmployeeAllowanceRulesErrors];
 
 export type GetEmployeeAllowanceRulesResponses = {
-  /**
-   * successful operation
-   */
   200: {
     employee_allowance_rules: Array<ApiV1EmployeesAllowanceRuleSerializer>;
   };
@@ -7740,33 +3213,15 @@ export type GetEmployeeAllowanceRulesResponse =
 
 export type UpdateEmployeeAllowanceRulesData = {
   body: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 対象年
-     */
     year: number;
-    /**
-     * 対象月
-     */
     month: number;
     employee_allowance_rule: {
-      /**
-       * 手当ID
-       */
       allowance_id: number;
-      /**
-       * 金額（数値のみ）
-       */
       amount: number;
     };
   };
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query?: never;
@@ -7784,9 +3239,6 @@ export type UpdateEmployeeAllowanceRulesError =
   UpdateEmployeeAllowanceRulesErrors[keyof UpdateEmployeeAllowanceRulesErrors];
 
 export type UpdateEmployeeAllowanceRulesResponses = {
-  /**
-   * successful operation
-   */
   200: {
     employee_allowance_rule?: ApiV1EmployeesAllowanceRuleSerializer;
   };
@@ -7798,29 +3250,12 @@ export type UpdateEmployeeAllowanceRulesResponse =
 export type DestroyEmployeeAllowanceRuleData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
-    /**
-     * 従業員手当ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 削除対象の手当ルールを判定する締め年
-     */
     year: number;
-    /**
-     * 削除対象の手当ルールを判定する締め月<br>
-     * 翌月払いの従業員でも、支給月ではなく締め年月を指定してください。<br>
-     * 例: 翌月払い従業員の 2022/01 支給分を対象にする場合は year=2021, month=12 を指定します。<br>
-     */
     month: number;
   };
   url: "/api/v1/employees/{employee_id}/allowance_rules/{id}";
@@ -7838,9 +3273,6 @@ export type DestroyEmployeeAllowanceRuleError =
   DestroyEmployeeAllowanceRuleErrors[keyof DestroyEmployeeAllowanceRuleErrors];
 
 export type DestroyEmployeeAllowanceRuleResponses = {
-  /**
-   * No Content
-   */
   204: void;
 };
 
@@ -7850,25 +3282,11 @@ export type DestroyEmployeeAllowanceRuleResponse =
 export type GetEmployeeDeductionRulesData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 従業員情報を取得したい年
-     */
     year: number;
-    /**
-     * 従業員情報を取得したい月<br>
-     * 締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が検索結果として返します。<br>
-     * 翌月払いの従業員の2022/01の従業員情報を取得する場合は、year=2021,month=12を指定してください。<br>
-     */
     month: number;
   };
   url: "/api/v1/employees/{employee_id}/deduction_rules";
@@ -7886,9 +3304,6 @@ export type GetEmployeeDeductionRulesError =
   GetEmployeeDeductionRulesErrors[keyof GetEmployeeDeductionRulesErrors];
 
 export type GetEmployeeDeductionRulesResponses = {
-  /**
-   * successful operation
-   */
   200: {
     employee_deduction_rules: Array<ApiV1EmployeesDeductionRuleSerializer>;
   };
@@ -7900,25 +3315,11 @@ export type GetEmployeeDeductionRulesResponse =
 export type UpdateEmployeeDeductionRulesData = {
   body: ApiV1EmployeesDeductionRulesControllerUpdateBody;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 更新対象の控除ルールを判定する締め年
-     */
     year: number;
-    /**
-     * 更新対象の控除ルールを判定する締め月<br>
-     * 翌月払いの従業員でも、支給月ではなく締め年月を指定してください。<br>
-     * 例: 翌月払い従業員の 2022/01 支給分を対象にする場合は year=2021, month=12 を指定します。<br>
-     */
     month: number;
   };
   url: "/api/v1/employees/{employee_id}/deduction_rules";
@@ -7936,9 +3337,6 @@ export type UpdateEmployeeDeductionRulesError =
   UpdateEmployeeDeductionRulesErrors[keyof UpdateEmployeeDeductionRulesErrors];
 
 export type UpdateEmployeeDeductionRulesResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesDeductionRulesControllerUpdateResponse;
 };
 
@@ -7948,29 +3346,12 @@ export type UpdateEmployeeDeductionRulesResponse =
 export type DestroyEmployeeDeductionRuleData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
-    /**
-     * 従業員控除ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 削除対象の控除ルールを判定する締め年
-     */
     year: number;
-    /**
-     * 削除対象の控除ルールを判定する締め月<br>
-     * 翌月払いの従業員でも、支給月ではなく締め年月を指定してください。<br>
-     * 例: 翌月払い従業員の 2022/01 支給分を対象にする場合は year=2021, month=12 を指定します。<br>
-     */
     month: number;
   };
   url: "/api/v1/employees/{employee_id}/deduction_rules/{id}";
@@ -7988,9 +3369,6 @@ export type DestroyEmployeeDeductionRuleError =
   DestroyEmployeeDeductionRuleErrors[keyof DestroyEmployeeDeductionRuleErrors];
 
 export type DestroyEmployeeDeductionRuleResponses = {
-  /**
-   * No Content
-   */
   204: void;
 };
 
@@ -8000,25 +3378,11 @@ export type DestroyEmployeeDeductionRuleResponse =
 export type GetEmployeeProfileCustomFieldsRuleData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 従業員情報を取得したい年
-     */
     year: number;
-    /**
-     * 従業員情報を取得したい月<br>
-     * 締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が検索結果として返します。<br>
-     * 翌月払いの従業員の2022/01の従業員情報を取得する場合は、year=2021,month=12を指定してください。<br>
-     */
     month: number;
   };
   url: "/api/v1/employees/{employee_id}/profile_custom_fields";
@@ -8036,9 +3400,6 @@ export type GetEmployeeProfileCustomFieldsRuleError =
   GetEmployeeProfileCustomFieldsRuleErrors[keyof GetEmployeeProfileCustomFieldsRuleErrors];
 
 export type GetEmployeeProfileCustomFieldsRuleResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesProfileCustomFieldRulesControllerIndexResponse;
 };
 
@@ -8048,19 +3409,10 @@ export type GetEmployeeProfileCustomFieldsRuleResponse =
 export type DestroyEmployeeWorkRecordData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
-    /**
-     * 削除対象年月日(YYYY-MM-DD)(例:2018-08-01)
-     */
     date: string;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/employees/{employee_id}/work_records/{date}";
@@ -8078,9 +3430,6 @@ export type DestroyEmployeeWorkRecordError =
   DestroyEmployeeWorkRecordErrors[keyof DestroyEmployeeWorkRecordErrors];
 
 export type DestroyEmployeeWorkRecordResponses = {
-  /**
-   * successful operation
-   */
   204: void;
 };
 
@@ -8090,19 +3439,10 @@ export type DestroyEmployeeWorkRecordResponse =
 export type GetEmployeeWorkRecordData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
-    /**
-     * 従業員情報を取得したい年月日(YYYY-MM-DD)(例:2018-08-01)
-     */
     date: string;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/employees/{employee_id}/work_records/{date}";
@@ -8119,9 +3459,6 @@ export type GetEmployeeWorkRecordError =
   GetEmployeeWorkRecordErrors[keyof GetEmployeeWorkRecordErrors];
 
 export type GetEmployeeWorkRecordResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesWorkRecordSerializer | LegacyApiV1EmployeesWorkRecordSerializer;
 };
 
@@ -8133,13 +3470,7 @@ export type UpdateEmployeeWorkRecordData = {
     | ApiV1EmployeesWorkRecordsControllerUpdateBody
     | LegacyApiV1EmployeesWorkRecordsControllerUpdateBody;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
-    /**
-     * 更新対象年月日(YYYY-MM-DD)(例:2018-08-01)
-     */
     date: string;
   };
   query?: never;
@@ -8157,9 +3488,6 @@ export type UpdateEmployeeWorkRecordError =
   UpdateEmployeeWorkRecordErrors[keyof UpdateEmployeeWorkRecordErrors];
 
 export type UpdateEmployeeWorkRecordResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesWorkRecordSerializer;
 };
 
@@ -8169,27 +3497,12 @@ export type UpdateEmployeeWorkRecordResponse =
 export type GetEmployeeWorkRecordSummaryData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
-    /**
-     * 従業員情報を取得したい年
-     */
     year: number;
-    /**
-     * 従業員情報を取得したい月
-     */
     month: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * サマリ情報に日次の勤怠情報を含める(true/false)(デフォルト: false)
-     */
     work_records?: boolean;
   };
   url: "/api/v1/employees/{employee_id}/work_record_summaries/{year}/{month}";
@@ -8206,9 +3519,6 @@ export type GetEmployeeWorkRecordSummaryError =
   GetEmployeeWorkRecordSummaryErrors[keyof GetEmployeeWorkRecordSummaryErrors];
 
 export type GetEmployeeWorkRecordSummaryResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesWorkRecordSummarySerializer;
 };
 
@@ -8218,17 +3528,8 @@ export type GetEmployeeWorkRecordSummaryResponse =
 export type UpdateEmployeeWorkRecordSummaryData = {
   body?: ApiV1EmployeesWorkRecordSummaryControllerUpdateBody;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
-    /**
-     * 更新対象年
-     */
     year: number;
-    /**
-     * 更新対象月
-     */
     month: number;
   };
   query?: never;
@@ -8246,9 +3547,6 @@ export type UpdateEmployeeWorkRecordSummaryError =
   UpdateEmployeeWorkRecordSummaryErrors[keyof UpdateEmployeeWorkRecordSummaryErrors];
 
 export type UpdateEmployeeWorkRecordSummaryResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesWorkRecordSummarySerializer;
 };
 
@@ -8258,31 +3556,13 @@ export type UpdateEmployeeWorkRecordSummaryResponse =
 export type GetEmployeeTimeClocksData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 取得する打刻期間の開始日(YYYY-MM-DD)(例:2018-08-01)(デフォルト: 当月の打刻開始日)
-     */
     from_date?: string;
-    /**
-     * 取得する打刻期間の終了日(YYYY-MM-DD)(例:2018-08-31)(デフォルト: 当日)
-     */
     to_date?: string;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 100)
-     */
     limit?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
   };
   url: "/api/v1/employees/{employee_id}/time_clocks";
@@ -8299,9 +3579,6 @@ export type GetEmployeeTimeClocksError =
   GetEmployeeTimeClocksErrors[keyof GetEmployeeTimeClocksErrors];
 
 export type GetEmployeeTimeClocksResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesTimeClocksControllerIndexResponse;
 };
 
@@ -8311,9 +3588,6 @@ export type GetEmployeeTimeClocksResponse =
 export type CreateEmployeeTimeClockData = {
   body?: ApiV1EmployeesTimeClocksControllerCreateBody;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query?: never;
@@ -8331,9 +3605,6 @@ export type CreateEmployeeTimeClockError =
   CreateEmployeeTimeClockErrors[keyof CreateEmployeeTimeClockErrors];
 
 export type CreateEmployeeTimeClockResponses = {
-  /**
-   * successful operation
-   */
   201: ApiV1EmployeesTimeClocksControllerCreateResponse;
 };
 
@@ -8343,19 +3614,10 @@ export type CreateEmployeeTimeClockResponse =
 export type GetEmployeeTimeClockData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
-    /**
-     * 打刻ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/employees/{employee_id}/time_clocks/{id}";
@@ -8373,9 +3635,6 @@ export type GetEmployeeTimeClockError =
   GetEmployeeTimeClockErrors[keyof GetEmployeeTimeClockErrors];
 
 export type GetEmployeeTimeClockResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesTimeClocksControllerShowResponse;
 };
 
@@ -8385,19 +3644,10 @@ export type GetEmployeeTimeClockResponse =
 export type GetEmployeeTimeClocksAvailableTypesData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 従業員情報を取得したい年月日(YYYY-MM-DD)(例:2018-08-01)(デフォルト：当日)
-     */
     date?: string;
   };
   url: "/api/v1/employees/{employee_id}/time_clocks/available_types";
@@ -8414,9 +3664,6 @@ export type GetEmployeeTimeClocksAvailableTypesError =
   GetEmployeeTimeClocksAvailableTypesErrors[keyof GetEmployeeTimeClocksAvailableTypesErrors];
 
 export type GetEmployeeTimeClocksAvailableTypesResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesTimeClocksControllerAvailableTypesResponse;
 };
 
@@ -8426,27 +3673,12 @@ export type GetEmployeeTimeClocksAvailableTypesResponse =
 export type GetEmployeesSpecialHolidaysData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 対象日
-     */
     date?: string;
-    /**
-     * 対象開始日
-     */
     start_date?: string;
-    /**
-     * 対象終了日
-     */
     end_date?: string;
   };
   url: "/api/v1/employees/{employee_id}/special_holidays";
@@ -8463,91 +3695,28 @@ export type GetEmployeesSpecialHolidaysError =
   GetEmployeesSpecialHolidaysErrors[keyof GetEmployeesSpecialHolidaysErrors];
 
 export type GetEmployeesSpecialHolidaysResponses = {
-  /**
-   * successful operation
-   */
   200: {
     employee_special_holidays?: Array<{
-      /**
-       * 特別休暇付与ID
-       */
       id?: number;
-      /**
-       * 事業所ID
-       */
       company_id?: number;
-      /**
-       * 従業員ID
-       */
       employee_id?: number;
-      /**
-       * 特別休暇設定ID
-       */
       special_holiday_setting_id?: number;
-      /**
-       * 特別休暇名称
-       */
       name?: string;
-      /**
-       * 特別休暇・休業休職種別名
-       */
       type_name?: string;
-      /**
-       * 有給・無給区分（paid: 有給、unpaid: 無休）
-       */
       paid_type?: "paid" | "unpaid";
-      /**
-       * 出勤率計算方法（in_workdays: 出勤日数に含める、not_in_workdays: 出勤日数に含めない、not_in_total_workdays: 全労働日に含めない）
-       */
       attendance_rate_calc_type?: "in_workdays" | "not_in_workdays" | "not_in_total_workdays";
-      /**
-       * 最小消化単位（full: 全休、half: 半休、hour: 時間休）
-       */
       usage_day?: "full" | "half" | "hour";
-      /**
-       * 有効期間開始日(YYYY-MM-DD)(例:2023-01-01)
-       */
       valid_date_from?: string;
-      /**
-       * 有効期間終了日(YYYY-MM-DD)(例:2023-01-31)
-       */
       valid_date_to?: string;
-      /**
-       * 付与日数
-       */
       days?: number;
-      /**
-       * 使用数
-       */
       used?: number;
-      /**
-       * 使用日数・時間数
-       */
       num_days_and_hours_used?: {
-        /**
-         * 日数
-         */
         days?: number;
-        /**
-         * 時間数
-         */
         hours?: number;
       };
-      /**
-       * 残数
-       */
       left?: number;
-      /**
-       * 残日数・時間数
-       */
       num_days_and_hours_left?: {
-        /**
-         * 日数
-         */
         days?: number;
-        /**
-         * 時間数
-         */
         hours?: number;
       };
     }>;
@@ -8560,23 +3729,11 @@ export type GetEmployeesSpecialHolidaysResponse =
 export type GetEmployeesAttendanceTagSummariesData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
-    /**
-     * 勤怠タグサマリを取得したい年
-     */
     year: number;
-    /**
-     * 勤怠タグサマリを取得したい月
-     */
     month: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/employees/{employee_id}/attendance_tag_summaries/{year}/{month}";
@@ -8594,9 +3751,6 @@ export type GetEmployeesAttendanceTagSummariesError =
   GetEmployeesAttendanceTagSummariesErrors[keyof GetEmployeesAttendanceTagSummariesErrors];
 
 export type GetEmployeesAttendanceTagSummariesResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesAttendanceTagSummariesControllerShowResponse;
 };
 
@@ -8606,17 +3760,8 @@ export type GetEmployeesAttendanceTagSummariesResponse =
 export type UpdateEmployeesAttendanceTagSummariesData = {
   body?: ApiV1EmployeesAttendanceTagSummariesControllerUpdateBody;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
-    /**
-     * 勤怠タグサマリを更新したい年
-     */
     year: number;
-    /**
-     * 勤怠タグサマリを更新したい月
-     */
     month: number;
   };
   query?: never;
@@ -8635,9 +3780,6 @@ export type UpdateEmployeesAttendanceTagSummariesError =
   UpdateEmployeesAttendanceTagSummariesErrors[keyof UpdateEmployeesAttendanceTagSummariesErrors];
 
 export type UpdateEmployeesAttendanceTagSummariesResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesAttendanceTagSummariesControllerUpdateResponse;
 };
 
@@ -8647,15 +3789,9 @@ export type UpdateEmployeesAttendanceTagSummariesResponse =
 export type GetEmployeesAttendanceTagsData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/employees/{employee_id}/attendance_tags";
@@ -8673,9 +3809,6 @@ export type GetEmployeesAttendanceTagsError =
   GetEmployeesAttendanceTagsErrors[keyof GetEmployeesAttendanceTagsErrors];
 
 export type GetEmployeesAttendanceTagsResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesAttendanceTagsControllerIndexResponse;
 };
 
@@ -8685,19 +3818,10 @@ export type GetEmployeesAttendanceTagsResponse =
 export type GetEmployeesAttendanceTagsByDateData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
-    /**
-     * 対象年月日(YYYY-MM-DD)(例:2018-08-01)
-     */
     date: string;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/employees/{employee_id}/attendance_tags/{date}";
@@ -8715,9 +3839,6 @@ export type GetEmployeesAttendanceTagsByDateError =
   GetEmployeesAttendanceTagsByDateErrors[keyof GetEmployeesAttendanceTagsByDateErrors];
 
 export type GetEmployeesAttendanceTagsByDateResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesAttendanceTagsControllerShowResponse;
 };
 
@@ -8727,13 +3848,7 @@ export type GetEmployeesAttendanceTagsByDateResponse =
 export type UpdateEmployeesAttendanceTagsData = {
   body?: ApiV1EmployeesAttendanceTagsControllerUpdateBody;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
-    /**
-     * 更新対象年月日(YYYY-MM-DD)(例:2018-08-01)
-     */
     date: string;
   };
   query?: never;
@@ -8752,9 +3867,6 @@ export type UpdateEmployeesAttendanceTagsError =
   UpdateEmployeesAttendanceTagsErrors[keyof UpdateEmployeesAttendanceTagsErrors];
 
 export type UpdateEmployeesAttendanceTagsResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesAttendanceTagsControllerUpdateResponse;
 };
 
@@ -8765,25 +3877,10 @@ export type GetSalariesEmployeePayrollStatementsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 従業員情報を取得したい年
-     */
     year: number;
-    /**
-     * 従業員情報を取得したい月
-     */
     month: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 100)
-     */
     limit?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
   };
   url: "/api/v1/salaries/employee_payroll_statements";
@@ -8800,9 +3897,6 @@ export type GetSalariesEmployeePayrollStatementsError =
   GetSalariesEmployeePayrollStatementsErrors[keyof GetSalariesEmployeePayrollStatementsErrors];
 
 export type GetSalariesEmployeePayrollStatementsResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1SalariesEmployeePayrollStatementsControllerIndexResponse;
 };
 
@@ -8812,23 +3906,11 @@ export type GetSalariesEmployeePayrollStatementsResponse =
 export type GetSalariesEmployeePayrollStatementData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 従業員情報を取得したい年
-     */
     year: number;
-    /**
-     * 従業員情報を取得したい月
-     */
     month: number;
   };
   url: "/api/v1/salaries/employee_payroll_statements/{employee_id}";
@@ -8846,9 +3928,6 @@ export type GetSalariesEmployeePayrollStatementError =
   GetSalariesEmployeePayrollStatementErrors[keyof GetSalariesEmployeePayrollStatementErrors];
 
 export type GetSalariesEmployeePayrollStatementResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1SalariesEmployeePayrollStatementsControllerShowResponse;
 };
 
@@ -8857,29 +3936,14 @@ export type GetSalariesEmployeePayrollStatementResponse =
 
 export type UpdateEmployeePayrollStatementRemarkData = {
   body: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 更新対象の年
-     */
     year: number;
-    /**
-     * 更新対象の月
-     */
     month: number;
     remark: {
-      /**
-       * 備考本文（500 文字以内）
-       */
       body: string;
     };
   };
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query?: never;
@@ -8898,22 +3962,10 @@ export type UpdateEmployeePayrollStatementRemarkError =
   UpdateEmployeePayrollStatementRemarkErrors[keyof UpdateEmployeePayrollStatementRemarkErrors];
 
 export type UpdateEmployeePayrollStatementRemarkResponses = {
-  /**
-   * successful operation
-   */
   200: {
     employee_payroll_statement_remark: {
-      /**
-       * 給与明細備考ID
-       */
       id: number;
-      /**
-       * 給与明細ID
-       */
       employee_payroll_statement_id: number;
-      /**
-       * 備考本文
-       */
       body: string;
     };
   };
@@ -8926,25 +3978,10 @@ export type GetBonusesEmployeePayrollStatementsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 従業員情報を取得したい年
-     */
     year: number;
-    /**
-     * 従業員情報を取得したい月
-     */
     month: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 100)
-     */
     limit?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
   };
   url: "/api/v1/bonuses/employee_payroll_statements";
@@ -8962,9 +3999,6 @@ export type GetBonusesEmployeePayrollStatementsError =
   GetBonusesEmployeePayrollStatementsErrors[keyof GetBonusesEmployeePayrollStatementsErrors];
 
 export type GetBonusesEmployeePayrollStatementsResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1BonusesEmployeePayrollStatementsIndexSerializer;
 };
 
@@ -8974,23 +4008,11 @@ export type GetBonusesEmployeePayrollStatementsResponse =
 export type GetBonusesEmployeePayrollStatementData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 従業員情報を取得したい年
-     */
     year: number;
-    /**
-     * 従業員情報を取得したい月
-     */
     month: number;
   };
   url: "/api/v1/bonuses/employee_payroll_statements/{employee_id}";
@@ -9008,9 +4030,6 @@ export type GetBonusesEmployeePayrollStatementError =
   GetBonusesEmployeePayrollStatementErrors[keyof GetBonusesEmployeePayrollStatementErrors];
 
 export type GetBonusesEmployeePayrollStatementResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1BonusesEmployeePayrollStatementsControllerShowResponse;
 };
 
@@ -9021,31 +4040,11 @@ export type GetEmployeeGroupMembershipsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 指定日。指定日付時点における所属情報をリストで返します。(YYYY-MM-DD)(例:2018-07-31)
-     */
     base_date: string;
-    /**
-     * trueを指定すると給与計算対象外の従業員情報をレスポンスに含めます。
-     */
     with_no_payroll_calculation?: boolean;
-    /**
-     * 取得対象とする従業員IDを指定することができます。指定しない場合は全従業員が対象となります。
-     * (例:1,2,3,4,5)
-     *
-     */
     employee_ids?: string;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 100)
-     */
     limit?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
   };
   url: "/api/v1/employee_group_memberships";
@@ -9062,9 +4061,6 @@ export type GetEmployeeGroupMembershipsError =
   GetEmployeeGroupMembershipsErrors[keyof GetEmployeeGroupMembershipsErrors];
 
 export type GetEmployeeGroupMembershipsResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeeGroupMembershipsIndexSerializer;
 };
 
@@ -9074,29 +4070,12 @@ export type GetEmployeeGroupMembershipsResponse =
 export type GetEmployeeGroupMembershipsByEmployeeIdData = {
   body?: never;
   path: {
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 指定日。指定日付時点における所属情報を返します。(YYYY-MM-DD)(例:2018-07-31)
-     * 省略した場合は全期間の所属履歴を返します。
-     *
-     */
     base_date?: string;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 100)
-     */
     limit?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
   };
   url: "/api/v1/employees/{employee_id}/group_memberships";
@@ -9114,9 +4093,6 @@ export type GetEmployeeGroupMembershipsByEmployeeIdError =
   GetEmployeeGroupMembershipsByEmployeeIdErrors[keyof GetEmployeeGroupMembershipsByEmployeeIdErrors];
 
 export type GetEmployeeGroupMembershipsByEmployeeIdResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeesGroupMembershipsIndexSerializer;
 };
 
@@ -9127,9 +4103,6 @@ export type GetGroupsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/groups";
@@ -9145,9 +4118,6 @@ export type GetGroupsErrors = {
 export type GetGroupsError = GetGroupsErrors[keyof GetGroupsErrors];
 
 export type GetGroupsResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1GroupsIndexResponse;
 };
 
@@ -9170,9 +4140,6 @@ export type CreateGroupErrors = {
 export type CreateGroupError = CreateGroupErrors[keyof CreateGroupErrors];
 
 export type CreateGroupResponses = {
-  /**
-   * successful operation
-   */
   201: ApiV1GroupResponse;
 };
 
@@ -9181,15 +4148,9 @@ export type CreateGroupResponse = CreateGroupResponses[keyof CreateGroupResponse
 export type DestroyGroupData = {
   body?: never;
   path: {
-    /**
-     * 部門ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/groups/{id}";
@@ -9206,9 +4167,6 @@ export type DestroyGroupErrors = {
 export type DestroyGroupError = DestroyGroupErrors[keyof DestroyGroupErrors];
 
 export type DestroyGroupResponses = {
-  /**
-   * successful operation
-   */
   204: void;
 };
 
@@ -9217,9 +4175,6 @@ export type DestroyGroupResponse = DestroyGroupResponses[keyof DestroyGroupRespo
 export type UpdateGroupData = {
   body?: ApiV1GroupUpdateRequest;
   path: {
-    /**
-     * 部門ID
-     */
     id: number;
   };
   query?: never;
@@ -9237,9 +4192,6 @@ export type UpdateGroupErrors = {
 export type UpdateGroupError = UpdateGroupErrors[keyof UpdateGroupErrors];
 
 export type UpdateGroupResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1GroupResponse;
 };
 
@@ -9249,25 +4201,10 @@ export type GetAllowancesData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 支給頻度フィルタ（省略で全件取得）
-     */
     frequency?: "salary" | "salary_monthly" | "salary_this_month" | "bonus";
-    /**
-     * 表示状態フィルタ（省略で全件取得）
-     */
     is_active?: boolean;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 100)
-     */
     limit?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
   };
   url: "/api/v1/allowances";
@@ -9283,9 +4220,6 @@ export type GetAllowancesErrors = {
 export type GetAllowancesError = GetAllowancesErrors[keyof GetAllowancesErrors];
 
 export type GetAllowancesResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1AllowancesIndexResponse;
 };
 
@@ -9295,9 +4229,6 @@ export type CreateAllowanceData = {
   body: ApiV1AllowancesControllerCreateBody;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/allowances";
@@ -9313,9 +4244,6 @@ export type CreateAllowanceErrors = {
 export type CreateAllowanceError = CreateAllowanceErrors[keyof CreateAllowanceErrors];
 
 export type CreateAllowanceResponses = {
-  /**
-   * successful operation
-   */
   201: ApiV1AllowanceResponse;
 };
 
@@ -9324,15 +4252,9 @@ export type CreateAllowanceResponse = CreateAllowanceResponses[keyof CreateAllow
 export type GetAllowanceData = {
   body?: never;
   path: {
-    /**
-     * その他手当ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/allowances/{id}";
@@ -9349,9 +4271,6 @@ export type GetAllowanceErrors = {
 export type GetAllowanceError = GetAllowanceErrors[keyof GetAllowanceErrors];
 
 export type GetAllowanceResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1AllowanceResponse;
 };
 
@@ -9361,25 +4280,10 @@ export type GetDeductionsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 支給頻度フィルタ（省略で全件取得）
-     */
     frequency?: "salary" | "salary_monthly" | "salary_this_month" | "bonus";
-    /**
-     * 表示状態フィルタ（省略で全件取得）
-     */
     is_active?: boolean;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 100)
-     */
     limit?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
   };
   url: "/api/v1/deductions";
@@ -9395,9 +4299,6 @@ export type GetDeductionsErrors = {
 export type GetDeductionsError = GetDeductionsErrors[keyof GetDeductionsErrors];
 
 export type GetDeductionsResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1DeductionsIndexResponse;
 };
 
@@ -9407,9 +4308,6 @@ export type CreateDeductionData = {
   body: ApiV1DeductionsControllerCreateBody;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/deductions";
@@ -9425,9 +4323,6 @@ export type CreateDeductionErrors = {
 export type CreateDeductionError = CreateDeductionErrors[keyof CreateDeductionErrors];
 
 export type CreateDeductionResponses = {
-  /**
-   * successful operation
-   */
   201: ApiV1DeductionResponse;
 };
 
@@ -9436,15 +4331,9 @@ export type CreateDeductionResponse = CreateDeductionResponses[keyof CreateDeduc
 export type GetDeductionData = {
   body?: never;
   path: {
-    /**
-     * その他控除ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/deductions/{id}";
@@ -9461,9 +4350,6 @@ export type GetDeductionErrors = {
 export type GetDeductionError = GetDeductionErrors[keyof GetDeductionErrors];
 
 export type GetDeductionResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1DeductionResponse;
 };
 
@@ -9473,9 +4359,6 @@ export type GetPositionsData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/positions";
@@ -9491,9 +4374,6 @@ export type GetPositionsErrors = {
 export type GetPositionsError = GetPositionsErrors[keyof GetPositionsErrors];
 
 export type GetPositionsResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1PositionIndexResponse;
 };
 
@@ -9516,9 +4396,6 @@ export type CreatePositionErrors = {
 export type CreatePositionError = CreatePositionErrors[keyof CreatePositionErrors];
 
 export type CreatePositionResponses = {
-  /**
-   * successful operation
-   */
   201: ApiV1PositionResponse;
 };
 
@@ -9527,15 +4404,9 @@ export type CreatePositionResponse = CreatePositionResponses[keyof CreatePositio
 export type DestroyPositionData = {
   body?: never;
   path: {
-    /**
-     * 役職ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/positions/{id}";
@@ -9552,9 +4423,6 @@ export type DestroyPositionErrors = {
 export type DestroyPositionError = DestroyPositionErrors[keyof DestroyPositionErrors];
 
 export type DestroyPositionResponses = {
-  /**
-   * successful operation
-   */
   204: void;
 };
 
@@ -9563,9 +4431,6 @@ export type DestroyPositionResponse = DestroyPositionResponses[keyof DestroyPosi
 export type UpdatePositionData = {
   body?: ApiV1PositionRequest;
   path: {
-    /**
-     * 役職ID
-     */
     id: number;
   };
   query?: never;
@@ -9583,9 +4448,6 @@ export type UpdatePositionErrors = {
 export type UpdatePositionError = UpdatePositionErrors[keyof UpdatePositionErrors];
 
 export type UpdatePositionResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1PositionResponse;
 };
 
@@ -9595,63 +4457,17 @@ export type GetApprovalRequestsMonthlyAttendancesData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請ステータス
-     * - `draft` - 下書き
-     * - `in_progress` - 申請中
-     * - `approved` - 承認済
-     * - `feedback` - 差戻し
-     */
     status?: "draft" | "in_progress" | "approved" | "feedback";
-    /**
-     * 申請No
-     */
     application_number?: number;
-    /**
-     * 申請開始日
-     */
     start_issue_date?: string;
-    /**
-     * 申請終了日
-     */
     end_issue_date?: string;
-    /**
-     * 現在承認ステップの承認者のユーザーID
-     *
-     * approver_idに値を指定する場合、指定なしの申請経路を利用した申請は返却されません
-     *
-     */
     approver_id?: number;
-    /**
-     * 申請者のユーザーID
-     */
     applicant_id?: number;
-    /**
-     * 対象開始日
-     */
     start_target_date?: string;
-    /**
-     * 対象終了日
-     */
     end_target_date?: string;
-    /**
-     * 自動チェック結果
-     * - trueを指定した場合、自動チェック結果がtrueの申請のみ返却します。
-     * - falseを指定した場合、自動チェック結果がfalseの申請のみ返却します。
-     * - キーごと指定しない場合、すべての申請を返却します。
-     */
     passed_auto_check?: boolean;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 100)
-     */
     limit?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
   };
   url: "/api/v1/approval_requests/monthly_attendances";
@@ -9668,9 +4484,6 @@ export type GetApprovalRequestsMonthlyAttendancesError =
   GetApprovalRequestsMonthlyAttendancesErrors[keyof GetApprovalRequestsMonthlyAttendancesErrors];
 
 export type GetApprovalRequestsMonthlyAttendancesResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1MonthlyAttendanceIndexResponse;
 };
 
@@ -9695,9 +4508,6 @@ export type CreateApprovalRequestsMonthlyAttendanceError =
   CreateApprovalRequestsMonthlyAttendanceErrors[keyof CreateApprovalRequestsMonthlyAttendanceErrors];
 
 export type CreateApprovalRequestsMonthlyAttendanceResponses = {
-  /**
-   * successful operation
-   */
   201: ApiV1MonthlyAttendanceResponse;
 };
 
@@ -9707,15 +4517,9 @@ export type CreateApprovalRequestsMonthlyAttendanceResponse =
 export type DestroyApprovalRequestsMonthlyAttendanceData = {
   body?: never;
   path: {
-    /**
-     * 月次勤怠締め申請ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/approval_requests/monthly_attendances/{id}";
@@ -9733,9 +4537,6 @@ export type DestroyApprovalRequestsMonthlyAttendanceError =
   DestroyApprovalRequestsMonthlyAttendanceErrors[keyof DestroyApprovalRequestsMonthlyAttendanceErrors];
 
 export type DestroyApprovalRequestsMonthlyAttendanceResponses = {
-  /**
-   * successful operation
-   */
   204: void;
 };
 
@@ -9745,15 +4546,9 @@ export type DestroyApprovalRequestsMonthlyAttendanceResponse =
 export type GetApprovalRequestsMonthlyAttendanceData = {
   body?: never;
   path: {
-    /**
-     * 月次勤怠締め申請ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/approval_requests/monthly_attendances/{id}";
@@ -9771,9 +4566,6 @@ export type GetApprovalRequestsMonthlyAttendanceError =
   GetApprovalRequestsMonthlyAttendanceErrors[keyof GetApprovalRequestsMonthlyAttendanceErrors];
 
 export type GetApprovalRequestsMonthlyAttendanceResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1MonthlyAttendanceResponse;
 };
 
@@ -9783,9 +4575,6 @@ export type GetApprovalRequestsMonthlyAttendanceResponse =
 export type UpdateApprovalRequestsMonthlyAttendanceData = {
   body?: ApiV1MonthlyAttendanceUpdateRequest;
   path: {
-    /**
-     * 月次勤怠締め申請ID
-     */
     id: number;
   };
   query?: never;
@@ -9804,9 +4593,6 @@ export type UpdateApprovalRequestsMonthlyAttendanceError =
   UpdateApprovalRequestsMonthlyAttendanceErrors[keyof UpdateApprovalRequestsMonthlyAttendanceErrors];
 
 export type UpdateApprovalRequestsMonthlyAttendanceResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1MonthlyAttendanceResponse;
 };
 
@@ -9816,9 +4602,6 @@ export type UpdateApprovalRequestsMonthlyAttendanceResponse =
 export type ActionApprovalRequestsMonthlyAttendanceData = {
   body?: ApiV1ApprovalActionRequest;
   path: {
-    /**
-     * 月次勤怠締め申請ID
-     */
     id: number;
   };
   query?: never;
@@ -9837,9 +4620,6 @@ export type ActionApprovalRequestsMonthlyAttendanceError =
   ActionApprovalRequestsMonthlyAttendanceErrors[keyof ActionApprovalRequestsMonthlyAttendanceErrors];
 
 export type ActionApprovalRequestsMonthlyAttendanceResponses = {
-  /**
-   * successful operation
-   */
   201: ApiV1MonthlyAttendanceResponse;
 };
 
@@ -9850,62 +4630,17 @@ export type GetApprovalRequestsWorkTimesData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請ステータス
-     * - `draft` - 下書き
-     * - `in_progress` - 申請中
-     * - `approved` - 承認済
-     * - `feedback` - 差戻し
-     */
     status?: "draft" | "in_progress" | "approved" | "feedback";
-    /**
-     * 申請No
-     */
     application_number?: number;
-    /**
-     * 申請開始日
-     */
     start_issue_date?: string;
-    /**
-     * 申請終了日
-     */
     end_issue_date?: string;
-    /**
-     * 現在承認ステップの承認者のユーザーID
-     * approver_idに値を指定する場合、指定なしの申請経路を利用した申請は返却されません
-     *
-     */
     approver_id?: number;
-    /**
-     * 申請者のユーザーID
-     */
     applicant_id?: number;
-    /**
-     * 対象開始日
-     */
     start_target_date?: string;
-    /**
-     * 対象終了日
-     */
     end_target_date?: string;
-    /**
-     * 自動チェック結果
-     * - trueを指定した場合、自動チェック結果がtrueの申請のみ返却します。
-     * - falseを指定した場合、自動チェック結果がfalseの申請のみ返却します。
-     * - キーごと指定しない場合、すべての申請を返却します。
-     */
     passed_auto_check?: boolean;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 100)
-     */
     limit?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
   };
   url: "/api/v1/approval_requests/work_times";
@@ -9922,14 +4657,8 @@ export type GetApprovalRequestsWorkTimesError =
   GetApprovalRequestsWorkTimesErrors[keyof GetApprovalRequestsWorkTimesErrors];
 
 export type GetApprovalRequestsWorkTimesResponses = {
-  /**
-   * successful operation
-   */
   200: {
     work_times: Array<ApiV1WorkTimeIndexResponseParams>;
-    /**
-     * 合計件数
-     */
     total_count: number;
   };
 };
@@ -9939,70 +4668,21 @@ export type GetApprovalRequestsWorkTimesResponse =
 
 export type CreateApprovalRequestsWorkTimeData = {
   body?: {
-    /**
-     * 事業所ID（必須）
-     */
     company_id: number;
-    /**
-     * 対象日（必須）
-     */
     target_date: string;
-    /**
-     * false: 勤務時間を修正する
-     * true: 勤務時間を削除する
-     *
-     * 勤務時間を削除する場合は以下のパラメータは指定しないでください。
-     * - work_records
-     * - lateness_mins
-     * - early_leaving_mins
-     * - break_records
-     */
     clear_work_time?: boolean;
-    /**
-     * 勤務時間のリスト
-     */
     work_records?: Array<{
-      /**
-       * 開始時刻
-       */
       clock_in_at: string;
-      /**
-       * 終了時刻
-       */
       clock_out_at: string;
     }>;
-    /**
-     * 遅刻分の時間（分単位）
-     */
     lateness_mins?: number;
-    /**
-     * 早退分の時間（分単位）
-     */
     early_leaving_mins?: number;
-    /**
-     * 休憩時間のリスト
-     */
     break_records?: Array<{
-      /**
-       * 開始時刻
-       */
       clock_in_at: string;
-      /**
-       * 終了時刻
-       */
       clock_out_at: string;
     }>;
-    /**
-     * 申請理由
-     */
     comment?: string;
-    /**
-     * 申請経路ID（必須）
-     */
     approval_flow_route_id: number;
-    /**
-     * 承認者のユーザーID
-     */
     approver_id?: number;
   };
   path?: never;
@@ -10021,9 +4701,6 @@ export type CreateApprovalRequestsWorkTimeError =
   CreateApprovalRequestsWorkTimeErrors[keyof CreateApprovalRequestsWorkTimeErrors];
 
 export type CreateApprovalRequestsWorkTimeResponses = {
-  /**
-   * successful operation
-   */
   201: {
     work_time: ApiV1WorkTimeResponseParams;
   };
@@ -10035,15 +4712,9 @@ export type CreateApprovalRequestsWorkTimeResponse =
 export type DestroyApprovalRequestsWorkTimeData = {
   body?: never;
   path: {
-    /**
-     * 勤務時間修正申請ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/approval_requests/work_times/{id}";
@@ -10061,9 +4732,6 @@ export type DestroyApprovalRequestsWorkTimeError =
   DestroyApprovalRequestsWorkTimeErrors[keyof DestroyApprovalRequestsWorkTimeErrors];
 
 export type DestroyApprovalRequestsWorkTimeResponses = {
-  /**
-   * successful operation
-   */
   204: void;
 };
 
@@ -10073,15 +4741,9 @@ export type DestroyApprovalRequestsWorkTimeResponse =
 export type GetApprovalRequestsWorkTimeData = {
   body?: never;
   path: {
-    /**
-     * 勤務時間修正申請ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/approval_requests/work_times/{id}";
@@ -10099,9 +4761,6 @@ export type GetApprovalRequestsWorkTimeError =
   GetApprovalRequestsWorkTimeErrors[keyof GetApprovalRequestsWorkTimeErrors];
 
 export type GetApprovalRequestsWorkTimeResponses = {
-  /**
-   * successful operation
-   */
   200: {
     work_time: ApiV1WorkTimeResponseParams;
   };
@@ -10112,76 +4771,24 @@ export type GetApprovalRequestsWorkTimeResponse =
 
 export type UpdateApprovalRequestsWorkTimeData = {
   body?: {
-    /**
-     * 事業所ID（必須）
-     */
     company_id: number;
-    /**
-     * 対象日（必須）
-     */
     target_date: string;
-    /**
-     * false: 勤務時間を修正する
-     * true: 勤務時間を削除する
-     *
-     * 勤務時間を削除する場合は以下のパラメータは指定しないでください。
-     * - work_records
-     * - lateness_mins
-     * - early_leaving_mins
-     * - break_records
-     */
     clear_work_time?: boolean;
-    /**
-     * 勤務時間のリスト
-     */
     work_records?: Array<{
-      /**
-       * 開始時刻
-       */
       clock_in_at: string;
-      /**
-       * 終了時刻
-       */
       clock_out_at: string;
     }>;
-    /**
-     * 遅刻分の時間（分単位）
-     */
     lateness_mins?: number;
-    /**
-     * 早退分の時間（分単位）
-     */
     early_leaving_mins?: number;
-    /**
-     * 休憩時間のリスト
-     */
     break_records?: Array<{
-      /**
-       * 開始時刻
-       */
       clock_in_at: string;
-      /**
-       * 終了時刻
-       */
       clock_out_at: string;
     }>;
-    /**
-     * 申請理由
-     */
     comment?: string;
-    /**
-     * 申請経路ID（必須）
-     */
     approval_flow_route_id: number;
-    /**
-     * 承認者のユーザーID
-     */
     approver_id?: number;
   };
   path: {
-    /**
-     * 勤務時間修正申請ID
-     */
     id: number;
   };
   query?: never;
@@ -10200,9 +4807,6 @@ export type UpdateApprovalRequestsWorkTimeError =
   UpdateApprovalRequestsWorkTimeErrors[keyof UpdateApprovalRequestsWorkTimeErrors];
 
 export type UpdateApprovalRequestsWorkTimeResponses = {
-  /**
-   * successful operation
-   */
   200: {
     work_time: ApiV1WorkTimeResponseParams;
   };
@@ -10214,9 +4818,6 @@ export type UpdateApprovalRequestsWorkTimeResponse =
 export type ActionApprovalRequestsWorkTimeData = {
   body?: ApiV1ApprovalActionRequest;
   path: {
-    /**
-     * 勤務時間修正申請ID
-     */
     id: number;
   };
   query?: never;
@@ -10235,9 +4836,6 @@ export type ActionApprovalRequestsWorkTimeError =
   ActionApprovalRequestsWorkTimeErrors[keyof ActionApprovalRequestsWorkTimeErrors];
 
 export type ActionApprovalRequestsWorkTimeResponses = {
-  /**
-   * successful operation
-   */
   201: {
     work_time: ApiV1WorkTimeResponseParams;
   };
@@ -10250,63 +4848,17 @@ export type GetApprovalRequestsPaidHolidaysData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請ステータス
-     * - `draft` - 下書き
-     * - `in_progress` - 申請中
-     * - `approved` - 承認済
-     * - `feedback` - 差戻し
-     */
     status?: "draft" | "in_progress" | "approved" | "feedback";
-    /**
-     * 申請No
-     */
     application_number?: number;
-    /**
-     * 申請開始日
-     */
     start_issue_date?: string;
-    /**
-     * 申請終了日
-     */
     end_issue_date?: string;
-    /**
-     * 現在承認ステップの承認者のユーザーID
-     *
-     * approver_idに値を指定する場合、指定なしの申請経路を利用した申請は返却されません
-     *
-     */
     approver_id?: number;
-    /**
-     * 申請者のユーザーID
-     */
     applicant_id?: number;
-    /**
-     * 対象開始日
-     */
     start_target_date?: string;
-    /**
-     * 対象終了日
-     */
     end_target_date?: string;
-    /**
-     * 自動チェック結果
-     * - trueを指定した場合、自動チェック結果がtrueの申請のみ返却します。
-     * - falseを指定した場合、自動チェック結果がfalseの申請のみ返却します。
-     * - キーごと指定しない場合、すべての申請を返却します。
-     */
     passed_auto_check?: boolean;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 100)
-     */
     limit?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
   };
   url: "/api/v1/approval_requests/paid_holidays";
@@ -10323,9 +4875,6 @@ export type GetApprovalRequestsPaidHolidaysError =
   GetApprovalRequestsPaidHolidaysErrors[keyof GetApprovalRequestsPaidHolidaysErrors];
 
 export type GetApprovalRequestsPaidHolidaysResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1PaidHolidayIndexResponse;
 };
 
@@ -10350,9 +4899,6 @@ export type CreateApprovalRequestsPaidHolidayError =
   CreateApprovalRequestsPaidHolidayErrors[keyof CreateApprovalRequestsPaidHolidayErrors];
 
 export type CreateApprovalRequestsPaidHolidayResponses = {
-  /**
-   * successful operation
-   */
   201: ApiV1PaidHolidayResponse;
 };
 
@@ -10362,15 +4908,9 @@ export type CreateApprovalRequestsPaidHolidayResponse =
 export type DestroyApprovalRequestsPaidHolidayData = {
   body?: never;
   path: {
-    /**
-     * 有給休暇申請ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/approval_requests/paid_holidays/{id}";
@@ -10388,9 +4928,6 @@ export type DestroyApprovalRequestsPaidHolidayError =
   DestroyApprovalRequestsPaidHolidayErrors[keyof DestroyApprovalRequestsPaidHolidayErrors];
 
 export type DestroyApprovalRequestsPaidHolidayResponses = {
-  /**
-   * successful operation
-   */
   204: void;
 };
 
@@ -10400,15 +4937,9 @@ export type DestroyApprovalRequestsPaidHolidayResponse =
 export type GetApprovalRequestsPaidHolidayData = {
   body?: never;
   path: {
-    /**
-     * 有給休暇申請ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/approval_requests/paid_holidays/{id}";
@@ -10426,9 +4957,6 @@ export type GetApprovalRequestsPaidHolidayError =
   GetApprovalRequestsPaidHolidayErrors[keyof GetApprovalRequestsPaidHolidayErrors];
 
 export type GetApprovalRequestsPaidHolidayResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1PaidHolidayResponse;
 };
 
@@ -10438,9 +4966,6 @@ export type GetApprovalRequestsPaidHolidayResponse =
 export type UpdateApprovalRequestsPaidHolidayData = {
   body?: ApiV1PaidHolidayRequest | LegacyApiV1PaidHolidayRequest;
   path: {
-    /**
-     * 有給休暇申請ID
-     */
     id: number;
   };
   query?: never;
@@ -10459,9 +4984,6 @@ export type UpdateApprovalRequestsPaidHolidayError =
   UpdateApprovalRequestsPaidHolidayErrors[keyof UpdateApprovalRequestsPaidHolidayErrors];
 
 export type UpdateApprovalRequestsPaidHolidayResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1PaidHolidayResponse;
 };
 
@@ -10471,9 +4993,6 @@ export type UpdateApprovalRequestsPaidHolidayResponse =
 export type ActionApprovalRequestsPaidHolidayData = {
   body?: ApiV1ApprovalActionRequest;
   path: {
-    /**
-     * 有給休暇申請ID
-     */
     id: number;
   };
   query?: never;
@@ -10492,9 +5011,6 @@ export type ActionApprovalRequestsPaidHolidayError =
   ActionApprovalRequestsPaidHolidayErrors[keyof ActionApprovalRequestsPaidHolidayErrors];
 
 export type ActionApprovalRequestsPaidHolidayResponses = {
-  /**
-   * successful operation
-   */
   201: ApiV1PaidHolidayResponse;
 };
 
@@ -10505,63 +5021,17 @@ export type GetApprovalRequestsSpecialHolidaysData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請ステータス
-     * - `draft` - 下書き
-     * - `in_progress` - 申請中
-     * - `approved` - 承認済
-     * - `feedback` - 差戻し
-     */
     status?: "draft" | "in_progress" | "approved" | "feedback";
-    /**
-     * 申請No
-     */
     application_number?: number;
-    /**
-     * 申請開始日
-     */
     start_issue_date?: string;
-    /**
-     * 申請終了日
-     */
     end_issue_date?: string;
-    /**
-     * 現在承認ステップの承認者のユーザーID
-     *
-     * approver_idに値を指定する場合、指定なしの申請経路を利用した申請は返却されません
-     *
-     */
     approver_id?: number;
-    /**
-     * 申請者のユーザーID
-     */
     applicant_id?: number;
-    /**
-     * 対象開始日
-     */
     start_target_date?: string;
-    /**
-     * 対象終了日
-     */
     end_target_date?: string;
-    /**
-     * 自動チェック結果
-     * - trueを指定した場合、自動チェック結果がtrueの申請のみ返却します。
-     * - falseを指定した場合、自動チェック結果がfalseの申請のみ返却します。
-     * - キーごと指定しない場合、すべての申請を返却します。
-     */
     passed_auto_check?: boolean;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 100)
-     */
     limit?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
   };
   url: "/api/v1/approval_requests/special_holidays";
@@ -10578,9 +5048,6 @@ export type GetApprovalRequestsSpecialHolidaysError =
   GetApprovalRequestsSpecialHolidaysErrors[keyof GetApprovalRequestsSpecialHolidaysErrors];
 
 export type GetApprovalRequestsSpecialHolidaysResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1SpecialHolidayIndexResponse;
 };
 
@@ -10605,9 +5072,6 @@ export type CreateApprovalRequestsSpecialHolidayError =
   CreateApprovalRequestsSpecialHolidayErrors[keyof CreateApprovalRequestsSpecialHolidayErrors];
 
 export type CreateApprovalRequestsSpecialHolidayResponses = {
-  /**
-   * successful operation
-   */
   201: ApiV1SpecialHolidayResponse;
 };
 
@@ -10617,15 +5081,9 @@ export type CreateApprovalRequestsSpecialHolidayResponse =
 export type DestroyApprovalRequestsSpecialHolidayData = {
   body?: never;
   path: {
-    /**
-     * 特別休暇申請ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/approval_requests/special_holidays/{id}";
@@ -10643,9 +5101,6 @@ export type DestroyApprovalRequestsSpecialHolidayError =
   DestroyApprovalRequestsSpecialHolidayErrors[keyof DestroyApprovalRequestsSpecialHolidayErrors];
 
 export type DestroyApprovalRequestsSpecialHolidayResponses = {
-  /**
-   * successful operation
-   */
   204: void;
 };
 
@@ -10655,15 +5110,9 @@ export type DestroyApprovalRequestsSpecialHolidayResponse =
 export type GetApprovalRequestsSpecialHolidayData = {
   body?: never;
   path: {
-    /**
-     * 特別休暇申請ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/approval_requests/special_holidays/{id}";
@@ -10681,9 +5130,6 @@ export type GetApprovalRequestsSpecialHolidayError =
   GetApprovalRequestsSpecialHolidayErrors[keyof GetApprovalRequestsSpecialHolidayErrors];
 
 export type GetApprovalRequestsSpecialHolidayResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1SpecialHolidayResponse;
 };
 
@@ -10693,9 +5139,6 @@ export type GetApprovalRequestsSpecialHolidayResponse =
 export type UpdateApprovalRequestsSpecialHolidayData = {
   body?: ApiV1SpecialHolidayRequest;
   path: {
-    /**
-     * 特別休暇申請ID
-     */
     id: number;
   };
   query?: never;
@@ -10714,9 +5157,6 @@ export type UpdateApprovalRequestsSpecialHolidayError =
   UpdateApprovalRequestsSpecialHolidayErrors[keyof UpdateApprovalRequestsSpecialHolidayErrors];
 
 export type UpdateApprovalRequestsSpecialHolidayResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1SpecialHolidayResponse;
 };
 
@@ -10726,9 +5166,6 @@ export type UpdateApprovalRequestsSpecialHolidayResponse =
 export type ActionApprovalRequestsSpecialHolidayData = {
   body?: ApiV1ApprovalActionRequest;
   path: {
-    /**
-     * 特別休暇申請ID
-     */
     id: number;
   };
   query?: never;
@@ -10747,9 +5184,6 @@ export type ActionApprovalRequestsSpecialHolidayError =
   ActionApprovalRequestsSpecialHolidayErrors[keyof ActionApprovalRequestsSpecialHolidayErrors];
 
 export type ActionApprovalRequestsSpecialHolidayResponses = {
-  /**
-   * successful operation
-   */
   201: ApiV1SpecialHolidayResponse;
 };
 
@@ -10760,63 +5194,17 @@ export type GetApprovalRequestsOvertimeWorksData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 申請ステータス
-     * - `draft` - 下書き
-     * - `in_progress` - 申請中
-     * - `approved` - 承認済
-     * - `feedback` - 差戻し
-     */
     status?: "draft" | "in_progress" | "approved" | "feedback";
-    /**
-     * 申請No
-     */
     application_number?: number;
-    /**
-     * 申請開始日
-     */
     start_issue_date?: string;
-    /**
-     * 申請終了日
-     */
     end_issue_date?: string;
-    /**
-     * 現在承認ステップの承認者のユーザーID
-     *
-     * approver_idに値を指定する場合、指定なしの申請経路を利用した申請は返却されません
-     *
-     */
     approver_id?: number;
-    /**
-     * 申請者のユーザーID
-     */
     applicant_id?: number;
-    /**
-     * 対象開始日
-     */
     start_target_date?: string;
-    /**
-     * 対象終了日
-     */
     end_target_date?: string;
-    /**
-     * 自動チェック結果
-     * - trueを指定した場合、自動チェック結果がtrueの申請のみ返却します。
-     * - falseを指定した場合、自動チェック結果がfalseの申請のみ返却します。
-     * - キーごと指定しない場合、すべての申請を返却します。
-     */
     passed_auto_check?: boolean;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 100)
-     */
     limit?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
   };
   url: "/api/v1/approval_requests/overtime_works";
@@ -10833,9 +5221,6 @@ export type GetApprovalRequestsOvertimeWorksError =
   GetApprovalRequestsOvertimeWorksErrors[keyof GetApprovalRequestsOvertimeWorksErrors];
 
 export type GetApprovalRequestsOvertimeWorksResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1OvertimeWorkIndexResponse;
 };
 
@@ -10860,9 +5245,6 @@ export type CreateApprovalRequestsOvertimeWorkError =
   CreateApprovalRequestsOvertimeWorkErrors[keyof CreateApprovalRequestsOvertimeWorkErrors];
 
 export type CreateApprovalRequestsOvertimeWorkResponses = {
-  /**
-   * successful operation
-   */
   201: ApiV1OvertimeWorkResponse;
 };
 
@@ -10872,15 +5254,9 @@ export type CreateApprovalRequestsOvertimeWorkResponse =
 export type DestroyApprovalRequestsOvertimeWorkData = {
   body?: never;
   path: {
-    /**
-     * 残業申請ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/approval_requests/overtime_works/{id}";
@@ -10898,9 +5274,6 @@ export type DestroyApprovalRequestsOvertimeWorkError =
   DestroyApprovalRequestsOvertimeWorkErrors[keyof DestroyApprovalRequestsOvertimeWorkErrors];
 
 export type DestroyApprovalRequestsOvertimeWorkResponses = {
-  /**
-   * successful operation
-   */
   204: void;
 };
 
@@ -10910,15 +5283,9 @@ export type DestroyApprovalRequestsOvertimeWorkResponse =
 export type GetApprovalRequestsOvertimeWorkData = {
   body?: never;
   path: {
-    /**
-     * 残業申請ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/approval_requests/overtime_works/{id}";
@@ -10936,9 +5303,6 @@ export type GetApprovalRequestsOvertimeWorkError =
   GetApprovalRequestsOvertimeWorkErrors[keyof GetApprovalRequestsOvertimeWorkErrors];
 
 export type GetApprovalRequestsOvertimeWorkResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1OvertimeWorkResponse;
 };
 
@@ -10948,9 +5312,6 @@ export type GetApprovalRequestsOvertimeWorkResponse =
 export type UpdateApprovalRequestsOvertimeWorkData = {
   body?: ApiV1OvertimeWorkRequest;
   path: {
-    /**
-     * 残業申請ID
-     */
     id: number;
   };
   query?: never;
@@ -10969,9 +5330,6 @@ export type UpdateApprovalRequestsOvertimeWorkError =
   UpdateApprovalRequestsOvertimeWorkErrors[keyof UpdateApprovalRequestsOvertimeWorkErrors];
 
 export type UpdateApprovalRequestsOvertimeWorkResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1OvertimeWorkResponse;
 };
 
@@ -10981,9 +5339,6 @@ export type UpdateApprovalRequestsOvertimeWorkResponse =
 export type ActionApprovalRequestsOvertimeWorkData = {
   body?: ApiV1ApprovalActionRequest;
   path: {
-    /**
-     * 残業申請ID
-     */
     id: number;
   };
   query?: never;
@@ -11002,9 +5357,6 @@ export type ActionApprovalRequestsOvertimeWorkError =
   ActionApprovalRequestsOvertimeWorkErrors[keyof ActionApprovalRequestsOvertimeWorkErrors];
 
 export type ActionApprovalRequestsOvertimeWorkResponses = {
-  /**
-   * successful operation
-   */
   201: ApiV1OvertimeWorkResponse;
 };
 
@@ -11015,14 +5367,7 @@ export type GetApprovalRequestsOvertimeWorkSettingData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 対象日(YYYY-MM-DD)(例:2018-08-01)
-     * - 申請の対象日を指定してください。
-     */
     date: string;
   };
   url: "/api/v1/approval_requests/overtime_works/setting";
@@ -11040,29 +5385,11 @@ export type GetApprovalRequestsOvertimeWorkSettingError =
   GetApprovalRequestsOvertimeWorkSettingErrors[keyof GetApprovalRequestsOvertimeWorkSettingErrors];
 
 export type GetApprovalRequestsOvertimeWorkSettingResponses = {
-  /**
-   * successful operation
-   */
   200: {
-    /**
-     * 所定出勤時刻
-     */
     start_at?: string;
-    /**
-     * 所定退勤時刻
-     */
     end_at?: string;
-    /**
-     * 勤務カレンダーに反映するかどうか
-     */
     should_reflect_in_work_record: boolean;
-    /**
-     * 早出に指定できる分の単位
-     */
     early_work_mins_unit?: Array<number>;
-    /**
-     * 残業に指定できる分の単位
-     */
     overtime_work_mins_unit?: Array<number>;
   };
 };
@@ -11074,19 +5401,8 @@ export type GetApprovalFlowRoutesData = {
   body?: never;
   path?: never;
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 経路に含まれるユーザーのユーザーID
-     */
     included_user_id?: number;
-    /**
-     * 申請種別（申請経路を使用できる申請種別を示します。例えば、AttendanceWorkflow の場合は、勤怠申請で使用できる申請経路です。）
-     * - `AttendanceWorkflow` - 勤怠申請
-     * - `PersonalDataWorkflow` - 身上変更申請
-     */
     usage?: "AttendanceWorkflow" | "PersonalDataWorkflow";
   };
   url: "/api/v1/approval_flow_routes";
@@ -11103,9 +5419,6 @@ export type GetApprovalFlowRoutesError =
   GetApprovalFlowRoutesErrors[keyof GetApprovalFlowRoutesErrors];
 
 export type GetApprovalFlowRoutesResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1ApprovalFlowRoutesIndexResponse;
 };
 
@@ -11115,15 +5428,9 @@ export type GetApprovalFlowRoutesResponse =
 export type GetApprovalFlowRouteData = {
   body?: never;
   path: {
-    /**
-     * 申請経路ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/approval_flow_routes/{id}";
@@ -11141,9 +5448,6 @@ export type GetApprovalFlowRouteError =
   GetApprovalFlowRouteErrors[keyof GetApprovalFlowRouteErrors];
 
 export type GetApprovalFlowRouteResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1ApprovalFlowRouteResponse;
 };
 
@@ -11153,23 +5457,11 @@ export type GetApprovalFlowRouteResponse =
 export type GetYearendAdjustmentEmployeesData = {
   body?: never;
   path: {
-    /**
-     * 年末調整対象を取得したい年
-     */
     year: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
-    /**
-     * 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 100)
-     */
     limit?: number;
-    /**
-     * 取得レコードのオフセット (デフォルト: 0)
-     */
     offset?: number;
   };
   url: "/api/v1/yearend_adjustments/{year}/employees";
@@ -11186,9 +5478,6 @@ export type GetYearendAdjustmentEmployeesError =
   GetYearendAdjustmentEmployeesErrors[keyof GetYearendAdjustmentEmployeesErrors];
 
 export type GetYearendAdjustmentEmployeesResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeeYearendAdjustmentControllerIndexResponse;
 };
 
@@ -11198,19 +5487,10 @@ export type GetYearendAdjustmentEmployeesResponse =
 export type GetYearendAdjustmentEmployeeData = {
   body?: never;
   path: {
-    /**
-     * 年末調整を取得したい年
-     */
     year: number;
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/yearend_adjustments/{year}/employees/{employee_id}";
@@ -11228,9 +5508,6 @@ export type GetYearendAdjustmentEmployeeError =
   GetYearendAdjustmentEmployeeErrors[keyof GetYearendAdjustmentEmployeeErrors];
 
 export type GetYearendAdjustmentEmployeeResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeeYearendAdjustmentControllerShowResponse;
 };
 
@@ -11240,13 +5517,7 @@ export type GetYearendAdjustmentEmployeeResponse =
 export type PutYearendAdjustmentEmployeeData = {
   body?: ApiV1EmployeeYearendAdjustmentControllerUpdateEmployeeBody;
   path: {
-    /**
-     * 更新対象年
-     */
     year: number;
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query?: never;
@@ -11265,9 +5536,6 @@ export type PutYearendAdjustmentEmployeeError =
   PutYearendAdjustmentEmployeeErrors[keyof PutYearendAdjustmentEmployeeErrors];
 
 export type PutYearendAdjustmentEmployeeResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeeYearendAdjustmentControllerUpdateEmployeeResponse;
 };
 
@@ -11277,13 +5545,7 @@ export type PutYearendAdjustmentEmployeeResponse =
 export type PutYearendAdjustmentPayrollAndBonusData = {
   body?: ApiV1EmployeeYearendAdjustmentControllerUpdatePayrollAndBonusBody;
   path: {
-    /**
-     * 更新対象年
-     */
     year: number;
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query?: never;
@@ -11302,9 +5564,6 @@ export type PutYearendAdjustmentPayrollAndBonusError =
   PutYearendAdjustmentPayrollAndBonusErrors[keyof PutYearendAdjustmentPayrollAndBonusErrors];
 
 export type PutYearendAdjustmentPayrollAndBonusResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeeYearendAdjustmentControllerUpdatePayrollAndBonusResponse;
 };
 
@@ -11314,13 +5573,7 @@ export type PutYearendAdjustmentPayrollAndBonusResponse =
 export type PutYearendAdjustmentDependentsData = {
   body?: ApiV1EmployeeYearendAdjustmentControllerUpdateDependentsBody;
   path: {
-    /**
-     * 更新対象年
-     */
     year: number;
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query?: never;
@@ -11339,9 +5592,6 @@ export type PutYearendAdjustmentDependentsError =
   PutYearendAdjustmentDependentsErrors[keyof PutYearendAdjustmentDependentsErrors];
 
 export type PutYearendAdjustmentDependentsResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeeYearendAdjustmentControllerUpdateDependentsResponse;
 };
 
@@ -11351,19 +5601,10 @@ export type PutYearendAdjustmentDependentsResponse =
 export type DestroyYearendAdjustmentPreviousJobData = {
   body?: never;
   path: {
-    /**
-     * 更新対象年
-     */
     year: number;
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/yearend_adjustments/{year}/previous_jobs/{employee_id}";
@@ -11381,9 +5622,6 @@ export type DestroyYearendAdjustmentPreviousJobError =
   DestroyYearendAdjustmentPreviousJobErrors[keyof DestroyYearendAdjustmentPreviousJobErrors];
 
 export type DestroyYearendAdjustmentPreviousJobResponses = {
-  /**
-   * successful operation
-   */
   204: void;
 };
 
@@ -11393,13 +5631,7 @@ export type DestroyYearendAdjustmentPreviousJobResponse =
 export type PutYearendAdjustmentPreviousJobData = {
   body?: ApiV1EmployeeYearendAdjustmentControllerUpdatePreviousJobBody;
   path: {
-    /**
-     * 更新対象年
-     */
     year: number;
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query?: never;
@@ -11418,9 +5650,6 @@ export type PutYearendAdjustmentPreviousJobError =
   PutYearendAdjustmentPreviousJobErrors[keyof PutYearendAdjustmentPreviousJobErrors];
 
 export type PutYearendAdjustmentPreviousJobResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeeYearendAdjustmentControllerUpdatePreviousJobResponse;
 };
 
@@ -11430,13 +5659,7 @@ export type PutYearendAdjustmentPreviousJobResponse =
 export type PostYearendAdjustmentInsurancesData = {
   body?: ApiV1EmployeeYearendAdjustmentControllerUpdateInsuranceBody;
   path: {
-    /**
-     * 作成対象年
-     */
     year: number;
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query?: never;
@@ -11455,9 +5678,6 @@ export type PostYearendAdjustmentInsurancesError =
   PostYearendAdjustmentInsurancesErrors[keyof PostYearendAdjustmentInsurancesErrors];
 
 export type PostYearendAdjustmentInsurancesResponses = {
-  /**
-   * successful operation
-   */
   201: ApiV1EmployeeYearendAdjustmentControllerUpdateInsuranceResponse;
 };
 
@@ -11467,23 +5687,11 @@ export type PostYearendAdjustmentInsurancesResponse =
 export type DestroyYearendAdjustmentInsurancesData = {
   body?: never;
   path: {
-    /**
-     * 更新対象年
-     */
     year: number;
-    /**
-     * 従業員ID
-     */
     employee_id: number;
-    /**
-     * 保険料ID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/yearend_adjustments/{year}/insurances/{employee_id}/{id}";
@@ -11501,9 +5709,6 @@ export type DestroyYearendAdjustmentInsurancesError =
   DestroyYearendAdjustmentInsurancesErrors[keyof DestroyYearendAdjustmentInsurancesErrors];
 
 export type DestroyYearendAdjustmentInsurancesResponses = {
-  /**
-   * successful operation
-   */
   204: void;
 };
 
@@ -11513,17 +5718,8 @@ export type DestroyYearendAdjustmentInsurancesResponse =
 export type PutYearendAdjustmentInsurancesData = {
   body?: ApiV1EmployeeYearendAdjustmentControllerUpdateInsuranceBody;
   path: {
-    /**
-     * 更新対象年
-     */
     year: number;
-    /**
-     * 従業員ID
-     */
     employee_id: number;
-    /**
-     * 保険料ID
-     */
     id: number;
   };
   query?: never;
@@ -11542,9 +5738,6 @@ export type PutYearendAdjustmentInsurancesError =
   PutYearendAdjustmentInsurancesErrors[keyof PutYearendAdjustmentInsurancesErrors];
 
 export type PutYearendAdjustmentInsurancesResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeeYearendAdjustmentControllerUpdateInsuranceResponse;
 };
 
@@ -11553,23 +5746,11 @@ export type PutYearendAdjustmentInsurancesResponse =
 
 export type PutYearendAdjustmentHousingLoanDeductionData = {
   body?: {
-    /**
-     * 更新対象事業所ID（必須）
-     */
     company_id: number;
-    /**
-     * 住宅借入金等特別控除（必須）
-     */
     housing_loan_deduction: number;
   };
   path: {
-    /**
-     * 更新対象年
-     */
     year: number;
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query?: never;
@@ -11588,17 +5769,8 @@ export type PutYearendAdjustmentHousingLoanDeductionError =
   PutYearendAdjustmentHousingLoanDeductionErrors[keyof PutYearendAdjustmentHousingLoanDeductionErrors];
 
 export type PutYearendAdjustmentHousingLoanDeductionResponses = {
-  /**
-   * successful operation
-   */
   200: {
-    /**
-     * 住宅借入金等特別控除
-     */
     housing_loan_deduction?: number;
-    /**
-     * 住宅ローン
-     */
     housing_loans?: Array<ApiV1EmployeeYearendAdjustmentHousingLoanSerializer>;
   };
 };
@@ -11609,13 +5781,7 @@ export type PutYearendAdjustmentHousingLoanDeductionResponse =
 export type PostYearendAdjustmentHousingLoanData = {
   body?: ApiV1EmployeeYearendAdjustmentControllerUpdateHousingLoanBody;
   path: {
-    /**
-     * 作成対象年
-     */
     year: number;
-    /**
-     * 従業員ID
-     */
     employee_id: number;
   };
   query?: never;
@@ -11634,9 +5800,6 @@ export type PostYearendAdjustmentHousingLoanError =
   PostYearendAdjustmentHousingLoanErrors[keyof PostYearendAdjustmentHousingLoanErrors];
 
 export type PostYearendAdjustmentHousingLoanResponses = {
-  /**
-   * successful operation
-   */
   201: ApiV1EmployeeYearendAdjustmentControllerUpdateHousingLoanResponse;
 };
 
@@ -11646,23 +5809,11 @@ export type PostYearendAdjustmentHousingLoanResponse =
 export type DestroyYearendAdjustmentHousingLoanData = {
   body?: never;
   path: {
-    /**
-     * 更新対象年
-     */
     year: number;
-    /**
-     * 従業員ID
-     */
     employee_id: number;
-    /**
-     * 住宅ローンID
-     */
     id: number;
   };
   query: {
-    /**
-     * 事業所ID
-     */
     company_id: number;
   };
   url: "/api/v1/yearend_adjustments/{year}/housing_loans/{employee_id}/{id}";
@@ -11680,9 +5831,6 @@ export type DestroyYearendAdjustmentHousingLoanError =
   DestroyYearendAdjustmentHousingLoanErrors[keyof DestroyYearendAdjustmentHousingLoanErrors];
 
 export type DestroyYearendAdjustmentHousingLoanResponses = {
-  /**
-   * successful operation
-   */
   204: void;
 };
 
@@ -11692,17 +5840,8 @@ export type DestroyYearendAdjustmentHousingLoanResponse =
 export type PutYearendAdjustmentHousingLoanData = {
   body?: ApiV1EmployeeYearendAdjustmentControllerUpdateHousingLoanBody;
   path: {
-    /**
-     * 更新対象年
-     */
     year: number;
-    /**
-     * 従業員ID
-     */
     employee_id: number;
-    /**
-     * 住宅ローンID
-     */
     id: number;
   };
   query?: never;
@@ -11721,9 +5860,6 @@ export type PutYearendAdjustmentHousingLoanError =
   PutYearendAdjustmentHousingLoanErrors[keyof PutYearendAdjustmentHousingLoanErrors];
 
 export type PutYearendAdjustmentHousingLoanResponses = {
-  /**
-   * successful operation
-   */
   200: ApiV1EmployeeYearendAdjustmentControllerUpdateHousingLoanResponse;
 };
 

@@ -122,9 +122,7 @@ export function saveCredentials(dir: string, credentials: Credentials): void {
   } catch (error) {
     try {
       unlinkSync(tempPath);
-    } catch {
-      // Best-effort cleanup if the temporary file still exists.
-    }
+    } catch {}
     throw error;
   }
 }

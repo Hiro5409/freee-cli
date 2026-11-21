@@ -50,20 +50,21 @@
     "generate-types": "openapi-ts --file openapi-ts.config.ts"
   },
   "dependencies": {
-    "@clack/prompts": "^1.8.1",
-    "gunshi": "1.0.0-rc.1",
+    "@clack/prompts": "^1.9.0",
+    "@valibot/to-json-schema": "^1.8.0",
+    "gunshi": "1.0.0-rc.11",
     "ky": "2.2.0",
     "valibot": "^1.5.0"
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "0.0.0-next-20260930190945",
-    "@mswjs/interceptors": "0.45.10",
-    "@types/bun": "1.4.4",
-    "@typescript-eslint/types": "8.72.1",
-    "knip": "6.44.1",
-    "msw": "3.0.3",
-    "oxlint": "1.89.0",
-    "oxlint-tsgolint": "7.0.2004",
+    "@mswjs/interceptors": "0.45.12",
+    "@types/bun": "1.4.5",
+    "@typescript-eslint/types": "8.73.0",
+    "knip": "6.46.1",
+    "msw": "3.0.7",
+    "oxlint": "1.94.0",
+    "oxlint-tsgolint": "7.0.2007",
     "publint": "0.3.25"
   },
   "overrides": {

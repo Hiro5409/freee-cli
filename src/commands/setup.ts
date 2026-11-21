@@ -219,7 +219,7 @@ async function runSetupFlow(options: SetupWizardOptions): Promise<void> {
   } else {
     await runCli(["auth", "login", "--profile", profile, "--set-default"]);
   }
-  await runCli(["company", "list", "--profile", profile]);
+  await runCli(["accounting", "company", "list", "--profile", profile]);
 
   const companyId = stringAnswer(
     await prompts.text({

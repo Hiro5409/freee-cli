@@ -1,22 +1,22 @@
 import { defineConfig } from "@hey-api/openapi-ts";
 
+import { defineConfig as commands } from "./codegen/commands-plugin.ts";
+import { apis } from "./src/api/apis.ts";
+
 const schemaBaseUrl =
   "https://raw.githubusercontent.com/freee/freee-api-schema/1d4167880761a29a2c0373a12ef58d5d92035dbc";
 
-const apis = [
-  { schema: "v2020_06_15/open-api-3/api-schema.json", path: "src/types/freee" },
-  { schema: "iv/open-api-3/api-schema.yml", path: "src/types/freee-invoice" },
-  { schema: "hr/open-api-3/api-schema.json", path: "src/types/freee-hr" },
-];
-
 export default defineConfig(
-  apis.map(({ schema, path }) => ({
+  apis.map(({ schema, output: path }) => ({
     input: `${schemaBaseUrl}/${schema}`,
     output: { path, postProcess: [{ command: "bun", args: ["fmt", "{{path}}"] }] },
     parser: {
       filters: { deprecated: false },
       patch: {
         operations: {
+          "GET /api/1/taxes/codes": (operation) => {
+            operation.deprecated = true;
+          },
           "PUT /api/1/user_matchers/{id}": (operation) => {
             const body = "requestBody" in operation ? operation.requestBody : undefined;
             const bodySchema =
@@ -40,10 +40,24 @@ export default defineConfig(
       },
     },
     plugins: [
-      "@hey-api/typescript",
+      { name: "@hey-api/typescript", comments: false },
       { name: "@hey-api/client-fetch", throwOnError: true },
-      "@hey-api/sdk",
-      "msw",
+      { name: "@hey-api/sdk", comments: false, validator: { request: "valibot", response: false } },
+      { name: "msw", comments: false },
+      {
+        name: "valibot",
+        comments: false,
+        requests: { shouldExtract: true },
+        $resolvers: {
+          validator: { request: () => null },
+          string(ctx) {
+            if (ctx.schema.format === "binary") {
+              ctx.nodes.base = () => ctx.$(ctx.plugin.imports.v).attr("blob").call();
+            }
+          },
+        },
+      },
+      commands(),
     ],
   })),
 );
