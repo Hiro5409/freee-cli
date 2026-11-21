@@ -6,13 +6,12 @@ import type {
 type UpdateBody = UpdateUserMatcherData["body"];
 type FullUpdateBody = { [K in keyof Required<UpdateBody>]: UpdateBody[K] };
 
-/** Build the full replacement body required by PUT /user_matchers/{id}. */
 export function currentRuleBody(current: GetUserMatcherResponses[200]): UpdateBody {
   return {
     act: current.act,
     active: current.active,
     condition: current.condition,
-    description: current.description,
+    description: current.description ?? "",
     entry_side_str: current.entry_side_str,
     priority: current.priority,
     tax_name: current.tax_name,

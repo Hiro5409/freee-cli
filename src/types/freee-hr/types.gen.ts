@@ -657,6 +657,11 @@ export type ApiV1MonthlyAttendanceResponseParams = {
    */
   approval_flow_logs: Array<ApiV1ApprovalFlowLogsParams>;
   /**
+   * 申請についたコメント（投稿順）<br>
+   * 申請者・代理申請者・承認者・管理者が書いたコメントだけを返します。自動で付くコメントは含みません。
+   */
+  comments: Array<ApiV1ApprovalFlowCommentsParams>;
+  /**
    * 現在承認ステップID<br>
    * 申請を差戻した場合、nullになります。
    */
@@ -765,20 +770,14 @@ export type LegacyApiV1PaidHolidayIndexResponseParams = {
   target_date: string;
   /**
    * [deprecated] 取得単位。（full:全休、half:半休、morning:午前休、 afternoon:午後休、hour:時間休）※ 削除予定のため paid_holiday->values->type を参照してください
-   *
-   * @deprecated
    */
   holiday_type: "full" | "half" | "morning" | "afternoon" | "hour";
   /**
    * [deprecated] 取得予定開始時間 ※ 削除予定のため paid_holiday->values->start_at を参照してください
-   *
-   * @deprecated
    */
   start_at?: string | null;
   /**
    * [deprecated] 取得予定終了時間 ※ 削除予定のため paid_holiday->values->end_at を参照してください
-   *
-   * @deprecated
    */
   end_at?: string | null;
   /**
@@ -882,6 +881,11 @@ export type ApiV1PaidHolidayResponseParams = {
    */
   approval_flow_logs: Array<ApiV1ApprovalFlowLogsParams>;
   /**
+   * 申請についたコメント（投稿順）<br>
+   * 申請者・代理申請者・承認者・管理者が書いたコメントだけを返します。自動で付くコメントは含みません。
+   */
+  comments: Array<ApiV1ApprovalFlowCommentsParams>;
+  /**
    * 現在承認ステップID<br>
    * 申請を差戻した場合、nullになります。
    */
@@ -926,20 +930,14 @@ export type LegacyApiV1PaidHolidayResponseParams = {
   target_date: string;
   /**
    * [deprecated] 取得単位。（full:全休、half:半休、morning:午前休、 afternoon:午後休、hour:時間休）※ 削除予定のため paid_holiday->values->type を参照してください
-   *
-   * @deprecated
    */
   holiday_type: "full" | "half" | "morning" | "afternoon" | "hour";
   /**
    * [deprecated] 取得予定開始時間 ※ 削除予定のため paid_holiday->values->start_at を参照してください
-   *
-   * @deprecated
    */
   start_at?: string | null;
   /**
    * [deprecated] 取得予定終了時間 ※ 削除予定のため paid_holiday->values->end_at を参照してください
-   *
-   * @deprecated
    */
   end_at?: string | null;
   /**
@@ -974,6 +972,11 @@ export type LegacyApiV1PaidHolidayResponseParams = {
    * 承認履歴
    */
   approval_flow_logs: Array<ApiV1ApprovalFlowLogsParams>;
+  /**
+   * 申請についたコメント（投稿順）<br>
+   * 申請者・代理申請者・承認者・管理者が書いたコメントだけを返します。自動で付くコメントは含みません。
+   */
+  comments: Array<ApiV1ApprovalFlowCommentsParams>;
   /**
    * 現在承認ステップID<br>
    * 申請を差戻した場合、nullになります。
@@ -1124,6 +1127,11 @@ export type ApiV1OvertimeWorkResponseParams = {
    */
   approval_flow_logs: Array<ApiV1ApprovalFlowLogsParams>;
   /**
+   * 申請についたコメント（投稿順）<br>
+   * 申請者・代理申請者・承認者・管理者が書いたコメントだけを返します。自動で付くコメントは含みません。
+   */
+  comments: Array<ApiV1ApprovalFlowCommentsParams>;
+  /**
    * 現在承認ステップID<br>
    * 申請を差戻した場合、nullになります。
    */
@@ -1147,6 +1155,25 @@ export type ApiV1ApprovalFlowLogsParams = {
    * 申請操作をした日付時間
    */
   update_at?: string;
+};
+
+export type ApiV1ApprovalFlowCommentsParams = {
+  /**
+   * コメント本文
+   */
+  comment: string;
+  /**
+   * コメントを書いたユーザーのユーザーID<br>
+   * 次の場合、nullになります。
+   * - 従業員に紐付かない管理者が書いた
+   * - 書いた従業員が削除されている
+   * - 書いた従業員がユーザーアカウントに紐付いていない（招待の解除など）
+   */
+  user_id: number | null;
+  /**
+   * コメントを書いた日付時間
+   */
+  posted_at: string;
 };
 
 export type ApiV1EmployeeSerializer = {
@@ -1562,6 +1589,193 @@ export type ApiV1EmployeesWorkRecordTimeRangeResponseSerializer = {
    * 終了時刻
    */
   clock_out_at?: string;
+};
+
+/**
+ * 休暇の内訳。
+ * full、morning_off、afternoon_off では mins と time_ranges を指定しません。
+ * annual_paid_holiday と有給の special_holiday の half では mins を指定します。無給の special_holiday の half では mins を指定できません。
+ * half を2つ組み合わせて全休にする場合は、どちらの half でも mins を指定できません。
+ * compensatory_holiday では mins と time_ranges を指定しません。
+ * annual_paid_holiday と special_holiday の hourly では、対象日に適用される勤務賃金設定の時間休の入力方式に従い、時間数方式の場合は mins、時間帯方式の場合は time_ranges を指定します。
+ * hourly の mins は60分単位です。
+ */
+export type ApiV1EmployeesWorkRecordHolidayRequest =
+  | ({
+      holiday_category: "annual_paid_holiday";
+    } & ApiV1EmployeesWorkRecordAnnualPaidHolidayRequest)
+  | ({
+      holiday_category: "special_holiday";
+    } & ApiV1EmployeesWorkRecordSpecialHolidayRequest)
+  | ({
+      holiday_category: "compensatory_holiday";
+    } & ApiV1EmployeesWorkRecordCompensatoryHolidayRequest);
+
+/**
+ * 休暇の内訳。
+ * full では mins と time_ranges を返しません。
+ * half では mins を返します。
+ * morning_off、afternoon_off では mins を返さず、時間帯を持つ実績の場合は time_ranges を返します。
+ * hourly では mins を返し、時間帯を持つ実績の場合は time_ranges も返します。
+ */
+export type ApiV1EmployeesWorkRecordHolidayResponse =
+  | ({
+      holiday_category: "annual_paid_holiday";
+    } & ApiV1EmployeesWorkRecordAnnualPaidHolidayResponse)
+  | ({
+      holiday_category: "special_holiday";
+    } & ApiV1EmployeesWorkRecordSpecialHolidayResponse)
+  | ({
+      holiday_category: "compensatory_holiday";
+    } & ApiV1EmployeesWorkRecordCompensatoryHolidayResponse);
+
+/**
+ * 年次有給休暇
+ */
+export type ApiV1EmployeesWorkRecordAnnualPaidHolidayRequest =
+  ApiV1EmployeesWorkRecordHolidayTypeFields &
+    ApiV1EmployeesWorkRecordHolidayTimeRequestFields & {
+      /**
+       * 休暇カテゴリ
+       */
+      holiday_category: "annual_paid_holiday";
+    };
+
+/**
+ * 特別休暇
+ */
+export type ApiV1EmployeesWorkRecordSpecialHolidayRequest =
+  ApiV1EmployeesWorkRecordHolidayTypeFields &
+    ApiV1EmployeesWorkRecordHolidayTimeRequestFields & {
+      /**
+       * 休暇カテゴリ
+       */
+      holiday_category: "special_holiday";
+      special_holiday_setting_id: ApiV1EmployeesWorkRecordSpecialHolidaySettingId;
+    };
+
+/**
+ * 代休
+ */
+export type ApiV1EmployeesWorkRecordCompensatoryHolidayRequest = {
+  /**
+   * 休暇カテゴリ
+   */
+  holiday_category: "compensatory_holiday";
+  holiday_type: ApiV1EmployeesWorkRecordCompensatoryHolidayType;
+  source_date: ApiV1EmployeesWorkRecordCompensatoryHolidaySourceDate;
+};
+
+export type ApiV1EmployeesWorkRecordHolidayTypeFields = {
+  holiday_type: ApiV1EmployeesWorkRecordHolidayType;
+};
+
+export type ApiV1EmployeesWorkRecordHolidayTimeRequestFields = {
+  mins?: ApiV1EmployeesWorkRecordHolidayMins;
+  time_ranges?: ApiV1EmployeesWorkRecordHolidayTimeRangesRequest;
+};
+
+/**
+ * 年次有給休暇
+ */
+export type ApiV1EmployeesWorkRecordAnnualPaidHolidayResponse =
+  ApiV1EmployeesWorkRecordHolidayTypeFields &
+    ApiV1EmployeesWorkRecordHolidayTimeResponseFields & {
+      /**
+       * 休暇カテゴリ
+       */
+      holiday_category: "annual_paid_holiday";
+    };
+
+/**
+ * 特別休暇
+ */
+export type ApiV1EmployeesWorkRecordSpecialHolidayResponse =
+  ApiV1EmployeesWorkRecordHolidayTypeFields &
+    ApiV1EmployeesWorkRecordHolidayTimeResponseFields & {
+      /**
+       * 休暇カテゴリ
+       */
+      holiday_category: "special_holiday";
+      special_holiday_setting_id: ApiV1EmployeesWorkRecordSpecialHolidaySettingId;
+    };
+
+/**
+ * 代休
+ */
+export type ApiV1EmployeesWorkRecordCompensatoryHolidayResponse = {
+  /**
+   * 休暇カテゴリ
+   */
+  holiday_category: "compensatory_holiday";
+  holiday_type: ApiV1EmployeesWorkRecordCompensatoryHolidayType;
+  source_date: ApiV1EmployeesWorkRecordCompensatoryHolidaySourceDate;
+};
+
+export type ApiV1EmployeesWorkRecordHolidayTimeResponseFields = {
+  mins?: ApiV1EmployeesWorkRecordHolidayMins;
+  time_ranges?: ApiV1EmployeesWorkRecordHolidayTimeRangesResponse;
+};
+
+/**
+ * 取得単位（全休: full、半休: half、午前休: morning_off、午後休: afternoon_off、時間休: hourly）
+ */
+export type ApiV1EmployeesWorkRecordHolidayType =
+  "full" | "half" | "morning_off" | "afternoon_off" | "hourly";
+
+/**
+ * 取得単位（全休: full、半休: half、午前休: morning_off、午後休: afternoon_off）
+ */
+export type ApiV1EmployeesWorkRecordCompensatoryHolidayType =
+  "full" | "half" | "morning_off" | "afternoon_off";
+
+/**
+ * 休暇により計上する時間（分単位）
+ */
+export type ApiV1EmployeesWorkRecordHolidayMins = number;
+
+/**
+ * 時間休の取得時間帯
+ */
+export type ApiV1EmployeesWorkRecordHolidayTimeRangesRequest =
+  Array<ApiV1EmployeesWorkRecordHolidayTimeRangeRequest>;
+
+/**
+ * 時間休の取得時間帯
+ */
+export type ApiV1EmployeesWorkRecordHolidayTimeRangesResponse =
+  Array<ApiV1EmployeesWorkRecordHolidayTimeRangeResponse>;
+
+/**
+ * 特別休暇設定ID
+ */
+export type ApiV1EmployeesWorkRecordSpecialHolidaySettingId = number;
+
+/**
+ * 代休の元となる休日出勤日
+ */
+export type ApiV1EmployeesWorkRecordCompensatoryHolidaySourceDate = string;
+
+export type ApiV1EmployeesWorkRecordHolidayTimeRangeRequest = {
+  /**
+   * 取得開始時刻
+   */
+  start_at: string;
+  /**
+   * 取得終了時刻
+   */
+  end_at: string;
+};
+
+export type ApiV1EmployeesWorkRecordHolidayTimeRangeResponse = {
+  /**
+   * 取得開始時刻
+   */
+  start_at: string;
+  /**
+   * 取得終了時刻
+   */
+  end_at: string;
 };
 
 export type ApiV1EmployeesWelfarePensionInsuranceRuleSerializer = {
@@ -2153,9 +2367,15 @@ export type ApiV1EmployeesWorkRecordSummarySerializer = {
    */
   total_normal_work_mins?: number;
   /**
-   * 給与計算に用いられる法定内残業時間（分）
+   * [deprecated] 給与計算に用いられる法定内残業時間（分） ※ 削除予定のため total_overtime_within_statutory_work_mins を参照してください
+   *
+   * @deprecated
    */
   total_excess_statutory_work_mins?: number;
+  /**
+   * 給与計算に用いられる法定内残業時間（分）
+   */
+  total_overtime_within_statutory_work_mins?: number;
   /**
    * 所定外法定外労働時間
    */
@@ -2222,9 +2442,15 @@ export type ApiV1EmployeesWorkRecordSummarySerializer = {
    */
   total_shortage_work_mins?: number | null;
   /**
-   * みなし外の法定内残業時間（分）
+   * [deprecated] みなし外の法定内残業時間（分） ※ 削除予定のため total_deemed_paid_overtime_within_statutory_work_mins を参照してください
+   *
+   * @deprecated
    */
   total_deemed_paid_excess_statutory_work_mins?: number | null;
+  /**
+   * みなし外の法定内残業時間（分）
+   */
+  total_deemed_paid_overtime_within_statutory_work_mins?: number | null;
   /**
    * みなし外の時間外労働時間（分）
    */
@@ -2282,11 +2508,27 @@ export type ApiV1EmployeesWorkRecordSerializer = {
    */
   early_leaving_mins?: number;
   /**
-   * 特別休暇の半休を利用した時間（分単位）
+   * [deprecated] 有給休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
+   *
+   * @deprecated
+   */
+  half_paid_holiday_mins?: number;
+  /**
+   * [deprecated] 特別休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
+   *
+   * @deprecated
    */
   half_special_holiday_mins?: number;
   /**
-   * 特別休暇の時間休を利用した時間（分単位）
+   * [deprecated] 有給休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
+   *
+   * @deprecated
+   */
+  hourly_paid_holiday_mins?: number;
+  /**
+   * [deprecated] 特別休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
+   *
+   * @deprecated
    */
   hourly_special_holiday_mins?: number;
   /**
@@ -2318,7 +2560,15 @@ export type ApiV1EmployeesWorkRecordSerializer = {
    */
   note?: string;
   /**
-   * 年次有給休暇の実績
+   * [deprecated] この日に対する有給取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_paid_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_paid_holiday_minsを参照してください。 ※ 削除予定のため holidays を参照してください
+   *
+   * @deprecated
+   */
+  paid_holiday?: number;
+  /**
+   * [deprecated] 年次有給休暇の実績 ※ 削除予定のため holidays を参照してください
+   *
+   * @deprecated
    */
   paid_holidays?: Array<{
     /**
@@ -2335,11 +2585,22 @@ export type ApiV1EmployeesWorkRecordSerializer = {
     days: number;
   }>;
   /**
-   * この日に対する特別休暇取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_special_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_special_holiday_minsを参照してください。
+   * 休暇の内訳（年次有給休暇、特別休暇、代休）。
+   * full では mins と time_ranges を返しません。half では mins を返します。
+   * morning_off、afternoon_off では mins を返さず、時間帯を持つ実績の場合は time_ranges を返します。
+   * hourly は年休・特休のみで、mins を返し、時間帯を持つ実績の場合は time_ranges も返します。
+   */
+  holidays?: Array<ApiV1EmployeesWorkRecordHolidayResponse>;
+  /**
+   * [deprecated] この日に対する特別休暇取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_special_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_special_holiday_minsを参照してください。 ※ 削除予定のため holidays を参照してください
+   *
+   * @deprecated
    */
   special_holiday?: number;
   /**
-   * 特別休暇設定ID
+   * [deprecated] 特別休暇設定ID ※ 削除予定のため holidays を参照してください
+   *
+   * @deprecated
    */
   special_holiday_setting_id?: number | null;
   /**
@@ -2351,7 +2612,9 @@ export type ApiV1EmployeesWorkRecordSerializer = {
    */
   use_default_work_pattern?: boolean;
   /**
-   * 代休の半休を利用したかどうか
+   * [deprecated] 代休の半休を利用したかどうか ※ 削除予定のため holidays を参照してください
+   *
+   * @deprecated
    */
   use_half_compensatory_holiday?: boolean;
   /**
@@ -2375,13 +2638,25 @@ export type ApiV1EmployeesWorkRecordSerializer = {
    */
   not_auto_calc_work_time?: boolean;
   /**
-   * 法定内残業時間（分）
+   * [deprecated] 法定内残業時間（分） ※ 削除予定のため total_overtime_within_statutory_work_mins を参照してください
+   *
+   * @deprecated
    */
   total_excess_statutory_work_mins?: number;
   /**
-   * 深夜の法定内残業時間（分）
+   * [deprecated] 深夜の法定内残業時間（分） ※ 削除予定のため total_latenight_overtime_within_statutory_work_mins を参照してください
+   *
+   * @deprecated
    */
   total_latenight_excess_statutory_work_mins?: number;
+  /**
+   * 法定内残業時間（分）
+   */
+  total_overtime_within_statutory_work_mins?: number;
+  /**
+   * 深夜の法定内残業時間（分）
+   */
+  total_latenight_overtime_within_statutory_work_mins?: number;
   /**
    * 所定外法定外労働時間（分）
    */
@@ -2389,7 +2664,7 @@ export type ApiV1EmployeesWorkRecordSerializer = {
   /**
    * 深夜の所定外法定外労働時間（分）
    */
-  total_latenight_overtime_except_normal_work_min?: number;
+  total_latenight_overtime_except_normal_work_mins?: number;
 };
 
 export type LegacyApiV1EmployeesWorkRecordSerializer = {
@@ -2443,23 +2718,27 @@ export type LegacyApiV1EmployeesWorkRecordSerializer = {
    */
   early_leaving_mins?: number;
   /**
-   * [deprecated] 有給休暇の半休を利用した時間（分単位）※ 削除予定のため paid_holidays を参照してください
+   * [deprecated] 有給休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
    *
    * @deprecated
    */
   half_paid_holiday_mins?: number;
   /**
-   * 特別休暇の半休を利用した時間（分単位）
+   * [deprecated] 特別休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
+   *
+   * @deprecated
    */
   half_special_holiday_mins?: number;
   /**
-   * [deprecated] 有給休暇の時間休を利用した時間（分単位）※ 削除予定のため paid_holidays を参照してください
+   * [deprecated] 有給休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
    *
    * @deprecated
    */
   hourly_paid_holiday_mins?: number;
   /**
-   * 特別休暇の時間休を利用した時間（分単位）
+   * [deprecated] 特別休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
+   *
+   * @deprecated
    */
   hourly_special_holiday_mins?: number;
   /**
@@ -2491,17 +2770,21 @@ export type LegacyApiV1EmployeesWorkRecordSerializer = {
    */
   note?: string;
   /**
-   * [deprecated] この日に対する有給取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_paid_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_paid_holiday_minsを参照してください。※ 削除予定のため paid_holidays を参照してください
+   * [deprecated] この日に対する有給取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_paid_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_paid_holiday_minsを参照してください。 ※ 削除予定のため holidays を参照してください
    *
    * @deprecated
    */
   paid_holiday?: number;
   /**
-   * この日に対する特別休暇取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_special_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_special_holiday_minsを参照してください。
+   * [deprecated] この日に対する特別休暇取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_special_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_special_holiday_minsを参照してください。 ※ 削除予定のため holidays を参照してください
+   *
+   * @deprecated
    */
   special_holiday?: number;
   /**
-   * 特別休暇設定ID
+   * [deprecated] 特別休暇設定ID ※ 削除予定のため holidays を参照してください
+   *
+   * @deprecated
    */
   special_holiday_setting_id?: number | null;
   /**
@@ -2513,7 +2796,9 @@ export type LegacyApiV1EmployeesWorkRecordSerializer = {
    */
   use_default_work_pattern?: boolean;
   /**
-   * 代休の半休を利用したかどうか
+   * [deprecated] 代休の半休を利用したかどうか ※ 削除予定のため holidays を参照してください
+   *
+   * @deprecated
    */
   use_half_compensatory_holiday?: boolean;
   /**
@@ -2537,13 +2822,25 @@ export type LegacyApiV1EmployeesWorkRecordSerializer = {
    */
   not_auto_calc_work_time?: boolean;
   /**
-   * 法定内残業時間（分）
+   * [deprecated] 法定内残業時間（分） ※ 削除予定のため total_overtime_within_statutory_work_mins を参照してください
+   *
+   * @deprecated
    */
   total_excess_statutory_work_mins?: number;
   /**
-   * 深夜の法定内残業時間（分）
+   * [deprecated] 深夜の法定内残業時間（分） ※ 削除予定のため total_latenight_overtime_within_statutory_work_mins を参照してください
+   *
+   * @deprecated
    */
   total_latenight_excess_statutory_work_mins?: number;
+  /**
+   * 法定内残業時間（分）
+   */
+  total_overtime_within_statutory_work_mins?: number;
+  /**
+   * 深夜の法定内残業時間（分）
+   */
+  total_latenight_overtime_within_statutory_work_mins?: number;
   /**
    * 所定外法定外労働時間（分）
    */
@@ -2551,7 +2848,7 @@ export type LegacyApiV1EmployeesWorkRecordSerializer = {
   /**
    * 深夜の所定外法定外労働時間（分）
    */
-  total_latenight_overtime_except_normal_work_min?: number;
+  total_latenight_overtime_except_normal_work_mins?: number;
 };
 
 export type ApiV1EmployeesWelfarePensionInsuranceRuleUpdateRequestSerializer = {
@@ -3320,16 +3617,12 @@ export type ApiV1EmployeesWorkRecordsControllerUpdateBody = {
    * 出勤時刻
    *
    * 複数の出退勤を指定できないため非推奨です。 `work_record_segments` を利用してください。
-   *
-   * @deprecated
    */
   clock_in_at?: string;
   /**
    * 退勤時刻
    *
    * 複数の出退勤を指定できないため非推奨です。 `work_record_segments` を利用してください。
-   *
-   * @deprecated
    */
   clock_out_at?: string;
   /**
@@ -3348,7 +3641,7 @@ export type ApiV1EmployeesWorkRecordsControllerUpdateBody = {
   /**
    * 欠勤かどうか
    *
-   * is_absenceにtrueを指定すると、以下のパラーメータについて、指定した値が反映されず無視されます。
+   * is_absenceにtrueを指定すると、以下のパラメータについて、指定した値が反映されず無視されます。
    * - break_records
    *   - clock_in_at
    *   - clock_out_at
@@ -3359,11 +3652,8 @@ export type ApiV1EmployeesWorkRecordsControllerUpdateBody = {
    * - normal_work_clock_in_at
    * - normal_work_clock_out_at
    * - normal_work_mins
-   * - paid_holidays
-   * - special_holiday
-   * - special_holiday_setting_id
-   * - half_special_holiday_mins
-   * - hourly_special_holiday_mins
+   *
+   * ただし、休暇（holidays、paid_holidays、special_holiday、half_special_holiday_mins、hourly_special_holiday_mins）を指定した場合は休暇の登録が優先され、is_absence の指定は無視されます。
    */
   is_absence?: boolean;
   /**
@@ -3386,6 +3676,11 @@ export type ApiV1EmployeesWorkRecordsControllerUpdateBody = {
    * 勤怠メモ
    */
   note?: string;
+  /**
+   * [deprecated] 年次有給休暇の内訳 ※ 削除予定のため holidays をご利用ください
+   *
+   * @deprecated
+   */
   paid_holidays?: Array<{
     /**
      * 有給休暇の種別を指定します（全休：full, 半休：half, 午前休：morning_off, 午後休：afternoon_off, 時間休：hourly）
@@ -3397,19 +3692,35 @@ export type ApiV1EmployeesWorkRecordsControllerUpdateBody = {
     mins?: number;
   }>;
   /**
-   * この日の特別休暇取得日数。1日単位で指定します。
+   * 休暇の内訳。年次有給休暇、特別休暇、代休を指定できます。
+   * full、morning_off、afternoon_off では mins と time_ranges を指定しません。年休と有給の特休の half では mins を指定します。無給の特休の half では mins を指定できません。
+   * half を2つ組み合わせて全休にする場合は、どちらの half でも mins を指定できません。
+   * 年休・特休の hourly は、対象日に適用される勤務賃金設定の時間休の入力方式に従い、時間数方式の場合は mins、時間帯方式の場合は time_ranges を指定します。mins は60分単位です。代休では holiday_type にかかわらず mins と time_ranges を指定しません。
+   * 特別休暇では special_holiday_setting_id、代休では source_date が必須です。
+   */
+  holidays?: Array<ApiV1EmployeesWorkRecordHolidayRequest>;
+  /**
+   * [deprecated] この日の特別休暇取得日数。1日単位で指定します。 ※ 削除予定のため holidays をご利用ください
+   *
+   * @deprecated
    */
   special_holiday?: 0 | 1;
   /**
-   * 特別休暇設定ID
+   * [deprecated] 特別休暇設定ID ※ 削除予定のため holidays をご利用ください
+   *
+   * @deprecated
    */
   special_holiday_setting_id?: number | null;
   /**
-   * 特別休暇の半休を利用した時間（分単位）
+   * [deprecated] 特別休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays をご利用ください
+   *
+   * @deprecated
    */
   half_special_holiday_mins?: number;
   /**
-   * 特別休暇の時間休を利用した時間（分単位）
+   * [deprecated] 特別休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays をご利用ください
+   *
+   * @deprecated
    */
   hourly_special_holiday_mins?: number;
   /**
@@ -3447,16 +3758,12 @@ export type LegacyApiV1EmployeesWorkRecordsControllerUpdateBody = {
    * 出勤時刻
    *
    * 複数の出退勤を指定できないため非推奨です。 `work_record_segments` を利用してください。
-   *
-   * @deprecated
    */
   clock_in_at?: string;
   /**
    * 退勤時刻
    *
    * 複数の出退勤を指定できないため非推奨です。 `work_record_segments` を利用してください。
-   *
-   * @deprecated
    */
   clock_out_at?: string;
   /**
@@ -3475,7 +3782,7 @@ export type LegacyApiV1EmployeesWorkRecordsControllerUpdateBody = {
   /**
    * 欠勤かどうか
    *
-   * is_absenceにtrueを指定すると、以下のパラーメータについて、指定した値が反映されず無視されます。
+   * is_absenceにtrueを指定すると、以下のパラメータについて、指定した値が反映されず無視されます。
    * - break_records
    *   - clock_in_at
    *   - clock_out_at
@@ -3486,13 +3793,8 @@ export type LegacyApiV1EmployeesWorkRecordsControllerUpdateBody = {
    * - normal_work_clock_in_at
    * - normal_work_clock_out_at
    * - normal_work_mins
-   * - paid_holiday
-   * - half_paid_holiday_mins
-   * - hourly_paid_holiday_mins
-   * - special_holiday
-   * - special_holiday_setting_id
-   * - half_special_holiday_mins
-   * - hourly_special_holiday_mins
+   *
+   * ただし、休暇（paid_holiday、half_paid_holiday_mins、hourly_paid_holiday_mins、special_holiday、half_special_holiday_mins、hourly_special_holiday_mins）を指定した場合は休暇の登録が優先され、is_absence の指定は無視されます。
    */
   is_absence?: boolean;
   /**
@@ -3516,37 +3818,45 @@ export type LegacyApiV1EmployeesWorkRecordsControllerUpdateBody = {
    */
   note?: string;
   /**
-   * [deprecated] この日の有休取得日数。1日単位で指定します。 ※ paid_holidays を指定する場合にはこちらの値は参照されません ※ 削除予定のため paid_holidays->type を指定してください
+   * [deprecated] この日の有休取得日数。1日単位で指定します。 ※ paid_holidays を指定する場合にはこちらの値は参照されません ※ 削除予定のため holidays をご利用ください
    *
    * @deprecated
    */
   paid_holiday?: 0 | 1;
   /**
-   * [deprecated] 有給休暇の半休を利用した時間（分単位） ※ paid_holidaysを指定する場合にはこちらの値は参照されません ※ 削除予定のためpaid_holidays->mins を指定してください
+   * [deprecated] 有給休暇の半休を利用した時間（分単位） ※ paid_holidaysを指定する場合にはこちらの値は参照されません ※ 削除予定のため holidays をご利用ください
    *
    * @deprecated
    */
   half_paid_holiday_mins?: number;
   /**
-   * [deprecated] morning_off または afternoon_off を指定します ※ paid_holidaysを指定する場合にはこちらの値は参照使用されません ※ 削除予定のため paid_holidays->type を指定してください
+   * [deprecated] 有給休暇の時間休を利用した時間（分単位） ※ paid_holidaysを指定する場合にはこちらの値は参照されません ※ 削除予定のため holidays をご利用ください
    *
    * @deprecated
    */
   hourly_paid_holiday_mins?: number;
   /**
-   * この日の特別休暇取得日数。1日単位で指定します。
+   * [deprecated] この日の特別休暇取得日数。1日単位で指定します。 ※ 削除予定のため holidays をご利用ください
+   *
+   * @deprecated
    */
   special_holiday?: 0 | 1;
   /**
-   * 特別休暇設定ID
+   * [deprecated] 特別休暇設定ID ※ 削除予定のため holidays をご利用ください
+   *
+   * @deprecated
    */
   special_holiday_setting_id?: number | null;
   /**
-   * 特別休暇の半休を利用した時間（分単位）
+   * [deprecated] 特別休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays をご利用ください
+   *
+   * @deprecated
    */
   half_special_holiday_mins?: number;
   /**
-   * 特別休暇の時間休を利用した時間（分単位）
+   * [deprecated] 特別休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays をご利用ください
+   *
+   * @deprecated
    */
   hourly_special_holiday_mins?: number;
   /**
@@ -3597,9 +3907,15 @@ export type ApiV1EmployeesWorkRecordSummaryControllerUpdateBody = {
    */
   total_normal_work_mins?: number;
   /**
-   * 給与計算に用いられる法定内残業時間（分）
+   * [deprecated] 給与計算に用いられる法定内残業時間（分） ※ 削除予定のため total_overtime_within_statutory_work_mins を指定してください。両方指定した場合はエラーになります
+   *
+   * @deprecated
    */
   total_excess_statutory_work_mins?: number;
+  /**
+   * 給与計算に用いられる法定内残業時間（分）
+   */
+  total_overtime_within_statutory_work_mins?: number;
   /**
    * 法定休日労働時間（分）
    */
@@ -3609,13 +3925,25 @@ export type ApiV1EmployeesWorkRecordSummaryControllerUpdateBody = {
    */
   total_latenight_work_mins?: number;
   /**
-   * 実労働時間ベースの法定内残業時間（分）
+   * [deprecated] 実労働時間ベースの法定内残業時間（分） ※ 削除予定のため total_actual_overtime_within_statutory_work_mins を指定してください。両方指定した場合はエラーになります
+   *
+   * @deprecated
    */
   total_actual_excess_statutory_work_mins?: number;
   /**
-   * 時間外労働時間（分）
+   * 実労働時間ベースの法定内残業時間（分）
+   */
+  total_actual_overtime_within_statutory_work_mins?: number;
+  /**
+   * [deprecated] 時間外労働時間（分） ※ 削除予定のため total_overtime_excess_statutory_work_mins を指定してください。両方指定した場合はエラーになります
+   *
+   * @deprecated
    */
   total_overtime_work_mins?: number;
+  /**
+   * 時間外労働時間（分）
+   */
+  total_overtime_excess_statutory_work_mins?: number;
   /**
    * 所定休日労働時間（分）
    */
@@ -3659,9 +3987,15 @@ export type ApiV1EmployeesWorkRecordSummaryControllerUpdateBody = {
    */
   total_shortage_work_mins?: number;
   /**
-   * みなし外の法定内残業時間（分）（裁量労働制でのみ使用）
+   * [deprecated] みなし外の法定内残業時間（分）（裁量労働制でのみ使用） ※ 削除予定のため total_deemed_paid_overtime_within_statutory_work_mins を指定してください。両方指定した場合はエラーになります
+   *
+   * @deprecated
    */
   total_deemed_paid_excess_statutory_work_mins?: number;
+  /**
+   * みなし外の法定内残業時間（分）（裁量労働制でのみ使用）
+   */
+  total_deemed_paid_overtime_within_statutory_work_mins?: number;
   /**
    * みなし外の時間外労働時間（分）（裁量労働制でのみ使用）
    */
@@ -4012,6 +4346,11 @@ export type ApiV1WorkTimeResponseParams = {
    */
   approval_flow_logs: Array<ApiV1ApprovalFlowLogsParams>;
   /**
+   * 申請についたコメント（投稿順）<br>
+   * 申請者・代理申請者・承認者・管理者が書いたコメントだけを返します。自動で付くコメントは含みません。
+   */
+  comments: Array<ApiV1ApprovalFlowCommentsParams>;
+  /**
    * 現在承認ステップID<br>
    * 申請を差戻した場合、nullになります。
    */
@@ -4088,20 +4427,14 @@ export type LegacyApiV1PaidHolidayRequest = {
   target_date: string;
   /**
    * [deprecated] 取得単位。（full:全休、half:半休、morning:午前休、 afternoon:午後休、hour:時間休） ※ paid_holidays->values を指定している場合にはこちらの値は参照されません ※ 削除予定のためvalues->type を指定してください
-   *
-   * @deprecated
    */
   holiday_type: "full" | "half" | "morning" | "afternoon" | "hour";
   /**
    * [deprecated] 取得予定開始時間 ※ paid_holidays->values を指定している場合にはこちらの値は参照されません ※ 削除予定のため values->start_at を指定してください
-   *
-   * @deprecated
    */
   start_at?: string;
   /**
    * [deprecated] 取得予定終了時間 ※ paid_holidays->values を指定している場合にはこちらの値は参照されません ※ 削除予定のため values->end_at を指定してください
-   *
-   * @deprecated
    */
   end_at?: string;
   /**
@@ -4279,6 +4612,11 @@ export type ApiV1SpecialHolidayResponse = {
      * 承認履歴
      */
     approval_flow_logs: Array<ApiV1ApprovalFlowLogsParams>;
+    /**
+     * 申請についたコメント（投稿順）<br>
+     * 申請者・代理申請者・承認者・管理者が書いたコメントだけを返します。自動で付くコメントは含みません。
+     */
+    comments: Array<ApiV1ApprovalFlowCommentsParams>;
     /**
      * 現在承認ステップID<br>
      * 申請を差戻した場合、nullになります。
@@ -5102,7 +5440,11 @@ export type ApiV1EmployeeYearendAdjustmentDependentSerializer = {
   social_insurance_and_tax_dependent?:
     "social_insurance_and_tax" | "tax_only" | "social_insurance_only" | "not_dependent";
   /**
-   * 所得 配偶者は「扶養状況」がsocial_insurance_only又はnot_dependentの場合のみ更新可能。配偶者以外は更新可能。 配偶者で「扶養状況」がsocial_insurance_and_tax又はtax_onlyの場合、「給与収入」、「給与以外の所得」から自動で「所得」が計算されます。
+   * 所得 配偶者は「扶養状況」がsocial_insurance_only又はnot_dependentの場合のみ更新可能。配偶者以外は更新可能。
+   * 配偶者で「扶養状況」がsocial_insurance_and_tax又はtax_onlyの場合、「給与収入」、「給与以外の所得」から自動で「所得」が計算されます。<br>
+   * <br>
+   * 2026年以降の年末調整で、freee人事労務の年末調整画面から「公的年金収入」を入力している場合、公的年金等の所得は「給与以外の所得」に合算して返却されます。
+   * この場合、「所得」は「給与所得と年金所得の双方を有する者に対する所得金額調整控除」を適用した後の金額となるため、「給与収入」と「給与以外の所得」から算出した金額とは一致しないことがあります。
    */
   income?: number;
   /**
@@ -5223,7 +5565,7 @@ export type ApiV1EmployeeYearendAdjustmentPreviousJobSerializer = {
   /**
    * 前職の退職日 現在年-10年1月1日から現在年+5年12月31日まで登録可能
    */
-  retire_date?: string;
+  retire_date?: string | null;
 } | null;
 
 export type ApiV1EmployeeYearendAdjustmentControllerUpdateInsuranceBody = {
@@ -5869,12 +6211,68 @@ export type ApiV1EmployeesAssignedAttendanceTagSerializer = {
   amount: number;
 };
 
+export type ApiV1EmployeesAssignedAttendanceMinsTagSerializer = {
+  attendance_mins_tag: ApiV1EmployeesAttendanceMinsTagSerializer;
+  /**
+   * 勤怠タグ時間数（分）
+   */
+  mins: number;
+};
+
+export type ApiV1EmployeesAttendanceMinsTagSerializer = {
+  /**
+   * 勤怠タグID
+   */
+  id: number;
+  /**
+   * 事業所ID
+   */
+  company_id: number;
+  /**
+   * 勤怠タグ名称
+   */
+  name: string;
+  /**
+   * 勤怠タグ備考
+   */
+  description: string;
+  /**
+   * 勤怠タグ時間数入力単位（分）
+   */
+  input_unit_mins: 1 | 5 | 10 | 15 | 30 | 60;
+  /**
+   * 勤怠タグ時間数上限（分）
+   */
+  max_mins: number;
+  /**
+   * 勤怠タグ公開ステータス
+   */
+  published: boolean;
+  /**
+   * 対象従業員が利用可能かどうか
+   */
+  is_employee_usable: boolean;
+};
+
+export type ApiV1EmployeesAttendanceMinsTagUpdateRequestSerializer = {
+  /**
+   * 勤怠タグID
+   */
+  attendance_tag_id: number;
+  /**
+   * 勤怠タグ時間数（分）
+   */
+  mins: number;
+};
+
 export type ApiV1EmployeesAttendanceTagsControllerIndexResponse = {
   employee_attendance_tags?: Array<ApiV1EmployeesAttendanceTagSerializer>;
+  employee_attendance_mins_tags?: Array<ApiV1EmployeesAttendanceMinsTagSerializer>;
 };
 
 export type ApiV1EmployeesAttendanceTagsControllerShowResponse = {
   employee_attendance_tags?: Array<ApiV1EmployeesAssignedAttendanceTagSerializer>;
+  employee_attendance_mins_tags?: Array<ApiV1EmployeesAssignedAttendanceMinsTagSerializer>;
 };
 
 export type ApiV1EmployeesAttendanceTagsControllerUpdateBody = {
@@ -5885,7 +6283,16 @@ export type ApiV1EmployeesAttendanceTagsControllerUpdateBody = {
   /**
    * 更新対象の勤怠タグのリスト
    */
-  employee_attendance_tags: Array<ApiV1EmployeesAttendanceTagUpdateRequestSerializer>;
+  employee_attendance_tags?: Array<ApiV1EmployeesAttendanceTagUpdateRequestSerializer>;
+  /**
+   * 更新対象の勤怠時間数タグのリスト
+   */
+  employee_attendance_mins_tags?: Array<ApiV1EmployeesAttendanceMinsTagUpdateRequestSerializer>;
+};
+
+export type ApiV1EmployeesAttendanceTagsControllerUpdateResponse = {
+  employee_attendance_tags?: Array<ApiV1EmployeesAssignedAttendanceTagSerializer>;
+  employee_attendance_mins_tags?: Array<ApiV1EmployeesAssignedAttendanceMinsTagSerializer>;
 };
 
 export type ApiV1EmployeesAttendanceTagSerializer = {
@@ -5932,6 +6339,7 @@ export type ApiV1EmployeesAttendanceTagUpdateRequestSerializer = {
 
 export type ApiV1EmployeesAttendanceTagSummariesControllerShowResponse = {
   employee_attendance_tag_summaries?: Array<ApiV1EmployeesAttendanceTagSummary>;
+  employee_attendance_mins_tag_summaries?: Array<ApiV1EmployeesAttendanceMinsTagSummary>;
 };
 
 export type ApiV1EmployeesAttendanceTagSummariesControllerUpdateBody = {
@@ -5942,11 +6350,68 @@ export type ApiV1EmployeesAttendanceTagSummariesControllerUpdateBody = {
   /**
    * 更新対象の勤怠タグサマリのリスト
    */
-  employee_attendance_tag_summaries: Array<ApiV1EmployeesAttendanceTagSummaryUpdateRequestSerializer>;
+  employee_attendance_tag_summaries?: Array<ApiV1EmployeesAttendanceTagSummaryUpdateRequestSerializer>;
+  /**
+   * 更新対象の時間数タグサマリのリスト
+   */
+  employee_attendance_mins_tag_summaries?: Array<ApiV1EmployeesAttendanceMinsTagSummaryUpdateRequestSerializer>;
 };
 
 export type ApiV1EmployeesAttendanceTagSummariesControllerUpdateResponse = {
   employee_attendance_tag_summaries?: Array<ApiV1EmployeesAttendanceTagSummary>;
+  employee_attendance_mins_tag_summaries?: Array<ApiV1EmployeesAttendanceMinsTagSummary>;
+};
+
+export type ApiV1EmployeesAttendanceMinsTagSummary = {
+  attendance_mins_tag: {
+    /**
+     * 勤怠タグID
+     */
+    id: number;
+    /**
+     * 事業所ID
+     */
+    company_id: number;
+    /**
+     * 勤怠タグ名称
+     */
+    name: string;
+    /**
+     * 勤怠タグ備考
+     */
+    description: string;
+    /**
+     * 時間数入力単位（分）
+     */
+    input_unit_mins: 1 | 5 | 10 | 15 | 30 | 60;
+    /**
+     * 時間数上限（分）
+     */
+    max_mins: number;
+    /**
+     * 勤怠タグ公開ステータス
+     */
+    published: boolean;
+    /**
+     * 対象従業員が利用可能かどうか
+     */
+    is_employee_usable: boolean;
+  };
+  /**
+   * 勤怠タグ時間数（分）
+   */
+  mins: number;
+};
+
+export type ApiV1EmployeesAttendanceMinsTagSummaryUpdateRequestSerializer = {
+  /**
+   * 勤怠タグID
+   */
+  attendance_tag_id: number;
+  /**
+   * 勤怠タグ時間数（分）
+   */
+  mins: number;
 };
 
 export type ApiV1EmployeesAttendanceTagSummary = {
@@ -6092,7 +6557,9 @@ export type ApiV1AllowanceSerializer = {
    */
   is_daily_prorated: boolean;
   /**
-   * 計算の基となる勤怠項目・カスタム項目の識別子（calc_typeがfixedの場合はnull）
+   * [deprecated] 計算の基となる勤怠項目・カスタム項目の識別子（calc_typeがfixedの場合はnull） ※ 削除予定のため formula_element_code を参照してください
+   *
+   * @deprecated
    */
   formula_element?:
     | "num_absences"
@@ -6117,6 +6584,33 @@ export type ApiV1AllowanceSerializer = {
     | "attendance_tag_total_latenight_work_mins"
     | "attendance_tag_total_normal_work_mins"
     | "attendance_tag_total_overtime_work_mins"
+    | "attendance_tag_total_work_mins";
+  /**
+   * 計算の基となる勤怠項目・カスタム項目の識別子（calc_typeがfixedの場合はnull）
+   */
+  formula_element_code?:
+    | "num_absences"
+    | "num_paid_holidays"
+    | "num_total_workdays"
+    | "num_work_days_with_early_leaving"
+    | "num_work_days_with_lateness"
+    | "total_overtime_within_statutory_work_mins"
+    | "total_holiday_work_mins"
+    | "total_lateness_and_early_leaving_mins"
+    | "total_latenight_work_mins"
+    | "total_normal_work_mins"
+    | "total_overtime_excess_statutory_work_mins"
+    | "total_prescribed_holiday_work_mins"
+    | "total_work_mins"
+    | "company_profile_custom_field"
+    | "attendance_tag_total_count"
+    | "attendance_tag_assigned_days"
+    | "attendance_tag_total_overtime_within_statutory_work_mins"
+    | "attendance_tag_total_prescribed_holiday_work_mins"
+    | "attendance_tag_total_holiday_work_mins"
+    | "attendance_tag_total_latenight_work_mins"
+    | "attendance_tag_total_normal_work_mins"
+    | "attendance_tag_total_overtime_excess_statutory_work_mins"
     | "attendance_tag_total_work_mins";
   /**
    * 端数処理（calc_typeがfixedの場合はnull）
@@ -8261,9 +8755,7 @@ export type UpdateEmployeesAttendanceTagsResponses = {
   /**
    * successful operation
    */
-  200: {
-    employee_attendance_tags?: Array<ApiV1EmployeesAssignedAttendanceTagSerializer>;
-  };
+  200: ApiV1EmployeesAttendanceTagsControllerUpdateResponse;
 };
 
 export type UpdateEmployeesAttendanceTagsResponse =

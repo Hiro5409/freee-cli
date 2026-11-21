@@ -132,6 +132,7 @@ import type {
   GetPartnersResponses,
   GetPaymentRequestResponses,
   GetPaymentRequestsResponses,
+  GetPurchaseRequestPurchaseBudgetResponses,
   GetPurchaseRequestResponses,
   GetPurchaseRequestsFormResponses,
   GetPurchaseRequestsFormsResponses,
@@ -146,6 +147,7 @@ import type {
   GetTagResponses,
   GetTagsResponses,
   GetTaxCodeResponses,
+  GetTaxCodesResponses,
   GetTaxesCompaniesResponses,
   GetTransferResponses,
   GetTransfersResponses,
@@ -182,6 +184,8 @@ import type {
   ReconcileWalletTxnResponses,
   ResetWalletTxnData,
   ResetWalletTxnResponses,
+  SearchReportJournalsData,
+  SearchReportJournalsResponses,
   UpdateAccountItemData,
   UpdateAccountItemResponses,
   UpdateApprovalRequestActionData,
@@ -2585,6 +2589,40 @@ export function handleApiV1ItemsUpsertByCode(
   );
 }
 
+export type HandleGetTaxCodesResponse = {
+  body: GetTaxCodesResponses[200];
+  status?: 200;
+};
+
+/**
+ * Handler for the `GET /api/1/taxes/codes` operation.
+ */
+export function handleGetTaxCodes(
+  response?: HandleGetTaxCodesResponse | HttpResponseResolver<never, never>,
+  options?: RequestHandlerOptions,
+): HttpHandler {
+  return http.get<never, never>(
+    `${options?.baseUrl ?? "*"}/api/1/taxes/codes`,
+    (info) => {
+      if (typeof response === "function") {
+        return response(info);
+      }
+      const body = response?.body;
+      if (body !== undefined) {
+        return HttpResponse.json(body, { status: response?.status ?? 200 });
+      }
+      if (options?.responseFallback === "passthrough") {
+        return;
+      }
+      return new Response("Not Implemented", {
+        status: 501,
+        statusText: "Not Implemented",
+      });
+    },
+    options,
+  );
+}
+
 export type HandleGetTaxCodeResponse = {
   body: GetTaxCodeResponses[200];
   status?: 200;
@@ -3728,6 +3766,42 @@ export function handleDownloadJournal(
         return HttpResponse.text(typeof body === "string" ? body : JSON.stringify(body), {
           status: response?.status ?? 200,
         });
+      }
+      if (options?.responseFallback === "passthrough") {
+        return;
+      }
+      return new Response("Not Implemented", {
+        status: 501,
+        statusText: "Not Implemented",
+      });
+    },
+    options,
+  );
+}
+
+export type HandleSearchReportJournalsResponse = {
+  body: SearchReportJournalsResponses[200];
+  status?: 200;
+};
+
+/**
+ * Handler for the `POST /api/1/journals/search` operation.
+ */
+export function handleSearchReportJournals(
+  response?:
+    | HandleSearchReportJournalsResponse
+    | HttpResponseResolver<never, SearchReportJournalsData["body"]>,
+  options?: RequestHandlerOptions,
+): HttpHandler {
+  return http.post<never, SearchReportJournalsData["body"]>(
+    `${options?.baseUrl ?? "*"}/api/1/journals/search`,
+    (info) => {
+      if (typeof response === "function") {
+        return response(info);
+      }
+      const body = response?.body;
+      if (body !== undefined) {
+        return HttpResponse.json(body, { status: response?.status ?? 200 });
       }
       if (options?.responseFallback === "passthrough") {
         return;
@@ -6351,6 +6425,52 @@ export function handleCreatePurchaseRequestAction(
   );
 }
 
+export type HandleGetPurchaseRequestPurchaseBudgetResponse = {
+  body: GetPurchaseRequestPurchaseBudgetResponses[200];
+  status?: 200;
+};
+
+/**
+ * Handler for the `GET /api/1/purchase_requests/{purchase_request_id}/purchase_budget` operation.
+ */
+export function handleGetPurchaseRequestPurchaseBudget(
+  response?:
+    | HandleGetPurchaseRequestPurchaseBudgetResponse
+    | HttpResponseResolver<
+        {
+          purchase_request_id: string;
+        },
+        never
+      >,
+  options?: RequestHandlerOptions,
+): HttpHandler {
+  return http.get<
+    {
+      purchase_request_id: string;
+    },
+    never
+  >(
+    `${options?.baseUrl ?? "*"}/api/1/purchase_requests/:purchase_request_id/purchase_budget`,
+    (info) => {
+      if (typeof response === "function") {
+        return response(info);
+      }
+      const body = response?.body;
+      if (body !== undefined) {
+        return HttpResponse.json(body, { status: response?.status ?? 200 });
+      }
+      if (options?.responseFallback === "passthrough") {
+        return;
+      }
+      return new Response("Not Implemented", {
+        status: 501,
+        statusText: "Not Implemented",
+      });
+    },
+    options,
+  );
+}
+
 export type HandleGetApprovalFlowRoutesResponse = {
   body: GetApprovalFlowRoutesResponses[200];
   status?: 200;
@@ -7207,6 +7327,10 @@ export type MswHandlerFactories = {
    */
   apiV1ItemsUpsertByCode: typeof handleApiV1ItemsUpsertByCode;
   /**
+   * Handler for the `GET /api/1/taxes/codes` operation.
+   */
+  getTaxCodes: typeof handleGetTaxCodes;
+  /**
    * Handler for the `GET /api/1/taxes/codes/{code}` operation.
    */
   getTaxCode: typeof handleGetTaxCode;
@@ -7314,6 +7438,10 @@ export type MswHandlerFactories = {
    * Handler for the `GET /api/1/journals/reports/{id}/download` operation.
    */
   downloadJournal: typeof handleDownloadJournal;
+  /**
+   * Handler for the `POST /api/1/journals/search` operation.
+   */
+  searchReportJournals: typeof handleSearchReportJournals;
   /**
    * Handler for the `GET /api/1/reports/trial_bs` operation.
    */
@@ -7579,6 +7707,10 @@ export type MswHandlerFactories = {
    */
   createPurchaseRequestAction: typeof handleCreatePurchaseRequestAction;
   /**
+   * Handler for the `GET /api/1/purchase_requests/{purchase_request_id}/purchase_budget` operation.
+   */
+  getPurchaseRequestPurchaseBudget: typeof handleGetPurchaseRequestPurchaseBudget;
+  /**
    * Handler for the `GET /api/1/approval_flow_routes` operation.
    */
   getApprovalFlowRoutes: typeof handleGetApprovalFlowRoutes;
@@ -7713,6 +7845,7 @@ export function createMswHandlers(config: RequestHandlerOptions = {}): CreateMsw
     getItem: wrap(handleGetItem),
     updateItem: wrap(handleUpdateItem),
     apiV1ItemsUpsertByCode: wrap(handleApiV1ItemsUpsertByCode),
+    getTaxCodes: wrap(handleGetTaxCodes),
     getTaxCode: wrap(handleGetTaxCode),
     getTaxesCompanies: wrap(handleGetTaxesCompanies),
     getWalletables: wrap(handleGetWalletables),
@@ -7740,6 +7873,7 @@ export function createMswHandlers(config: RequestHandlerOptions = {}): CreateMsw
     getJournals: wrap(handleGetJournals),
     getJournalStatus: wrap(handleGetJournalStatus),
     downloadJournal: wrap(handleDownloadJournal),
+    searchReportJournals: wrap(handleSearchReportJournals),
     getTrialBs: wrap(handleGetTrialBs),
     getTrialBsTwoYears: wrap(handleGetTrialBsTwoYears),
     getTrialBsThreeYears: wrap(handleGetTrialBsThreeYears),
@@ -7810,6 +7944,7 @@ export function createMswHandlers(config: RequestHandlerOptions = {}): CreateMsw
     getPurchaseRequestsForms: wrap(handleGetPurchaseRequestsForms),
     getPurchaseRequestsForm: wrap(handleGetPurchaseRequestsForm),
     createPurchaseRequestAction: wrap(handleCreatePurchaseRequestAction),
+    getPurchaseRequestPurchaseBudget: wrap(handleGetPurchaseRequestPurchaseBudget),
     getApprovalFlowRoutes: wrap(handleGetApprovalFlowRoutes),
     getApprovalFlowRoute: wrap(handleGetApprovalFlowRoute),
     getSegmentTags: wrap(handleGetSegmentTags),
@@ -7870,6 +8005,7 @@ export function createMswHandlers(config: RequestHandlerOptions = {}): CreateMsw
       invoke(pick.updatePaymentRequestAction, overrides.updatePaymentRequestAction),
       invoke(pick.updateApprovalRequestAction, overrides.updateApprovalRequestAction),
       invoke(pick.createPurchaseRequestAction, overrides.createPurchaseRequestAction),
+      invoke(pick.getPurchaseRequestPurchaseBudget, overrides.getPurchaseRequestPurchaseBudget),
       invoke(pick.getSegmentTags, overrides.getSegmentTags),
       invoke(pick.createSegmentTag, overrides.createSegmentTag),
       invoke(pick.destroyWalletable, overrides.destroyWalletable),
@@ -7880,6 +8016,8 @@ export function createMswHandlers(config: RequestHandlerOptions = {}): CreateMsw
       invoke(pick.getUsersMe, overrides.getUsersMe),
       invoke(pick.updateUser, overrides.updateUser),
       invoke(pick.getUsersCapabilities, overrides.getUsersCapabilities),
+      invoke(pick.getTaxCodes, overrides.getTaxCodes),
+      invoke(pick.searchReportJournals, overrides.searchReportJournals),
       invoke(pick.getTrialBs, overrides.getTrialBs),
       invoke(pick.getTrialBsTwoYears, overrides.getTrialBsTwoYears),
       invoke(pick.getTrialBsThreeYears, overrides.getTrialBsThreeYears),
